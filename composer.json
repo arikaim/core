@@ -1,0 +1,33 @@
+{
+    "name": "arikaim/core",
+    "description": "Arikam CMS core component",
+    "keywords": ["CMS", "Content Management System"],
+    "type": "library",
+    "license": "GPL-3.0-or-later",
+    "authors": [{
+        "name": "Konstantin Atanasov",
+        "email": "info@arikaim.com",
+        "homepage": "http://arikaim.com"
+    }],
+    "require": {
+        "php": ">=5.6.0",
+        "slim/slim": "^3.0",
+        "twig/twig": "^1.35.0",
+        "illuminate/database": "^5.1",
+        "monolog/monolog": "~1.23.0",
+        "lcobucci/jwt": "^3.2",
+        "illuminate/pagination": "^5.4",
+        "swiftmailer/swiftmailer": "^5.4.6",
+        "composer/composer": "^1.6"
+    },
+    "autoload": {       
+        "psr-4": {
+            "Arikaim\\Core\\": ""
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
