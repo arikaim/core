@@ -11,6 +11,7 @@ namespace Arikaim\Core\Api;
 
 use Arikaim\Core\System\System;
 use Arikaim\Core\Utils\Utils;
+use Arikaim\Core\Arikaim;
 
 class RestApiResponse 
 {
@@ -98,5 +99,11 @@ class RestApiResponse
         $this->response->withHeader('Content-Type', 'application/json');
         $this->response->getBody()->write($code);
         return $this->response;
+    }
+
+    public function displayAuthError()
+    {
+        $this->setError(Arikaim::getError("AUTH_FAILED"));
+        return $this->getResponse();
     }
 }

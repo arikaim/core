@@ -13,12 +13,18 @@ use \Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Arikaim;
 
 class System 
-{  
+{
+    const VERSION = "1.0";  
     private static $start_time;
 
     public function __construct() 
     {
        
+    }
+
+    public static function getVersion() 
+    {
+        return Self::VERSION;
     }
 
     public static function getSystemInfo() 
@@ -169,11 +175,6 @@ class System
         $info['errors'] = $errors;
         return $info;
     }  
-
-    public static function getVersion() 
-    {
-        return "1.0.1";
-    }
 
     public static function getStartTime() 
     {

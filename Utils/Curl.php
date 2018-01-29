@@ -24,43 +24,69 @@ class Curl
         return System::hasPhpExtension('curl');
     }
 
-    public static function downloadFile($url, $destination_path, $file_name)
+    private static function create($url,$timeout = 30,$return_transfer = true)
     {
         if (Self::isInsatlled() == false) {
-            //throw new \Exception("Curl no installed");
+            return null;
+        }
+        $curl = curl_init();
+        curl_setopt($curl,CURLOPT_URL,$url);
+        curl_setopt($curl,CURLOPT_RETURNTRANSFER,$return_transfer);
+        curl_setopt($curl,CURLOPT_CONNECTTIMEOUT,$timeout);
+        return $curl;
+    }
+
+    private static function exec($curl)
+    {
+        $response = curl_exec($curl);
+        curl_close($curl);
+        if ($response == false) {
+            $response = curl_error($curl);
+        }
+        return $response;
+    }
+
+    public static function post($url,array $post_fields = null, $timeout = 30)
+    {
+        $curl = Self::create($url,$timeout);
+        if (empty($curl) == true) {
             return false;
         }
+        curl_setopt($curl,CURLOPT_POST,true);
+        if (is_array($post_fields) == true) {
+            curl_setopt($curl,CURLOPT_POSTFIELDS,$post_fields);
+        }
+        return Self::exec($curl);
+    }
 
+    public static function get($url, $timeout = 30)
+    {
+        $curl = Self::create($url,$timeout);
+        if (empty($curl) == true) {
+            return false;
+        }
+        return Self::exec($curl);
+    }
+
+    public static function downloadFile($url, $destination_path, $timeout = 30)
+    {
         $writable = File::setWritable($destination_path);
         if ($writable == false) {
             throw new \Exception("Destination path: $destination_path is not writable");
             return false;
         }
-        echo "url:$url";
-        
-        $file_path = $destination_path . $file_name;
-       // echo "dest:$file_path";
-        $fp = fopen($file_path, 'w+');
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FILE, $fp);        
-        $result = curl_exec($ch);
-        echo "res;$result";
-        
-        if ($result === false) {
-            throw new \Exception("Curl error: " . curl_error($ch));
-            curl_close($ch);
-            fclose($fp);
-            unlink($file_path);            
-            return false;
-        }
-   
-        curl_close($ch);
+        $file = fopen($destination_path, 'w+');
+
+        $curl = Self::create($url);
+        curl_setopt($curl,CURLOPT_BINARYTRANSFER,true);
+        curl_setopt($curl,CURLOPT_FILE, $file);     
+        $result = Self::exec($curl);
         fclose($fp);
-        exit();
-        return File::exists($file_path);
+
+        if ($result === false) {
+            unlink($destination_path);            
+            return $result;
+        }
+        return File::exists($destination_path);
     }
 }

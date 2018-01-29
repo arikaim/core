@@ -7,7 +7,7 @@
  * @license     http://www.arikaim.com/license.html
  * 
  */
-namespace Arikaim\Core\Install;
+namespace Arikaim\Core\System;
 
 use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Utils\File;
@@ -193,6 +193,7 @@ class Install
             $errors += Schema::schema()->hasTable('permissions') ? 0:1;
             $errors += Schema::schema()->hasTable('users') ? 0:1;
             $errors += Schema::schema()->hasTable('routes') ? 0:1;
+            $errors += Schema::schema()->hasTable('events_subscribers') ? 0:1;
             $errors += Schema::schema()->hasTable('events') ? 0:1;
             $errors += Schema::schema()->hasTable('language') ? 0:1;
             $errors += Schema::schema()->hasTable('logs') ? 0:1;

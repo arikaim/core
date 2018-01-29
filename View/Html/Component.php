@@ -37,6 +37,11 @@ class Component extends HtmlComponent
         $type = $component_name['type'];
         $component_path = $component_name['path'];
 
+        $result = $this->processOptions($component_path,$type);
+        if ($result !== true) {
+            $error = Arikaim::getError("TEMPLATE_COMPONENT_ERROR",["full_component_name" => $full_component_name,'details' => $result]);
+            return $error;
+        }
         $template_file_name = $this->getComponentFile($component_path,"html",$type);
       
         if ($template_file_name != false) {
@@ -49,7 +54,7 @@ class Component extends HtmlComponent
             $this->loadProperties($full_component_name,$vars);
             // include  required components
             $this->includeRequiredComponents($component_path,$type,$vars);
-            $params = $this->components->getProperties($full_component_name); 
+            $params = Arikaim::templateComponents()->getProperties($full_component_name); 
             $component_code = $twig->render($template_file_name,$params);
           //  $component_code = $this->addComments($full_component_name,$component_code);  
             return $component_code;
@@ -61,12 +66,12 @@ class Component extends HtmlComponent
             $this->addComponentFiles($component_path,$type);
             return "";
         }        
-        return Arikaim::getError("TEMPLATE_COMPONENT_NOT_FOUND",["full_component_name" => $component_path]);
+        return Arikaim::getError("TEMPLATE_COMPONENT_NOT_FOUND",["full_component_name" => $full_component_name]);
     }
 
     private function includeRequiredComponents($full_component_name, $type, $vars = []) 
     {
-        $params = $this->components->getProperties($full_component_name);
+        $params = Arikaim::templateComponents()->getProperties($full_component_name);
         if (empty($params['requires']['components']) == true) {
             return false;
         } 
@@ -121,11 +126,11 @@ class Component extends HtmlComponent
         $properties = $this->loadComponentProperties($name['path'],$name['type']); 
        
         if (is_array($properties) == true) {    
-            $params = Utils::arrayMerge($properties,$this->components->getProperties($full_component_name));
+            $params = Utils::arrayMerge($properties,Arikaim::templateComponents()->getProperties($full_component_name));
             if (is_array($vars) == true) {
                 $params = Utils::arrayMerge($params,$vars);
             }
-            $this->components->set($full_component_name,$params);          
+            Arikaim::templateComponents()->set($full_component_name,$params);          
             return true;
         }    
         return false;
@@ -178,6 +183,5 @@ class Component extends HtmlComponent
     {
         $name = $this->parseName($component_name);
         return $this->loadComponentProperties($name['path'],$name['type']);
-
     }
 }

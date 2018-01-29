@@ -11,5 +11,10 @@ namespace Arikaim\Core\Interfaces;
 
 interface EventInterface
 {    
-    public function execute($args = []);
+    public function setParameter($name,$value);
+    public function getParameters();
+    public function getParameter($name);
+    public function hasParameter($name);
+    public function stopPropagation();
+    public function isStopped();
 }

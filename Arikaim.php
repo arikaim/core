@@ -52,7 +52,7 @@ class Arikaim
         if (Self::errors()->hasError("DB_CONNECTION_ERROR") == true) {
             return false;
         }
-        $routes = Model::Routes()->getRoutes();
+        $routes = Model::Routes()->getRoutes(Model::getConstant('Routes','ACTIVE'));
         if (is_array($routes) == true) {
             foreach($routes as $item) {
                 $path = $item['path'] . $item['pattern'];
@@ -79,11 +79,11 @@ class Arikaim
 
         // Session
         Self::$app->put('/api/session/',"$controles_namespace\Api\SessionApi:setValue")->add($jwt_auth);
-        Self::$app->get('/api/session/',"$controles_namespace\Api\SessionApi:getInfo")->add($jwt_auth);
+        Self::$app->get('/api/session/',"$controles_namespace\Api\SessionApi:getInfo")->add($session_auth);
         Self::$app->get('/api/session/restart/',"$controles_namespace\Api\SessionApi:restart")->add($jwt_auth);
 
         // UI Component       
-        Self::$app->get('/api/ui/component/{name}[/{params:.*}]',"$controles_namespace\Api\Ui\ComponentApi:loadComponent")->add($session_auth);
+        Self::$app->get('/api/ui/component/{name}[/{params:.*}]',"$controles_namespace\Api\Ui\ComponentApi:loadComponent"); //->add($session_auth);
 
         // UI Page  
         Self::$app->get('/api/ui/page/{name}',"$controles_namespace\Api\Ui\PageApi:loadPage")->add($session_auth);
@@ -97,7 +97,7 @@ class Arikaim
         // Install
         Self::$app->post('/admin/api/install/',"$controles_namespace\Api\AdminApi:install")->add($session_auth);    
         // Update
-        Self::$app->get('/admin/api/update/',"$controles_namespace\Api\AdminApi:update")->add($jwt_auth);    
+        Self::$app->get('/admin/api/update/',"$controles_namespace\Api\AdminApi:update")->add($jwt_auth);  
         Self::$app->get('/admin/api/update/check',"$controles_namespace\Api\AdminApi:updateCheckVersion")->add($jwt_auth);    
         // Admin user
         Self::$app->post('/admin/api/user/login/',"$controles_namespace\Api\UsersApi:adminLogin")->add($session_auth); 
@@ -142,7 +142,7 @@ class Arikaim
                 return $result;               
             }            
             if (is_object($service) == true) {
-                if ($service instanceof \Arikaim\Core\Interfaces\CollectionInterface) {
+                if (is_subclass_of($service,Factory::getFullInterfaceName("CollectionInterface")) == true) {
                     $result = Utils::arrayGetValue($service->toArray(),$key);
                     return $result;
                 }
@@ -214,7 +214,7 @@ class Arikaim
 
                 // $capsule->setEventDispatcher(new Dispatcher(new Container));
                 $capsule->bootEloquent();
-                $result = \Arikaim\Core\Install\Install::checkDbConnection($capsule->connection());
+                $result = \Arikaim\Core\System\Install::checkDbConnection($capsule->connection());
                 if ($result == false) {
                     Self::errors()->addError('DB_CONNECTION_ERROR');
                 }        
@@ -239,7 +239,9 @@ class Arikaim
             // add template extensions
             $view->addExtension(new \Arikaim\Core\View\TemplateExtension());
             return $view;
-        };
+        };        
+        Self::view();
+
         // Page type
         Self::$container['pageType'] = 1; 
         // Init template components.
@@ -275,8 +277,13 @@ class Arikaim
         };
         Self::session();
 
+        // Access
+        Self::$container['access'] = function() {
+            return new \Arikaim\Core\Access\Access();
+        };
+
         // Cookie 
-        Self::$container['cookies'] = function(){
+        Self::$container['cookies'] = function() {
             $request = Arikaim::request();
             return new \Slim\Http\Cookies($request->getCookieParams());
         };
@@ -316,7 +323,7 @@ class Arikaim
         // Page not found handler
         Self::$container['notFoundHandler'] = function() {
             return function ($request, $response) {
-                $page = new \Arikaim\Controlers\Pages\PageLoader;
+                $page = new \Arikaim\Core\Controlers\Pages\PageLoader;
                 return $page->pageNotFound($request,$response);              
             };
         };

@@ -24,6 +24,11 @@ class Model
         return $instance;
     }
 
+    public static function getConstant($class_name,$name)
+    {
+        return constant(Self::getModelClass($class_name) . "::" .$name);
+    }
+
     public static function __callStatic($name, $args)
     {  
         $extension_name = FunctionArguments::getArgument($args,0,"string");
@@ -47,7 +52,8 @@ class Model
         return is_subclass_of($instance,"\\Illuminate\\Database\\Eloquent\\Model");
     }
 
-    public static function getModelClass($base_class_name) {
+    public static function getModelClass($base_class_name) 
+    {
         return Model::getModelsNamespace() . $base_class_name;
     }
 

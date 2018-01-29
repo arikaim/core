@@ -12,9 +12,9 @@ namespace Arikaim\Core\Models\Schema;
 use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Db\Schema;
 
-class EventsSchema extends Schema  
+class LanguageSchema extends Schema  
 {    
-    protected $table_name = "events";
+    protected $table_name = "language";
 
     public function create() 
     {
@@ -22,23 +22,30 @@ class EventsSchema extends Schema
             
             // columns
             $table->bigIncrements('id')->nullable(false);
-            $table->string('name')->nullable(true);
-            $table->string('title')->nullable(true);
-            $table->text('description')->nullable(true);
-            $table->string('extension_name')->nullable(false)->default('');
+            $table->string('code',10)->nullable(false);
+            $table->string('code_3',3)->nullable(true);
+            $table->string('country_code',20)->nullable(false);
+            $table->string('title')->nullable(false);
+            $table->string('native_title')->nullable(true)->default('');
+            $table->integer('position')->nullable(true);
             $table->integer('status')->nullable(false)->default(1);
-            $table->string('uuid')->nullable(false);
+            $table->integer('default')->nullable(false)->default(0);
+            $table->string('uuid')->nullable(false);       
             // indexes
+            $table->unique('code');
+            $table->unique('code_3');
             $table->unique('uuid');
-            $table->unique('name');
+            $table->unique('position');
             $table->index('status');
+            $table->index('default');
+            $table->index('country_code');
             // storage engine
-            $table->engine = 'InnoDB';    
-                    
+            $table->engine = 'InnoDB';
+
         });
     }
 
-    public function update()
+    public function update() 
     {
         $this->updateTable(function($table) {
             
@@ -47,6 +54,6 @@ class EventsSchema extends Schema
     
     public function addDefaultRows() 
     {
-        
+
     }
 }

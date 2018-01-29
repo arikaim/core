@@ -15,25 +15,30 @@ use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\View\Html\Template;
 use Arikaim\Core\Form\Properties;
 use Arikaim\Core\Extension\ExtensionsManager;
+use Arikaim\Core\Access\Access;
 
 class HtmlComponent   
 {
     const TEMPLATE  = 1;
     const SYSTEM    = 2;
     const EXTENSION = 3;
-
-    protected $components; 
+  
     protected $extension_name;
     protected $root_path;
     protected $include_js_files_key;
     protected $include_css_files_key;
+    protected $options;
 
+    private $options_file_name;
+  
     public function __construct() 
     {
-        $this->components = Arikaim::templateComponents();
-        $this->extension_name = null;      
+        $this->default_auth = "None";
+        $this->extension_name = null;  
+        $this->setOptionsFileName("component.json");    
     }
 
+    /*
     public function renderCode($template_code, $vars = [])
     {
         $view = Arikaim::view(); 
@@ -42,6 +47,7 @@ class HtmlComponent
         $result = $view->fetchFromString($code,$vars);
         return $result; 
     }
+    */
 
     public function getPropertiesFileName($path, $component_name, $check_exists = false)
     {
@@ -145,13 +151,13 @@ class HtmlComponent
         $js_file = $this->getCompoenentJSFile($component_path,$type);
         if ($js_file != false) {
             Arikaim::page('properties')->add('include.components.js',$js_file);
-            $this->components->addIncludeFile("js_files",$js_file);
+            Arikaim::templateComponents()->addIncludeFile("js_files",$js_file);
         }
         // css file
         $css_file = $this->getCompoenentCSSFile($component_path,$type);
         if ($css_file != false) {
             Arikaim::page('properties')->add('include.components.css',$css_file);
-            $this->components->addIncludeFile("css_files",$css_file);
+            Arikaim::templateComponents()->addIncludeFile("css_files",$css_file);
         }
     }
 
@@ -203,8 +209,63 @@ class HtmlComponent
         return Arikaim::options()->get('current.template',"default");     
     }
 
-    public function readSettingsFile($file_name,$args = [])
+    protected function setOptionsFileName($file_name)
     {
+        $this->options_file_name = $file_name;
+    }
 
+    public function getOptionsFileName($path)
+    {
+        return $path . DIRECTORY_SEPARATOR . $this->options_file_name;
+    }
+
+    public function loadComponentOptions($component_path,$type)
+    {        
+        $path = $this->getPath($component_path,$type,true);
+        $options = $this->loadOptions($path);
+        return $options;        
+    }
+
+    protected function loadOptions($path)
+    {
+        $full_file_name = $this->getOptionsFileName($path);
+        if (File::exists($full_file_name) == false) {
+            $parent_component_path = $this->getParentComponentPath($path);
+            if ($parent_component_path != false) {
+                $options = $this->loadOptions($parent_component_path);
+                return $options;
+            }           
+        }
+       // echo $full_file_name;        
+        $options = new Properties($full_file_name,'',Arikaim::getTemplateVars());    
+        return $options;
+    }
+
+    public function processOptions($component_path,$type)
+    {
+        $result = true;
+        $this->options = $this->loadComponentOptions($component_path,$type);
+        
+        // check access 
+        $auth = $this->options->getByPath("access/auth",$this->default_auth);
+    
+        if (Arikaim::access()->isValidAuthName($auth) == true) {           
+            $access = Arikaim::access()->checkAccess($auth);
+            if ($access == false) {
+                // access error
+                $result = Arikaim::errors()->getError("ACCESS_DENIED");
+            }
+        }
+        return $result;
+    }
+
+    public function getParentComponentPath($path)
+    {       
+        $parts = explode(DIRECTORY_SEPARATOR,$path);
+       
+        if (last($parts) == $this->root_path) {
+            return false;
+        }
+        return dirname($path);
     }
 }

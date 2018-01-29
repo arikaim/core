@@ -11,6 +11,7 @@ namespace Arikaim\Core\Middleware;
 
 use Arikaim\Core\Form\Form;
 use Arikaim\Core\Middleware\ClientIp;
+use Arikaim\Core\Arikaim;
 
 class CoreMiddleware 
 {
@@ -28,6 +29,12 @@ class CoreMiddleware
         $cleint_ip = new ClientIp();
         $request = $cleint_ip->getClientIpAddress($request);
         
+        // auth token and session 
+        Arikaim::access()->fetchToken($request);
+       // $token = Arikaim::access()->getToken();
+       // print_r($token);
+       // exit();
+
         $response = $next($request, $response);
         return $response;   
     }

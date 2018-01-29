@@ -13,6 +13,7 @@ use Arikaim\Core\Controlers\ApiControler;
 use Arikaim\Core\Form\Form;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Extension\ExtensionsManager;
+use Arikaim\Core\Arikaim;
 
 class ExtensionsApi extends ApiControler
 {
@@ -76,7 +77,7 @@ class ExtensionsApi extends ApiControler
             $extension_manager = new ExtensionsManager();
             $result = $extension_manager->install($args['name']);
             if ($result == false) {
-                $this->setApiError( Arikaim::getError("EXTENSION_INSTALL_ERROR",['extension_name' => "$extension_name"]) );
+                $this->setApiError(Arikaim::getError("EXTENSION_INSTALL_ERROR",['extension_name' => "$extension_name"]) );
             }
         } else {
             $this->setApiError(Arikaim::getError("EXTENSION_NOT_EXISTS"));

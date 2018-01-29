@@ -12,8 +12,9 @@ namespace Arikaim\Core\Logger;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Monolog\Formatter\JsonFormatter;
-
 use Psr\Log\LogLevel;
+
+use Arikaim\Core\Db\Paginator;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Logger\DbHandler;
 use Arikaim\Core\Utils\File;
@@ -86,7 +87,7 @@ class SystemLogger
         return File::delete($this->logs_file_name);
     }
 
-    public function readSystemLogs($page = 1,$per_page = 50)
+    public function readSystemLogs()
     {       
         $logs_text ="[";
         $logs_text .= File::load($this->logs_file_name);
@@ -95,13 +96,23 @@ class SystemLogger
         $logs = json_decode($logs_text,true);
       
         // init
+        $per_page = Paginator::getRowsPerPage();
+        $page = Paginator::getCurrentPage();
         $result['rows'] = [];
-        $start = $page * $per_page;
-        $end = $start + $per_page;
-        if (count($logs) < $end) {
-            $end = count($logs);
+        $total_rows = count($logs);
+
+        if ($page == 1) {
+            $start = 0;
+        } else {
+            $start = $page * $per_page;
         }
-        
+        $end = $start + $per_page;
+       
+        if ($total_rows < $end) {
+            $end = $total_rows;
+        }
+        $last_page = floor($total_rows / $per_page);
+
         for($index = $start; $index < $end; $index++) {
             $row = $logs[$index];
             array_push($result['rows'],$row);
@@ -109,6 +120,13 @@ class SystemLogger
 
         $result['file'] = $this->logs_file_name;
         $result['paginator']['per_page'] = $per_page;
+        $result['paginator']['total'] = $total_rows;
+        $result['paginator']['current_page'] = $page;
+        $result['paginator']['last_page'] = $last_page;
+        $result['paginator']['prev_page'] = Paginator::getPrevPage();
+        $result['paginator']['next_page'] = Paginator::getNextPage($last_page);
+        $result['paginator']['from'] = 0;
+        $result['paginator']['to'] = 0;
         return $result;
     }
 }

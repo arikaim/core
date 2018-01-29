@@ -57,8 +57,12 @@ class Properties extends Form
         $this->data = [];
     }
 
-    public function getByPath($path)
+    public function getByPath($path, $default_value = null)
     {
-        return Utils::arrayGetValue($this->data,$path);
+        $value = Utils::arrayGetValue($this->data,$path);
+        if (($value == null) && ($default_value != null)) {
+            $value = $default_value;
+        }
+        return $value;
     }
 }

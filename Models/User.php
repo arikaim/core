@@ -14,6 +14,7 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model as DbModel;
 use Arikaim\Core\Db\UUIDAttribute;
 use Arikaim\Core\Utils\Utils;
+use Arikaim\Core\Db\Schema;
 
 class User extends Model  
 {
@@ -91,7 +92,14 @@ class User extends Model
 
     public function getControlPanelUser()
     {
-        $permissions = DbModel::Permissions()->getPermission(Permissions::CONTROL_PANEL);
+        if (Schema::schema()->hasTable($this->getTable()) == false) {
+            return false;
+        }
+        $permissions = DbModel::Permissions();
+        if (Schema::schema()->hasTable($permissions->getTable()) == false) {
+            return false;
+        }
+        $permissions = $permissions->getPermission(Permissions::CONTROL_PANEL);
         if (is_object($permissions) == false) {
             return false;
         }
@@ -100,11 +108,11 @@ class User extends Model
 
     public function hasControlPanelUser() 
     {
-        $permissions = DbModel::Permissions()->getPermission(Permissions::CONTROL_PANEL);
-        if (is_object($permissions) == false) {
+        $user = $this->getControlPanelUser();
+        if ($user == false) {
             return false;
         }
-        return $permissions->hasFull();
+        return true;
     }
 
     public function EncryptPassword($password,$algo = PASSWORD_BCRYPT) 

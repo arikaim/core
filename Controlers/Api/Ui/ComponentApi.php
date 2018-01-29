@@ -57,7 +57,10 @@ class ComponentApi extends ApiControler
 
     private function getHeaderParams($request)
     {
-        $header_params = $request->getHeader('Params')[0];
+        $header_params = null;
+        if (isset($request->getHeader('Params')[0]) == true) {
+            $header_params = $request->getHeader('Params')[0];
+        }
         if ($header_params != null) {
             $header_params = json_decode($header_params,true);
             if (is_array($header_params) == true) {

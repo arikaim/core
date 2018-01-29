@@ -7,7 +7,7 @@
  * @license     http://www.arikaim.com/license.html
  * 
 */
-namespace Arikaim\Core\Middleware;
+namespace Arikaim\Core\Access;
 
 use Arikaim\Core\Arikaim;
 use Lcobucci\JWT\Builder;
@@ -71,35 +71,5 @@ class Jwt
     public function validate($validation_data) 
     {
         return $this->token->validate($validation_data);
-    }
-
-     /**
-     * Get token
-     *
-     * @param \Psr\Http\Message\RequestInterface $request
-     * @return string|null Base64 encoded JSON Web Token or null if not found.
-     */
-    public function getToken($request)
-    {
-        $header = "";       
-        if (empty($header) == true) {
-            $headers = $request->getHeader('Authorization');
-            $header = isset($headers[0]) ? $headers[0] : "";
-        }
-
-        if (empty($header) && function_exists("apache_request_headers")) {
-            $headers = apache_request_headers();
-            $header = isset($headers['Authorization']) ? $headers['Authorization'] : "";
-        }
-
-        if (preg_match('/Bearer\s+(.*)$/i', $header, $matches)) {
-            return $matches[1];
-        }
-
-        $jwt_token = Arikaim::cookies()->get('jwt_token');
-        if (isset($jwt_token) == true) {            
-            return $jwt_token;
-        };      
-        return false;
     }
 }

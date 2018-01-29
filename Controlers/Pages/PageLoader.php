@@ -11,7 +11,7 @@ namespace Arikaim\Core\Controlers\Pages;
 
 use Arikaim\Core\View\Html\Page;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\Install\Install;
+use Arikaim\Core\System\Install;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Controlers\Controler;
 use Arikaim\Core\System\Config;
@@ -49,14 +49,15 @@ class PageLoader extends Controler
 
     public function loadControlPanel($request, $response, $args) 
     {
+        $user = Model::User();         
+        $loged_in = $user->isLogedAdminUser();
+        
         if ($loged_in == false) {            
             Arikaim::cookies()->set("token",null);           
         }
         if (Install::isInstalled() == false) {
             $this->page->loadPage("system:install",$args);
-        } else {
-            $user = Model::User();
-            $loged_in = $user->isLogedAdminUser();
+        } else {            
             $this->page->loadPage("system:admin",['loged_in' => $loged_in]);
         }
         return $response;       

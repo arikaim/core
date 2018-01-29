@@ -14,13 +14,18 @@ class ClassLoader
 
     private $base_path;
     private $core_path;
- 
-    public function __construct($base_path, $core_path = null) 
+    private $extensions_path;
+
+    public function __construct($base_path, $core_path = null, $extensions_path = null) 
     {   
         if ($core_path == null) {
             $core_path = 'Arikaim' . DIRECTORY_SEPARATOR . 'Core';
         }
+        if ($extensions_path == null) {
+            $extensions_path = 'Arikaim' . DIRECTORY_SEPARATOR . 'Extensions';
+        }
         $this->core_path = $core_path;
+        $this->extensions_path = $extensions_path;
         $this->base_path = $base_path;
     }
    
@@ -41,20 +46,11 @@ class ClassLoader
 
     public function getClassFileName($class) 
     {   
-        //echo __DIR__;
-    //    echo ":" . $_SERVER['DOCUMENT_ROOT'];
-        //$len = strlen($this->prefix);
-      //  if (strncmp($this->prefix, $class, $len) !== 0) {
-      //      return false;
-      //  }
         $path = $_SERVER['DOCUMENT_ROOT'] . $this->base_path;
         $class_name = class_basename($class);
         $namespace = $this->getNamespace($class);
         $namespace = $this->namespaceToPath($namespace);   
-      //  echo "n:$namespace p: $path";
         $file = $path . DIRECTORY_SEPARATOR .  $namespace . DIRECTORY_SEPARATOR . $class_name . ".php";
-
-       // echo "ns:$namespace <br> cl:$class f:$file <br>";
         return $file;
     }
 
@@ -66,14 +62,28 @@ class ClassLoader
     } 
         
     public function namespaceToPath($namespace, $full_path = false) 
-    {    
+    {  
         $namespace = str_replace("\\",DIRECTORY_SEPARATOR,$namespace);
-        $namespace = str_replace($this->core_path,strtolower($this->core_path),$namespace);
-       // $namespace = strtolower($namespace);
+        
+        if ($this->isExtensionsNamespace($namespace) == true) {
+            $namespace = strtolower($namespace); //str_replace($namespace,strtolower($namespace),$namespace);
+        } else {
+            $namespace = str_replace($this->core_path,strtolower($this->core_path),$namespace);
+        }
+
         if ($full_path == true) {
             $path = $_SERVER['DOCUMENT_ROOT'] . $this->base_path;
             $namespace = $path . DIRECTORY_SEPARATOR .  $namespace;
         }
         return $namespace;   
     } 
+
+    private function isExtensionsNamespace($namespace)
+    {
+        $parts = explode(DIRECTORY_SEPARATOR,$namespace);
+        if (($parts[0] == "Arikaim") && ($parts[1] == "Extensions")) {
+            return true;
+        }
+        return false;
+    }
 }

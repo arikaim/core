@@ -28,12 +28,14 @@ class TemplateFunction
         $this->deny_methods = [];
         $this->allowClass(Factory::getCoreNamespace() . 'Extension\\ExtensionsManager');     
         $this->allowClass(Factory::getCoreNamespace() . 'Db\\Search');
+        $this->allowClass(Factory::getCoreNamespace() . 'Db\\Paginator');
         $this->allowClass(Factory::getCoreNamespace() . 'Extension\\Routes');           
         $this->allowClass(Factory::getCoreNamespace() . 'View\\TemplatesManager');
         $this->allowClass(Factory::getCoreNamespace() . 'View\\UiLibrary');
-        $this->allowClass(Factory::getCoreNamespace() . 'Install\\Install');
+        $this->allowClass(Factory::getCoreNamespace() . 'System\\Install');
+        $this->allowClass(Factory::getCoreNamespace() . 'System\\Update');
         $this->allowClass(Factory::getCoreNamespace() . 'Logger\\SystemLogger');
-        $this->allowClass(Factory::getCoreNamespace() . 'System');
+        $this->allowClass(Factory::getCoreNamespace() . 'System\\System');
     }
 
     public function execute($function_name, $params = null) 
@@ -129,20 +131,20 @@ class TemplateFunction
         } else {
             $items = $model;
         }
-
         if ($search != false) {
             $items = Search::search($items,$search);
-        }
-       // exit();
+        }     
         if ($order_by != null) {
             $items = $items->orderByRaw($order_by);
         } 
-      
+     
         if ($paginate == true) {           
             $items = $items->paginate(Paginator::getRowsPerPage(),['*'], 'page',Paginator::getCurrentPage());
-            if (is_object($items) == false) return [];
+            if (is_object($items) == false) {
+                return [];
+            }
             $items = $items->toArray(); 
-            
+         
             $result['paginator']['total'] = $items['total'];
             $result['paginator']['per_page'] = $items['per_page'];
             $result['paginator']['current_page'] = $items['current_page'];

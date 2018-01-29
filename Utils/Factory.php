@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Utils;
 
-use Arikaim\Core\Extension\Routes;
+use Arikaim\Core\Access\Access;
 
 class Factory 
 {
@@ -18,7 +18,10 @@ class Factory
         if (class_exists($full_class_name) == false) {
             $full_class_name = Self::getCoreNamespace() . $full_class_name;
         }
-        if (class_exists($full_class_name) == false) return false;
+        if (class_exists($full_class_name) == false) {
+            return false;
+        }
+        
         if ($args != null) {            
             $instance = new $full_class_name(...$args);
         } else {
@@ -32,23 +35,28 @@ class Factory
 
     public static function createExtension($extension_name, $class_name, $args = null)
     {
-        $full_class_name = Self::getClassName($extension_name,$class_name);        
-        $instance = Self::createInstance($full_class_name,$args);
-        
-        if ($instance instanceof \Arikaim\Core\Interfaces\ExtensionInterface == true) {           
+        $full_class_name = Self::getExtensionClassName($extension_name,$class_name);  
+        $instance = Self::createInstance($full_class_name,$args);       
+        if (is_subclass_of($instance,Self::getFullInterfaceName("ExtensionInterface")) == true) {           
             return $instance;
         }
         return null;
     }
 
+    public static function createEvent($args = [])
+    {
+        $event_class = Self::getCoreNamespace() . "\\Event"; 
+        return Self::createInstance($event_class,$args);
+    }
+
     public static function createAuthMiddleware($auth, $args = null)
     {
         switch ($auth) {
-            case Routes::SESSION_AUTH: {
+            case Access::AUTH_SESSION: {
                 $class_name = "SessionAuthentication";
                 break;
             }
-            case Routes::JWT_AUTH: {
+            case Access::AUTH_JWT: {
                 $class_name = "JwtAuthentication";
                 break;
             }
@@ -61,7 +69,7 @@ class Factory
 
     public static function getCoreNamespace()
     {
-        return "\\Arikaim\\Core\\";
+        return "Arikaim\\Core\\";
     }
 
     public static function getMiddlewareNamespace()
@@ -88,7 +96,7 @@ class Factory
     public static function getExtensionControlersNamespace($extension_name)
     {
         $extension_name = ucfirst($extension_name);
-        return "\\Arikaim\\Extensions\\$extension_name\\Controlers";
+        return "Arikaim\\Extensions\\$extension_name\\Controlers";
     }
 
     public static function getExtensionNamespace($extension_name) 
@@ -97,13 +105,23 @@ class Factory
         return Self::getExtensionsNamespace() . $extension_name;
     }
 
-    public static function getClassName($extension_name, $base_class_name)
+    public static function getExtensionClassName($extension_name, $base_class_name)
     {
         return Self::getExtensionNamespace($extension_name) . "\\" . $base_class_name;
     }
 
     public static function getExtensionsNamespace()
     {
-        return "\\Arikaim\\Extensions\\";
+        return "Arikaim\\Extensions\\";
+    }
+
+    public static function getInterfacesNamespace()
+    {
+        return "Arikaim\\Core\\Interfaces";
+    }
+
+    public static function getFullInterfaceName($base_name)
+    {
+        return Self::getInterfacesNamespace() ."\\" . $base_name;
     }
 }

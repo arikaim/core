@@ -10,8 +10,8 @@
 namespace Arikaim\Core\Controlers\Api;
 
 use Arikaim\Core\Controlers\ApiControler;
-use Arikaim\Core\Install\Install;
-use Arikaim\Core\Install\Update;
+use Arikaim\Core\System\Install;
+use Arikaim\Core\System\Update;
 use Arikaim\Core\System\System;
 use Arikaim\Core\System\Config;
 use Arikaim\Core\Form\Form;
@@ -35,7 +35,8 @@ class AdminApi extends ApiControler
         $user_name = $this->form->get('username');
         $password = $this->form->get('password');
         $database = $this->form->get('database');
-        if ($this->form->isValid() == true) { 
+        
+        if ($this->form->validate() == true) { 
             $result = $install->testDbConnection($user_name,$password);
             if ($result == true) {
                 // save config file               

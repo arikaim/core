@@ -16,7 +16,7 @@ class Permissions extends Model
 {
     const USER = 'user';
     const GROUP = 'group';
-    const CONTROL_PANEL = "control_panel\*";
+    const CONTROL_PANEL = "control_panel";
     const FULL = ['read' => 1,'write' => 1,'delete' => 1,'execute' => 1];
 
     protected $fillable = ['id','read','write','delete','execute','object_type','key','object_uuid'];

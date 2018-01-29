@@ -12,29 +12,36 @@ namespace Arikaim\Core\Models\Schema;
 use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Db\Schema;
 
-class EventsSchema extends Schema  
+class RoutesSchema extends Schema  
 {    
-    protected $table_name = "events";
+    protected $table_name = "routes";
 
     public function create() 
     {
         $this->createTable(function($table) {
-            
+       
             // columns
             $table->bigIncrements('id')->nullable(false);
             $table->string('name')->nullable(true);
-            $table->string('title')->nullable(true);
-            $table->text('description')->nullable(true);
-            $table->string('extension_name')->nullable(false)->default('');
+            $table->string('path')->nullable(false);
+            $table->string('pattern')->nullable(false);
+            $table->string('method')->nullable(false);
+            $table->string('handler_extension')->nullable(true); 
+            $table->string('handler_class')->nullable(false);
+            $table->string('handler_method')->nullable(true)->default('');
+            $table->string('extension_name')->nullable(false);
             $table->integer('status')->nullable(false)->default(1);
+            $table->integer('auth')->nullable(false)->default(0);
+            $table->integer('type')->nullable(false)->default(0);
             $table->string('uuid')->nullable(false);
-            // indexes
+            // indexes           
+            $table->unique(['path','method']);
             $table->unique('uuid');
             $table->unique('name');
             $table->index('status');
             // storage engine
-            $table->engine = 'InnoDB';    
-                    
+            $table->engine = 'InnoDB';   
+
         });
     }
 

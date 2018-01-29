@@ -24,6 +24,7 @@ class Page extends HtmlComponent
     public function __construct() {
         parent::__construct();
         $this->setRootPath("pages");
+        $this->setOptionsFileName("page.json");    
     }
 
     public function loadPage($full_page_name, $params = [])
@@ -43,7 +44,14 @@ class Page extends HtmlComponent
         $page_name = $this->parseName($full_page_name);
         $page_path = $page_name['path'];
         $type = $page_name['type'];
-    
+        
+        $result = $this->processOptions($page_path,$type);
+        if ($result !== true) {
+            Arikaim::errors()->addError("ACCESS_DENIED");
+            $page_code = $this->getPageCode('system:system-error');
+            return $page_code;
+        }
+
         Page::setCurrentPage($full_page_name);
         Arikaim::set('pageType',$type);
         Arikaim::template()->includeTemplateFiles($type);
@@ -63,7 +71,9 @@ class Page extends HtmlComponent
 
     public function fetch($page_path,$type, $params = []) 
     {
-        if (is_array($params) == false) $params = []; 
+        if (is_array($params) == false) {
+            $params = [];
+        } 
         $vars = $this->loadParams($page_path,$type);
         $params = array_merge_recursive($params,$vars);
         

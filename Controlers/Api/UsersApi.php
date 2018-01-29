@@ -13,7 +13,7 @@ use Arikaim\Core\Controlers\ApiControler;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Form\Form;
-use Arikaim\Core\Middleware\Jwt;
+use Arikaim\Core\Access\Jwt;
 use Arikaim\Core\View\Html\Component;
 
 class UsersApi extends ApiControler  

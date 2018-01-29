@@ -10,12 +10,12 @@
 namespace Arikaim\Core\Interfaces;
 
 interface ExtensionInterface 
-{
-    public function getRoutes();
-    
+{  
     public function onAfterInstall();
     public function onBeforeInstall();
 
     public function onAfterUnInstall();
     public function onBeforeUnInstall();
+    public function install();
+    public function unInstall();
 }
