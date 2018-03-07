@@ -9,10 +9,7 @@
 */
 namespace Arikaim\Core\Models\Schema;
 
-use Arikaim\Core\Utils\Utils;
-use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Db\Model;
 
 class LogsSchema extends Schema  
 {    
@@ -31,6 +28,7 @@ class LogsSchema extends Schema
             $table->string('method',40)->nullable(false)->default("");   
             $table->string('user_agent')->nullable(false)->default("");
             $table->string('ip_address',50)->nullable(false)->default("");
+            $table->string('route_uuid',100)->nullable(true);
             // date time columns
             $table->bigInteger('created')->nullable(true);
             // indexes
@@ -48,12 +46,6 @@ class LogsSchema extends Schema
     public function update() 
     {
         $this->updateTable(function($table) {
-            
         });
-    }
-    
-    public function addDefaultRows() 
-    {
-        
     }
 }

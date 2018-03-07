@@ -9,14 +9,18 @@
 */
 namespace Arikaim\Core\Controlers\Api;
 
+use Arikaim\Core\View\Template;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Form\Form;
 use Arikaim\Core\Controlers\ApiControler;
 
-class LanguageApi  extends ApiControler
+class LanguageApi extends ApiControler
 {
     public function add($request, $response, $args) 
     {       
+        // access from contorl panel only 
+        $this->requireControlPanelPermission();
+        
         $update = true;    
         $this->form->setFields($request->getParsedBody());       
         $uuid = $this->form->get('uuid');
@@ -58,6 +62,9 @@ class LanguageApi  extends ApiControler
 
     public function remove($request, $response, $args)
     {
+        // access from contorl panel only 
+        $this->requireControlPanelPermission();
+
         $this->form->addRule('uuid',Form::Rule()->exists('Language','uuid'));
         if ($this->form->validate($args) == true) {
             try {
@@ -74,6 +81,9 @@ class LanguageApi  extends ApiControler
     
     public function setStatus($request, $response, $args)
     {         
+        // access from contorl panel only 
+        $this->requireControlPanelPermission();
+
         $this->form->addRule('uuid',Form::Rule()->exists('Language','uuid'));
         $this->form->addRule('status',Form::Rule()->checkList([0,1,'toggle']));
         if ($this->form->validate($args) == true) {
@@ -99,6 +109,9 @@ class LanguageApi  extends ApiControler
 
     public function setDefault($request, $response, $args)
     {
+        // access from contorl panel only 
+        $this->requireControlPanelPermission();
+
         $this->form->addRule('uuid',Form::Rule()->exists('Language','uuid'));
         if ($this->form->validate($args) == true) {
             try {
@@ -120,6 +133,9 @@ class LanguageApi  extends ApiControler
 
     public function changeOrder($request, $response, $args)
     {
+        // access from contorl panel only 
+        $this->requireControlPanelPermission();
+        
         $this->form->addRule('uuid',Form::Rule()->exists('Language','uuid'));
         $this->form->addRule('after_uuid',Form::Rule()->exists('Language','uuid'));
         if ($this->form->validate($args) == true) {
@@ -139,7 +155,7 @@ class LanguageApi  extends ApiControler
     {
         $this->form->addRule('language_code',Form::Rule()->exists('Language','code'));
         if ($this->form->validate($args) == true) {
-            Arikaim::setLanguage($this->form->get("language_code"));
+            Template::setLanguage($this->form->get("language_code"));
         } else {
             $this->setApiErrors($this->form->getErrors());
         }

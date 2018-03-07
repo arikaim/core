@@ -13,16 +13,17 @@ use Arikaim\Core\Controlers\ApiControler;
 use Arikaim\Core\System\Install;
 use Arikaim\Core\System\Update;
 use Arikaim\Core\System\System;
-use Arikaim\Core\System\Config;
 use Arikaim\Core\Form\Form;
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Db\Model;
+use Arikaim\Core\Module\ModulesManager;
 
 class AdminApi extends ApiControler
 {
     public function install($request, $response, $args) 
     {           
-        Model::User()->logout();
+        Model::Users()->logout();
         
         $install = new Install();
         $requirements = System::checkSystemRequirements();
@@ -57,9 +58,9 @@ class AdminApi extends ApiControler
 
     public function update($request, $response, $args) 
     {           
+        $this->requireControlPanelPermission();
         $update = new Update();
         $result = $update->update();
-        $this->setApiResult("updated");
         return $this->getApiResponse();
     }
     
@@ -70,9 +71,55 @@ class AdminApi extends ApiControler
 
     public function clearLogs($request, $response, $args)
     {
+        $this->requireControlPanelPermission();
         $result = Arikaim::logger()->deleteSystemLogs();
         if ($result == false) {
             $this->setApiErrors(Arikaim::errors()->getError("DELETE_FILE_ERROR"));
+        }
+        return $this->getApiResponse();
+    }
+
+    public function deleteQueueWorkerJobs($request, $response, $args)
+    {
+        $this->requireControlPanelPermission();
+        
+        Arikaim::jobs()->getQueueService()->removeAllJobs();
+        return $this->getApiResponse();
+    }
+    
+    public function updateQueueWorkerJobs($request, $response, $args)
+    {
+        $this->requireControlPanelPermission();
+        Arikaim::jobs()->update();
+        return $this->getApiResponse();
+    }
+
+    public function updateModules($request, $response, $args)
+    {
+        $this->requireControlPanelPermission();
+        $modules = new ModulesManager();
+        $result = $modules->install();
+        return $this->getApiResponse();
+    }
+
+    public function sendTestEmail($request, $response, $args)
+    {
+        $this->requireControlPanelPermission();
+        $user = Model::Users()->getLogedUser();
+        if ($user == false) {
+            $this->setApiErrors('Not loged in!');
+            return $this->getApiResponse();
+        }
+
+        if (Utils::isEmail($user->email) == false) {
+            $this->setApiErrors('Control panel user email not valid!');
+            return $this->getApiResponse();
+        }       
+        $message = Arikaim::mailer()->messageFromTemplate($user->email,"system:admin.email-messges.test",[],$user->email);
+        $result = Arikaim::mailer()->send($message);
+        if ($result == false) {
+            $this->setApiErrors('Error send test email!');
+            return $this->getApiResponse();
         }
         return $this->getApiResponse();
     }

@@ -11,7 +11,7 @@ namespace Arikaim\Core\System;
 
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Form\Properties;
-use Arikaim\Core\Utils\File;
+use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Utils\Collection;
 
 class Config extends Collection implements \ArrayAccess 
@@ -101,11 +101,6 @@ class Config extends Collection implements \ArrayAccess
         return $code;
     }
 
-    public function validateConfigFile($file_name = null)
-    {
-
-    }
-
     public function saveConfigFile($file_name = null)
     {
         $file_name = $this->getFileName($file_name);
@@ -130,7 +125,6 @@ class Config extends Collection implements \ArrayAccess
     public function includeConfigFile($file_name = null) 
     {
         $file_name = $this->getFileName($file_name);
-       // echo "f:$file_name";
         if (File::exists($file_name) == true) {           
             $result = include($file_name);
             return $result;

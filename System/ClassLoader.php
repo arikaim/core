@@ -1,6 +1,6 @@
 <?php
 /**
- *  Arikaim
+ * Arikaim
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
@@ -11,12 +11,12 @@ namespace Arikaim\Core\System;
 
 class ClassLoader 
 {
-
+    private $root_path;
     private $base_path;
     private $core_path;
     private $extensions_path;
 
-    public function __construct($base_path, $core_path = null, $extensions_path = null) 
+    public function __construct($base_path, $root_path = null, $core_path = null, $extensions_path = null) 
     {   
         if ($core_path == null) {
             $core_path = 'Arikaim' . DIRECTORY_SEPARATOR . 'Core';
@@ -24,6 +24,7 @@ class ClassLoader
         if ($extensions_path == null) {
             $extensions_path = 'Arikaim' . DIRECTORY_SEPARATOR . 'Extensions';
         }
+        $this->root_path = $root_path;
         $this->core_path = $core_path;
         $this->extensions_path = $extensions_path;
         $this->base_path = $base_path;
@@ -37,16 +38,27 @@ class ClassLoader
     function LoadClassFile($class) 
     {
         $file = $this->getClassFileName($class);
-        if (file_exists($file)) {
+        if (file_exists($file) == true) {
             require $file;
             return true;
         }
         return false;
     }
 
+    public function getDocumentRoot()
+    {
+        if ($this->root_path != null) {
+            return $this->root_path;
+        }
+        if (php_sapi_name() == "cli") {
+            return __DIR__;
+        }
+        return $_SERVER['DOCUMENT_ROOT'];
+    }
+
     public function getClassFileName($class) 
     {   
-        $path = $_SERVER['DOCUMENT_ROOT'] . $this->base_path;
+        $path = $this->getDocumentRoot() . $this->base_path;
         $class_name = class_basename($class);
         $namespace = $this->getNamespace($class);
         $namespace = $this->namespaceToPath($namespace);   
@@ -66,13 +78,13 @@ class ClassLoader
         $namespace = str_replace("\\",DIRECTORY_SEPARATOR,$namespace);
         
         if ($this->isExtensionsNamespace($namespace) == true) {
-            $namespace = strtolower($namespace); //str_replace($namespace,strtolower($namespace),$namespace);
+            $namespace = strtolower($namespace);
         } else {
             $namespace = str_replace($this->core_path,strtolower($this->core_path),$namespace);
         }
 
         if ($full_path == true) {
-            $path = $_SERVER['DOCUMENT_ROOT'] . $this->base_path;
+            $path = $this->getDocumentRoot() . $this->base_path;
             $namespace = $path . DIRECTORY_SEPARATOR .  $namespace;
         }
         return $namespace;   
@@ -80,10 +92,14 @@ class ClassLoader
 
     private function isExtensionsNamespace($namespace)
     {
-        $parts = explode(DIRECTORY_SEPARATOR,$namespace);
-        if (($parts[0] == "Arikaim") && ($parts[1] == "Extensions")) {
-            return true;
-        }
+        $parts = explode(DIRECTORY_SEPARATOR,$namespace);       
+        if (isset($parts[1]) == true) {
+            if (($parts[0] == "Arikaim") && (($parts[1] == "Extensions") || ($parts[1] == "Modules"))) {
+                return true;
+            }
+        }        
         return false;
     }
+
+
 }

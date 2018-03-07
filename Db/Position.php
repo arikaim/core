@@ -28,13 +28,12 @@ trait Position
         $current_position = $model->position;
         
         // set current possition to 0 avoid unique index error
-        $model->position = 0;
+        $model->position = null;
         $model->update();
-
+    
         if ($model->uuid == $after_uuid) {
             return $this->moveFirst($model,$current_position);
         }
-       
         $after_model = $model->where('uuid','=',$after_uuid)->first();
         $after_position = $after_model->position;
         if ($current_position == $after_position) {
@@ -43,10 +42,12 @@ trait Position
         // right move
         if ($current_position < $after_position) {
             $list = $model->whereRaw(" position > $current_position AND position <= $after_position ORDER BY position ")->get();
+          
             foreach ($list as $item) {
                 $item->position = $item->position - 1;
                 $item->update();
             }
+           
             $model->position = $after_position;
             $model->update();
         }
@@ -66,7 +67,6 @@ trait Position
     {
         $list = $model->whereRaw(" position > $after_position AND position <= $current_position ORDER BY position DESC ")->get();
         foreach ($list as $item) {
-           // echo $item->position;
             $item->position = $item->position + 1;
             $item->update();
         }

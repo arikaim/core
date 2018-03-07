@@ -9,41 +9,47 @@
 */
 namespace Arikaim\Core\View;
 
+use Arikaim\Core\Arikaim;
+use Arikaim\Core\View\Html\Component;
+use Arikaim\Core\Utils\Collection;
+
 class View
 {
-    protected $loader;
-    protected $environment;
+    private $loader;
+    private $environment;
+    private $components;
 
     public function __construct($path, $settings = [])
     {
-        $this->loader = $this->createLoader(is_string($path) ? [$path] : $path);
-        $this->environment = new \Twig_Environment($this->loader, $settings);
+        $this->loader = $this->createLoader($path);
+        $this->environment = new \Twig_Environment($this->loader,$settings);
+        $this->components = new Collection();
+        $this->component = new Component();
     }
 
     public function addExtension(\Twig_ExtensionInterface $extension)
     {
-        $this->environment->addExtension($extension);
+        $this->getEnvironment()->addExtension($extension);
     }
 
-    public function fetch($template, $data = [])
-    {
-        return $this->environment->render($template, $data);
+    public function fetch($template, $params = [])
+    {       
+        return $this->getEnvironment()->render($template, $params);
     }
 
-    public function fetchBlock($template, $block, $data = [])
+    public function fetchBlock($template, $block, $params = [])
     {
-        return $this->environment->loadTemplate($template)->renderBlock($block, $data);
+        return $this->getEnvironment()->loadTemplate($template)->renderBlock($block, $params);
     }
 
-    public function fetchFromString($string, $data = [])
+    public function fetchFromString($string, $params = [])
     {
-        return $this->environment->createTemplate($string)->render($data);
+        return $this->getEnvironment()->createTemplate($string)->render($params);
     }
 
-    public function render($response, $template, $data = [])
+    public function render($template, $params = [])
     {
-         $response->getBody()->write($this->fetch($template, $data));
-         return $response;
+        return Arikaim::response()->getBody()->write($this->fetch($template, $params));
     }
 
     public function getLoader()
@@ -56,9 +62,19 @@ class View
         return $this->environment;
     }
 
-    private function createLoader(array $paths)
+    public function addPath($path)
+    {
+        return $this->getEnvironment()->getLoader()->addPath($path); 
+    }
+
+    private function createLoader($paths)
     {
         $loader = new \Twig_Loader_Filesystem();
+        if (is_array($paths) == false) {
+            $loader->addPath($paths);
+            return $loader;
+        }
+
         foreach ($paths as $namespace => $path) {
             if (is_string($namespace)) {
                 $loader->setPaths($path, $namespace);
@@ -67,5 +83,15 @@ class View
             }
         }
         return $loader;
+    }
+
+    public function components()
+    {
+        return $this->components;
+    }
+
+    public function component()
+    {
+        return $this->component;
     }
 }

@@ -15,7 +15,6 @@ class SiteStats
 {
     public function __construct() 
     {        
-
     }
 
     public function __invoke($request, $response, $next) 
@@ -34,7 +33,6 @@ class SiteStats
         if (Arikaim::errors()->hasError("DB_CONNECTION_ERROR") == false) {            
             Arikaim::logger()->addStats('Request',$info);
         }
-
         $response = $next($request, $response);
         return $response;        
     }

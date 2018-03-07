@@ -21,12 +21,15 @@ class FunctionArguments
     const UNKNOWN_TYPE = "unknown type";
    
     public static function getArgument(array $args, $index, $type = null)
-    {
-        if (is_array($args) == false) return null;
-        if (isset($args[$index]) == false) return null;
+    {       
+        if ((is_array($args) == false) || (isset($args[$index]) == false)) {
+            return null;
+        }
         
         $variable_type = gettype($args[$index]);
-        if (($type != null) && ($variable_type != $type)) return null;
+        if (($type != null) && ($variable_type != $type)) {
+            return null;
+        }
         return $args[$index];
     }
 }

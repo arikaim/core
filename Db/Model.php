@@ -9,33 +9,40 @@
 */
 namespace Arikaim\Core\Db;
 
-use Illuminate\Database\Capsule\Manager;
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Utils\FunctionArguments;
 use Arikaim\Core\Db\Schema;
+use Arikaim\Core\Db\Condition;
+use Arikaim\Core\Db\Search;
 
 class Model 
 {    
     public static function create($class_name, $extension_name = null) 
     {  
-        $full_class_name = empty($extension_name) ? Model::getModelClass($class_name) : Model::getExtensionModelClass($extension_name,$class_name);
+        $full_class_name = Self::getFullClassName($class_name,$extension_name); 
         $instance = Factory::createInstance($full_class_name);
-        return $instance;
+        if (Self::isValidModel($instance) == true) {
+            return $instance;
+        }
+        return null;
+    }
+
+    public static function getFullClassName($class_name, $extension_name = null)
+    {
+        return empty($extension_name) ? Factory::getModelClass($class_name) : Factory::getExtensionModelClass($extension_name,$class_name);
     }
 
     public static function getConstant($class_name,$name)
     {
-        return constant(Self::getModelClass($class_name) . "::" .$name);
+        return constant(Factory::getModelClass($class_name) . "::" .$name);
     }
 
     public static function __callStatic($name, $args)
     {  
         $extension_name = FunctionArguments::getArgument($args,0,"string");
         $create_table = FunctionArguments::getArgument($args,0,"boolean");        
-        $instance = Self::create($name,$extension_name);    
+        $instance = Self::create($name,$extension_name);
         if ($instance == null) {
-            throw new \Exception(Arikaim::getError("DB_MODEL_CLASS_NOT_EXIST",['class' => $name]));
             return null;
         }   
         if ($create_table == true) {      
@@ -52,24 +59,36 @@ class Model
         return is_subclass_of($instance,"\\Illuminate\\Database\\Eloquent\\Model");
     }
 
-    public static function getModelClass($base_class_name) 
+    public static function applyCondition($model, $condition)
     {
-        return Model::getModelsNamespace() . $base_class_name;
+        if (empty($condition) == true) {
+            return $model;
+        } 
+        if ($condition instanceof Condition) {
+            $condition = $condition->toArray();
+        }
+        
+        if (is_array($condition) == false) {
+            $model = $model->whereRaw($condition);
+            return $model;
+        }
+        
+        foreach ($condition as $item) {
+            $model = Condition::applyCondition($model,$item);
+        }
+        return $model;
     }
 
-    public static function getExtensionModelClass($extension_name, $base_class_name)
+    public static function createCondition($field_name, $operator, $value, array $conditions = null)
     {
-        return Model::getExtensionModelNamespace($extension_name) . "\\" . $base_class_name;
+        $condition = new Condition($field_name, $operator, $value);
+        $condition->append($conditions);
+        return $condition;
     }
 
-    public static function getExtensionModelNamespace($extension_name)
-    {   
-        $extension_name = ucfirst($extension_name);
-        return "\\Arikaim\\Extensions\\$extension_name\\Models";
-    }
-
-    public static function getModelsNamespace()
+    public static function getSearchConditions($model, $search = null)
     {
-        return "\\Arikaim\\Core\\Models\\";
+        $obj = new Search();
+        return $obj->getSearchConditions($model,$search);
     }
 }

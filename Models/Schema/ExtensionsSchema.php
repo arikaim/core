@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\Models\Schema;
 
-use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Db\Schema;
 
 class ExtensionsSchema extends Schema  
@@ -28,17 +27,22 @@ class ExtensionsSchema extends Schema
             $table->string('short_description')->nullable(true)->default('');
             $table->string('version')->nullable(false);
             $table->integer('status')->nullable(false)->default(1);
-            $table->string('class')->nullable(false);           
+            $table->string('class')->nullable(false);     
+            $table->integer('type')->nullable(false)->default(0);
+            $table->integer('admin_link_position')->nullable(true);           
             $table->string('admin_link_title')->nullable(false)->default('');
             $table->string('admin_link_icon')->nullable(false)->default('');
             $table->string('admin_link_sub_title')->nullable(false)->default('');
             $table->string('admin_link_component')->nullable(false)->default('');
             $table->string('uuid')->nullable(false);
+            $table->string('license_key')->nullable(true);
             // indexes
             $table->unique('uuid');
+            $table->unique('license_key');
             $table->unique('name');
             $table->index('status');
             $table->index('title');
+            $table->index('admin_link_position');
             $table->index('class');
             // storage engine
             $table->engine = 'InnoDB';
@@ -49,12 +53,6 @@ class ExtensionsSchema extends Schema
     public function update() 
     {
         $this->updateTable(function($table) {
-            
         });
-    }
-    
-    public function addDefaultRows()
-    {
-        
     }
 }

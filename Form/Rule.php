@@ -15,7 +15,6 @@ class Rule
 {
     public function __construct() 
     {
-    
     }
 
     public static function createRule($class_name, $args = null)
@@ -38,5 +37,4 @@ class Rule
     {
         return "Arikaim\\Core\\Form\\Rule\\"; 
     }
-
 }

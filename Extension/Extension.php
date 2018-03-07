@@ -12,52 +12,53 @@ namespace Arikaim\Core\Extension;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Interfaces\ExtensionInterface;
 use Arikaim\Core\Db\Model;
+use Arikaim\Core\Utils\Factory;
 
 class Extension implements ExtensionInterface
 {
-    const USER_TYPE     = 1;
-    const SYSTEM_TYPE   = 2;
-
     public function __construct() 
     {                
     }
     
-    public function getName() {
-    
+    public function getName() 
+    {    
         $currentClass = get_class($this);
         $refl = new \ReflectionClass($currentClass);
         $namespace = $refl->getNamespaceName();
         $name = last(explode("\\",$namespace));
-        return $name;
+        return strtolower($name);
     }
 
-    public function registerEvent($name, $title = "", $description = null)
+    public function createJob($class_name, $args = null)
     {
-        $events = Model::Events();
-
-        $event['extension_name'] = $this->getName();
-        $event['name'] = $name;
-        $event['title'] = $title;
-        $event['description'] = $description;
-        return $events->addEvent($event);
+        return Factory::createJob($class_name,$this->getName(),$args);
     }
 
-    public function subscribe($name)
+    public function registerEvent($name, $title = null, $description = null)
     {
+        return Arikaim::event()->registerEvent($name,$title,$this->getName(),$description);
+    }
+
+    public function getControlerClassName($base_class_name)
+    {
+        return Factory::getExtensionControlerClass($this->getName(),$base_class_name);
+    }
     
-    }
-    
-    public function unsubscribe($name)
-    {
-        $events_subscribers = Model::EventsSubscribers();
-        $extension_name = $this->getName();
-    }
-
     public function addRoute($method, $path, $pattern, $handler_class, $handler_method, $auth = 0, $type = 0)
     {
         $routes = Model::Routes();
         $extension_name = $this->getName();
-        $result= $routes->addRoute($method, $path, $pattern, $handler_class, $handler_method, $extension_name, $auth, $type);
+
+        $route['method'] = $method;
+        $route['path'] = $path;
+        $route['pattern'] = $pattern;
+        $route['handler_class'] = $this->getControlerClassName($handler_class);
+        $route['handler_method'] = $handler_method;
+        $route['auth'] = $auth;
+        $route['type'] = $type;
+        $route['extension_name'] = $extension_name;
+
+        $result = $routes->addRoute($route);
         return $result;
     }
 

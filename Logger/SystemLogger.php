@@ -11,14 +11,12 @@ namespace Arikaim\Core\Logger;
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
-use Monolog\Formatter\JsonFormatter;
 use Psr\Log\LogLevel;
 
 use Arikaim\Core\Db\Paginator;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Logger\DbHandler;
-use Arikaim\Core\Utils\File;
-use Arikaim\Core\Utils\Utils;
+use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Logger\JsonLogsFormatter;
 use Arikaim\Core\Logger\SystemLogsProcessor;
 
@@ -45,7 +43,6 @@ class SystemLogger
             $handler->setFormatter($json_format); 
 
             $proccesssor = new SystemLogsProcessor();
-            // init
             $this->system_log->pushHandler($handler);
             $this->system_log->pushProcessor($proccesssor);
         }
@@ -90,7 +87,7 @@ class SystemLogger
     public function readSystemLogs()
     {       
         $logs_text ="[";
-        $logs_text .= File::load($this->logs_file_name);
+        $logs_text .= File::read($this->logs_file_name);
         $logs_text = rtrim($logs_text,",\n");
         $logs_text .="]\n";
         $logs = json_decode($logs_text,true);

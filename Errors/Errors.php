@@ -9,15 +9,14 @@
  */
 namespace Arikaim\Core\Errors;
 
-use Arikaim\Core\Utils\File;
+use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Utils\Utils;
-use Arikaim\Core\View\Html\Page;
 use Arikaim\Core\Utils\Collection;
 
 class Errors extends Collection
 {
-    private $errors = [];
     private $prefix;
+    private $errors = [];
 
     public function __construct() 
     {
@@ -27,17 +26,22 @@ class Errors extends Collection
     public function addError($error_name,$params = [])
     {       
         $message = $this->getError($error_name,$params);  
-        return $this->set($error_name,$message);
+        $this->errors[$error_name] = $message;
+    }
+    
+    public function addErrorMessage($error_name, $message)
+    {       
+        $this->errors[$error_name] = $message;
     }
 
     public function errorsCount()
     {
-        return count($this->data);
+        return count($this->errors);
     }
 
     public function hasError($error_name)
-    {
-        if ($this->get($error_name) != null) {
+    {       
+        if (isset($this->errors[$error_name]) == true) {
             return true;
         }
         return false;
@@ -45,15 +49,16 @@ class Errors extends Collection
 
     public function getErrors()
     {
-        return $this->data;
+        return $this->errors;
     }
 
     public function getError($error_name,$params = []) 
     {
-        if (isset($this->errors[$error_name]['message']) == false) {
+        $error = $this->get($error_name,false);
+        if ($error == false) {
             return false;
         }
-        $error_text = $this->prefix . $this->errors[$error_name]['message'];
+        $error_text = $this->prefix . $error['message'];
         return Utils::parseProperties($error_text,$params);
     }
 
@@ -80,7 +85,7 @@ class Errors extends Collection
         return "";
     }
     
-    public function getJSONError()
+    public static function getJsonError()
     {
         $error = null;
    
@@ -107,14 +112,13 @@ class Errors extends Collection
                 $error = 'Unknown error';
             break;
         }
-
         return $error;
     }
 
     private function loadErrorsConfig() 
     {
-        $data = File::loadConfigFile('errors.json');  
-        $this->errors = $data['errors'];
-        $this->prefix = $data['prefix'];       
+        $list = File::readConfigFile('errors.json');  
+        $this->data = $list['errors'];
+        $this->prefix = $list['prefix'];       
     }
 }

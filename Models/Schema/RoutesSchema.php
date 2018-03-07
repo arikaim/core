@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\Models\Schema;
 
-use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Db\Schema;
 
 class RoutesSchema extends Schema  
@@ -30,8 +29,12 @@ class RoutesSchema extends Schema
             $table->string('handler_class')->nullable(false);
             $table->string('handler_method')->nullable(true)->default('');
             $table->string('extension_name')->nullable(false);
+            $table->string('template_name')->nullable(false)->default('');
+            $table->string('template_page')->nullable(false)->default('');
             $table->integer('status')->nullable(false)->default(1);
             $table->integer('auth')->nullable(false)->default(0);
+            $table->string('required_permission')->nullable(true);
+            $table->string('permission_type',20)->nullable(true);
             $table->integer('type')->nullable(false)->default(0);
             $table->string('uuid')->nullable(false);
             // indexes           
@@ -47,13 +50,7 @@ class RoutesSchema extends Schema
 
     public function update()
     {
-        $this->updateTable(function($table) {
-            
+        $this->updateTable(function($table) {            
         });
-    }
-    
-    public function addDefaultRows() 
-    {
-        
     }
 }

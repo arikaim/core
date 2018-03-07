@@ -9,7 +9,6 @@
  */
 namespace Arikaim\Core\Form;
 
-use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Interfaces\FilterInterface;
 
@@ -27,7 +26,6 @@ abstract class AbstractRule implements FilterInterface
     protected $error;
     protected $error_name;
 
-    
     public function __construct($min_value = null,$max_value = null,$error_name = "NOT_VALID_VALUE_ERROR") 
     {
         $this->min = $min_value;
@@ -80,8 +78,9 @@ abstract class AbstractRule implements FilterInterface
 
     protected function validateMinValue($value,$error_name,$text_field = false)
     {
-        if ($this->error != "") return true;
-
+        if ($this->error != "") {
+            return true;
+        }
         if ($text_field == true) { 
             $min = strlen($value); 
         } else {
@@ -89,7 +88,7 @@ abstract class AbstractRule implements FilterInterface
         }
 
         if (empty($this->min) == false) {                 
-            if ( $min < $this->min ) {         
+            if ($min < $this->min) {         
                 $this->setError($error_name);
                 return false;
             }
@@ -99,8 +98,9 @@ abstract class AbstractRule implements FilterInterface
 
     protected function validateMaxValue($value,$error_name,$text_field = false)
     {
-        if ($this->error != "") return true;
-
+        if ($this->error != "") {
+            return true;
+        }
         if ($text_field == true) { 
             $max = strlen($value); 
         } else {

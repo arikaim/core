@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\Controlers\Pages;
 
-use Arikaim\Core\View\Html\Page;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\System\Install;
 use Arikaim\Core\Arikaim;
@@ -18,58 +17,67 @@ use Arikaim\Core\System\Config;
 
 class PageLoader extends Controler 
 {
-    protected $page;
-
     public function __construct() 
     {
         parent::__construct();
-        $this->page = new Page();
+    }
+
+    public function loadTemplatePage($request, $response, $args)
+    {
+        $route = $request->getAttribute('route');  
+        if (is_object($route) == false) {
+            Arikaim::page()->load("system-error",$args);
+            return $response;
+        }    
+        $path = $route->getPattern();
+        $model = Model::Routes()->getRoute('GET',$path);
+        if ($model == false) {
+            return $this->pageNotFound($request,$response,$args);
+        }
+        return $this->loadPage($request,$response,['page' => $model->template_page]);
     }
 
     public function loadPage($request, $response, $args)
     {
-        if (Arikaim::errors()->errorsCount() > 0) {
-            // load errors page
-            if ($this->page->hasPage("system-error") == false) {
-                // load system page
-                $this->page->loadPage("system:system-error",$args);
-            } else {
-                // load from default template
-                $this->page->loadPage("system-error",$args);
-            }       
-        }
-        if (isset($args['page']) == false) {
-            $page_name = "home";
+        if (isset($args['page']) == true) {
+            $page_name = $args['page'];           
         } else {
-            $page_name = $args['page'];
+            return $this->pageNotFound($request,$response,$args);
         }
-        $this->page->loadPage($page_name,$args);       
-        return $response;
+
+        if (Arikaim::page()->has($page_name) == true) {
+            Arikaim::page()->load($page_name,$args);
+            return $response;       
+        } 
+        return $this->pageNotFound($request,$response,$args);
     }
 
     public function loadControlPanel($request, $response, $args) 
-    {
-        $user = Model::User();         
-        $loged_in = $user->isLogedAdminUser();
-        
-        if ($loged_in == false) {            
-            Arikaim::cookies()->set("token",null);           
+    {   
+        if (Install::isInstalled() == false) { 
+            return $this->loadPage($request,$response,['page' => 'system:install']);
         }
-        if (Install::isInstalled() == false) {
-            $this->page->loadPage("system:install",$args);
-        } else {            
-            $this->page->loadPage("system:admin",['loged_in' => $loged_in]);
-        }
-        return $response;       
+        $user = Model::Users()->getLogedUser();    
+        $loged_in = false;     
+      
+        if ($user != false) {
+            $loged_in = Arikaim::access()->hasControlPanelAccess($user->uuid);
+        }         
+        return $this->loadPage($request,$response,['page' => 'system:admin','loged_in' => $loged_in]);    
     }
 
     public function pageNotFound($request, $response, $args = []) 
-    {            
-        if ($this->page->pageExists("system:page-not-found") == true) {
-            $this->page->loadPage("system:page-not-found",$args);  
-            return $this->response->withStatus(404);
-        }         
-        $this->response->withStatus(404)->write('Page not found');
-        return $this->response;
+    {                  
+        Arikaim::page()->load("page-not-found",$args);  
+        return $response->withStatus(404);
+    }
+
+    public function loadInstallPage($request, $response, $args = [])
+    {
+        if (Install::isInstalled() == false) {                             
+            return $this->loadPage($request,$response,['page' => 'system:install']);
+        }
+        Arikaim::errors()->addError('INSTALLED_ERROR');
+        return $this->loadPage($request,$response,['page' => 'system-error']);
     }
 }

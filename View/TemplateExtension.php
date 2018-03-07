@@ -10,72 +10,75 @@
 namespace Arikaim\Core\View;
 
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\View\Html\Component;
-use Arikaim\Core\View\Html\Page;
-use Arikaim\Core\View\Html\Template;
 use Arikaim\Core\View\Html\Filters;
 use Arikaim\Core\View\TemplateFunction;
 use Arikaim\Core\Utils\DateTime;
-use Arikaim\Core\Utils\Number;
 
 class TemplateExtension extends \Twig_Extension implements \Twig_Extension_GlobalsInterface
 {
     public function __construct() 
-    {
-       
+    {       
     }
 
     public function getGlobals() 
     {
-        return Arikaim::getTemplateVars();
+        return Template::getVars();
     }
 
     public function getFunctions() 
     {
-        $component = new Component();
-        $page = new Page();
-        $template = new Template();    
         $template_function = new TemplateFunction();
         $date = new DateTime();
         $errors = Arikaim::errors();
         
         return array(
             // html components
-            new \Twig_SimpleFunction('component', [$component, 'loadComponent'], ['needs_environment' => true,'is_safe' => ['html']]),
-            // return data only
-            // component
-            new \Twig_SimpleFunction('componentProperties', [$component, 'getComponentProperties']),
-            new \Twig_SimpleFunction('getComponentsJSFiles', [$component, 'getComponentsJSFiles']),
-            new \Twig_SimpleFunction('getComponentsCSSFiles', [$component, 'getComponentsCSSFiles']),
+            new \Twig_SimpleFunction('component', [Arikaim::view()->component(), 'load'], ['needs_environment' => false,'is_safe' => ['html']]),
+            new \Twig_SimpleFunction('componentProperties', [Arikaim::view()->component(), 'getProperties']),
+            
+            // page
+            new \Twig_SimpleFunction('getPageJsFiles', ["\\Arikaim\\Core\\View\\Html\\Page", 'getPageJsFiles']),
+            new \Twig_SimpleFunction('getPageCssFiles', ["\\Arikaim\\Core\\View\\Html\\Page", 'getPageCssFiles']),
+            new \Twig_SimpleFunction('getComponentsJsFiles', ["\\Arikaim\\Core\\View\\Html\\Page", 'getComponentsJsFiles']),
+            new \Twig_SimpleFunction('getComponentsCssFiles', ["\\Arikaim\\Core\\View\\Html\\Page", 'getComponentsCssFiles']),
+            
             // database 
             new \Twig_SimpleFunction('loadData', [$template_function, 'loadData']),
             new \Twig_SimpleFunction('loadExtensionData', [$template_function, 'loadExtensionData']),
+            new \Twig_SimpleFunction('searchData', [$template_function, 'searchData']),
+            new \Twig_SimpleFunction('searchExtensionData', [$template_function, 'searchExtensionData']),
             new \Twig_SimpleFunction('loadDataRow', [$template_function, 'loadDataRow']),
             new \Twig_SimpleFunction('loadExtensionDataRow', [$template_function, 'loadExtensionDataRow']),
             new \Twig_SimpleFunction('createModel', [$template_function, 'createModel']),
             new \Twig_SimpleFunction('createExtensionModel', [$template_function, 'createExtensionModel']),
+            new \Twig_SimpleFunction('hasExtension', [$template_function, 'hasExtension']),
             // other
             new \Twig_SimpleFunction('getFileType', [$template_function, 'getFileType']),
-            new \Twig_SimpleFunction('execute', [$template_function, 'execute']),
             new \Twig_SimpleFunction('executeMethod', [$template_function, 'executeMethod']),
+            new \Twig_SimpleFunction('extension', [$template_function, 'extensionMethod']),
+            new \Twig_SimpleFunction('service', [$template_function, 'service']),
+            new \Twig_SimpleFunction('callStatic', [$template_function, 'callStatic']),
             new \Twig_SimpleFunction('currentYear', [$template_function, 'currentYear']),
             new \Twig_SimpleFunction('getCurrentLanguage', [$template_function, 'getCurrentLanguage']),
-            new \Twig_SimpleFunction('getLanguageCode', ["\\Arikaim\\Core\\Arikaim","getLanguage"]),
+            new \Twig_SimpleFunction('getLanguageCode', ["\\Arikaim\\Core\\View\\Template","getLanguage"]),
             new \Twig_SimpleFunction('getHiddenClass', [$template_function, 'getHiddenClass']),
             new \Twig_SimpleFunction('getOption', [$template_function, 'getOption']),
             new \Twig_SimpleFunction('getOptions', [$template_function, 'getOptions']),
+            new \Twig_SimpleFunction('condition', [$template_function, 'createCondition']),
             new \Twig_SimpleFunction('getErrors', [$errors, 'getErrors']),
-            // page
-            new \Twig_SimpleFunction('getPageJSFiles', [$page, 'getPageJSFiles']),
-            new \Twig_SimpleFunction('getPageType', [$page, 'getPageType']),
-            new \Twig_SimpleFunction('getPageCSSFiles', [$page, 'getPageCSSFiles']),
+           
             // template
-            new \Twig_SimpleFunction('getTemplateJSFiles', [$template, 'getTemplateJSFiles']),
-            new \Twig_SimpleFunction('getTemplateCSSFiles', [$template, 'getTemplateCSSFiles']),
-            new \Twig_SimpleFunction('getTheme', [$template, 'getTheme']),
-            new \Twig_SimpleFunction('getLibraryFiles', [$template, 'getLibraryFiles']),
+            new \Twig_SimpleFunction('getTemplateJsFiles', ["\\Arikaim\\Core\\View\\Template", 'getJsFiles']),
+            new \Twig_SimpleFunction('getTemplateCssFiles', ["\\Arikaim\\Core\\View\\Template", 'getCssFiles']),
+            new \Twig_SimpleFunction('getThemeFiles', ["\\Arikaim\\Core\\View\\Template", 'getThemeFiles']),
+            new \Twig_SimpleFunction('getCurrentTheme', ["\\Arikaim\\Core\\View\\Theme", 'getCurrentTheme']),
+            new \Twig_SimpleFunction('getLibraryFiles', ["\\Arikaim\\Core\\View\\Template", 'getLibraryFiles']),
             // date and time
-            new \Twig_SimpleFunction('getTimeZonesList', [$date, 'getTimeZonesList'])
+            new \Twig_SimpleFunction('getTimeZonesList', [$date, 'getTimeZonesList']),
+            new \Twig_SimpleFunction('timeInterval', [$date, 'getInterval']),
+            // macros
+            new \Twig_SimpleFunction('macro', ["\\Arikaim\\Core\\View\\Template","getMacroPath"]),
+            new \Twig_SimpleFunction('systemMacro', ["\\Arikaim\\Core\\View\\Template","getSystemMacroPath"])
         );
     }
 

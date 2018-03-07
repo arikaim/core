@@ -7,7 +7,7 @@
  * @license     http://www.arikaim.com/license.html
  * 
 */
-namespace Arikaim\Core\Interfaces;
+namespace Arikaim\Core\Interfaces\Events;
 
 interface EventInterface
 {    

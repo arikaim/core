@@ -10,7 +10,6 @@
 namespace Arikaim\Core\Controlers\Api;
 
 use Arikaim\Core\Controlers\ApiControler;
-use Arikaim\Core\Install\Install;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Form\Form;
 

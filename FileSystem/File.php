@@ -7,36 +7,37 @@
  * @license     http://www.arikaim.com/license.html
  * 
 */
-namespace Arikaim\Core\Utils;
+namespace Arikaim\Core\FileSystem;
 
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\System\Config;
+use Arikaim\Core\Errors\Errors;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Utils\Curl;
+
 
 class File 
 {
-    public static function loadJSONFile($file_name,$vars = null, $to_array = true) 
+    public static function readJSONFile($file_name, $vars = null, $to_array = true) 
     {    
         if (File::exists($file_name) == false) return false;
-        $json_text = file_get_contents($file_name);   
-
+        $json_text = Self::read($file_name);   
+       
         if (is_array($vars) == true) {
             $json_text = Utils::parseProperties($json_text,$vars);
         }     
         $data = json_decode($json_text,$to_array);
         if ($data == false) {
-            $error = Arikaim::errors()->getJSONError();
+            $error = Errors::getJsonError();
             if ($error != null) {
-                //Arikaim::errors()->addError($error);
+                $data = [];                
             }
         }
         return $data;
     }
 
-    public static function loadConfigFile($file_name) 
+    public static function readConfigFile($file_name) 
     {
-        return File::loadJSONFile(Config::getConfigPath() . DIRECTORY_SEPARATOR . $file_name);
+        return File::readJSONFile(Config::getConfigPath() . DIRECTORY_SEPARATOR . $file_name);
     }
 
     public static function scanDir($path,\Closure $callback) 
@@ -55,7 +56,9 @@ class File
 
     public static function getClassesInFile($file_name) 
     {
-        if (File::exists($file_name) == false) return false;
+        if (File::exists($file_name) == false) {
+            return false;
+        }
         $php_code = file_get_contents($file_name);
         return Utils::getClasses($php_code);
     }
@@ -82,7 +85,6 @@ class File
     public static function getSize($file_name)
     {
         if (File::exists($file_name) == false) return false;
-        
         $size = filesize($file_name);
         $labels = ['B','KB','MB','GB','TB','PB','EB','ZB','YB'];
         $power = $size > 0 ? floor(log($size, 1024)) : 0;
@@ -121,7 +123,7 @@ class File
         return File::exists($file_path);
     }
 
-    public static function write($file_name,$data, $flags = 0)
+    public static function write($file_name, $data, $flags = 0)
     {
         return file_put_contents($file_name,$data,$flags);
     }
@@ -140,8 +142,11 @@ class File
         return true;
     }
 
-    public static function load($file_name)
+    public static function read($file_name)
     {
-        return file_get_contents($file_name);
+        if (Self::exists($file_name) == true) {
+            return file_get_contents($file_name);
+        }
+        return null;
     }
 }

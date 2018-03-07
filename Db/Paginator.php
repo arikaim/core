@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\Db;
 
-//use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Arikaim;
 
 class Paginator 
@@ -73,5 +72,4 @@ class Paginator
         if ($page > $max_pages) $page = $max_pages;
         return $page;
     }
-    
 }

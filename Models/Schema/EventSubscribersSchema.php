@@ -9,12 +9,11 @@
 */
 namespace Arikaim\Core\Models\Schema;
 
-use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Db\Schema;
 
-class EventsSubscribersSchema extends Schema  
+class EventSubscribersSchema extends Schema  
 {    
-    protected $table_name = "events_subscribers";
+    protected $table_name = "event_subscribers";
 
     public function create() 
     {
@@ -24,6 +23,7 @@ class EventsSubscribersSchema extends Schema
             $table->bigIncrements('id')->nullable(false);
             $table->string('name')->nullable(false);
             $table->string('handler_class')->nullable(false);
+            $table->string('handler_method')->nullable(true);            
             $table->string('extension_name')->nullable(false)->default('');
             $table->integer('status')->nullable(false)->default(1);
             $table->integer('priority')->nullable(false)->default(0);
@@ -43,12 +43,6 @@ class EventsSubscribersSchema extends Schema
     public function update()
     {
         $this->updateTable(function($table) {
-            
         });
-    }
-    
-    public function addDefaultRows() 
-    {
-        
     }
 }

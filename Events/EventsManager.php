@@ -13,7 +13,8 @@ use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Events\AbstractEvent;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Events\Event;
-use Arikaim\Core\Interfaces\EventManagerInterface;
+use Arikaim\Core\Interfaces\Events\EventInterface;
+use Arikaim\Core\Interfaces\Events\EventSubscriberInterface;
 
 class EventsManager 
 {
@@ -36,14 +37,27 @@ class EventsManager
         return $events->deleteEvent($event_name);
     }
 
-    public function registerEvent($name, $extension_name, $titie, $description = null)
+    public function registerEvent($name, $title, $extension_name = null, $description = null)
     {
+        if (($this->isCoreEvent($name) == true) && ($extension_name != null)) {
+            // core events can't be registered from extension
+            return false;
+        }
+
         $event['name'] = $name;
         $event['extension_name'] = $extension_name;
-        $event['titie'] = $titie;
+        $event['title'] = $title;
         $event['description'] = $description;
-        $result =  Model::Events()->addEvent($event);
+        $result = Model::Events()->addEvent($event);
         return $result;
+    }
+
+    public function isCoreEvent($name)
+    {
+        if (substr($name,0,4) == "core") {
+            return true;
+        }
+        return false;
     }
 
     public function registerSubscriber($base_class_name,$extension_name)
@@ -65,21 +79,27 @@ class EventsManager
         $subscriber['priority'] = $priority;
         $subscriber['extension_name'] = $extension_name;
         $subscriber['handler_class'] = Self::getEventSubscriberClass($base_class_name,$extension_name);
-        return  Model::EventsSubscribers()->add($subscriber);
+        return Model::EventSubscribers()->add($subscriber);
     }
 
     public function unsubscribe($event_name, $extension_name)
     {
-        return Model::EventsSubscribers()->deleteSubscriber($event_name,$extension_name);
+        return Model::EventSubscribers()->deleteSubscriber($event_name,$extension_name);
     }
 
-    public function trigger($event_name,Event $event)
+    public function trigger($event_name,$event = null)
     {
-        if (is_subclass_of($event,Factory::getFullInterfaceName("EventInterface")) == false) {
-            // event is not valid event object 
-            return false;
+        if ($event == null) {
+            $event = new Event();       
         }
-        
+        if (is_array($event) == true) {
+            $event = new Event($event);           
+        }        
+        if ($event instanceof EventInterface == false) {            
+            throw new \Exception("Not valid event object");
+        }
+        $event->setParameter('event_name',$event_name);          
+
         // load event handlers from database
         $result = Model::Events()->hasEvent($event_name,1);
         if ($result == false) {
@@ -88,9 +108,9 @@ class EventsManager
             return false;
         }
         // get all subscribers for event
-        $subscribers = Model::EventsSubscribers()->getSubscribers($event_name,1);       
-        $this->executeEventHandlers($subscribers,$event);  
-        return $event;
+        $subscribers = Model::EventSubscribers()->getSubscribers($event_name,1);       
+        $result = $this->executeEventHandlers($subscribers,$event);  
+        return $result;
     }
 
     private function executeEventHandlers(array $event_subscribers,Event $event)
@@ -98,21 +118,22 @@ class EventsManager
         if (empty($event_subscribers) == true) {
             return false;
         }
-    
+        $result = [];
         foreach ($event_subscribers as $item) {
             $subscriber = Factory::createInstance($item['handler_class']);
             if (is_object($subscriber) == true) {
-                $subscriber->execute($event);
+                $event_result = $subscriber->execute($event);
+                array_push($result,$event_result);
             }
         }
-        return $event;
+        return $result;
     }
 
     public static function createEventSubscriber($base_class_name, $extension_name = null)
     {        
-        $class_name = Self::getEventSubscriberClass($base_class_name,$extension_name);  
+        $class_name = Self::getEventSubscriberClass($base_class_name,$extension_name);         
         $instance = Factory::createInstance($class_name);
-        if (is_subclass_of($instance,Factory::getFullInterfaceName("EventSubscriberInterface")) == true) {  
+        if ($instance instanceof EventSubscriberInterface) {  
             return $instance;
         }
         return false;
@@ -135,6 +156,7 @@ class EventsManager
 
     public static function getExtensionEventsNamespace($extension_name)
     {
+        $extension_name = ucfirst($extension_name); 
         return "Arikaim\\Extensions\\$extension_name\\Events";
     }
 

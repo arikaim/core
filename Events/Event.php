@@ -11,11 +11,10 @@ namespace Arikaim\Core\Events;
 
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Number;
-use Arikaim\Core\Interfaces\EventInterface;
+use Arikaim\Core\Interfaces\Events\EventInterface;
 
 class Event implements EventInterface
 {
-   
     protected $parameters = [];
     protected $propagation = false;
 

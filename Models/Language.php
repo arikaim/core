@@ -10,7 +10,6 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Db\UUIDAttribute;
 use Arikaim\Core\Db\ToggleValue;
 use Arikaim\Core\Db\Position;
@@ -24,7 +23,8 @@ class Language extends Model
    
     public $timestamps = false;
     
-    public function getModel(){
+    public function getModel()
+    {
         return $this;
     }
 

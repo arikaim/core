@@ -1,6 +1,6 @@
 <?php
 /**
- *  Arikaim
+ * Arikaim
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
@@ -12,6 +12,7 @@ namespace Arikaim\Core\Db;
 use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\System\Install;
 
 abstract class Schema  
 {
@@ -19,7 +20,6 @@ abstract class Schema
 
     abstract public function create();
     abstract public function update();
-    abstract public function addDefaultRows();
 
     public function __construct($table_name = null) 
     {
@@ -43,6 +43,9 @@ abstract class Schema
 
     public static function hasTable($model)
     {      
+        if (Install::hasDatabase(Arikaim::config('db/database')) == false) {
+            return false;
+        }
         $table_name = $model->getTable();      
         return Manager::schema()->hasTable($table_name);      
     }
@@ -81,7 +84,7 @@ abstract class Schema
         }
         $instance = Factory::createInstance($schema_class_name);
         if (Self::isValidSchema($instance) == false) {
-            throw \Exception("Not valid schema class '$schema_class_name'");
+            throw new \Exception("Not valid schema class '$schema_class_name'");
             return null;           
         } 
         return $instance;
@@ -89,7 +92,7 @@ abstract class Schema
     
     public static function isValidSchema($instance)
     {
-        return  is_subclass_of($instance,"\\Arikaim\\Core\\Db\\Schema");
+        return is_subclass_of($instance,"Arikaim\\Core\\Db\\Schema");
     }
 
     public static function install($class_name, $extension_name = null) 
@@ -100,12 +103,9 @@ abstract class Schema
                 $instance->create();
                 if ($instance->tableExists() == false ) {
                     return false;
-                } else {
-                    $instance->addDefaultRows();
-                }
+                } 
                 return true;
             } catch(\Exception $e) {
-                echo $e->getMessage();
                 return false;
             }
         }
@@ -119,7 +119,7 @@ abstract class Schema
 
     public static function getSchemaNamespace()
     {
-        return "\\Arikaim\\Core\\Models\\Schema\\";
+        return "Arikaim\\Core\\Models\\Schema\\";
     }
 
     public static function getSchemaClass($base_class)
@@ -129,7 +129,7 @@ abstract class Schema
 
     public static function createExtensionModelSchema($extension_name, $base_class_name)
     {
-        $full_class_name = Schema::getExtensionModelSchemaClass($extension_name,$base_class_name);      
+        $full_class_name = Schema::getExtensionModelSchemaClass($extension_name, $base_class_name);      
         return Factory::createInstance($full_class_name);
     }
 
@@ -141,7 +141,7 @@ abstract class Schema
     public static function getExtensionModelSchemaNamespace($extension_name)
     {
         $extension_name = ucfirst($extension_name);
-        return "\\Arikaim\\Extensions\\$extension_name\\Models\\Schema";
+        return "Arikaim\\Extensions\\$extension_name\\Models\\Schema";
     }
 
     public static function getDbSchemaPath() 

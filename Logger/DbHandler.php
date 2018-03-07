@@ -13,6 +13,7 @@ use Monolog\Logger;
 use Monolog\Handler\AbstractProcessingHandler;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model;
+use Arikaim\Core\Db\Schema;
 
 class DbHandler extends AbstractProcessingHandler
 {
@@ -22,7 +23,10 @@ class DbHandler extends AbstractProcessingHandler
     {
         parent::__construct($level,$bubble);
         try {
-            $this->model = Model::Logs(true);
+            $this->model = Model::Logs();
+            if (Schema::hasTable($this->model) == false) {
+                $this->model = null;
+            }
         } catch (\Exception $e) {
             $this->model = null;
         }
@@ -38,9 +42,10 @@ class DbHandler extends AbstractProcessingHandler
         $info['message'] = $record['message'];
         $info['ip_address'] = $record['context']['client_ip'];
         
-        if (is_object($this->model) == true) {
+        if (is_object($this->model) == true) {           
             $this->model->fill($info);
             return $this->model->save();
         }
+        return false;
     }  
 }

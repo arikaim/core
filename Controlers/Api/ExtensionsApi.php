@@ -20,17 +20,19 @@ class ExtensionsApi extends ApiControler
     
     public function update($request, $response, $args)
     {
+        $this->requireControlPanelPermission();
         return $this->install($request, $response, $args);
     }
 
     public function changeStatus($request, $response, $args)
     {
+        $this->requireControlPanelPermission();
+
         $extension_manager = new ExtensionsManager();
         $this->form->addRule('status',Form::Rule()->checkList([0,1,'toggle']));
         $this->form->addRule('name',Form::Rule()->extensionPath($args['name']));
 
-        $this->form->validate($args);
-        if ( $this->form->isValid() == true ) {
+        if ($this->form->validate($args) == true) {
             try {
                 $name = $this->form->get('name');  
                 $result['status'] = $this->form->get('status');                      
@@ -55,9 +57,11 @@ class ExtensionsApi extends ApiControler
 
     public function unInstall($request, $response, $args)
     {
+        $this->requireControlPanelPermission();
+
         $this->form->addRule('name',Form::Rule()->extensionPath($args['name']));
-        $this->form->validate($args);
-        if ( $this->form->isValid() == true ) {
+   
+        if ($this->form->validate($args) == true) {
             $extension_manager = new ExtensionsManager();
             $result = $extension_manager->unInstall($args['name']);
             if ($result == false) {
@@ -71,9 +75,11 @@ class ExtensionsApi extends ApiControler
 
     public function install($request, $response, $args)    
     {       
+        $this->requireControlPanelPermission();
+
         $this->form->addRule('name',Form::Rule()->extensionPath($args['name']));
-        $this->form->validate($args);
-        if ( $this->form->isValid() == true ) {
+    
+        if ($this->form->validate($args) == true) {
             $extension_manager = new ExtensionsManager();
             $result = $extension_manager->install($args['name']);
             if ($result == false) {

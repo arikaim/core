@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\Middleware;
 
-
 class ClientIp
 {
     private $check_proxy_headers;
@@ -48,7 +47,6 @@ class ClientIp
                 }
             }
         }
-        
         $request = $request->withAttribute($this->attribute_name,$ip_address);
         return $request;
     }

@@ -17,6 +17,9 @@ class OptionsApi extends ApiControler
 {
     public function save($request, $response, $args) 
     {                
+        // access from contorl panel only 
+        $this->requireControlPanelPermission();
+
         $this->form->addRule('key',Form::Rule()->text(2));       
         if ($this->form->validate($request->getParsedBody()) == true) {
             $key = $this->form->get('key');
@@ -43,6 +46,9 @@ class OptionsApi extends ApiControler
 
     public function saveOptions($request, $response, $args) 
     {    
+        // access from contorl panel only 
+        $this->requireControlPanelPermission();
+        
         if ($this->form->validate($request->getParsedBody()) == true) {
             $fields = $this->form->toArray();
             foreach ($fields as $key => $value) {

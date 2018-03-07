@@ -13,7 +13,6 @@ interface ExtensionInterface
 {  
     public function onAfterInstall();
     public function onBeforeInstall();
-
     public function onAfterUnInstall();
     public function onBeforeUnInstall();
     public function install();

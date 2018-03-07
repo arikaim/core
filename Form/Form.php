@@ -16,7 +16,6 @@ use Arikaim\Core\Form\Filter;
 
 class Form extends Collection 
 {
-
     private $rules;   
     private $filters;
     private $errors;
@@ -116,6 +115,13 @@ class Form extends Collection
             }
         }
         return $this->isValid();   
+    }
+
+    public function setError($field_name, $message)
+    {
+        $error['field_name'] = $field_name;
+        $error['message'] = $message;
+        return $this->addError($error);
     }
 
     public static function sanitizeVariable($value, $type = FILTER_SANITIZE_STRING) 

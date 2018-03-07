@@ -16,4 +16,5 @@ interface DefinitionInterface
     public function getShortDescription();
     public function getVersion(); 
     public function getIcon(); 
+    public function getType(); 
 }

@@ -10,6 +10,7 @@
 namespace Arikaim\Core\Utils;
 
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\Utils\TimeInterval;
 
 class DateTime 
 {   
@@ -31,6 +32,7 @@ class DateTime
         }
         $this->date_format = Self::getDateFormat();
         $this->time_zone = new \DateTimeZone($this->time_zone_name);
+
         $this->date_time = new \DateTime("now",$this->time_zone);
         $this->setDateFormat($this->date_format);
     }
@@ -57,6 +59,12 @@ class DateTime
             }
         }
         return $time_format;
+    }
+
+    public function getInterval($interval_text)
+    {
+        $interval = new TimeInterval($interval_text);
+        return $interval->toArray();
     }
 
     public function getTimeZonesList()
@@ -107,6 +115,37 @@ class DateTime
         $this->date_time->setTimestamp($unix_timestamp);
     }
 
+    public function getTimestamp()
+    {
+        return $this->date_time->getTimestamp();
+    }
+
+    public function getYear()
+    {
+        return date('Y',$this->getTimestamp());
+    }
+
+    public function getMonth()
+    {
+        return date('n',$this->getTimestamp());
+    }
+    
+    public function getDay()
+    {
+        return date('j',$this->getTimestamp());
+    }
+
+    public function getHour()
+    {
+        return date('G',$this->getTimestamp());
+    }
+
+    public function getMinutes()
+    {
+        $minutes = date('i',$this->getTimestamp());
+        return intval($minutes);
+    }
+
     public static function getDefaultTimeZoneName() {
         return date_default_timezone_get();
     }
@@ -114,5 +153,18 @@ class DateTime
     public static function getCurrentTime()
     {
         return time();
+    }
+
+    public function toString($format = null) 
+    {
+        if ($format == null) {
+            $format = $this->date_format;
+        }
+        return $this->date_time->format($format);
+    }
+
+    public function __toString() 
+    {
+        return $this->date_time->format($this->date_format);
     }
 }

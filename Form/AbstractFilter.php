@@ -9,8 +9,6 @@
  */
 namespace Arikaim\Core\Form;
 
-use Arikaim\Core\Utils\Factory;
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Interfaces\FilterInterface;
 
 abstract class AbstractFilter implements FilterInterface
@@ -27,7 +25,7 @@ abstract class AbstractFilter implements FilterInterface
         $filter = $this->getFilter();
         $filter_options = $this->getFilterOptions();
         $result = filter_var($value,$filter,$filter_options);
-        if ( $result == false ) {
+        if ($result == false) {
             return $value;
         }
         return $result;

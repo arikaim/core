@@ -12,17 +12,17 @@ namespace Arikaim\Core\Middleware;
 use Arikaim\Core\Form\Form;
 use Arikaim\Core\Middleware\ClientIp;
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\Db\Model;
 
-class CoreMiddleware 
+class CoreMiddleware
 {
-    public function __construct() 
+    public function __construct()
     {        
-       
     }
 
-    public function __invoke($request, $response, $next) 
-    {         
-        // sanitize requets body              
+    public function __invoke($request, $response, $next)
+    {
+        // sanitize requets body
         $request = $this->sanitizeRequest($request);
         
         // get client ip address
@@ -30,20 +30,27 @@ class CoreMiddleware
         $request = $cleint_ip->getClientIpAddress($request);
         
         // auth token and session 
-        Arikaim::access()->fetchToken($request);
-       // $token = Arikaim::access()->getToken();
-       // print_r($token);
-       // exit();
+        $result = Arikaim::access()->fetchToken($request);
+        if ($result == false) {
+            if (Model::Users()->isLoged() == true) {
+                // create token for current user
+                $user = Model::Users()->getLogedUser();
+                if ($user != false) {
+                    $token = Arikaim::access()->createToken($user->id,$user->uuid);  
+                    Arikaim::access()->applyToken($token);  
+                }
+            }
+        }
 
         $response = $next($request, $response);
-        return $response;   
+        return $response;
     }
 
     private function sanitizeRequest($request)
     {
         $form = new Form($request->getParsedBody());
-        $form->addFilter('*',Form::Filter()->text());        
+        $form->addFilter('*',Form::Filter()->text());
         $form->sanitize();
-        return $request->withParsedBody($form->toArray());      
+        return $request->withParsedBody($form->toArray());
     }
 }

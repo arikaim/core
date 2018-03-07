@@ -25,7 +25,6 @@ use Symfony\Component\Console\Output\BufferedOutput;
 
 class ComposerApplication extends Application
 {   
-
     public function __construct() 
     {
         parent::__construct();
@@ -72,9 +71,24 @@ class ComposerApplication extends Application
         return $package;
     }
 
+    public function executeCommand($cmd = 'update')
+    {
+        $base_path = $this->getComposerBinPath();
+        putenv('COMPOSER_HOME=' . $base_path);
+
+        // call `composer install` command programmatically
+        $input = new ArrayInput(array('command' => $cmd));
+        $application = new Application();
+        $application->setAutoExit(false); 
+        $output = new BufferedOutput();
+        $application->run($input,$output);
+        return $output;
+    }
+
     public function runCommand($command, $params = [])
     {
-        $parameters = ['command' => $command] + $params;
+        $parameters = array_merge(['command' => $command],$params);            
+
         $input = new ArrayInput($parameters);
         $output = new BufferedOutput();
         try {
@@ -97,10 +111,6 @@ class ComposerApplication extends Application
 
     public function getLocalPackages()
     {
-        $r = $this->getComposer()->getRepositoryManager()->getRepositories();
-      //  print_r($r);
-
         return $this->getComposer()->getRepositoryManager()->getLocalRepository()->getCanonicalPackages();
     }
-
 }

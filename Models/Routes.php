@@ -10,10 +10,10 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Access\Access;
+use Arikaim\Core\Arikaim;
 
 class Routes extends Model  
 {
@@ -26,7 +26,23 @@ class Routes extends Model
     const DISABLED  = 0;
     const ACTIVE    = 1;
     
-    protected $fillable = ['name','path','pattern','method','handler_extension','handler_class','handler_method','extension_name','uuid','auth','type'];
+    protected $fillable = [
+        'name',
+        'path',
+        'pattern',
+        'method',
+        'handler_extension',
+        'handler_class',
+        'handler_method',
+        'extension_name',
+        'uuid',
+        'auth',
+        'type',
+        'template_name',
+        'required_permission',
+        'permission_type',
+        'template_page'];
+        
     public $timestamps = false;
 
     public function disableExtensionRoutes($extension_name) 
@@ -34,6 +50,8 @@ class Routes extends Model
         $routes = $this->where('extension_name','=',$extension_name)->get();
         foreach ($routes as $route) {
             $route->status = 0;
+            // fire event        
+            Arikaim::event()->trigger('core.route.disable',$route->toArrray());
             $route->update();
         }
     }
@@ -49,7 +67,7 @@ class Routes extends Model
 
     public function getRoutes($status = Self::ACTIVE, $extension_name = null)
     {
-        if (Schema::schema()->hasTable('routes') == false) {
+        if (Schema::hasTable($this) == false) {
             return null;
         } 
         $model = $this;
@@ -75,6 +93,15 @@ class Routes extends Model
         return false;
     }
 
+    public function deleteTemplateRoutes($template_name)
+    {
+        $model = $this->where('template_name','=',$template_name);
+        if (is_object($model) == true) {
+            return $model->delete();
+        }
+        return false;
+    }
+
     public function deleteRoute($method, $path)
     {
         $result = true;
@@ -87,7 +114,34 @@ class Routes extends Model
 
     public function getRoute($method, $path)
     {
-        return $model = $this->where('method','=',$method)->where('path','=',$path)->get();
+        $model = $this->where('method','=',$method)->where('path','=',$path)->first();
+        if (is_object($model) == false) {
+            return false;
+        }
+        return $model;
+    }
+
+    public function getTemplateRoute($method, $path, $template_name)
+    {
+        $model = $this->where('method','=',$method)->where('path','=',$path);
+        $model = $model->where('template_name','=',$template_name)->first();
+        if (is_object($model) == false) {
+            return false;
+        }
+        return $model;
+    }
+
+    public function findRoute($condition)
+    {
+        if (is_array($condition) == false) {
+            return null;
+        }
+        $model = Model::applyCondition($this,$condition);
+        $model = $model->get();
+        if (is_object($nodel) == false) {
+            return false;
+        }
+        return $model;
     }
 
     public function hasRoute($method, $path)
@@ -99,35 +153,60 @@ class Routes extends Model
         return true;
     }
 
-    public function addRoute($method, $path, $pattern, $handler_class, $handler_method, $extension_name, $auth = 0, $type = Self::TYPE_UNKNOW)
+    public function addRoute(array $route)
     {
         $result = false;
+        $route['uuid'] = Utils::getUUID();
 
+        if ($this->hasRoute($route['method'],$route['path']) == false) {
+            $result = Routes::create($route); 
+        }       
+        return $result;
+    }
+
+    public function addTemplateRoute($path, $pattern, $handler_class, $handler_method, $template_name, $template_page)
+    {
+        $route['method'] = "GET";
+        $route['path'] = $path;
+        $route['pattern'] = $pattern;
+        $route['handler_class'] = $handler_class;
+        $route['handler_method'] = $handler_method;
+        $route['auth'] = Access::AUTH_NONE;
+        $route['type'] = Self::TYPE_PAGE;
+        $route['template_page'] = $template_page;
+        $route['template_name'] = $template_name;
+        // fire event        
+        Arikaim::event()->trigger('core.route.register',$route);
+
+        return $this->addRoute($route);
+    }
+
+    public function addPageRoute($path, $pattern, $handler_class, $handler_method, $extension_name, $auth = Access::AUTH_NONE)
+    {
+        $route['method'] = "GET";
+        $route['path'] = $path;
+        $route['pattern'] = $pattern;
+        $route['handler_class'] = $handler_class;
+        $route['handler_method'] = $handler_method;
+        $route['auth'] = $auth;
+        $route['type'] = Self::TYPE_PAGE;
+        $route['extension_name'] = $extension_name;
+      
+        return $this->addRoute($route);
+    }
+
+    public function addApiRoute($method, $path, $pattern, $handler_class, $handler_method, $extension_name, $auth = Access::AUTH_JWT)
+    {
         $route['method'] = $method;
         $route['path'] = $path;
         $route['pattern'] = $pattern;
         $route['handler_class'] = $handler_class;
         $route['handler_method'] = $handler_method;
         $route['auth'] = $auth;
-        $route['type'] = $type;
-      //  $route['handler_extension'] = $handler_extension;
+        $route['type'] = Self::TYPE_API;
         $route['extension_name'] = $extension_name;
-        $route['uuid'] = Utils::getUUID();
 
-        if ($this->hasRoute($method,$path) == false) {
-            $result = Routes::create($route); 
-        }       
-        return $result;
-    }
-
-    public function addPageRoute($path, $pattern, $handler_class, $handler_menthod, $extension_name, $auth = 0)
-    {
-        return $this->addRoute("GET",$path, $pattern, $handler_class, $handler_menthod, $extension_name,$auth,Self::TYPE_PAGE);
-    }
-
-    public function addApiRoute($method,$path, $pattern, $handler_class, $handler_menthod, $extension_name, $auth = Access::AUTH_JWT)
-    {
-        return $this->addRoute($method,$path, $pattern, $handler_class, $handler_menthod, $extension_name,$auth, $auth,Self::TYPE_API);
+        return $this->addRoute($route);
     }
 
     public static function isValidAuth($auth)
@@ -147,5 +226,4 @@ class Routes extends Model
         if (Self::isValidAuth($route['auth']) == false) return false;
         return true;
     }
-
 }

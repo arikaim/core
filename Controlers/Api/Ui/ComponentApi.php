@@ -12,17 +12,17 @@ namespace Arikaim\Core\Controlers\Api\Ui;
 use Arikaim\Core\Controlers\ApiControler;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Paginator;
-use Arikaim\Core\View\Html\Component;
 use Arikaim\Core\Utils\Utils;
 
-class ComponentApi extends ApiControler 
+class ComponentApi extends ApiControler
 {
-    public function loadComponent($request, $response, $args) 
-    {  
+    public function loadComponent($request, $response, $args)
+    {       
         $params = $this->getParams($request);
-        if (isset($params[0]) == true) {
-            Paginator::setCurrentPage($params[0]);
-        }
+        $page = $this->getPage($params);
+
+        Paginator::setCurrentPage($page);
+
         if (isset($params[1]) == true) {
             Paginator::setRowsPerPage($params[1]);
         }
@@ -33,25 +33,30 @@ class ComponentApi extends ApiControler
         return $this->load($args['name'],$params);
     }
 
-    public function load($component_name,$params = []) 
-    {   
-        $component = new Component();
-        $html_code = $component->fetch($component_name,$params);
-        $components = Arikaim::templateComponents();
-
-        $css_files = $components->getIncludeFiles('css_files');
-        $js_files = $components->getIncludeFiles('js_files');
-        $properties = Utils::jsonEncode($components->getProperties($component_name));
-
-        if (($html_code == false) && ($js_files == false) && ($css_files == false)) {
-            $this->setApiError("Component not exists!");    
-        } else {
-            $result_code['html'] = $html_code;
-            $result_code['css_files']  = $css_files;
-            $result_code['js_files']   = $js_files;
-            $result_code['properties'] = $properties;
-            $this->setApiResult($result_code);
+    private function getPage($params)
+    {
+        $page = 1;
+        if (isset($params[0]) == true) {
+            $page = $params[0];
         }
+        return $page;
+    }
+
+    public function load($component_name,$params = [])
+    {   
+        $component = Arikaim::view()->component()->render($component_name,$params);
+        if (empty($component['error']) == false) {
+            $this->setApiError($component['error']);
+            return $this->getApiResponse();
+        }
+        $properties = Arikaim::view()->components()->get($component['path']);
+
+        $result_code['html'] = $component['html_code'];
+        $result_code['css_files']  = Arikaim::view()->component()->files()->get('css_files',[]);
+        $result_code['js_files']   = Arikaim::view()->component()->files()->get('js_files',[]);
+        $result_code['properties'] = Utils::jsonEncode($properties);
+
+        $this->setApiResult($result_code);
         return $this->getApiResponse();
     }
 

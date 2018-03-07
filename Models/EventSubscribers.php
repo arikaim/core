@@ -10,19 +10,31 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Db\UUIDAttribute;
 use Arikaim\Core\Utils\Number;
 
-class EventsSubscribers extends Model  
+class EventSubscribers extends Model  
 {
     use UUIDAttribute;
 
     const DISABLED = 0;
     const ACTIVE = 1;
 
-    protected $fillable = ['name','handler_class','extension_name','uuid','priority'];
+    protected $fillable = ['name','handler_class','handler_method','extension_name','uuid','priority'];
     public $timestamps = false;
+
+    public function getExtensionSubscribers($extension_name, $status = null) 
+    {           
+        $model = $this->where('extension_name','=',$extension_name);
+        if ($status != null) {
+            $model = $model->where('status','=',$status);
+        }
+        $model = $model->orderBy('priority')->get();
+        if (is_object($model) == true) {
+            return $model->toArray();
+        } 
+        return [];
+    }
 
     public function getSubscribers($event_name, $status = null) 
     {           

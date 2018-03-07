@@ -10,32 +10,35 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Capsule\Manager;
+use Arikaim\Core\Db\Schema;
 
 class Permissions extends Model  
 {
     const USER = 'user';
     const GROUP = 'group';
-    const CONTROL_PANEL = "control_panel";
-    const FULL = ['read' => 1,'write' => 1,'delete' => 1,'execute' => 1];
-
-    protected $fillable = ['id','read','write','delete','execute','object_type','key','object_uuid'];
+    
+    protected $fillable = ['id','read','write','delete','execute','object_type','key','object_uuid','title','description'];
     public $timestamps = false;
     
     public function setUserPermission($user_uuid, $key, $permissions) 
     {
-        return $this->setPermission($user_uuid,$key,Permissions::USER,$permissions);
+        return $this->setPermission($user_uuid,$key,$permissions,Permissions::USER);
     }
     
     public function setGroupPermission($group_uuid, $key, $permissions)
     {
-        return $this->setPermission($user_uuid,$key,Permissions::GROUP,$permissions);
+        return $this->setPermission($user_uuid,$key,$permissions,Permissions::GROUP);
     }
 
     public function getPermission($key, $object_uuid = null)
     {
+        if (Schema::hasTable($this) == false) {          
+            return false;
+        }
+
         if ($object_uuid != null) {
-            $model = $this->whereRaw(" object_uuid = $object_uuid AND key = '$key' ")->first();
+            $model = $this->where('object_uuid','=',$object_uuid);
+            $model = $model->where('key','=',$key)->first();
         } else {
             $model = $this->where("key","=",$key)->first();
         }
@@ -45,29 +48,29 @@ class Permissions extends Model
         return null;
     }
 
-    public function setPermission($object_uuid, $key, $type, $permissions) 
+    public function setPermission($object_uuid, $key, $access, $type = Permissions::USER) 
     {
-        $permissions = $this->validatePermissions($permissions); 
+        $permissions = $this->validatePermissions($access); 
         $permissions['object_type'] = $type;
         $permissions['object_uuid'] = $object_uuid;
         $permissions['key'] = $key;
+        
         $this->fill($permissions);
 
         try {
             $result = $this->save();
         } catch(\Exception $e) {
-          echo   $e->getMessage();
           return false;
         }      
         return $result;
     }
 
-    private function validatePermissions($permissions) 
+    private function validatePermissions(array $access) 
     {
-        $permissions['read'] = isset($permissions['read']) ? 1:0;
-        $permissions['write'] = isset($permissions['write']) ? 1:0;
-        $permissions['delete'] = isset($permissions['delete']) ? 1:0;
-        $permissions['execute'] = isset($permissions['execute']) ? 1:0;
+        $permissions['read'] = in_array('read',$access) ? 1:0;
+        $permissions['write'] = in_array('write',$access) ? 1:0;
+        $permissions['delete'] = in_array('delete',$access) ? 1:0;
+        $permissions['execute'] = in_array('execute',$access) ? 1:0;
         return $permissions;
     }
 
@@ -77,6 +80,25 @@ class Permissions extends Model
         $this->write = 0;
         $this->delete = 0;
         $this->execute = 0;
+    }
+
+    public function hasPermissions(array $permissions)
+    {
+        if ((is_array($permissions) == false) || (count($permissions) == 0)) {
+            return false;
+        } 
+        foreach ($permissions as $permission) {            
+            if ($this->hasPermission($permission) == false) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public function hasPermission($name)
+    {
+        $value = $this->getAttribute($name);
+        return ($value == 1) ? true : false;
     }
 
     public function hasRead()

@@ -10,8 +10,8 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Utils\Utils;
+use Arikaim\Core\Utils\Arrays;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Model as DbModel;
 
@@ -21,18 +21,13 @@ class Options extends Model
 
     protected $fillable = ['key','value','auto_load','extension'];
     private $options = [];
-    private $table_installed = false;
-
+  
     public function read($key) 
     {
         try {
-            if (Schema::schema()->hasTable('options') == false) {
-                return null;
-            }
-
             $model = $this->where('key','=',$key)->first();
             if (is_object($model) == false) return null;
-            return $model->value;            
+            return $model->value;                        
         } catch(\Exception $e) {
             return null;
         }
@@ -66,24 +61,21 @@ class Options extends Model
 
     public function hasOption($key)
     {
-        $model = $this->where('key','=',$key)->first();
-        if (empty($model) == false) {
-            return $model;
-        } 
+        try {
+            $model = $this->where('key','=',$key)->first();
+            if (empty($model) == false) {
+                return $model;
+            } 
+        } catch(\Exception $e) {
+            return false;
+        }
         return false;
     }
 
     public function loadOptions()
     {
         try {
-            if (Schema::schema()->hasTable('options') == false) { 
-                $this->table_installed == false;
-                return [];
-            } else {
-                $this->table_installed == true;
-            }
-
-            $model = Self::where('auto_load','=','1')->get();
+            $model = $this->where('auto_load','=','1')->get();
             if (is_object($model) == true) {
                 $items = $model->toArray();
             } else {
@@ -110,7 +102,9 @@ class Options extends Model
         }
         $value = $this->read($key);
         if ($value == null) {
-            if ($default_value != null) return $default_value;
+            if ($default_value != null) {
+                return $default_value;
+            }
             return null;
         }       
         if (Utils::isJSON($value) == true) {            
@@ -127,12 +121,12 @@ class Options extends Model
     public function getOptions($search_key)
     {
         $result = null;
-        $values = Utils::arrayGetValues($this->options,$search_key);
+        $values = Arrays::getValues($this->options,$search_key);
         if (is_array($values) == false) {
             return $result;
         }
         foreach ($values as $key => $value) {
-            $result = Utils::arraySetValue($result,$key,$value,'.');
+            $result = Arrays::setValue($result,$key,$value,'.');
         }      
         return $result;      
     }

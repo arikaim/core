@@ -9,8 +9,11 @@
 */
 namespace Arikaim\Core\Interfaces;
 
-interface EventSubscriberInterface
+interface ModuleInterface
 {    
-    public function execute($event);
-    public function getEvents();
+    public function getServiceName();
+    public function getModuleTitle();
+    public function getModuleDescription();
+    public function getModuleVersion();
+    public function isBootable();
 }

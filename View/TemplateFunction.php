@@ -9,13 +9,14 @@
 */
 namespace Arikaim\Core\View;
 
-use Arikaim\Core\Utils\File;
+use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Db\Paginator;
 use Arikaim\Core\Db\Search;
+use Arikaim\Core\View\Template;
 
 class TemplateFunction  
 {
@@ -26,25 +27,52 @@ class TemplateFunction
     {
         $this->allowed_classes = [];
         $this->deny_methods = [];
-        $this->allowClass(Factory::getCoreNamespace() . 'Extension\\ExtensionsManager');     
-        $this->allowClass(Factory::getCoreNamespace() . 'Db\\Search');
-        $this->allowClass(Factory::getCoreNamespace() . 'Db\\Paginator');
-        $this->allowClass(Factory::getCoreNamespace() . 'Extension\\Routes');           
-        $this->allowClass(Factory::getCoreNamespace() . 'View\\TemplatesManager');
-        $this->allowClass(Factory::getCoreNamespace() . 'View\\UiLibrary');
-        $this->allowClass(Factory::getCoreNamespace() . 'System\\Install');
-        $this->allowClass(Factory::getCoreNamespace() . 'System\\Update');
-        $this->allowClass(Factory::getCoreNamespace() . 'Logger\\SystemLogger');
-        $this->allowClass(Factory::getCoreNamespace() . 'System\\System');
+        $this->allowClass(Factory::getCoreNamespace() . '\\Extension\\ExtensionsManager');     
+        $this->allowClass(Factory::getCoreNamespace() . '\\Db\\Search');
+        $this->allowClass(Factory::getCoreNamespace() . '\\Db\\Paginator');
+        $this->allowClass(Factory::getCoreNamespace() . '\\Extension\\Routes');           
+        $this->allowClass(Factory::getCoreNamespace() . '\\View\\TemplatesManager');
+        $this->allowClass(Factory::getCoreNamespace() . '\\View\\UiLibrary');
+        $this->allowClass(Factory::getCoreNamespace() . '\\System\\Install');
+        $this->allowClass(Factory::getCoreNamespace() . '\\System\\Update');
+        $this->allowClass(Factory::getCoreNamespace() . '\\Access\\Access');
+        $this->allowClass(Factory::getCoreNamespace() . '\\Utils\\Utils');
+        $this->allowClass(Factory::getCoreNamespace() . '\\Logger\\SystemLogger');
+        $this->allowClass(Factory::getCoreNamespace() . '\\System\\System');
+        $this->allowClass(Factory::getCoreNamespace() . '\\Module\\ModulesManager');
     }
 
-    public function execute($function_name, $params = null) 
+    public function service($service_name, $method_name, $params = null)
     {
-        foreach ($this->allowed_classes as $key => $class_name) {
-            $result = $this->executeMethod($class_name,$function_name,$params);
-            if ($result != null) return $result;
+        $service = Arikaim::$service_name();
+        return $this->callMethod($service,$method_name,$params);       
+    }
+
+    public function callStatic($class_name, $method_name, $params = null)
+    {
+        if ($this->isAllowed($class_name) == false) {
+            $vars['class_name'] = $class_name;
+            return Arikaim::getError("NOT_ALLOWED_METHOD_ERROR",$vars);
         }
-        return null;
+        $full_class_name = Factory::getFullClassName($class_name);      
+        return Utils::callStatic($full_class_name,$method_name,$params);
+    }
+
+    public function hasExtension($extension_name)
+    {
+        $extension = Model::Extensions();
+        $extension = $extension->where('name','=',$extension_name)->get();
+        if (is_object($extension) == true) {
+            return true;
+        }
+        return false;
+    }
+
+    public function extensionMethod($extension_name, $class_name, $method_name, $params = null)
+    {
+        $full_class_name = Factory::getExtensionClassName($extension_name,"Classes\\$class_name");
+        $this->allowClass($full_class_name);
+        return $this->executeMethod($full_class_name,$method_name,$params);
     }
 
     public function executeMethod($full_class_name, $method_name, $params = null) 
@@ -53,8 +81,9 @@ class TemplateFunction
             $vars['class_name'] = $full_class_name;
             return Arikaim::getError("NOT_ALLOWED_METHOD_ERROR",$vars);
         }
+       
         $obj = Factory::createInstance($full_class_name);       
-        return $this->callMethod($full_class_name,$obj,$method_name,$params);       
+        return $this->callMethod($obj,$method_name,$params);       
     }
 
     public function isAllowedMethod($method_name)
@@ -65,8 +94,12 @@ class TemplateFunction
 
     public function isAllowed($class_name) 
     {   
-        if (in_array($class_name,$this->allowed_classes) == true) return true;
-        if (in_array(Factory::getCoreNamespace() . $class_name,$this->allowed_classes) == true) return true;
+        if (in_array($class_name,$this->allowed_classes) == true) {
+            return true;
+        }
+        if (in_array(Factory::getFullClassName($class_name),$this->allowed_classes) == true) {
+            return true;
+        }
         return false;
     }
 
@@ -119,71 +152,77 @@ class TemplateFunction
         return "";
     }
     
-    private function loadModelData($full_model_class_name, $where = null, $order_by = null, $paginate = false,$search = false) 
+    private function loadModelData($class_name, $extension_name = null, $condition = null, $order_by = null, $paginate = false, $search = false) 
     {           
-        $this->allowClass($full_model_class_name);
-        $model = Factory::createInstance($full_model_class_name);
+        $model = Model::create($class_name,$extension_name);   
         if ($model == null) {
             return [];
-        }
-        if ($where != null) {
-            $items = $model->whereRaw($where);
-        } else {
-            $items = $model;
-        }
+        }    
+        
         if ($search != false) {
-            $items = Search::search($items,$search);
-        }     
+            $search_conditions = Model::getSearchConditions($model,$search);
+            $model = Model::applyCondition($model,$search_conditions);
+        }   
+
+        $model = Model::applyCondition($model,$condition);
+              
         if ($order_by != null) {
-            $items = $items->orderByRaw($order_by);
+            $model = $model->orderByRaw($order_by);
         } 
-     
+        
         if ($paginate == true) {           
-            $items = $items->paginate(Paginator::getRowsPerPage(),['*'], 'page',Paginator::getCurrentPage());
-            if (is_object($items) == false) {
+            $model = $model->paginate(Paginator::getRowsPerPage(),['*'], 'page',Paginator::getCurrentPage());
+            if (is_object($model) == false) {
                 return [];
             }
-            $items = $items->toArray(); 
-         
-            $result['paginator']['total'] = $items['total'];
-            $result['paginator']['per_page'] = $items['per_page'];
-            $result['paginator']['current_page'] = $items['current_page'];
+            $model = $model->toArray(); 
+            $result['paginator']['total'] = $model['total'];
+            $result['paginator']['per_page'] = $model['per_page'];
+            $result['paginator']['current_page'] = $model['current_page'];
             $result['paginator']['prev_page'] = Paginator::getPrevPage();
-            $result['paginator']['next_page'] = Paginator::getNextPage($items['last_page']);
-            $result['paginator']['last_page'] = $items['last_page'];
-            $result['paginator']['from'] = $items['from'];
-            $result['paginator']['to'] = $items['to'];
-            $result['rows'] = $items['data'];
-            return $result;
-        } else {
-            $items = $items->get();
-        }
-       
-        if (is_object($items) == true) {
-            return $items->toArray(); 
+            $result['paginator']['next_page'] = Paginator::getNextPage($model['last_page']);
+            $result['paginator']['last_page'] = $model['last_page'];
+            $result['paginator']['from'] = $model['from'];
+            $result['paginator']['to'] = $model['to'];
+            $result['rows'] = $model['data'];            
+            return $result;            
+        } 
+        
+        $model = $model->get();
+        if (is_object($model) == true) {
+            return $model->toArray(); 
         }
         return [];
     }
 
-    public function loadData($model_class_name, $where = null, $order_by = null, $paginate = false, $search = null) 
+    public function searchData($model_class_name, $order_by = null, $paginate = false)
+    {
+        return $this->loadModelData($model_class_name,null,null,$order_by,$paginate,true);
+    }
+
+    public function searchExtensionData($model_class_name, $extension_name, $order_by = null, $paginate = false)
+    {
+        return $this->loadModelData($model_class_name,$extension_name,null,$order_by,$paginate,true);
+    }
+
+    public function loadData($model_class_name, $condition = null, $order_by = null, $paginate = false, $search = null) 
     {     
-        return $this->loadModelData(Model::getModelClass($model_class_name),$where,$order_by,$paginate,$search);
+        return $this->loadModelData($model_class_name,null,$condition,$order_by,$paginate,$search);
     }
 
-    public function loadExtensionData($model_class_name, $extension_name = "", $where = null, $order_by = null, $paginate = false, $search = null) 
+    public function loadExtensionData($model_class_name, $extension_name, $condition = null, $order_by = null, $paginate = false, $search = null) 
     {    
-        return $this->loadModelData(Model::getExtensionModelClass($extension_name,$model_class_name),$where,$order_by,$paginate,$search);
+        return $this->loadModelData($model_class_name,$extension_name,$condition,$order_by,$paginate,$search);
     }
 
-    private function loadModelDataRow($full_model_class_name, $keys)
-    {      
-        $this->allowClass($full_model_class_name);
-        $model = Factory::createInstance($full_model_class_name);
-        if ($model == null) return [];
+    private function loadModelDataRow($model_class_name, $condition, $extension_name = null)
+    {            
+        $model = Model::create($model_class_name,$extension_name);
+        if ($model == null) {
+            return [];
+        }                   
+        $model = Model::applyCondition($model,$condition);
 
-        foreach ($keys as $key => $value) {
-           $model = $model->where($key,'=',$value);
-        }
         $data = $model->first();
         if ($data != null) {
             return $data->toArray();
@@ -191,14 +230,14 @@ class TemplateFunction
         return [];
     }
 
-    public function loadDataRow($model_class_name, $keys)
+    public function loadDataRow($model_class_name, $condition)
     {
-        return $this->loadModelDataRow(Model::getModelClass($model_class_name),$keys);
+        return $this->loadModelDataRow($model_class_name,$condition);
     }
 
-    public function loadExtensionDataRow($model_class_name, $extension_name, $keys)
+    public function loadExtensionDataRow($model_class_name, $extension_name, $condition)
     {
-        return $this->loadModelDataRow(Model::getExtensionModelClass($extension_name,$model_class_name),$keys);
+        return $this->loadModelDataRow($model_class_name,$condition,$extension_name);
     }
 
     public function createModel($class_name, $method_name = null, $args = null)
@@ -213,7 +252,7 @@ class TemplateFunction
 
     public function getCurrentLanguage() 
     {
-        $language = Arikaim::getLanguage();
+        $language = Template::getLanguage();
         $model = Model::Language()->where('code','=',$language)->first();
         if (is_object($model) == true) {
             return $model->toArray();
@@ -230,6 +269,12 @@ class TemplateFunction
         return $value;
     }
 
+    public function createCondition($field_name, $operator, $value, array $conditions = null)
+    {
+        $condition = Model::createCondition($field_name,$operator,$value,$conditions);
+        return $condition->toArray();
+    }
+
     public function getOptions($search_key)
     {
         $options = Arikaim::options()->getOptions($search_key);   
@@ -241,36 +286,20 @@ class TemplateFunction
 
     private function createDBModel($class_name, $extension_name = null, $method_name = null, $args = null)
     {
-        $full_class_name = empty($extension_name) ? Model::getModelClass($class_name) : Model::getExtensionModelClass($extension_name,$class_name);
+        $full_class_name = Model::getFullClassName($class_name, $extension_name);
         $this->allowClass($full_class_name);
         $model = Model::create($class_name,$extension_name);    
-        if ($method_name != null) {          
-            return $this->callMethod($full_class_name,$model,$method_name,$args);
+        if ($method_name != null) {   
+            return $this->callMethod($model,$method_name,$args);
         }
         return $model;
     }
     
-    private function callStaticMethod($class_name, $method_name, $params)
-    {
-        $callable = "$class_name::$method_name";
-        if (is_callable($callable) == true) {
-            return call_user_func($callable,$params);     
-        }
-        return null;
-    }
-
-    private function callMethod($full_class_name, $obj, $method_name, $params = null) 
+    private function callMethod($obj, $method_name, $params = null) 
     {
         if ($this->isAllowedMethod($method_name) == false) {
             return null;
         }
-        if (is_object($obj) == false) return null;
-        $function_var = array($obj, $method_name);
-        if (method_exists($obj,$method_name) == false) return null;
-
-        if (is_callable($function_var,true,$method_name) == true) {             
-            return call_user_func($function_var,$params);          
-        }
-        return $this->callStaticMethod($full_class_name,$method_name,$params);
+        return Utils::call($obj,$method_name,$params);
     }
 }

@@ -16,8 +16,7 @@ class Number
     private static $default_format = ['name' => 'default','decimals' => 2,'decimals_separator' => ",",'thousands_separator' => " "]; 
 
     public function __construct() 
-    {
-       
+    {       
     }
 
     public static function format($number,$format_name = null)

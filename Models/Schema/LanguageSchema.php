@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\Models\Schema;
 
-use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Db\Schema;
 
 class LanguageSchema extends Schema  
@@ -48,12 +47,6 @@ class LanguageSchema extends Schema
     public function update() 
     {
         $this->updateTable(function($table) {
-            
         });
-    }
-    
-    public function addDefaultRows() 
-    {
-
     }
 }

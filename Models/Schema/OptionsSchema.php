@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\Models\Schema;
 
-use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Db\Schema;
 
 class OptionsSchema extends Schema  
@@ -36,13 +35,7 @@ class OptionsSchema extends Schema
 
     public function update() 
     {
-        $this->updateTable(function($table) {
-            
+        $this->updateTable(function($table) {  
         });
-    }
-    
-    public function addDefaultRows() 
-    {
-
-    }    
+    } 
 }

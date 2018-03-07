@@ -21,6 +21,11 @@ class Jwt
 
     public function __construct($expire_time = null)
     {
+        $this->init($expire_time);
+    }
+
+    private function init($expire_time) 
+    {
         $this->key = Arikaim::config('settings/jwt_key');
         if ($expire_time == null) {
             $expire_time = strtotime("+1 month");

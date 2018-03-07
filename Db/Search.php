@@ -9,16 +9,20 @@
 */
 namespace Arikaim\Core\Db;
 
-//use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\Db\Condition;
+use Arikaim\Core\Errors\Errors;
+use Arikaim\Core\Utils\Utils;
 
 class Search 
 {    
-   
-    public static function setSearch($text,array $search_fields = [])
+    private $search;
+
+    public function __construct($search = null) 
     {
-        Arikaim::session()->set('paginator.search.text',$text);
-        Arikaim::session()->set('paginator.search.fields',$search_fields);
+        if ($search == null) {
+            $this->search = Self::getCurrentSearch();
+        }
     }
 
     public static function getCurrentSearch()
@@ -26,33 +30,57 @@ class Search
         return Arikaim::session()->get('search');
     }
 
-    public static function search($model,$search = null)
+    public function getSearchConditions($model, $search = null)
     {
+        $condition = new Condition();
+        if (is_object($model) == false) {
+            return $condition->toArray();
+        }
+
         if (is_array($search) == false) {
             $search = Self::getCurrentSearch();
         }
+        $search_value = "";
+        $search_array = Utils::jsonDecode($search,true);
+     
+        if (isset($search_array['search']) == true) {
+            $search_value = $search_array['search'];
+        }
+        $fields = $this->parseSearch($model,$search_array);
+   
+        foreach ($fields as $field) {
+            $field['value'] = $search_value;
+            $condition->addCondition($field);
+        }
+        return $condition->toArray();
+    }
 
-        if (empty($search['value']) == true) {
-            return $model;
+    public function parseSearch($model,$search)
+    {
+        if (isset($search['fields']) == false) {
+            return [];
         }
-        if (is_object($model) == false) {
-            return $model;
-        }
-        if (is_array($search) == false) {
-            return $model;
-        }
+        $fields = $search['fields'];
+        if (array_search('all',$fields) != false) {
+            $fields = $this->getModelFields($model,$fields);
+        } 
+        return $fields;
+    }
+
+    public function getModelFields($model,array $field)
+    {
         $model = $model->find(1);
         $fields = $model->getAttributes();
-    
-        if (isset($search['fields']) == true) {
-            if (is_array($search['fields']) == false) {
-               $fields = $search['fields'];
-            }           
+        if (is_array($fields) == false) {
+            return [];
         }
-
-        foreach ($fields as $field => $value) {           
-            $model = $model->orWhere($field,'LIKE',$search['value']);
+        $result = [];
+        foreach ($fields as $key => $item) {
+            $condition['field'] = $key;
+            $condition['operator'] = $field['operator'];
+            $condition['statement_operator'] = $field['statement_operator'];
+            array_push($result,$condition);
         }
-        return $model;
+        return $result;
     }
 }

@@ -11,9 +11,8 @@ namespace Arikaim\Core\Access;
 
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Db\Models;
+use Arikaim\Core\Db\Model;
 use Arikaim\Core\Access\Jwt;
-
 
 class Access 
 {
@@ -24,12 +23,30 @@ class Access
     const AUTH_JWT          = 3;
     const AUTH_CUSTOM_TOKEN = 4;
 
+    // permissions
+    const FULL = ['read','write','delete','execute'];
+    const READ = ['read'];
+    const WRITE = ['write'];
+    const DELETE = ['delete'];
+    const EXECUTE = ['execute'];
+
+    const CONTROL_PANEL = "control_panel";
+    
+    // tokens 
+    const JWT_TOKEN = 1;
+    const CUSTOM_TOKEN = 2;
+    
     private $token;
     private $auth_names = ["None","Basic","Session","JWT","CWT"];
 
     public function __construct() 
     {
         $this->initToken();
+    }
+    
+    public function get($constant_name)
+    {
+        return constant("Self::" . $constant_name);
     }
     
     private function initToken()
@@ -42,6 +59,9 @@ class Access
 
     public function isValidToken()
     {
+        if (isset($this->token['valid']) == false) {
+            return false;
+        }
         return $this->token['valid'];
     }
     
@@ -81,8 +101,11 @@ class Access
 
     public function getTokenParam($name)
     {
-        if (isset($this->token['decoded'][$name]) == true) {
-            return $this->token['decoded'][$name];
+        if (isset($this->token['decoded'][$name]) == false) {
+            return null;
+        }
+        if (is_object($this->token['decoded'][$name]) == true) {            
+            return $this->token['decoded'][$name]->getValue();
         }
         return null;
     }
@@ -94,33 +117,43 @@ class Access
 
     public function fetchToken($request) 
     {
-        // get jwt token
-        $jwt = new Jwt();
         $token = $this->readToken($request);
-        
-        if (empty($token) === false) {
-            $decoded_token = $jwt->decodeToken($token);
-            if ($decoded_token !== false) { 
-                $this->token['decoded'] = $decoded_token;
-                $this->token['token'] = $token;
-                $this->token['valid'] = true;
-                $this->token['type'] = Self::AUTH_JWT;
-                return true;
+        if (empty($token) === true) {
+            return false;
+        }
+
+        $result = $this->applyToken($token,Self::AUTH_JWT);
+        if ($result == false) {
+            if ($token == Arikaim::session()->getId()) {
+                return $this->applyToken($token,Self::AUTH_SESSION);
             }
         }
-      
-       // $request_session_id = Arikaim::cookies()->get('PHPSESSID');
-        $session_id = Arikaim::session()->getID();
-        if ($token == $session_id) {
-            $this->token['token'] = $token;
-            $this->token['valid'] = true;
-            $this->token['decoded'] = [];
-            $this->token['type'] = Self::AUTH_SESSION;
-            return true;
-        }
-        
-        $this->initToken();
         return false;
+    }
+
+    public function applyToken($token, $type = Self::AUTH_JWT)
+    {
+        switch ($type) {
+            case Self::AUTH_SESSION: {
+                $decoded = [];
+                break;
+            }
+            case Self::AUTH_JWT: {
+                $jwt = new Jwt();
+                $decoded = $jwt->decodeToken($token);
+                break;
+            }
+            default : {
+                $decoded = [];
+            }
+        }
+        $valid = ($decoded !== false) ? true : false;
+
+        $this->token['token'] = $token;
+        $this->token['valid'] = $valid;
+        $this->token['decoded'] = $decoded;
+        $this->token['type'] = $type;
+        return $valid;
     }
 
     public function getAuthName($auth)
@@ -149,8 +182,13 @@ class Access
         return true;
     }
 
-    public function createToken(array $data, $type = Self::AUTH_JWT) {
-
+    public function createToken($user_id, $user_uuid, $type = Self::JWT_TOKEN) 
+    {
+        $jwt = new Jwt();
+        $jwt->set('uuid',$user_uuid);
+        $jwt->set('user_id',$user_id);       
+        $token = $jwt->createToken();
+        return $token;
     }
 
     /**
@@ -175,11 +213,6 @@ class Access
         if (preg_match('/Bearer\s+(.*)$/i', $header, $matches)) {
             return $matches[1];
         }
-
-       // $jwt_token = Arikaim::cookies()->get('jwt_token');
-      //  if (isset($jwt_token) == true) {            
-      //      return $jwt_token;
-      //  };      
         return false;
     }
 
@@ -204,5 +237,47 @@ class Access
             }
         }
         return $result;
+    }
+
+    public function isValidUser()
+    {
+        if ($this->isValidToken() == false) {
+            return false;
+        }
+        $model = Model::Users();
+
+        $user_id = $this->getTokenParam('user_id');
+        $uuid = $this->getTokenParam('uuid');
+
+        $id = $model->validUUID($uuid);
+        if ($id == $user_id) {
+            return true;
+        }
+        return false;
+    }
+
+    public function hasControlPanelAccess($uuid = null)
+    {
+        return $this->hasPermission(Access::CONTROL_PANEL,ACCESS::FULL,$uuid);
+    }
+
+    public function hasPermission($name, $access = Self::FULL,$uuid = null)
+    {
+        $result = false;
+        $permissions = Model::Permissions();
+        if ($uuid == null) {
+            $uuid = $this->getTokenParam('uuid');
+        }
+        $permissions = $permissions->getPermission($name,$uuid);       
+        if (is_object($permissions) == true) {
+            $result = $permissions->hasPermissions($access);
+        }              
+        return $result;
+    }
+
+    public function clearToken()
+    {
+        Arikaim::cookies()->set("token",null);  
+        $this->initToken(); 
     }
 }   

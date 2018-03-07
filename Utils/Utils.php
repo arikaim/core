@@ -11,61 +11,6 @@ namespace Arikaim\Core\Utils;
 
 class Utils 
 {   
-    public static function arraySetValue($array, $path, $value, $separator = '/') 
-    {
-        if (!$path) return null;   
-        $segments = is_array($path) ? $path : explode($separator,$path);
-        $current = &$array;
-        foreach ($segments as $segment) {
-            if (!isset($current[$segment]))
-                $current[$segment] = array();
-            $current = &$current[$segment];
-        }
-        $current = $value;
-        return $array;
-    }
-    
-    public static function arrayGetValues($array, $key_search)
-    {
-        if (is_array($array) == false) return null;
-        $len = strlen($key_search);
-        $result = [];
-        foreach ($array as $key => $value) {
-            if (substr($key,0,$len) == $key_search) {
-                $result[$key] = $value;
-            }
-        }
-        return $result;
-    }
-
-    public static function arrayGetValue($array, $path, $separator = '/') 
-    {    
-        if (!$path) return null;
-        $path_parts = is_array($path) ? $path : explode($separator, $path);
-        $ref = &$array;
-        foreach ($path_parts as $key) {           
-            $ref = &$ref[$key];
-        }
-        return $ref;                
-    }
-
-    public static function arrayMerge($array1, $array2, $prev_key = "", $full_key = "") 
-    {
-        $merged = $array1;
-        foreach ($array2 as $key => &$value) {
-            if ($full_key != "") { $full_key .= "/"; }
-            $full_key .= $key;
-            if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {     
-                $merged[$key] = Self::arrayMerge($merged[$key],$value,$key,$full_key);
-            } else {
-                $full_key = str_replace("0/","",$full_key);
-                $merged[$key] = $value;               
-                $full_key = str_replace("/$prev_key/$key","",$full_key);
-            }
-        }
-        return $merged;
-    }
-
     public static function getClasses($php_code) 
     {
         $classes = array();
@@ -78,23 +23,6 @@ class Utils
             }
         }
         return $classes;
-    }
-
-    public static function arrayToPath($array) 
-    {    
-        if (is_array($array) == false) {
-            return false;
-        }
-        $path = "";
-        if (count($array) > 1) {          
-            for ($i = 0; $i < count($array); $i++) { 
-                $path .=  $array[$i] . DIRECTORY_SEPARATOR;
-            }
-            $result = rtrim($path,DIRECTORY_SEPARATOR);
-        } else {
-            $result = end($array);
-        }
-        return $result;
     }
 
     public static function parseProperties($code_text,$vars) 
@@ -177,9 +105,99 @@ class Utils
         }
         return false;
     }
-
+    
     public static function jsonEncode($text)
     {
         return json_encode($text, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
+    public static function cleanJson($text)
+    {
+        for ($i = 0; $i <= 31; ++$i) {
+            $text = str_replace(chr($i),"",$text);
+        }
+        $text = str_replace(chr(127),"",$text);
+        $text = Self::removeBOM($text);
+        $text = stripslashes($text);
+        $text = htmlspecialchars_decode($text);
+        return $text;
+    }
+
+    public static function jsonDecode($text, $clean = true, $to_array = true)
+    {        
+        if ($clean == true) {
+            $text = Self::cleanJson($text);
+        }
+        return json_decode($text,$to_array);
+    }
+
+    public static function getBaseClassName($full_class_name)
+    {
+        $parts = explode('\\',$full_class_name);
+        return last($parts);
+    }
+
+    public static function callStatic($class_name, $method, $args)
+    {
+        $callable = [$class_name,$method];
+        if (is_callable($callable) == false) {
+            return null;
+        }
+        return forward_static_call($callable,$args);
+    }
+
+    public static function call($obj, $method, $args = null)
+    {
+        if (is_object($obj) == true) {
+            $callable = array($obj,$method);
+            $class_name = get_class($obj);
+        } else {
+            $callable = $method; 
+            $class_name = null;
+        }
+
+        if (is_callable($callable) == false) {
+            if ($class_name == null) {
+                $class_name = $obj;
+            }
+            return Self::callStatic($class_name,$method,$args);  
+        }
+
+        if (is_array($args) == true) {
+            return call_user_func_array($callable,$args);
+        }       
+        return call_user_func($callable,$args);
+    }
+
+    public static function isUrl($text)
+    {
+        if (filter_var($text, FILTER_VALIDATE_URL) == true) { 
+            return true;
+        }
+        return false;
+    }
+
+    public static function isEmail($text)
+    {
+        if (filter_var($text,FILTER_VALIDATE_EMAIL) == false) {
+            return false;
+        }
+        return true;
+    }
+    
+    public static function hasHtml($text)
+    {
+        if($text != strip_tags($text)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static function removeBOM($text)
+    {        
+        if (strpos(bin2hex($text), 'efbbbf') === 0) {
+            $text = substr($text, 3);
+        }
+        return $text;
     }
 }

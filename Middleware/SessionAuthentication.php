@@ -10,8 +10,7 @@
 namespace Arikaim\Core\Middleware;
 
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Api\RestApiResponse;
-use Arikaim\Core\Middleware\JwtAuthentication;
+use Arikaim\Core\Api\ApiResponse;
 
 class SessionAuthentication 
 {
@@ -20,7 +19,8 @@ class SessionAuthentication
         $token = Arikaim::access()->getToken();
        
         if (Arikaim::access()->hasToken() === false) {
-            $response = new RestApiResponse($response);
+            Arikaim::logger()->alert(Arikaim::getError("AUTH_FAILED"),['token' => 'Not valid session token']);   
+            $response = new ApiResponse($response);
             return $response->displayAuthError();
         }      
 

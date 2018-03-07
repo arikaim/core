@@ -9,22 +9,20 @@
 */
 namespace Arikaim\Core\Utils;
 
-use Arikaim\Core\System\System;
-use Arikaim\Core\Utils\File;
+use Arikaim\Core\FileSystem\File;
 
 class Curl 
 {   
     public function __construct() 
     {
-       
     }
 
     public static function isInsatlled()
     {
-        return System::hasPhpExtension('curl');
+        return extension_loaded('curl');
     }
 
-    private static function create($url,$timeout = 30,$return_transfer = true)
+    private static function create($url, $timeout = 30, $return_transfer = true)
     {
         if (Self::isInsatlled() == false) {
             return null;
@@ -46,26 +44,42 @@ class Curl
         return $response;
     }
 
-    public static function post($url,array $post_fields = null, $timeout = 30)
+    public static function request($url, $method, array $data = null, array $headers = null, $timeout = 30)
     {
         $curl = Self::create($url,$timeout);
         if (empty($curl) == true) {
             return false;
         }
-        curl_setopt($curl,CURLOPT_POST,true);
-        if (is_array($post_fields) == true) {
-            curl_setopt($curl,CURLOPT_POSTFIELDS,$post_fields);
+
+        if (is_array($headers) == true) {
+            curl_setopt($curl,CURLOPT_HTTPHEADER,$headers);
+        }
+
+        curl_setopt($curl,CURLOPT_CUSTOMREQUEST,$method);
+        if (is_array($data) == true) {
+            curl_setopt($curl,CURLOPT_POSTFIELDS,$data);
         }
         return Self::exec($curl);
     }
 
-    public static function get($url, $timeout = 30)
+    public static function post($url, array $data = null, array $headers = null, $timeout = 30)
     {
-        $curl = Self::create($url,$timeout);
-        if (empty($curl) == true) {
-            return false;
-        }
-        return Self::exec($curl);
+        return Self::request($url,"POST",$data,$headers,$timeout);
+    }
+
+    public static function get($url, array $data = null, array $headers = null, $timeout = 30)
+    {
+        return Self::request($url,"GET",$data,$headers,$timeout);
+    }
+
+    public static function delete($url, array $data = null, array $headers = null, $timeout = 30)
+    {
+        return Self::request($url,"DELETE",$data,$headers,$timeout);
+    }
+
+    public static function put($url, array $data = null, array $headers = null, $timeout = 30)
+    {
+        return Self::request($url,"PUT",$data,$headers,$timeout);
     }
 
     public static function downloadFile($url, $destination_path, $timeout = 30)
@@ -79,7 +93,7 @@ class Curl
 
         $curl = Self::create($url);
         curl_setopt($curl,CURLOPT_BINARYTRANSFER,true);
-        curl_setopt($curl,CURLOPT_FILE, $file);     
+        curl_setopt($curl,CURLOPT_FILE,$file);     
         $result = Self::exec($curl);
         fclose($fp);
 

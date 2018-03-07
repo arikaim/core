@@ -15,4 +15,5 @@ interface AdminMenuLinkInterface
     public function getLinkIcon();
     public function getLinkSubtitle();
     public function getLinkComponentName();
+    public function getLinkPosition();
 }

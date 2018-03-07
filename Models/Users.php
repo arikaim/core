@@ -15,8 +15,9 @@ use Arikaim\Core\Db\Model as DbModel;
 use Arikaim\Core\Db\UUIDAttribute;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Db\Schema;
+use Arikaim\Core\Access\Access;
 
-class User extends Model  
+class Users extends Model  
 {
     use UUIDAttribute;
 
@@ -32,6 +33,17 @@ class User extends Model
         return false;
     }
 
+    public function getApiUser($api_key,$api_secret)
+    {
+        $user = $this->where('api_key','=',$api_key);
+        $user = $user->where('api_secret','=',$api_secret);
+        $user = $user->where('status','=',1)->first();
+        if (is_object($user) == false) {
+            return false;
+        }
+        return $user;
+    }
+
     public function getCurrentUser() 
     {
         return Arikaim::session()->get('user_id');        
@@ -39,6 +51,10 @@ class User extends Model
 
     public function getLogedUser()
     {
+        if (Schema::hasTable($this) == false) {          
+            return false;
+        }
+
         $user_id = $this->getCurrentUser();  
         $model = $this->where("id","=",$user_id)->first();
         if (is_object($model) == true) {
@@ -49,7 +65,9 @@ class User extends Model
 
     public function isLoged() 
     {
-        if ($this->getCurrentUser() > 0)  return true;
+        if ($this->getCurrentUser() > 0)  {
+            return true;
+        }
         return false;
     }
     
@@ -63,21 +81,23 @@ class User extends Model
         return false;
     }
 
-    public function login($user_name,$password,$permissions = null) 
+    public function login($user_name, $password) 
     {
-        $user = $this->whereRaw(" (user_name = '$user_name' OR email = '$user_name') AND status = 1 ")->first();
-        if (is_object($user) == false) return false;
-        
-        if (User::VerifyPassword($password,$user->password) == true) {
-            if ($permissions != null) {
+        $user = $this->where('user_name','=',$user_name);
+        $user = $user->orWhere('email','=',$user_name);
+        $user = $user->where('status','=',1)->first();
 
-            }
+        if (is_object($user) == false) {
+            return false;
+        }
+        
+        if (Self::VerifyPassword($password,$user->password) == true) {
             $user->last_login = time();
             $user->update();
             Arikaim::session()->set('user_id',$user->id);
             Arikaim::session()->set('login_time',time());
             Arikaim::session()->set('uuid',$user->uuid);
-            return $user->uuid;
+            return $user;
         }
         return false;
     }
@@ -87,20 +107,24 @@ class User extends Model
         Arikaim::session()->remove('user_id');
         Arikaim::session()->remove('uuid');
         Arikaim::session()->remove('login_time');
-        Arikaim::cookies()->set("token",null);
+        Arikaim::access()->clearToken();
     }
 
     public function getControlPanelUser()
     {
-        if (Schema::schema()->hasTable($this->getTable()) == false) {
+        if (Schema::hasTable($this) == false) {
             return false;
         }
         $permissions = DbModel::Permissions();
-        if (Schema::schema()->hasTable($permissions->getTable()) == false) {
+        if (Schema::hasTable($permissions) == false) {
             return false;
         }
-        $permissions = $permissions->getPermission(Permissions::CONTROL_PANEL);
+        $permissions = $permissions->getPermission(Access::CONTROL_PANEL);
         if (is_object($permissions) == false) {
+            return false;
+        }
+        $user = $this->validUUID($permissions->object_uuid);
+        if ($user == false) {
             return false;
         }
         return $permissions->object_uuid;
@@ -109,13 +133,14 @@ class User extends Model
     public function hasControlPanelUser() 
     {
         $user = $this->getControlPanelUser();
+        
         if ($user == false) {
             return false;
         }
         return true;
     }
 
-    public function EncryptPassword($password,$algo = PASSWORD_BCRYPT) 
+    public function EncryptPassword($password, $algo = PASSWORD_BCRYPT) 
     {
         return password_hash($password,$algo);
     }
@@ -125,7 +150,7 @@ class User extends Model
         return Self::VerifyPassword($password,$this->password);
     }
 
-    public static function VerifyPassword($password,$hash) 
+    public static function VerifyPassword($password, $hash) 
     {
         return password_verify($password,$hash);
     }
@@ -137,7 +162,7 @@ class User extends Model
         return $user;
     }
 
-    public function getID($user_name) 
+    public function getId($user_name) 
     {
         $user = $this->getUser($user_name);   
         if (is_object($user) == true) { 
@@ -157,14 +182,17 @@ class User extends Model
 
     public function validUUID($uuid) 
     {
-        $user = $this->whereRaw(" uuid = '$uuid' ")->first();
+        $user = $this->where('uuid','=',$uuid)->first();
+        if (is_object($user) == false) {
+            return false;
+        }        
         if ($user->id > 0) {
-            return true;
+            return $user->id;
         }
         return false;
     }
 
-    public function createUser($user_name,$password,$email = null)
+    public function createUser($user_name, $password, $email = null)
     {
         $uuid = $this->getUUID($user_name);
         if ($uuid != null) {
@@ -190,7 +218,7 @@ class User extends Model
         return $this->uuid;
     }
 
-    public function changePassword($id,$password)
+    public function changePassword($id, $password)
     {
         if (is_numeric($id) == true) {
             $model = $this->where('id','=',$id)->first();

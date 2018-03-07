@@ -9,25 +9,23 @@
  */
 namespace Arikaim\Core\Form;
 
-use Arikaim\Core\Utils\File;
-use Arikaim\Core\Utils\Utils;
+use Arikaim\Core\FileSystem\File;
+use Arikaim\Core\Utils\Arrays;
 use Arikaim\Core\Form\Form;
 
 class Properties extends Form
 {
-    private $filters;
-
     public function __construct($json_file_name = null, $root_element = null, $vars = null) 
     {
         parent::__construct();
-        if ($json_file_name != null) {
+        if (empty($json_file_name) == false) {
             $this->load($json_file_name, $root_element,$vars);
         }
     }
 
     public function load($json_file_name, $root_element = null, $vars = null) 
     {
-        $data = File::loadJSONFile($json_file_name,$vars);
+        $data = File::readJSONFile($json_file_name,$vars);
         if ($data != false) {
             if ($root_element != null) {
                 $this->data = $data[$root_element];
@@ -43,9 +41,9 @@ class Properties extends Form
     {
         foreach ($this->data as $key => $item) {
             if (is_array($item) == true) {
-                $current_value = Utils::arrayGetValue($item,$path);
+                $current_value = Arrays::getValue($item,$path);
                 if (empty($current_value) == true) {
-                    $this->data[$key] = Utils::arraySetValue($item,$path,$value);
+                    $this->data[$key] = Arrays::setValue($item,$path,$value);
                 }
             }
         }
@@ -59,7 +57,7 @@ class Properties extends Form
 
     public function getByPath($path, $default_value = null)
     {
-        $value = Utils::arrayGetValue($this->data,$path);
+        $value = Arrays::getValue($this->data,$path);
         if (($value == null) && ($default_value != null)) {
             $value = $default_value;
         }

@@ -9,7 +9,7 @@
  */
 namespace Arikaim\Core\System;
 
-use Arikaim\Core\Utils\Utils;
+use Arikaim\Core\Utils\Arrays;
 
 class Session 
 {      
@@ -68,10 +68,10 @@ class Session
         return $info['lifetime'];
     }
 
-    public function getID() 
+    public function getId() 
     {
         $id = session_id();
-        if (empty($id)) {
+        if (empty($id) == true) {
             $id = $this->getCookie('PHPSESSID');
         }
         return $id;
@@ -110,7 +110,7 @@ class Session
     
     public function getValue($path)
     {
-        return Utils::arrayGetValue($_SESSION,$path);        
+        return Arrays::getValue($_SESSION,$path);        
     }
     
     public function remove($name) 

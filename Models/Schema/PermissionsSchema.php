@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\Models\Schema;
 
-use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Db\Schema;
 
 class PermissionsSchema extends Schema  
@@ -24,6 +23,8 @@ class PermissionsSchema extends Schema
             $table->bigIncrements('id')->nullable(false);
             $table->string('object_uuid')->nullable(false);
             $table->string('key')->nullable(false);
+            $table->string('title')->nullable(true);
+            $table->string('description')->nullable(true);
             $table->string('object_type',50)->nullable(false)->default('user');
             $table->integer('read')->nullable(false)->default(0);
             $table->integer('write')->nullable(false)->default(0);
@@ -40,13 +41,7 @@ class PermissionsSchema extends Schema
 
     public function update() 
     {
-        $this->updateTable(function($table) {
-            
+        $this->updateTable(function($table) {            
         });
-    }
-    
-    public function addDefaultRows()
-    {
-
     }
 }

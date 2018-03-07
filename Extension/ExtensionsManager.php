@@ -9,16 +9,13 @@
 */
 namespace Arikaim\Core\Extension;
 
-use Arikaim\Core\Utils\Utils;
-use Arikaim\Core\Utils\File;
+use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Form\Properties;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Models\Routes;
-//use Arikaim\Core\Models\Events;
-//use Arikaim\Core\Events\EventsManager;
+use Arikaim\Core\View\TemplatesManager;
 
 class ExtensionsManager 
 {
@@ -26,10 +23,18 @@ class ExtensionsManager
     {
     }
 
-    public function getExtensions($status = 1)
-    {
+    public function getExtensions($status = null, $type = null)
+    {       
         $status = ($status != 1) ? 0 : 1;
-        $extensions = Model::Extensions()->where('status','=',1)->get();
+        $extensions = Model::Extensions();
+        if ($status != null) {
+            $extensions = $extensions->where('status','=',$status);
+        }
+        if ($type !== null) {          
+            $extensions = $extensions->where('type','=',$type);
+        }
+        $extensions = $extensions->orderBy('admin_link_position'); 
+        $extensions = $extensions->get();
         if (is_object($extensions) == false) {
             return [];
         }
@@ -73,19 +78,25 @@ class ExtensionsManager
             return false;
         }
         // extension before install handler
-        if ($update != true) {
+         if ($update != true) {
+            // trigger core.extension.before.install event
+            Arikaim::event()->trigger('core.extension.before.install',$details);
             $ext_obj->onBeforeInstall();
         }
         // create db tables 
         $db_tables = $this->getExtensionDatabaseModels($extension_name,true);
         
-        // remove extension routes
+        // delete extension routes
         $this->deleteRoutes($extension_name);
+        // delete jobs 
+        Arikaim::jobs()->deleteExtensionJobs($extension_name);
+        // delete registered events
+        Model::Events()->deleteEvents($extension_name);         
+        // delete registered events subscribers
+        Model::EventSubscribers()->deleteSubscribers($extension_name);
+
         // run install extension
         $ext_obj->install();
-
-         // delete registered events subscribers
-         Model::EventsSubscribers()->deleteSubscribers($extension_name);
         // register events subscribers 
         $this->registerEventsSubscribers($extension_name);
 
@@ -104,7 +115,12 @@ class ExtensionsManager
         }
         // after install handler
         if ($update != true) {
+            // trigger core.extension.after.install event
+            Arikaim::event()->trigger('core.extension.after.install',$details);
             $ext_obj->onAfterInstall();
+        } else {
+            // trigger core.extension.update event
+            Arikaim::event()->trigger('core.extension.update',$details);
         }
         return true;
     }
@@ -119,25 +135,32 @@ class ExtensionsManager
             Arikaim::errors()->addError("EXTENSION_CLASS_NOT_VALID");
             return false;
         }
+        // trigger core.extension.before.uninstall event
+        Arikaim::event()->trigger('core.extension.before.uninstall',$details);
+
         // on before unInstall event handler
         $ext_obj->onBeforeUnInstall();
         
         // delete registered routes
-        Model::Routes()->where('extension_name',$extension_name)->delete();
+        $this->deleteRoutes($extension_name);
 
         // delete registered events
         Model::Events()->deleteEvents($extension_name);
         // delete registered events subscribers
-        Model::EventsSubscribers()->deleteSubscribers($extension_name);
+        Model::EventSubscribers()->deleteSubscribers($extension_name);
 
         // delete extension options
         Arikaim::options()->removeExtensionOptions($extension_name);
-
         $result = $extension->where('name','=',$extension_name)->delete();
 
+        // delete jobs 
+        Arikaim::jobs()->deleteExtensionJobs($extension_name);
+    
         // on after unInstall event handler
         $ext_obj->onAfterUnInstall();
 
+        // trigger core.extension.after.uninstall event
+        Arikaim::event()->trigger('core.extension.after.uninstall',$details);
         return $result;
     }
 
@@ -150,7 +173,6 @@ class ExtensionsManager
     {
         $extensions_path = Self::getExtensionsPath();
         $items = [];
-        $i = 1;
         foreach (new \DirectoryIterator($extensions_path) as $file) {
             if ($file->isDot() == true) continue;
             if ($file->isDir() == true) {
@@ -168,20 +190,24 @@ class ExtensionsManager
         return $properties_file;
     }
 
-    public function getExtensionPropeties($extension_name)
+    public function readExtensionProperties($extension_name)
     {
         $properties_file = $this->getExtensionPropertiesFileName($extension_name);
-        $properties = new Properties($properties_file,"extension");
+        $properties = new Properties($properties_file);
         return $properties;
     }
 
     public function getExtensionProperties($extension_name) 
     {       
-        $properties = $this->getExtensionPropeties($extension_name);
+        $properties = $this->readExtensionProperties($extension_name);
      
         $default_class_name = ucfirst($extension_name);
         $base_class_name = $properties->get('class',$default_class_name);
-        $ext_obj = Factory::createExtension($extension_name,$base_class_name);
+        try {
+            $ext_obj = Factory::createExtension($extension_name,$base_class_name);
+        } catch(\Exceptin $e) {
+            $ext_obj = null;
+        }
         if (is_object($ext_obj) == false) {
             $info['error'] = Arikaim::errors()->getError("EXTENSION_CLASS_NOT_VALID");
         }
@@ -195,6 +221,7 @@ class ExtensionsManager
         if (is_subclass_of($ext_obj,Factory::getFullInterfaceName("DefinitionInterface")) == true) {   
             // get info from extension class      
             $info['class'] = $base_class_name;
+            $info['type'] = $ext_obj->getType();
             $info['title'] = $ext_obj->getTitle();
             $info['icon'] = $ext_obj->getIcon();
             $info['version'] = $ext_obj->getVersion();
@@ -207,6 +234,8 @@ class ExtensionsManager
             }
             // get from json file
             $info['class'] = $base_class_name;
+            $type_name = $properties->get('type','user'); 
+            $info['type'] = $extension->getTypeId($type_name);
             $info['description'] = $properties->get('description');
             $info['short_description'] = $properties->get('short_description');
             $info['version'] = $properties->get('version','1.0');
@@ -219,16 +248,18 @@ class ExtensionsManager
             $info['admin_link_icon'] = $ext_obj->getLinkIcon();  
             $info['admin_link_sub_title'] = $ext_obj->getLinkSubtitle();
             $info['admin_link_component'] = $ext_obj->getLinkComponentName();
+            $info['admin_link_position'] = $ext_obj->getLinkPosition();
         } else { 
             $properties_file = $this->getExtensionPropertiesFileName($extension_name);
             if (File::exists($properties_file) == false) {
                 $info['error'] = Arikaim::errors()->getError("FILE_NOT_FOUND",['file_name' => $properties_file]);
             }   
-             // get from json file  
+            // get from json file  
             $info['admin_link_title'] = $properties->getByPath('admin/link/content');   
             $info['admin_link_icon'] = $properties->getByPath('admin/link/icon');   
             $info['admin_link_sub_title'] = $properties->getByPath('admin/link/sub_title');   
             $info['admin_link_component'] = $properties->getByPath('admin/link/component');   
+            $info['admin_link_position'] = $properties->getByPath('admin/link/position');   
         }
         return $info;
     }
@@ -236,7 +267,7 @@ class ExtensionsManager
     public function getExtensionDetails($extension_name)
     {
         if (empty($extension_name) == true) return null;
-        $properties = $this->getExtensionPropeties($extension_name);
+        $properties = $this->readExtensionProperties($extension_name);
 
         $default_class_name = ucfirst($extension_name);
         $base_class_name = $properties->get('class',$default_class_name);
@@ -245,16 +276,22 @@ class ExtensionsManager
             $details['error'] = Arikaim::errors()->getError("EXTENSION_CLASS_NOT_VALID");
         } 
         $routes = Model::Routes()->getRoutes(null,$extension_name);
-
+        
+        $details['path'] = Self::getExtensionPath($extension_name);
+        $details['properties'] = $properties->toArray();
         $details['class'] = $base_class_name;
         $details['routes'] = $routes;
-        $details['extension_name'] = $extension_name;
-        $details['events_subscribers'] = Model::EventsSubscribers()->getSubscribers($extension_name);
+        $details['extension_name'] = $extension_name;        
         $details['events'] = Model::Events()->getEvents($extension_name);
+        $details['subscribers'] = Model::EventSubscribers()->getExtensionSubscribers($extension_name);
         $details['database'] = $this->getExtensionDatabaseModels($extension_name);
         $details['components'] = $this->getExtensionTemplateComponents($extension_name); 
         $details['pages'] = $this->getExtensionTemplatePages($extension_name); 
-        $details['macros'] = $this->getExtensionTemplateMacros($extension_name);         
+        $details['macros'] = $this->getExtensionTemplateMacros($extension_name); 
+        
+        $condition = Model::createCondition('extension_name','=',$extension_name)->toArray();
+        $details['jobs'] = Arikaim::jobs()->getStorage()->getRecuringJobs($condition,true);
+
         return $details;
     }
 
@@ -303,22 +340,13 @@ class ExtensionsManager
         return $result;
     }
 
-    public function getExtensionTemplateComponents($extension_name)
+    public function getExtensionTemplateComponents($extension_name, $parent_path = null)
     {
         $result = [];
         if (empty($extension_name) == true) {
             return $result;
         }
-        $path =  Self::getExtensionComponentsPath($extension_name);
-
-        foreach (new \DirectoryIterator($path) as $file) {
-            if ($file->isDot() == true) continue;
-            if ($file->isDir() == true) {
-                $item['name'] = $file->getFilename();
-                array_push($result,$item);
-            }
-        }      
-        return $result;
+        return TemplatesManager::getComponents(Self::getExtensionComponentsPath($extension_name));
     }
 
     public function getExtensionTemplatePages($extension_name)
@@ -362,7 +390,7 @@ class ExtensionsManager
     {
         return join('/',array(Arikaim::getBaseUrl(),'arikaim','extensions',$extension_name,'view'));
     }
-
+    
     public static function getExtensionsPath() 
     {
         return join(DIRECTORY_SEPARATOR,array(Arikaim::getRootPath(),trim(Arikaim::getBasePath(),DIRECTORY_SEPARATOR), 'arikaim','extensions')) . DIRECTORY_SEPARATOR;
@@ -380,7 +408,7 @@ class ExtensionsManager
 
     public static function getExtensionComponentsPath($extension_name)  
     {
-        return Self::getExtensionViewPath($extension_name)  . 'components' . DIRECTORY_SEPARATOR;
+        return Self::getExtensionViewPath($extension_name)  . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR;
     }
 
     public static function getExtensionComponentPath($extension_name,$component_name)  
@@ -390,17 +418,17 @@ class ExtensionsManager
 
     public static function getExtensionViewPath($extension_name)
     {
-        return Self::getExtensionPath($extension_name) . DIRECTORY_SEPARATOR . "view" . DIRECTORY_SEPARATOR;
+        return Self::getExtensionPath($extension_name) . DIRECTORY_SEPARATOR . "view";
     }
 
     public static function getExtensionMacrosPath($extension_name)
     {
-        return Self::getExtensionViewPath($extension_name) . "macros" . DIRECTORY_SEPARATOR;
+        return Self::getExtensionViewPath($extension_name) . DIRECTORY_SEPARATOR . "macros" . DIRECTORY_SEPARATOR;
     }
 
     public static function getExtensionPagesPath($extension_name)  
     {
-        return Self::getExtensionViewPath($extension_name)  . 'pages' . DIRECTORY_SEPARATOR;
+        return Self::getExtensionViewPath($extension_name)  . DIRECTORY_SEPARATOR . 'pages' . DIRECTORY_SEPARATOR;
     }
 
     public static function getExtensionPagePath($extension_name, $page_name)  

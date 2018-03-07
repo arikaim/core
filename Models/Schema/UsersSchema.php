@@ -9,10 +9,7 @@
 */
 namespace Arikaim\Core\Models\Schema;
 
-use Arikaim\Core\Utils\Utils;
-use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Db\Model;
 
 class UsersSchema extends Schema  
 {    
@@ -25,7 +22,7 @@ class UsersSchema extends Schema
             // columns
             $table->bigIncrements('id')->nullable(false);
             $table->string('email')->nullable(true)->default(null);
-            $table->string('user_name')->nullable(true)->default(null);
+            $table->string('user_name')->nullable(false);
             $table->string('password')->nullable(false);           
             $table->string('api_key')->nullable(true);
             $table->string('api_secret')->nullable(true);
@@ -39,7 +36,6 @@ class UsersSchema extends Schema
             $table->unique('api_key');           
             // options
             $table->softDeletes();
-            $table->timestamps();
             // storage engine
             $table->engine = 'InnoDB';   
 
@@ -49,12 +45,6 @@ class UsersSchema extends Schema
     public function update() 
     {
         $this->updateTable(function($table) {
-            
         });
-    }
-    
-    public function addDefaultRows() 
-    {
-        
     }
 }

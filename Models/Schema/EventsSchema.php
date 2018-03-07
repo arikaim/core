@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\Models\Schema;
 
-use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Db\Schema;
 
 class EventsSchema extends Schema  
@@ -25,7 +24,7 @@ class EventsSchema extends Schema
             $table->string('name')->nullable(true);
             $table->string('title')->nullable(true);
             $table->text('description')->nullable(true);
-            $table->string('extension_name')->nullable(false)->default('');
+            $table->string('extension_name')->nullable(true);
             $table->integer('status')->nullable(false)->default(1);
             $table->string('uuid')->nullable(false);
             // indexes
@@ -41,12 +40,6 @@ class EventsSchema extends Schema
     public function update()
     {
         $this->updateTable(function($table) {
-            
         });
-    }
-    
-    public function addDefaultRows() 
-    {
-        
     }
 }

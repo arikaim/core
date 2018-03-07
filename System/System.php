@@ -9,17 +9,27 @@
  */
 namespace Arikaim\Core\System;
 
-use \Illuminate\Database\Capsule\Manager;
+use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Arikaim;
 
 class System 
 {
+    const UNKNOWN = 1;
+    const WINDOWS = 2;
+    const LINUX   = 3;
+    const OSX     = 4;
+
+    const LF = "\n";
+    const CRLF = "\r\n";
+    const CR = "\r";
+    const HTMLLF = "</br>";
+
     const VERSION = "1.0";  
+
     private static $start_time;
 
     public function __construct() 
-    {
-       
+    {       
     }
 
     public static function getVersion() 
@@ -55,6 +65,15 @@ class System
             $version .= "." . substr($items[2],0,2);
         }
         return $version;
+    }
+
+    public static function setTimeLimit($time)
+    {
+        if (is_numeric($time) == true) {
+            set_time_limit($time);
+            return true;
+        }
+
     }
 
     public static function getPhpVersion()
@@ -95,11 +114,13 @@ class System
             $driver_name = "";
             $server_info = "";
             $version = "";
+            $name = "";
         }
         
         $info['driver'] = $driver_name;
         $info['server_info'] = $server_info;
         $info['version'] = $version;
+        $info['name'] = Arikaim::config('db/database');
         return $info;
     }
     
@@ -205,5 +226,58 @@ class System
     public static function getBacktrace()
     {
         return debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT);
+    }
+
+    public static function isConsole()
+    {
+        if (php_sapi_name() == "cli") {
+           return true;
+        }
+        return false;
+    }   
+
+    public static function writeLine($text, $eof = null)
+    {
+        if ($eof == null) {
+            $eof = Self::getEof();
+        }
+        echo $text . $eof;
+    }
+
+    static public function getEof() 
+    { 
+        $os = Self::getOS();
+        switch ($os) {
+            case Self::WINDOWS: {
+                return Self::CRLF;
+            }
+            case Self::LINUX: {
+                return Self::LF;
+            }
+            case Self::OSX: {
+                return Self::CR;
+            }
+            default: {
+                return Self::LF;
+            }
+        }
+    }
+
+    static public function getOS() 
+    {
+        switch (true) {
+            case stristr(PHP_OS, 'DAR'): {
+                return Self::OSX;
+            }
+            case stristr(PHP_OS, 'WIN'): {
+                return Self::WINDOWS;
+            }
+            case stristr(PHP_OS, 'LINUX'): {
+                return Self::LINUX;
+            }
+            default: {
+                return Self::UNKNOWN;
+            }
+        }
     }
 }

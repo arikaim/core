@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Utils;
 
 use Arikaim\Core\Interfaces\CollectionInterface;
-use Arikaim\Core\Utils\Utils;
+use Arikaim\Core\Utils\Arrays;
 
 class Collection implements \Iterator,CollectionInterface
 {
@@ -24,7 +24,7 @@ class Collection implements \Iterator,CollectionInterface
 
     public function setValue($path,$value)
     {
-        $this->data = Utils::arraySetValue($this->data,$path,$value);
+        $this->data = Arrays::setValue($this->data,$path,$value);
     }
 
     public function set($key, $value) 
@@ -74,15 +74,18 @@ class Collection implements \Iterator,CollectionInterface
 
     public function isEmpty($key)
     {
+        if (isset($this->data[$key]) == false) {
+            return true;
+        }
         return empty($this->data[$key]);
     }
 
-    public function get($key,$default_value = null)
+    public function get($key, $default_value = null)
     {
         if ($this->isEmpty($key) == false) {
             return $this->data[$key];
         } 
-        if ($default_value != null) {
+        if ($default_value !== null) {
             return $default_value;
         }
         return null;

@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Middleware;
 
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Api\RestApiResponse;
+use Arikaim\Core\Api\ApiResponse;
 
 class JwtAuthentication
 {
@@ -24,9 +24,9 @@ class JwtAuthentication
     */
     public function __invoke($request, $response, $next)
     {
-        if (Arikaim::access()->isJwtAuth() === false) { 
-            Arikaim::logger()->alert(Arikaim::getError("AUTH_FAILED"),['token' => 'not valid token']);   
-            $response = new RestApiResponse($response);
+        if ((Arikaim::access()->isJwtAuth() === false) || (Arikaim::access()->isValidUser() == false)) { 
+            Arikaim::logger()->alert(Arikaim::getError("AUTH_FAILED"),['token' => 'Not valid JWT token']);   
+            $response = new ApiResponse($response);
             return $response->displayAuthError();
         }
         return $next($request, $response);

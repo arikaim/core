@@ -17,8 +17,7 @@ use Arikaim\Core\Extension\Routes;
 class RouteLoader 
 {
     public function __construct() 
-    {        
-       
+    {               
     }
     
     public function __invoke($request, $response, $next) 
@@ -26,10 +25,7 @@ class RouteLoader
         $route = $request->getAttribute('route');
         if ($route == null) {                
             $new_route = $this->mapRoute($request);
-            if ($new_route != null) {
-                echo $new_route->getPattern();
-               // echo "pat:";
-              //  exit();
+            if ($new_route != null) {               
                 return $new_route->run($request, $response);
             }        
         }
@@ -52,9 +48,6 @@ class RouteLoader
             $methods = explode(',',$route['method']);
             $auth = $route['auth'];
 
-            echo "$auth , $path," . $route['callable'];
-          //  exit();
-        //  print_r($methods);
             $middleware = Factory::createAuthMiddleware($auth);
            
             $route =  Arikaim::$app->map($methods,$path,$route['callable']); //$router->map($methods,$path,$route['callable']);
@@ -73,12 +66,6 @@ class RouteLoader
             return $route;           
         }
 
-        // map page loader
-      //  echo "map:";
-      //  $route = Arikaim::$app->map(['GET'],"/{page_url}",\Arikaim\Controlers\Pages\PageLoader::class . ":loadPage");
-      
         return $route;
     }
-
-
 }

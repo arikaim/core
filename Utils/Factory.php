@@ -10,18 +10,20 @@
 namespace Arikaim\Core\Utils;
 
 use Arikaim\Core\Access\Access;
+use Arikaim\Core\Interfaces\ModuleInterface;
+use Arikaim\Core\Interfaces\Jobs\JobInterface;
+use Arikaim\Core\Interfaces\ExtensionInterface;
 
 class Factory 
 {
     public static function createInstance($full_class_name, $args = null)
     {
         if (class_exists($full_class_name) == false) {
-            $full_class_name = Self::getCoreNamespace() . $full_class_name;
+            $full_class_name = Self::getFullClassName($full_class_name);
         }
         if (class_exists($full_class_name) == false) {
             return false;
         }
-        
         if ($args != null) {            
             $instance = new $full_class_name(...$args);
         } else {
@@ -33,20 +35,35 @@ class Factory
         return null;
     }
 
-    public static function createExtension($extension_name, $class_name, $args = null)
+    public static function createModule($module_name, $class_name, $args = null)
     {
-        $full_class_name = Self::getExtensionClassName($extension_name,$class_name);  
-        $instance = Self::createInstance($full_class_name,$args);       
-        if (is_subclass_of($instance,Self::getFullInterfaceName("ExtensionInterface")) == true) {           
+        $full_class_name = Self::getModuleClass($module_name,$class_name);
+        $instance = Self::createInstance($full_class_name,$args);
+        if ($instance instanceof ModuleInterface) {
             return $instance;
         }
         return null;
     }
 
-    public static function createEvent($args = [])
+    public static function createExtension($extension_name, $class_name, $args = null)
     {
-        $event_class = Self::getCoreNamespace() . "\\Event"; 
-        return Self::createInstance($event_class,$args);
+        $full_class_name = Self::getExtensionClassName($extension_name,$class_name);  
+        $instance = Self::createInstance($full_class_name,$args);       
+        if ($instance instanceof ExtensionInterface) {           
+            return $instance;
+        }
+        return null;
+    }
+
+    public static function createJob($class_name, $extension_name = null, $args = null)
+    {
+        $job_class = Self::getJobClassName($extension_name,$class_name);
+        $job = Self::createInstance($job_class,$args);
+        if ($job instanceof JobInterface) {
+            $job->setExtensionName($extension_name);
+            return $job;
+        }
+        return null;
     }
 
     public static function createAuthMiddleware($auth, $args = null)
@@ -64,29 +81,44 @@ class Factory
                 return null;
             }
         }
-        return Self::createInstance(Self::getMiddlewareNamespace() . $class_name,$args);
+        return Self::createInstance(Self::getMiddlewareClassName($class_name),$args);
+    }
+
+    public static function getFullClassName($class_name)
+    {
+        return  Self::getCoreNamespace() . "\\$class_name";
     }
 
     public static function getCoreNamespace()
     {
-        return "Arikaim\\Core\\";
+        return "Arikaim\\Core";
+    }
+
+    public static function getModulesNamespace()
+    {
+        return "Arikaim\\Modules";
+    }
+
+    public static function getModuleNamespace($module_name)
+    {
+        return Self::getModulesNamespace() . "\\" . ucfirst($module_name);
+    }
+
+    public static function getModuleClass($module_name,$base_class)
+    {
+        return Self::getModuleNamespace($module_name) ."\\$base_class";
+    }
+
+    public static function getMiddlewareClassName($class_name)
+    {
+        return Self::getMiddlewareNamespace($class_name) . "\\$class_name";
     }
 
     public static function getMiddlewareNamespace()
     {
-        return Self::getCoreNamespace() . "Middleware\\";
+        return Self::getCoreNamespace() . "\\Middleware";
     }
-
-    public static function getExtensionControlerCallable($extension_name, $base_class, $method = null)
-    {
-        $class_name = Self::getExtensionControlerClass($extension_name, $base_class);
-        $method_call = "";
-        if ($method != null) {
-            $method_call = ":" . $method;
-        }
-        return $class_name . $method_call;
-    }
-    
+ 
     public static function getExtensionControlerClass($extension_name, $base_class_name)
     {
         $extension_name = ucfirst($extension_name);
@@ -95,14 +127,13 @@ class Factory
 
     public static function getExtensionControlersNamespace($extension_name)
     {
-        $extension_name = ucfirst($extension_name);
-        return "Arikaim\\Extensions\\$extension_name\\Controlers";
+        return Self::getExtensionNamespace($extension_name) . "\\Controlers";
     }
 
     public static function getExtensionNamespace($extension_name) 
     {   
         $extension_name = ucfirst($extension_name);
-        return Self::getExtensionsNamespace() . $extension_name;
+        return Self::getExtensionsNamespace() . "\\$extension_name";
     }
 
     public static function getExtensionClassName($extension_name, $base_class_name)
@@ -112,7 +143,7 @@ class Factory
 
     public static function getExtensionsNamespace()
     {
-        return "Arikaim\\Extensions\\";
+        return "Arikaim\\Extensions";
     }
 
     public static function getInterfacesNamespace()
@@ -123,5 +154,38 @@ class Factory
     public static function getFullInterfaceName($base_name)
     {
         return Self::getInterfacesNamespace() ."\\" . $base_name;
+    }
+
+    public static function getJobClassName($extension_name,$class_name)
+    {
+        return Self::getJobsNamespace($extension_name) . "\\$class_name";
+    }
+
+    public static function getJobsNamespace($extension_name = null)
+    {
+        if ($extension_name != null) {
+            return Self::getExtensionNamespace($extension_name) . "\\Jobs";
+        }
+        return Self::getCoreNamespace() . "\\Jobs";
+    }
+
+    public static function getModelsNamespace()
+    {
+        return Self::getCoreNamespace() . "\\Models";
+    }
+
+    public static function getModelClass($class_name) 
+    {
+        return Self::getModelsNamespace() . "\\" . $class_name;
+    }
+    
+    public static function getExtensionModelClass($extension_name, $base_class_name)
+    {
+        return Self::getExtensionModelNamespace($extension_name) . "\\" . $base_class_name;
+    }
+
+    public static function getExtensionModelNamespace($extension_name)
+    {   
+        return Self::getExtensionNamespace($extension_name) . "\\Models";
     }
 }

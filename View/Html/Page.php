@@ -10,151 +10,144 @@
 namespace Arikaim\Core\View\Html;
 
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Controler;
-use Arikaim\Core\Utils\File;
-use Arikaim\Core\Utils\Utils;
-use Arikaim\Core\View\Html\Template;
-use Arikaim\Core\View\Html\HtmlComponent;
-use Arikaim\Core\Extension\ExtensionsManager;
+use Arikaim\Core\View\Html\BaseComponent;
+use Arikaim\Core\View\Template;
+use Arikaim\Core\Utils\Collection;
+use Arikaim\Core\Interfaces\View\ComponentView;
 
-class Page extends HtmlComponent
+class Page extends BaseComponent implements ComponentView
 {
     protected $current_page;
-    
+    protected $head;
+    protected $properties;
+
     public function __construct() {
         parent::__construct();
         $this->setRootPath("pages");
-        $this->setOptionsFileName("page.json");    
+        $this->setOptionsFileName("page.json");  
+        $this->head = [];
+        $this->properties = new Collection();  
     }
 
-    public function loadPage($full_page_name, $params = [])
+    public function properties()
     {
-        $page_code = $this->getPageCode($full_page_name, $params);
-        $response = Arikaim::response();
-        $view = Arikaim::view();
-        $twig = $view->getEnvironment(); 
-        $twig->addGlobal('page',$page_code);
-        
-        $response = $view->render($response,"index.html",$params);  
-        return $response;
+        return $this->properties;
     }
 
-    public function getPageCode($full_page_name, $params = [])
-    {
-        $page_name = $this->parseName($full_page_name);
-        $page_path = $page_name['path'];
-        $type = $page_name['type'];
-        
-        $result = $this->processOptions($page_path,$type);
-        if ($result !== true) {
-            Arikaim::errors()->addError("ACCESS_DENIED");
-            $page_code = $this->getPageCode('system:system-error');
-            return $page_code;
-        }
-
-        Page::setCurrentPage($full_page_name);
-        Arikaim::set('pageType',$type);
-        Arikaim::template()->includeTemplateFiles($type);
-        $this->includePageFiles($page_path,$type);
-        $page_code = $this->fetch($page_path,$type,$params);
-        return $page_code;
-    }
-
-    public function hasPage($full_page_name)
-    {
-        $page_name = $this->parseName($full_page_name);
-        $page_path = $page_name['path'];
-        $type = $page_name['type'];
-        $template_name = $this->getPageFile($path); 
-        return File::exists($template_name);
-    }   
-
-    public function fetch($page_path,$type, $params = []) 
-    {
-        if (is_array($params) == false) {
-            $params = [];
-        } 
-        $vars = $this->loadParams($page_path,$type);
-        $params = array_merge_recursive($params,$vars);
-        
-        $path = $this->getPath($page_path,$type,false);       
-        $template_name = $this->getPageFile($path);      
-        return Arikaim::view()->fetch($template_name,$params);
-    }
-
-    public function getPageFile($path) 
-    {        
-        $parts = explode('/',$path);
-        $page_name = end($parts);
-
-        $template_name = $path . DIRECTORY_SEPARATOR . "$page_name.html";
-        return $template_name;
-    }
-
-    public function pageExists($full_page_name) 
-    {
-        $page_name = $this->parseName($full_page_name);
-        $page_path = $page_name['path'];
-        $type = $page_name['type'];
-        $path = $this->getPath($page_path,$type,true);      
-        $template_name = $this->getPageFile($path);    
-        return File::exists($template_name);
-    }
-
-    public function loadParams($full_page_name, $type)
-    {        
-        $parts = explode('/',$full_page_name);
-        $page_name = end($parts);
-        $page_path = $this->getPath($full_page_name,$type);
-        $page_file = $this->getPropertiesFileName($page_path,$page_name,true);
-        $data = File::loadJSONFile($page_file);
-        if (is_array($data['page']) == true ) {
-            return $data['page'];
-        }
-        return [];
-    }
-
-    public function includePageFiles($full_page_name, $type)
-    {
-        $parts = explode('/',$full_page_name);
-        $page_name = end($parts);
-        $path = $this->getPath($full_page_name,$type);
-
-        // js file
-        $full_file_name = $path . DIRECTORY_SEPARATOR . "$page_name.js";
-        if (File::exists($full_file_name) == true) {
-            $file_url = $this->getUrl($full_page_name,$type) . "/" . "$page_name.js";
-            Arikaim::page('properties')->add('include.page.js',$file_url);
-        }
-        // css file
-        $full_file_name = $path . DIRECTORY_SEPARATOR . "$page_name.css";
-        if (File::exists($full_file_name) == true) {
-            $file_url = $this->getUrl($full_page_name,$type) . "/" . "$page_name.css";
-            Arikaim::page('properties')->add('include.page.css',$file_url);
-        }   
-    }
-
-    public function getPageJSFiles()
-    {
-        return Arikaim::page('properties')->get('include.page.js');
-    }
-
-    public function getPageCSSFiles()
-    {
-        return Arikaim::page('properties')->get('include.page.css');
-    }
-
-    public function getPageType()
+    public function load($name, $params = [])
     {     
-        return Arikaim::pageType();
+        $component = $this->render($name,$params);
+        return Arikaim::response()->getBody()->write($component['html_code']);
+    }
+
+    public function render($name, $params = [])
+    {
+        $component = $this->resolve($name);
+
+        if ($this->hasContent($component) == false) {
+            if ($component['type'] != Template::SYSTEM) {
+                $component = $this->resolve("system:" . $component['path']);                
+            }
+        }
+        
+        if ($this->hasContent($component) == false) {
+            $component =  $this->render('page-not-found',$params);
+        }
+        if (isset($component['options']['loader']) == true) {
+            Arikaim::session()->set("template.loader",$component['options']['loader']);
+        }
+
+        $page_body = $this->getCode($component,$params);
+        $index_page = $this->getIndexPath($component);
+
+        $params = array_merge($params,['body' => $page_body, 'head' => $this->head]);
+        $component['html_code'] = Arikaim::view()->fetch($index_page,$params);
+        return $component;
+    }
+
+    private function getIndexPath($page)
+    {
+        if ($page['type'] == Template::SYSTEM) {
+            return Template::SYSTEM_TEMPLATE_NAME . DIRECTORY_SEPARATOR . "index.html";
+        }
+        return Template::getTemplateName() . DIRECTORY_SEPARATOR . "index.html";
+    }
+
+    public function getCode($component, $params = [])
+    {
+        $this->includeFiles($component);
+      
+        $this->setCurrent($component['path']);
+        Template::includeFiles($component['type']);
+
+        $properties = $this->getProperties($component);
+        if (isset($properties['head']) == true) {
+            $this->head = array_merge($this->head,$properties['head']);
+        }
+        $params = array_merge_recursive($params,$properties);
+        return Arikaim::view()->fetch($component['template_file'],$params);
     }
     
-    public static function setCurrentPage($name)
+    public function has($full_page_name) 
+    {
+        $page = $this->resolve($full_page_name);
+        if ($page == false) {
+            return false;
+        }
+        return true;        
+    }
+
+    public function includeFiles($component)
+    {
+        // js file
+        $file_url = isset($component['files']['js']['url']) ? $component['files']['js']['url'] : null;
+        if (empty($file_url) == false) {
+            Arikaim::page()->properties()->add('include.page.js',$file_url);
+        }
+        
+        // css file
+        $file_url = isset($component['files']['css']['url']) ? $component['files']['css']['url'] : null;
+        if (empty($file_url) == false) {
+            Arikaim::page()->properties()->add('include.page.css',$file_url);
+        }
+    }
+
+    public function setHeadAttribute($name,$value)
+    {
+        $this->head[$name] = $value;
+    }
+
+    public function setHead(array $head_attributes)
+    {
+        $this->head = $head_attributes;
+    }
+
+    public static function getPageJsFiles()
+    {
+        return Arikaim::page()->properties()->get('include.page.js');
+    }
+
+    public static function getPageCssFiles()
+    {
+        return Arikaim::page()->properties()->get('include.page.css');
+    }
+
+    public static function getComponentsJsFiles()
+    {
+        return Arikaim::page()->properties()->get('include.components.js');
+    }
+
+    public static function getComponentsCssFiles()
+    {
+        return Arikaim::page()->properties()->get('include.components.css');
+    }
+
+    public function setCurrent($name)
     {
         Arikaim::session()->set("current_page",$name);
     }
 
-    public static function getCurrentPage()
+    public static function getCurrent()
     {
         return Arikaim::session()->get("current_page");
     }

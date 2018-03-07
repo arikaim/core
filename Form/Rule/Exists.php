@@ -1,15 +1,13 @@
 <?php
 /**
- *  Arikaim
+ * Arikaim
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
-
 namespace Arikaim\Core\Form\Rule;
-
 
 use Arikaim\Core\Form\AbstractRule;
 use Arikaim\Core\Db\Model;
@@ -17,7 +15,6 @@ use Arikaim\Core\Arikaim;
 
 class Exists extends AbstractRule
 {
-
     protected $model;
     protected $field_name;
     protected $search_key;
@@ -33,7 +30,7 @@ class Exists extends AbstractRule
     public function customFilter($value) 
     {           
         $data = $this->model->where($this->field_name,'=',$value)->first();
-        if ( is_object($data) == false) {           
+        if (is_object($data) == false) {           
             $this->setError("VALUE_NOT_EXIST_ERROR");
         } 
         return $this->isValid();
@@ -48,5 +45,4 @@ class Exists extends AbstractRule
     {
         return $this->getCustomFilterOptions();
     }
-
 }
