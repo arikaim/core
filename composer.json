@@ -18,7 +18,8 @@
         "lcobucci/jwt": "^3.2",
         "illuminate/pagination": "^5.4",
         "swiftmailer/swiftmailer": "^5.4.6",
-        "composer/composer": "^1.6"
+        "league/flysystem": "^1.0",
+        "arikaim/container": "^1.1"
     },
     "autoload": {       
         "psr-4": {
