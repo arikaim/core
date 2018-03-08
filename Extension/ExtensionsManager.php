@@ -71,7 +71,8 @@ class ExtensionsManager
 
     public function install($extension_name, $update = false) 
     {          
-        $details = $this->getExtensionDetails($extension_name);  
+        $details = $this->getExtensionProperties($extension_name);
+      
         $ext_obj = Factory::createExtension($extension_name,$details['class']);
         if (is_object($ext_obj) == false) {
             Arikaim::errors()->addError("EXTENSION_CLASS_NOT_VALID");
@@ -103,15 +104,15 @@ class ExtensionsManager
 
         // add to extensions db table
         $extension = Model::Extensions();       
-        $info = $this->getExtensionProperties($extension_name);
-        $info['status'] = 1;
+       
+        $details['status'] = 1;
         if ($extension->isInstalled($extension_name) == false) {
-            $extension->fill($info);
+            $extension->fill($details);
             $extension->save();
         } else {
             $extension = $extension->where('name','=',$extension_name)->first();
             $info['uuid'] = $extension->uuid;
-            $extension->update($info);
+            $extension->update($details);
         }
         // after install handler
         if ($update != true) {
@@ -222,49 +223,26 @@ class ExtensionsManager
         $info['installed'] = $extension->isInstalled($extension_name);       
         $info['status'] = $extension->getStatus($extension_name);
 
-        if (is_subclass_of($ext_obj,Factory::getFullInterfaceName("DefinitionInterface")) == true) {   
-            // get info from extension class      
-            $info['class'] = $base_class_name;
-            $info['type'] = $ext_obj->getType();
-            $info['title'] = $ext_obj->getTitle();
-            $info['icon'] = $ext_obj->getIcon();
-            $info['version'] = $ext_obj->getVersion();
-            $info['description'] = $ext_obj->getDescription();
-            $info['short_description'] = $ext_obj->getShortDescription();           
-        } else {
-            $properties_file = $this->getExtensionPropertiesFileName($extension_name);
-            if (File::exists($properties_file) == false) {
-                $info['error'] = Arikaim::errors()->getError("FILE_NOT_FOUND",['file_name' => $properties_file]);
-            }
-            // get from json file
-            $info['class'] = $base_class_name;
-            $type_name = $properties->get('type','user'); 
-            $info['type'] = $extension->getTypeId($type_name);
-            $info['description'] = $properties->get('description');
-            $info['short_description'] = $properties->get('short_description');
-            $info['version'] = $properties->get('version','1.0');
-            $info['title'] = $properties->get('title');  
-            $info['icon'] = $properties->get('icon');         
+        $properties_file = $this->getExtensionPropertiesFileName($extension_name);
+        if (File::exists($properties_file) == false) {
+            $info['error'] = Arikaim::errors()->getError("FILE_NOT_FOUND",['file_name' => $properties_file]);
         }
-        // admin link info 
-        if (is_subclass_of($ext_obj,Factory::getFullInterfaceName("AdminMenuLinkInterface")) == true) {   
-            $info['admin_link_title'] = $ext_obj->getLinkTitle();
-            $info['admin_link_icon'] = $ext_obj->getLinkIcon();  
-            $info['admin_link_sub_title'] = $ext_obj->getLinkSubtitle();
-            $info['admin_link_component'] = $ext_obj->getLinkComponentName();
-            $info['admin_link_position'] = $ext_obj->getLinkPosition();
-        } else { 
-            $properties_file = $this->getExtensionPropertiesFileName($extension_name);
-            if (File::exists($properties_file) == false) {
-                $info['error'] = Arikaim::errors()->getError("FILE_NOT_FOUND",['file_name' => $properties_file]);
-            }   
-            // get from json file  
-            $info['admin_link_title'] = $properties->getByPath('admin/link/content');   
-            $info['admin_link_icon'] = $properties->getByPath('admin/link/icon');   
-            $info['admin_link_sub_title'] = $properties->getByPath('admin/link/sub_title');   
-            $info['admin_link_component'] = $properties->getByPath('admin/link/component');   
-            $info['admin_link_position'] = $properties->getByPath('admin/link/position');   
-        }
+    
+        $info['class'] = $base_class_name;
+        $type_name = $properties->get('type','user'); 
+        $info['type'] = $extension->getTypeId($type_name);
+        $info['description'] = $properties->get('description');
+        $info['short_description'] = $properties->get('short_description');
+        $info['version'] = $properties->get('version','1.0');
+        $info['title'] = $properties->get('title');  
+        $info['icon'] = $properties->get('icon');         
+        // admin link info     
+        $info['admin_link_title'] = $properties->getByPath('admin/link/content');   
+        $info['admin_link_icon'] = $properties->getByPath('admin/link/icon');   
+        $info['admin_link_sub_title'] = $properties->getByPath('admin/link/sub_title');   
+        $info['admin_link_component'] = $properties->getByPath('admin/link/component');   
+        $info['admin_link_position'] = $properties->getByPath('admin/link/position');   
+
         return $info;
     }
 

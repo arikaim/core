@@ -9,6 +9,7 @@
 */
 namespace Arikaim\Core\Events;
 
+use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Events\AbstractEvent;
 use Arikaim\Core\Db\Model;
