@@ -143,9 +143,4 @@ abstract class Schema
         $extension_name = ucfirst($extension_name);
         return "Arikaim\\Extensions\\$extension_name\\Models\\Schema";
     }
-
-    public static function getDbSchemaPath() 
-    {
-        return Arikaim::classLoader()->namespaceToPath(Self::getSchemaNamespace(),true);
-    }
 }   

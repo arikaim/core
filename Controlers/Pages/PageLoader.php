@@ -68,6 +68,9 @@ class PageLoader extends Controler
 
     public function pageNotFound($request, $response, $args = []) 
     {                  
+        if (Install::isInstalled() == false) { 
+            return $this->loadPage($request,$response,['page' => 'system:install']);
+        }
         Arikaim::page()->load("page-not-found",$args);  
         return $response->withStatus(404);
     }

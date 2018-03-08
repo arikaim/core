@@ -219,23 +219,15 @@ class Install
 
     private function createDbTables()
     {          
-        $schema_classes_path = Schema::getDbSchemaPath();
+        $classes = $this->getSystemSchemaClasses();
         $errors = 0;
-        $result = false;
-        foreach (new \DirectoryIterator($schema_classes_path) as $file) {
-            if (($file->isDot() == true) || ($file->isDir() == true)) continue;
-            if ($file->getExtension() != "php") continue;
-            $file_name =  $schema_classes_path . DIRECTORY_SEPARATOR . $file->getFilename();
-            $classes = File::getClassesInFile($file_name);
-            foreach ($classes as $key => $class_name) {            
-                $installed = Schema::install($class_name);
-                if ($installed == false) {
-                    $errors++;
-                }
+        foreach ($classes as $class_name) {
+            $installed = Schema::install($class_name);
+            if ($installed == false) {
+                $errors++;
             }
         }
-        if ($errors == 0) $result = true;
-        return $result;
+        return ($errors == 0) ? true : false;         
     }
 
     /**
@@ -335,5 +327,19 @@ class Install
             return false;
         }      
         return $result;
+    }
+
+    public function getSystemSchemaClasses()
+    {
+        return ['EventsSchema',
+        'EventSubscribersSchema',
+        'ExtensionsSchema',
+        'JobsQueueSchema',
+        'LanguageSchema',
+        'LogsSchema',
+        'OptionsSchema',
+        'PermissionsSchema',
+        'RoutesSchema',
+        'UsersSchema'];
     }
 }
