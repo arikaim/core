@@ -39,12 +39,15 @@ class Install
         // clear errors before start
         Arikaim::errors()->clear();
         
+        $database_name = Arikaim::config('db/database');
         // create database if not exists 
-        $has_db = Self::hasDatabase(Arikaim::config('db/database'));
-        if ($has_db == false) {
-            $result = $this->createDB();            
-        }
-
+        $has_db = Self::hasDatabase($database_name);
+      
+        $result = $this->createDB(Arikaim::config('db/database'));  
+        if ($result == false) {
+            return false;
+        }          
+        
         // Create Arikaim DB tables
         $result = $this->createDbTables();
         if ($result == false) {
@@ -269,12 +272,15 @@ class Install
         return true;
     }
 
-    public function createDB() 
+    public function createDB($database_name) 
     {    
+        if (Self::hasDatabase($database_name) == true) {
+            return true;
+        }
+
         $db = Arikaim::db()->getConnection('schema');
-        $database_name = Arikaim::config('db/database');
         try {
-            $result = $db->statement("CREATE DATABASE $database_name"); //, array('database_name' => $database_name));
+            $result = $db->statement("CREATE DATABASE $database_name");
         } catch(\Exception $e) {
             Arikaim::errors()->addError('DB_DATABASE_ERROR');
             return false;

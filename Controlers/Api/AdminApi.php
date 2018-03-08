@@ -48,7 +48,10 @@ class AdminApi extends ApiControler
                 Arikaim::config()->saveConfigFile();
                 Arikaim::config()->loadConfig();
                 // do install
-                $install->install();               
+                $result = $install->install();    
+                if ($result == false) {
+                    $this->setApiErrors(Arikaim::errors()->getErrors());
+                }           
             }           
         } else {
             $this->setApiErrors($this->form->getErrors());

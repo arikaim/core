@@ -244,7 +244,7 @@ class System
         echo $text . $eof;
     }
 
-    static public function getEof() 
+    public static function getEof() 
     { 
         $os = Self::getOS();
         switch ($os) {
@@ -263,7 +263,7 @@ class System
         }
     }
 
-    static public function getOS() 
+    public static function getOS() 
     {
         switch (true) {
             case stristr(PHP_OS, 'DAR'): {
@@ -279,5 +279,10 @@ class System
                 return Self::UNKNOWN;
             }
         }
+    }
+
+    public static function getStoreUrl()
+    {
+        return "http://store.arikaim.com/";
     }
 }

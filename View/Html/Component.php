@@ -77,10 +77,10 @@ class Component extends BaseComponent implements ComponentView
         }
     }
     
-    public function getProperties($component_name)
+    public function getComponentProperties($component_name)
     {
         $component = $this->resolve($component_name);
-        return $this->loadComponentProperties($component)->toArray();
+        return $this->getProperties($component);
     }
 
     public function getComponentDetails($component_name)
