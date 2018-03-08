@@ -171,16 +171,20 @@ class ExtensionsManager
     
     public function scan() 
     {
-        $extensions_path = Self::getExtensionsPath();
-        $items = [];
-        foreach (new \DirectoryIterator($extensions_path) as $file) {
+        $path = Self::getExtensionsPath();
+        $result = [];
+        if (File::exists($path) == false) {
+            return $result;
+        }
+
+        foreach (new \DirectoryIterator($path) as $file) {
             if ($file->isDot() == true) continue;
             if ($file->isDir() == true) {
                 $extension_name = $file->getFilename();            
-                array_push($items,$extension_name);
+                array_push($result,$extension_name);
             }
         }   
-        return $items;
+        return $result;
     }
 
     public function getExtensionPropertiesFileName($extension_name)
@@ -298,11 +302,11 @@ class ExtensionsManager
     public function registerEventsSubscribers($extension_name)
     {
         $count = 0;
-        if (empty($extension_name) == true) {
-            return false;
-        }
         $path = Self::getExtensionEventsPath($extension_name);
-       
+        if (File::exists($path) == false) {
+            return $count;
+        }
+
         foreach (new \DirectoryIterator($path) as $file) {
             if (($file->isDot() == true) || ($file->isDir() == true)) continue;
             if ($file->getExtension() != 'php') continue;
@@ -318,8 +322,10 @@ class ExtensionsManager
     public function getExtensionDatabaseModels($extension_name, $install = false)
     {      
         $result = [];
-        if (empty($extension_name) == true) return $result;
         $path = Self::getExtensionModelsSchemaPath($extension_name);
+        if (File::exists($path) == false) {
+            return $result;
+        }
 
         foreach (new \DirectoryIterator($path) as $file) {
             if (($file->isDot() == true) || ($file->isDir() == true)) continue;
@@ -352,11 +358,11 @@ class ExtensionsManager
     public function getExtensionTemplatePages($extension_name)
     {
         $result = [];
-        if (empty($extension_name) == true) {
+        $path = Self::getExtensionPagesPath($extension_name);
+        if (File::exists($path) == false) {
             return $result;
         }
-        $path = Self::getExtensionPagesPath($extension_name);
-     
+
         foreach (new \DirectoryIterator($path) as $file) {
             if ($file->isDot() == true) continue;
             if ($file->isDir() == true) {
@@ -370,11 +376,11 @@ class ExtensionsManager
     public function getExtensionTemplateMacros($extension_name)
     {
         $result = [];
-        if (empty($extension_name) == true) {
+        $path = Self::getExtensionMacrosPath($extension_name);
+        if (File::exists($path) == false) {
             return $result;
         }
-        $path = Self::getExtensionMacrosPath($extension_name);
-      
+
         foreach (new \DirectoryIterator($path) as $file) {
             if (($file->isDot() == true) || ($file->isDir() == true)) continue;
             $extension = $file->getExtension();

@@ -74,6 +74,10 @@ class UiLibrary
     {
         $path = Self::getLibraryRootPath();
         $items = [];
+        if (File::exists($path) == false) {
+            return $items;
+        }
+        
         foreach (new \DirectoryIterator($path) as $file) {
             if ($file->isDot() == true ) continue;
             if ($file->isDir() == true) {

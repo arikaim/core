@@ -12,6 +12,7 @@ namespace Arikaim\Core\Module;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Form\Properties;
+use Arikaim\Core\FileSystem\File;
 
 class ModulesManager 
 {
@@ -23,6 +24,10 @@ class ModulesManager
     {
         $path = Arikaim::getModulesPath();
         $modules = [];
+        if (File::exists($path) == false) {
+            return $modules;
+        }
+
         foreach (new \DirectoryIterator($path) as $file) {
             if ($file->isDot() == true) continue;
             if ($file->isDir() == true) {

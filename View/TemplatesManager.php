@@ -14,6 +14,7 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Template;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Controlers\Controler;
+use Arikaim\Core\FileSystem\File;
 
 class TemplatesManager 
 {
@@ -27,8 +28,12 @@ class TemplatesManager
     public function scan()
     {
         $items = [];
-        $templates_path = Template::getTemplatesPath();
-        foreach (new \DirectoryIterator($templates_path) as $file) {
+        $path = Template::getTemplatesPath();
+        if (File::exists($path) == false) {
+            return $items;
+        }
+
+        foreach (new \DirectoryIterator($path) as $file) {
             if ($file->isDot() == true) continue;
             if ($file->isDir() == true) {
                 $template_name = $file->getFilename();      
@@ -73,7 +78,11 @@ class TemplatesManager
         $root_path = $path;
         if ($parent_path != null) {
             $path .= $parent_path . DIRECTORY_SEPARATOR;
-        }  
+        } else {
+            if (File::exists($path) == false) {
+                return $items;
+            }
+        }
 
         foreach (new \DirectoryIterator($path) as $file) {
             if ($file->isDot() == true) continue;
@@ -105,6 +114,10 @@ class TemplatesManager
     {
         $items = [];
         $path = Template::getMacrosPath($template_name);
+        if (File::exists($path) == false) {
+            return $items;
+        }
+
         foreach (new \DirectoryIterator($path) as $file) {
             if (($file->isDot() == true) || ($file->isDir() == true)) continue;
             $file_ext = $file->getExtension();
@@ -119,7 +132,11 @@ class TemplatesManager
     public function getTemplatePages($template_name)
     {
         $items = [];
-        $path = Template::getPagesPath($template_name);     
+        $path = Template::getPagesPath($template_name);    
+        if (File::exists($path) == false) {
+            return $items;
+        }
+
         foreach (new \DirectoryIterator($path) as $file) {
             if ($file->isDot() == true) continue;
             if ($file->isDir() == true) {
