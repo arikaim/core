@@ -100,7 +100,6 @@ class JobsQueueManager
     {
         System::setTimeLimit(3600); // 1h time limit
 
-        Arikaim::logger()->info('Execute job');
         $this->run_counter = 0;
         System::writeLine("Arikaim Jobs queue");
         
@@ -150,6 +149,7 @@ class JobsQueueManager
         }
         foreach ($jobs as $job) {
             $this->executeJob($job);
+            Arikaim::logger()->info('Execute Scheduled job');
         }
         return true;
     }

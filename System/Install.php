@@ -35,19 +35,16 @@ class Install
      */
     public function install() 
     {    
-
         // clear errors before start
         Arikaim::errors()->clear();
-        
-        $database_name = Arikaim::config('db/database');
-        // create database if not exists 
-        $has_db = Self::hasDatabase($database_name);
-      
-        $result = $this->createDB(Arikaim::config('db/database'));  
+    
+        // create database if not exists  
+        $result = Arikaim::db()->createDb(Arikaim::config('db/database'));  
         if ($result == false) {
             return false;
         }          
-        
+        Arikaim::db()->initConnection(Arikaim::config('db'));     
+
         // Create Arikaim DB tables
         $result = $this->createDbTables();
         if ($result == false) {
@@ -64,10 +61,12 @@ class Install
         // reload seystem options
         Arikaim::options()->loadOptions();
 
-        // insert  default values in db tables
+        // insert default values in db tables
         $result = $this->initDefaultValues();
+
         // create admin user if not exists 
         $this->createDefaultAdminUser();
+
         // add date, time, number format items
         $this->initDefaultOptions();
 
@@ -206,13 +205,8 @@ class Install
             if (isset($item['country_code']) == "") {
                 $item['country_code'] = $item['code'];
             }       
-            try {                  
-                $search = Model::Language()->hasLanguage($item['code']);
-                if ($search == false) {
-                    $language = Model::Language()->fill($item);
-                    $language->setPosition();
-                    $language->save();               
-                }
+            try {                           
+                Model::Language()->add($item);     
             } catch(\Exception $e) {
                 return false;
             }
@@ -221,10 +215,10 @@ class Install
     }
 
     private function createDbTables()
-    {          
+    {                 
         $classes = $this->getSystemSchemaClasses();
         $errors = 0;
-        foreach ($classes as $class_name) {
+        foreach ($classes as $class_name) {            
             $installed = Schema::install($class_name);
             if ($installed == false) {
                 $errors++;
@@ -243,7 +237,7 @@ class Install
         $errors = 0;      
         try {
             // check db
-            $errors += Self::hasDatabase(Arikaim::config('db/database')) ? 0:1;
+            $errors += Arikaim::db()->has(Arikaim::config('db/database')) ? 0:1;
             if ($errors > 0) {
                 return false;
             }
@@ -272,69 +266,6 @@ class Install
         return true;
     }
 
-    public function createDB($database_name) 
-    {    
-        if (Self::hasDatabase($database_name) == true) {
-            return true;
-        }
-
-        $db = Arikaim::db()->getConnection('schema');
-        try {
-            $result = $db->statement("CREATE DATABASE $database_name");
-        } catch(\Exception $e) {
-            Arikaim::errors()->addError('DB_DATABASE_ERROR');
-            return false;
-        }
-        return $result;
-    }
-
-    public static function hasDatabase($database_name)
-    {   
-        try {
-            $db = Arikaim::db()->getConnection('schema');
-            $result = $db->select("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$database_name'");            
-        } catch(\Exception $e) {
-            return false;
-        }
-        if (isset($result[0]->SCHEMA_NAME) == true) {
-            return true;
-        }
-        return false;
-    }
-
-    public static function checkDbConnection($connection)
-    {
-        try {
-            $result = $connection->statement('SELECT 1');
-            return $result;
-        } catch(\PDOException $e) {
-            return false;
-        }
-        return true;
-    }
-
-    public function getConfigDetails()
-    {
-        $info['db'] = Arikaim::config('db');
-        return $info;
-    }
-
-    public function testDbConnection($user_name, $password)
-    {
-        $db = Arikaim::db();
-        $db_config = Arikaim::config('db');
-        $db_config['username'] = $user_name;
-        $db_config['password'] = $password;
-        $db_config['database'] = "INFORMATION_SCHEMA";
-        try {
-            $db->addConnection($db_config,'test');
-            $result = $this->checkDbConnection($db->getConnection('test'));      
-        } catch(\Exception $e) {   
-            return false;
-        }      
-        return $result;
-    }
-
     public function getSystemSchemaClasses()
     {
         return ['EventsSchema',
@@ -347,5 +278,10 @@ class Install
         'PermissionsSchema',
         'RoutesSchema',
         'UsersSchema'];
+    }
+
+    public function getConfigDetails()
+    {
+        return Arikaim::config();
     }
 }

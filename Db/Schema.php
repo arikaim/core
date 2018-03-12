@@ -43,7 +43,7 @@ abstract class Schema
 
     public static function hasTable($model)
     {      
-        if (Install::hasDatabase(Arikaim::config('db/database')) == false) {
+        if (Arikaim::db()->has(Arikaim::config('db/database')) == false) {
             return false;
         }
         $table_name = $model->getTable();      

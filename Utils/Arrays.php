@@ -29,7 +29,9 @@ class Arrays
     
     public static function getValue($array, $path, $separator = '/') 
     {    
-        if (!$path) return null;
+        if (empty($path) == true) {
+            return null;
+        }
         $path_parts = is_array($path) ? $path : explode($separator, $path);
         $reference = &$array;
         foreach ($path_parts as $key) {           

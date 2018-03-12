@@ -9,6 +9,7 @@
 */
 namespace Arikaim\Core\Controlers\Api;
 
+use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Template;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Form\Form;
@@ -44,12 +45,20 @@ class LanguageApi extends ApiControler
                     $language = $language->where('uuid',$uuid)->first();           
                     $result = $language->update($this->form->toArray());                                      
                 } else {
-                    // add record                          
+                    // add record 
+                    if ($language->has($this->form->get('code')) == true) {
+                        // language exists
+                        $error = Arikaim::getError("LANGUAGE_EXISTS",['code' => $this->form->get('code')]);
+                        $this->form->setError('code',$error);
+                        $this->setApiErrors($this->form->getErrors());
+                        return $this->getApiResponse(); 
+                    }
+                    
                     $language->fill($this->form->toArray());        
                     $result = $language->save();
                 }
                 if ($result == false) {
-                    $this->setApiError("ERROR_SAVE_DATA");
+                    $this->setApiError(Arikaim::errors()->getError("ERROR_SAVE_DATA"));
                 }
             } catch(\Exception $e) {
                 $this->setApiError($e->getMessage());

@@ -28,13 +28,28 @@ class Language extends Model
         return $this;
     }
 
-    public function hasLanguage($code)
+    public function has($code, $active = null)
     {
-        $language = $this->where('code','=',$code)->get()->toArray();
-        if (empty($language) == true) {
+        $language = $this->where('code','=',$code);
+        if ($active == true) {
+            $language = $language->where('status','=',1);
+        }
+        $language = $language->first();
+        if (is_object($language) == true) {
+            return true;
+        }
+        return false;
+    }
+
+    public function add(array $language)
+    {
+        if ($this->has($language['code']) == true) {
             return false;
         }
-        return true;
+        $this->fill($language);
+        $this->setPosition();
+        $result = $this->save();    
+        return $result;      
     }
 
     public function getDefaultLanguage()

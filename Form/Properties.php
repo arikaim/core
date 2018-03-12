@@ -42,7 +42,7 @@ class Properties extends Form
         foreach ($this->data as $key => $item) {
             if (is_array($item) == true) {
                 $current_value = Arrays::getValue($item,$path);
-                if (empty($current_value) == true) {
+                if ($current_value === null) {
                     $this->data[$key] = Arrays::setValue($item,$path,$value);
                 }
             }

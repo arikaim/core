@@ -32,18 +32,18 @@ class Component extends BaseComponent implements ComponentView
         return $this->files;
     }
 
-    public function load($name, $params = [])
+    public function load($name, $params = [], $language = null)
     {       
-        $component = $this->render($name,$params);
+        $component = $this->render($name,$params,$language);
         if ($this->hasError($component) == true) {
             return $component['error'];
         }
         return $component['html_code'];
     }
 
-    public function render($name, $vars = []) 
+    public function render($name, $vars = [], $language = null) 
     {    
-        $component = $this->resolve($name);
+        $component = $this->resolve($name,$language);
         
         if ($this->hasError($component) == true) {
             return $component;
@@ -77,9 +77,12 @@ class Component extends BaseComponent implements ComponentView
         }
     }
     
-    public function getComponentProperties($component_name)
+    public function getComponentProperties($name, $params = [], $language = null)
     {
-        $component = $this->resolve($component_name);
+        $component = $this->render($name,$params,$language);
+        if ($this->hasError($component) == true) {
+            return $component['error'];
+        }
         return $this->getProperties($component);
     }
 

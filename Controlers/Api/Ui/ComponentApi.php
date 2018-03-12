@@ -54,7 +54,7 @@ class ComponentApi extends ApiControler
         $result_code['html'] = $component['html_code'];
         $result_code['css_files']  = Arikaim::view()->component()->files()->get('css_files',[]);
         $result_code['js_files']   = Arikaim::view()->component()->files()->get('js_files',[]);
-        $result_code['properties'] = Utils::jsonEncode($properties);
+        $result_code['properties'] = json_encode($properties);
 
         $this->setApiResult($result_code);
         return $this->getApiResponse();

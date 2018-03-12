@@ -95,7 +95,7 @@ class Options extends Model
         $this->options[$key] = $value;
     } 
 
-    public function get($key,$default_value = null)
+    public function get($key, $default_value = null)
     {
         if (isset($this->options[$key]) == true) {
             return $this->options[$key];

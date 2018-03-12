@@ -18,20 +18,18 @@ use Arikaim\Core\Arikaim;
 
 class Routes 
 {
-    public static function mapExtensionsRoutes($app)
+    public static function mapRoutes($app)
     {
         if (Arikaim::errors()->hasError("DB_CONNECTION_ERROR") == true) {
             return $app;
         }
-        $routes = Model::Routes()->getRoutes(Model::getConstant('Routes','ACTIVE'));
-      
+        $routes = Model::Routes()->getRoutes(Model::getConstant('Routes','ACTIVE'));      
         if (is_array($routes) == true) {
             foreach($routes as $item) {
-                $path = $item['path'] . $item['pattern'];
                 $methods = explode(',',$item['method']);
                 $handler = $item['handler_class'] . ":" . $item['handler_method'];
-                $middleware = Factory::createAuthMiddleware($item['auth']);                 
-                $route = $app->map($methods,$path,$handler);
+                $middleware = Factory::createAuthMiddleware($item['auth']);               
+                $route = $app->map($methods,$item['pattern'],$handler);
                 if ($middleware != null) {
                     $route->add($middleware);
                 }
@@ -50,7 +48,7 @@ class Routes
         $app->add(new \Arikaim\Core\Middleware\CoreMiddleware());  
 
         $session_auth = new SessionAuthentication();
-        $jwt_auth =  new JwtAuthentication();
+        $jwt_auth = new JwtAuthentication();
 
         $api_controles_namespace = Controler::getApiControlersNamespace();
 
@@ -60,7 +58,6 @@ class Routes
         //Api Client
         $app->post('/api/create/token/',"$api_controles_namespace\ApiClient:createToken");
         $app->post('/api/verify/request/',"$api_controles_namespace\ApiClient:verifyRequest");
-
         // Session
         $app->put('/api/session/',"$api_controles_namespace\SessionApi:setValue")->add($jwt_auth);
         $app->get('/api/session/',"$api_controles_namespace\SessionApi:getInfo")->add($session_auth);
@@ -72,7 +69,7 @@ class Routes
         $app->get('/api/ui/page/properties/',"$api_controles_namespace\Ui\PageApi:loadPageProperties")->add($session_auth);  
     
         // Control Panel
-        $app->get('/admin[/]',Controler::getControlersNamespace() . "\Pages\PageLoader:loadControlPanel");
+        $app->get('/admin/[{language}/]',Controler::getControlersNamespace() . "\Pages\PageLoader:loadControlPanel");
         // Install
         $app->post('/admin/api/install/',"$api_controles_namespace\AdminApi:install")->add($session_auth);    
         // Update
@@ -111,7 +108,7 @@ class Routes
         // Mailer
         $app->get('/admin/api/mailer/test/email',"$api_controles_namespace\AdminApi:sendTestEmail")->add($jwt_auth);
 
-        $app = Self::mapExtensionsRoutes($app);
+        $app = Self::mapRoutes($app);
         return $app;
     }
 }

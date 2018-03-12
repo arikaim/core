@@ -14,7 +14,7 @@ use Arikaim\Core\Db\Schema;
 
 class Permissions extends Model  
 {
-    const USER = 'user';
+    const USER  = 'user';
     const GROUP = 'group';
     
     protected $fillable = ['id','read','write','delete','execute','object_type','key','object_uuid','title','description'];

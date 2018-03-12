@@ -156,7 +156,7 @@ class TemplatesManager
         }
         foreach ($routes as $key => $item) {
             $routes[$key]['method'] = "GET";
-            $route = $model->getTemplateRoute('GET', $routes[$key]['path'],$template_name);
+            $route = $model->getPageRoute('GET', $routes[$key]['path']);
             if ($route != false) {
                 $routes[$key]['status'] = $route->status;
                 $routes[$key]['auth'] = $route->auth;
@@ -199,10 +199,8 @@ class TemplatesManager
             }
             $template_page = $route['page'];
             $handler_method = "loadTemplatePage";
-            $handler_class = Controler::getControlerClass("Pages\\PageLoader");
-            $pattern = "";
-            $path = $route['path'];                     
-            $result = $model->addTemplateRoute($path, $pattern, $handler_class, $handler_method, $template_name, $template_page);
+            $handler_class = Controler::getControlerClass("Pages\\PageLoader");                
+            $result = $model->addTemplateRoute($route['path'], $handler_class, $handler_method, $template_name, $template_page);
             if ($result != false) {
                 $routes_added++;
             }

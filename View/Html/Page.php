@@ -14,6 +14,7 @@ use Arikaim\Core\View\Html\BaseComponent;
 use Arikaim\Core\View\Template;
 use Arikaim\Core\Utils\Collection;
 use Arikaim\Core\Interfaces\View\ComponentView;
+use Arikaim\Core\Db\Model;
 
 class Page extends BaseComponent implements ComponentView
 {
@@ -34,15 +35,15 @@ class Page extends BaseComponent implements ComponentView
         return $this->properties;
     }
 
-    public function load($name, $params = [])
+    public function load($name, $params = [], $language = null)
     {     
-        $component = $this->render($name,$params);
+        $component = $this->render($name,$params,$language);
         return Arikaim::response()->getBody()->write($component['html_code']);
     }
 
-    public function render($name, $params = [])
+    public function render($name, $params = [], $language = null)
     {
-        $component = $this->resolve($name);
+        $component = $this->resolve($name,$language);
 
         if ($this->hasContent($component) == false) {
             if ($component['type'] != Template::SYSTEM) {
@@ -150,5 +151,32 @@ class Page extends BaseComponent implements ComponentView
     public static function getCurrent()
     {
         return Arikaim::session()->get("current_page");
+    }
+
+    public static function getLanguagePath($path, $language = null)
+    {
+        $default_language = Model::Language()->getDefaultLanguage();
+        if ($language == null) {
+            $language = Template::getLanguage();
+        }
+        if ($default_language == $language) {
+            return $path;
+        } 
+        return (substr($path,-1) == "/") ?  $path . "$language/" : "$path/$language/";
+    }
+
+    public static function getUrl($path, $full = false)
+    {       
+        if ($full == true) {
+            $url = Arikaim::getBaseURL();
+        } else {
+            $url = Arikaim::getBasePath();
+        }
+        return $url . "/" . Self::getLanguagePath($path);
+    }
+
+    public static function getFullUrl($path)
+    {
+        return Self::getUrl($path,true);
     }
 }

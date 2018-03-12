@@ -33,25 +33,28 @@ class AdminApi extends ApiControler
         $this->form->addRule('username',Form::Rule()->text(2));
         $this->form->addRule('password',Form::Rule()->text(2));
 
-        $user_name = $this->form->get('username');
-        $password = $this->form->get('password');
-        $database = $this->form->get('database');
+        $user_name  = $this->form->get('username');
+        $password   = $this->form->get('password');
+        $database   = $this->form->get('database');
         
         if ($this->form->validate() == true) { 
-            $result = $install->testDbConnection($user_name,$password);
-            if ($result == true) {
-                // save config file               
-                Arikaim::config()->setValue('db/username',$user_name);
-                Arikaim::config()->setValue('db/password',$password);
-                Arikaim::config()->setValue('db/database',$database);
-                // save config file
-                Arikaim::config()->saveConfigFile();
-                Arikaim::config()->loadConfig();
+            // save config file               
+            Arikaim::config()->setValue('db/username',$user_name);
+            Arikaim::config()->setValue('db/password',$password);
+            Arikaim::config()->setValue('db/database',$database);
+            // save config file
+            Arikaim::config()->saveConfigFile();
+            Arikaim::config()->loadConfig();
+
+            $result = Arikaim::db()->testConnection(Arikaim::config('db'));
+            if ($result == true) {          
                 // do install
                 $result = $install->install();    
                 if ($result == false) {
                     $this->setApiErrors(Arikaim::errors()->getErrors());
                 }           
+            } else {
+                $this->setApiErrors(Arikaim::errors()->getErrors());
             }           
         } else {
             $this->setApiErrors($this->form->getErrors());

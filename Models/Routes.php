@@ -28,10 +28,8 @@ class Routes extends Model
     
     protected $fillable = [
         'name',
-        'path',
         'pattern',
         'method',
-        'handler_extension',
         'handler_class',
         'handler_method',
         'extension_name',
@@ -102,33 +100,30 @@ class Routes extends Model
         return false;
     }
 
-    public function deleteRoute($method, $path)
+    public function deleteRoute($method, $pattern)
     {
         $result = true;
-        $model = $this->where('method','=',$method)->where('path','=',$path);
+        $model = $this->where('method','=',$method)->where('pattern','=',$pattern);
         if (is_object($model) == true) {
             $result = $model->delete();
         }
         return $result;
     }
 
-    public function getRoute($method, $path)
+    public function getRoute($method, $pattern)
     {
-        $model = $this->where('method','=',$method)->where('path','=',$path)->first();
+        $model = $this->where('method','=',$method);
+        $model = $model->where('pattern','=',$pattern)->first();
         if (is_object($model) == false) {
             return false;
         }
         return $model;
     }
 
-    public function getTemplateRoute($method, $path, $template_name)
+    public function getPageRoute($method, $pattern)
     {
-        $model = $this->where('method','=',$method)->where('path','=',$path);
-        $model = $model->where('template_name','=',$template_name)->first();
-        if (is_object($model) == false) {
-            return false;
-        }
-        return $model;
+        $pattern .= $this->getLanguagePattern($pattern);
+        return $this->getRoute($method,$pattern);       
     }
 
     public function findRoute($condition)
@@ -144,13 +139,10 @@ class Routes extends Model
         return $model;
     }
 
-    public function hasRoute($method, $path)
+    public function hasRoute($method, $pattern)
     {
-        $model = $this->where('method','=',$method)->where('path','=',$path)->get();
-        if ($model->isEmpty() == true) {
-            return false;
-        }
-        return true;
+        $model = $this->getRoute($method, $pattern);
+        return ($model == false) ? false : true; 
     }
 
     public function addRoute(array $route)
@@ -158,17 +150,16 @@ class Routes extends Model
         $result = false;
         $route['uuid'] = Utils::getUUID();
 
-        if ($this->hasRoute($route['method'],$route['path']) == false) {
+        if ($this->hasRoute($route['method'],$route['pattern']) == false) {
             $result = Routes::create($route); 
         }       
         return $result;
     }
 
-    public function addTemplateRoute($path, $pattern, $handler_class, $handler_method, $template_name, $template_page)
+    public function addTemplateRoute($pattern, $handler_class, $handler_method, $template_name, $template_page)
     {
         $route['method'] = "GET";
-        $route['path'] = $path;
-        $route['pattern'] = $pattern;
+        $route['pattern'] = $pattern . Self::getLanguagePattern($pattern);
         $route['handler_class'] = $handler_class;
         $route['handler_method'] = $handler_method;
         $route['auth'] = Access::AUTH_NONE;
@@ -181,31 +172,32 @@ class Routes extends Model
         return $this->addRoute($route);
     }
 
-    public function addPageRoute($path, $pattern, $handler_class, $handler_method, $extension_name, $auth = Access::AUTH_NONE)
+    public function addPageRoute($pattern, $handler_class, $handler_method, $extension_name, $auth = Access::AUTH_NONE)
     {
         $route['method'] = "GET";
-        $route['path'] = $path;
-        $route['pattern'] = $pattern;
+        $route['pattern'] = $pattern . Self::getLanguagePattern($pattern);
         $route['handler_class'] = $handler_class;
         $route['handler_method'] = $handler_method;
         $route['auth'] = $auth;
         $route['type'] = Self::TYPE_PAGE;
         $route['extension_name'] = $extension_name;
-      
         return $this->addRoute($route);
     }
 
-    public function addApiRoute($method, $path, $pattern, $handler_class, $handler_method, $extension_name, $auth = Access::AUTH_JWT)
+    public function getLanguagePattern($pattern)
+    {        
+        return (substr($pattern,-1) == "/") ?  "[{language}/]" : "[/{language}/]";
+    }
+
+    public function addApiRoute($method, $pattern, $handler_class, $handler_method, $extension_name, $auth = Access::AUTH_JWT)
     {
         $route['method'] = $method;
-        $route['path'] = $path;
         $route['pattern'] = $pattern;
         $route['handler_class'] = $handler_class;
         $route['handler_method'] = $handler_method;
         $route['auth'] = $auth;
         $route['type'] = Self::TYPE_API;
         $route['extension_name'] = $extension_name;
-
         return $this->addRoute($route);
     }
 
@@ -217,10 +209,9 @@ class Routes extends Model
 
     private function isValid($route) 
     {
-        if (isset($route['path']) == false) return false;
+        if (isset($route['pattern']) == false) return false;
         if (isset($route['handler_class']) == false) return false;
         if (isset($route['handler_method']) == false) return false;
-        if (trim($route['path']) == "") return false;
         if (trim($route['type']) == "") return false;
         if (trim($route['method']) == "") return false;
         if (Self::isValidAuth($route['auth']) == false) return false;

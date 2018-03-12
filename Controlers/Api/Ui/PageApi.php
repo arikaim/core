@@ -13,6 +13,7 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\System\System;
 use Arikaim\Core\Controlers\ApiControler;
 use Arikaim\Core\View\Template;
+use Arikaim\Core\Db\Model;
 
 class PageApi extends ApiControler 
 {
@@ -60,6 +61,8 @@ class PageApi extends ApiControler
             $loader_code = "";
         }
         $result_code['properties']['loader'] = $loader_code;
+        $result_code['properties']['default_language'] = Model::Language()->getDefaultLanguage();
+        $result_code['properties']['language'] = Template::getLanguage();
 
         $this->setApiResult($result_code);
         return $this->getApiResponse();

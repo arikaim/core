@@ -173,20 +173,24 @@ class BaseComponent
         return dirname($path);
     }
 
-    public function resolve($component_name)
+    public function resolve($name, $language = null)
     {
-        $component = $this->parseName($component_name);
+        $component = $this->parseName($name);
         $component['error']     = "";
         $component['files']     = [];
         $component['root_path'] = $this->root_path;
         $component['full_path'] = $this->getPath($component,true);  
         $component['file_path'] = $this->getPath($component,false); 
-        $component['language']  = Template::getLanguage();
+        
+        if ($language == null) {
+            $language = Template::getLanguage();
+        }
+        $component['language'] = $language;
 
         $component = $this->getComponentFiles($component);
     
         if ($this->isValid($component) == false) {
-            $component['error'] = Arikaim::getError("TEMPLATE_COMPONENT_NOT_FOUND",["full_component_name" => $component_name]);
+            $component['error'] = Arikaim::getError("TEMPLATE_COMPONENT_NOT_FOUND",["full_component_name" => $name]);
         }
        
         if (isset($component['files']['html']['file_name']) == true) {
@@ -198,7 +202,6 @@ class BaseComponent
         if (isset($component['files']['options']['file_name']) == true) {
             $component['options'] = $this->loadOptions($component)->toArray();
         } else {
-           // $component['files']['options'] = null;
             $component['options'] = [];
         }
         $component['properties'] = $this->loadComponentProperties($component)->toArray();
@@ -207,7 +210,7 @@ class BaseComponent
         // process options
         $result = $this->processOptions($component);
         if ($result !== true) {
-            $component['error'] = Arikaim::getError("TEMPLATE_COMPONENT_ERROR",["full_component_name" => $component_name,'details' => $result]);
+            $component['error'] = Arikaim::getError("TEMPLATE_COMPONENT_ERROR",["full_component_name" => $name,'details' => $result]);
         }
         return $component;
     }

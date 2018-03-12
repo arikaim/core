@@ -41,7 +41,9 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFunction('getPageCssFiles', ["\\Arikaim\\Core\\View\\Html\\Page", 'getPageCssFiles']),
             new \Twig_SimpleFunction('getComponentsJsFiles', ["\\Arikaim\\Core\\View\\Html\\Page", 'getComponentsJsFiles']),
             new \Twig_SimpleFunction('getComponentsCssFiles', ["\\Arikaim\\Core\\View\\Html\\Page", 'getComponentsCssFiles']),
-            
+            new \Twig_SimpleFunction('url', ["\\Arikaim\\Core\\View\\Html\\Page", 'getUrl']),
+            new \Twig_SimpleFunction('fullUrl', ["\\Arikaim\\Core\\View\\Html\\Page", 'getFullUrl']),
+
             // database 
             new \Twig_SimpleFunction('loadData', [$template_function, 'loadData']),
             new \Twig_SimpleFunction('loadExtensionData', [$template_function, 'loadExtensionData']),

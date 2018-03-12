@@ -22,10 +22,8 @@ class RoutesSchema extends Schema
             // columns
             $table->bigIncrements('id')->nullable(false);
             $table->string('name')->nullable(true);
-            $table->string('path')->nullable(false);
             $table->string('pattern')->nullable(false);
             $table->string('method')->nullable(false);
-            $table->string('handler_extension')->nullable(true); 
             $table->string('handler_class')->nullable(false);
             $table->string('handler_method')->nullable(true)->default('');
             $table->string('extension_name')->nullable(false);
@@ -38,7 +36,7 @@ class RoutesSchema extends Schema
             $table->integer('type')->nullable(false)->default(0);
             $table->string('uuid')->nullable(false);
             // indexes           
-            $table->unique(['path','method']);
+            $table->unique(['pattern','method']);
             $table->unique('uuid');
             $table->unique('name');
             $table->index('status');
