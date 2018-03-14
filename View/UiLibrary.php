@@ -17,8 +17,13 @@ use Arikaim\Core\View\Theme;
 
 class UiLibrary 
 {
-    public function __construct() 
+    protected $properties = null;
+
+    public function __construct($library_name = null) 
     {
+        if ($library_name != null) {
+            $this->properties = Self::loadProperties($library_name)->toArray();
+        }
     }
 
     public function isInstalled($library_name)
@@ -62,14 +67,6 @@ class UiLibrary
     {
     }
 
-    public function getLibraryFiles($library_name)
-    {
-        $properties = Self::loadProperties($library_name)->toArray();
-        foreach ($properties as $key => $value) {
-            # code...
-        }
-    }
-
     public function scan()
     {
         $path = Self::getLibraryRootPath();
@@ -92,27 +89,41 @@ class UiLibrary
     public static function loadProperties($library_name)
     {
         $file_name = Self::getLibraryPath($library_name) . DIRECTORY_SEPARATOR . "library.json";
-        $properties = new Properties($file_name);            
+        $properties = new Properties($file_name,null,Template::getVars());            
         return $properties;
     }
 
     public function getDetails($library_name)
     {
-        $properties = $this->loadProperties($library_name);      
+        $properties = Self::loadProperties($library_name);
         $details['name'] = $library_name;
         $details['title'] = $properties->get('title','');
         $details['version'] = $properties->get('version','1.0');
         $details['description'] = $properties->get('description','');
         $details['files'] = $properties->get('files',[]);
         $details['themes'] = $properties->get('themes',[]);
+        $details['params'] = $properties->get('params',[]);
         return $details;
     }
 
-    public function getFiles($library_name)
+    public function getFiles($library_name = null)
     {
-        $properties = Self::loadProperties($library_name)->toArray();
-        if (isset($properties['files']) == true) {
-            return $properties['files'];
+        if (empty($library_name) == false) {
+            $this->properties = Self::loadProperties($library_name)->toArray();
+        }
+        if (isset($this->properties['files']) == true) {
+            return $this->properties['files'];
+        }
+        return [];
+    }
+
+    public function getParams($library_name = null)
+    {
+        if (empty($library_name) == false) {
+            $this->properties = Self::loadProperties($library_name)->toArray();
+        }
+        if (isset($this->properties['params']) == true) {
+            return $this->properties['params'];
         }
         return [];
     }

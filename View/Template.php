@@ -70,15 +70,19 @@ class Template
     {
         $library = new UiLibrary();
         $library_files = $properties->getByPath("include/library",[]);  
+    
         if (is_array($library_files) == false) {
             $library_files = [];
         }
         $include_lib = [];
         foreach ($library_files as $library_name) {
             $files = $library->getFiles($library_name);
+            $params = $library->getParams($library_name);
             foreach($files as $file) {
                 $item['file'] = UiLibrary::getLibraryFileUrl($library_name,$file);
                 $item['type'] = File::getExtension(UiLibrary::getLibraryFilePath($library_name,$file));
+                $item['params'] = $params;
+                $item['library'] = $library_name;
                 array_push($include_lib,$item);
             }           
         }

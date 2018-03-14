@@ -165,12 +165,28 @@ class Page extends BaseComponent implements ComponentView
         return (substr($path,-1) == "/") ?  $path . "$language/" : "$path/$language/";
     }
 
-    public static function getUrl($path, $full = false)
+    public static function getCurrentUrl($full = true)
+    {
+        $url = "";
+        if ($full == true) {
+            $url = Arikaim::getBaseURL();
+        }
+        $path =  Arikaim::session()->get('current.path');
+        return $url . $path;
+    }
+
+    public static function getUrl($path = null, $full = false)
     {       
         if ($full == true) {
             $url = Arikaim::getBaseURL();
         } else {
             $url = Arikaim::getBasePath();
+        }
+        if ($url == "/") {
+            $url = "";
+        }
+        if (substr($path,-1) == "/") {
+            $path = substr($path,0,-1);
         }
         return $url . "/" . Self::getLanguagePath($path);
     }

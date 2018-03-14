@@ -186,7 +186,7 @@ class Routes extends Model
 
     public function getLanguagePattern($pattern)
     {        
-        return (substr($pattern,-1) == "/") ?  "[{language}/]" : "[/{language}/]";
+        return (substr($pattern,-1) == "/") ?  "[{language:[a-z]{2}}/]" : "[/{language:[a-z]{2}}/]";
     }
 
     public function addApiRoute($method, $pattern, $handler_class, $handler_method, $extension_name, $auth = Access::AUTH_JWT)

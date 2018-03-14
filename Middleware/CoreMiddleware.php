@@ -22,6 +22,10 @@ class CoreMiddleware
 
     public function __invoke($request, $response, $next)
     {
+
+        // set current path 
+        Arikaim::session()->set('current.path',$request->getUri()->getPath());
+
         // sanitize requets body
         $request = $this->sanitizeRequest($request);
         
