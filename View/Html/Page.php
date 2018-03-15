@@ -185,9 +185,6 @@ class Page extends BaseComponent implements ComponentView
         if ($url == "/") {
             $url = "";
         }
-        if (substr($path,-1) == "/") {
-            $path = substr($path,0,-1);
-        }
         return $url . "/" . Self::getLanguagePath($path);
     }
 

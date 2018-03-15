@@ -42,7 +42,7 @@ class System
         $info['cms_version'] = Self::getVersion(); 
         $info['php_version'] = Self::getPhpVersion();
         $os = posix_uname();
-        $info['os_name'] = $os['sysname'];
+        $info['os_name'] = explode(' ',$os['sysname'])[0];
         $info['os_version'] = $os['release'];
         $info['os_machine'] = $os['machine'];
         $info['os_node'] = $os['nodename'];

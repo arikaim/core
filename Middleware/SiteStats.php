@@ -26,6 +26,9 @@ class SiteStats
         $info['path'] = $path;
         $info['domain'] = Arikaim::getDomain();
         $info['base_url'] = Arikaim::getBaseUrl();
+        if (substr($info['base_url'],-1) == "/") {
+            $info['base_url'] = substr($info['base_url'],0,-1);
+        }
         $info['url'] = $info['base_url'] . "/" . $path;
         $info['http_user_agent'] = $request->getheader('HTTP_USER_AGENT');
         $info['client_ip'] = $request->getAttribute('client_ip');

@@ -13,6 +13,7 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Html\Filters;
 use Arikaim\Core\View\TemplateFunction;
 use Arikaim\Core\Utils\DateTime;
+use Arikaim\Core\Utils\Mobile;
 
 class TemplateExtension extends \Twig_Extension implements \Twig_Extension_GlobalsInterface
 {
@@ -30,6 +31,7 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
         $template_function = new TemplateFunction();
         $date = new DateTime();
         $errors = Arikaim::errors();
+        $mobile = new Mobile();
         
         return array(
             // html components
@@ -44,6 +46,7 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFunction('url', ["\\Arikaim\\Core\\View\\Html\\Page", 'getUrl']),
             new \Twig_SimpleFunction('fullUrl', ["\\Arikaim\\Core\\View\\Html\\Page", 'getFullUrl']),
             new \Twig_SimpleFunction('currentUrl', ["\\Arikaim\\Core\\View\\Html\\Page", 'getCurrentUrl']),
+            new \Twig_SimpleFunction('isMobile', [$mobile, 'isMobile']),
 
             // database 
             new \Twig_SimpleFunction('loadData', [$template_function, 'loadData']),
