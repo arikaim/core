@@ -11,8 +11,9 @@ namespace Arikaim\Core\View\Html;
 
 use Arikaim\Core\Utils\Arrays;
 use Arikaim\Core\View\Template;
+use Arikaim\Core\Interfaces\View\ComponentInterface;
 
-class Component 
+class Component implements ComponentInterface
 {
     protected $name;
     protected $template_name;
