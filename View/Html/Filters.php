@@ -55,10 +55,11 @@ class Filters
     
     public function attr($value, $name = null, $default = null)
     {   
-        if (empty($value) == true) {
-            $value = $default;           
-        }        
-        return "$name=\"$value\"";  
+        $value = (empty($value) == true) ? $default : $value;
+        if (empty($value) == false) {
+            return "$name=\"$value\"";  
+        }
+        return "";
     }
 
     public function showArray($array)

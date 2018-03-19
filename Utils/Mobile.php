@@ -198,6 +198,12 @@ class Mobile
         return false;
     }
 
+    public static function mobile()
+    {
+        $obj = new Mobile();
+        return $obj->isMobile();
+    }
+
     public function isMobile()
     {
         if ($this->isCloudFront() == true) {

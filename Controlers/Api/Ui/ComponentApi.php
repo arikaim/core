@@ -45,13 +45,13 @@ class ComponentApi extends ApiControler
     public function load($component_name,$params = [])
     {   
         $component = Arikaim::view()->component()->render($component_name,$params);
-        if (empty($component['error']) == false) {
-            $this->setApiError($component['error']);
+        if ($component->hasError() == true) {
+            $this->setApiError($component->getError());
             return $this->getApiResponse();
         }
-        $properties = Arikaim::view()->components()->get($component['path']);
+        $properties = Arikaim::view()->components()->get($component->getPath());
 
-        $result_code['html'] = $component['html_code'];
+        $result_code['html'] = $component->getHtmlCode();
         $result_code['css_files']  = Arikaim::view()->component()->files()->get('css_files',[]);
         $result_code['js_files']   = Arikaim::view()->component()->files()->get('js_files',[]);
         $result_code['properties'] = json_encode($properties);

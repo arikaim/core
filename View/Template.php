@@ -161,12 +161,12 @@ class Template
         }
     }
 
-    public static function getJSFiles()
+    public static function getJsFiles()
     {
         return Arikaim::page()->properties()->get('template.js.files');
     }
 
-    public static function getCSSFiles()
+    public static function getCssFiles()
     {
         return Arikaim::page()->properties()->get('template.css.files');
     }

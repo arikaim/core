@@ -15,6 +15,8 @@ use Arikaim\Core\Utils\Arrays;
 use Arikaim\Core\View\Template;
 use Arikaim\Core\Form\Properties;
 use Arikaim\Core\Access\Access;
+use Arikaim\Core\Utils\Mobile;
+use Arikaim\Core\View\Html\Component;
 
 class BaseComponent   
 {
@@ -29,34 +31,38 @@ class BaseComponent
 
     public function fetch($component, $params = [])
     {
-        if (empty($component['template_file']) == true) {
+        if (empty($component->getTemplateFile()) == true) {
             return $component;
         }
        
-        $component['html_code'] = Arikaim::view()->fetch($component['template_file'],$params);
-        if ($this->getOption($component,'add-comments') == true) {
-            $component['html_code'] = $this->addComments($component['path'],$component['html_code']);
-        }           
+        $code = Arikaim::view()->fetch($component->getTemplateFile(),$params);
+        if ($component->getOption('add-comments') == true) {
+            $code = $this->addComments($component->getPath(),$component->getHtmlCode());
+        }  
+
+        $component->setHtmlCode($code);         
         return $component;
     }
 
     public function getPropertiesFileName($component)
     {
-        $language_code = ($component['language'] != "en") ? "-". $component['language']: "";
+        $language = $component->getLanguage();
+        $language_code = ($language != "en") ? "-". $language : "";
+
         $file_name = $this->getComponentFile($component,"json",$language_code);
 
         if ($file_name === false) {
-            return $component['full_path'] . $this->getComponentFile($component,"json");
+            $file_name = $this->getComponentFile($component,"json");
+            if ($file_name === false) {
+                return false;
+            }
         } 
-        return $component['full_path'] . $file_name;   
+        return $component->getFullPath() . $file_name;   
     }
 
     public function loadComponentProperties($component)
     {
-        $file_name = "";
-        if (isset($component['files']['properties']['file_name']) == true) {
-            $file_name = $component['files']['properties']['file_name'];
-        }
+        $file_name = $component->getPropertiesFileName();
         $properties = new Properties($file_name,null,Template::getVars());                 
         return $properties;
     }
@@ -64,16 +70,16 @@ class BaseComponent
     public function getPath($component, $full = true, $relative_path = null) 
     {
         if ($full == true) {
-            $template_name = Template::getTemplatePath($component['template_name'],$component['type']);
+            $template_name = Template::getTemplatePath($component->getTemplateName(),$component->getType());
         } else {
-            if ($component['type'] != Template::EXTENSION) {
-                $template_name = $component['template_name'];
+            if ($component->getType() != Template::EXTENSION) {
+                $template_name = $component->getTemplateName();
             } else {
                 $template_name = "";
             }
         }
         if (empty($relative_path) == true) {
-            $path = $component['path'];
+            $path = $component->getPath();
         } else {
             $path = $relative_path;
         }
@@ -106,8 +112,8 @@ class BaseComponent
     public function getOptionsFileName($component, $parent_path = null)
     {   
         if (empty($parent_path) == true) {
-            $path = $component['full_path'];
-            $parent_path = $component['path'];
+            $path = $component->getFullpath();
+            $parent_path = $component->getPath();
         } else {
             $path = $this->getPath($component,true,$parent_path);
         }
@@ -126,44 +132,65 @@ class BaseComponent
 
     protected function loadOptions($component)
     {
-        $file_name = $component['files']['options']['file_name'];
+        $file_name = $component->getOptionsFileName();
         $options = new Properties($file_name,'');         
         return $options;
     }
 
     public function processOptions($component)
     {
-        $result = true;       
+        $error = false;       
         // check auth access 
-        $auth = $this->getOption($component,'access/auth');
+        $auth = $component->getOption('access/auth');
         $access = Arikaim::access()->checkAccess($auth);   
         if ($access == false) {
-           return Arikaim::errors()->getError("ACCESS_DENIED");
+           $error = Arikaim::errors()->getError("ACCESS_DENIED");
         }
-          
         // check permissions
-        $permissions = $this->getOption($component,'access/permissions');
+        $permissions = $component->getOption('access/permissions');
         if (is_array($permissions) == true) {
             foreach ($permissions as $name => $permission) {        
                 if (empty($permission) == false) {                            
                     if (Arikaim::access()->hasPermission($name,$permission) == false) {
-                        return Arikaim::errors()->getError("ACCESS_DENIED");
+                        $error = Arikaim::errors()->getError("ACCESS_DENIED");
                     }
                 }            
             }
-        }         
-        return $result;
-    }
-
-    public function getOption($component, $option_name, $default = null)
-    {
-        $option = Arrays::getValue($component['options'],$option_name);
-        if (empty($option) && $default !== null) {
-            $option = $default;
+        }    
+        // inlcude js files
+        $source_component_name = $component->getOption('include/js');
+        if (empty($source_component_name) == false) {
+            $files = $this->getComponentFiles($source_component_name,"js");
+            $component->addFiles($files,"js");
         }
-        return $option;
+        // include css files 
+        $source_component_name = $component->getOption('include/css');
+        if (empty($source_component_name) == false) {
+            $files = $this->getComponentFiles($source_component_name,"css");
+            $component->addFiles($files,"css");
+        }
+        // mobile only option
+        $mobile_only = $component->getOption('mobile-only');      
+        if ($mobile_only == "true") {
+            if (Mobile::mobile() == false) {    
+               $component->clearContent();               
+            }
+        }
+        if ($error !== false) {
+            $error = Arikaim::getError("TEMPLATE_COMPONENT_ERROR",["full_component_name" => $component->getName(),'details' => $error]);
+            $component->setError($error);
+        }
+        return $component;
     }
 
+    public function getComponentFiles($component_name, $file_type = "js")
+    {
+        $component = $this->create($component_name);
+        $files = $component->getFiles($file_type);      
+        return $files;
+    }
+
+    
     public function getParentComponentPath($path)
     {       
         $parts = explode(DIRECTORY_SEPARATOR,$path);       
@@ -173,152 +200,70 @@ class BaseComponent
         return dirname($path);
     }
 
-    public function resolve($name, $language = null)
+    public function create($name, $language = null)
     {
-        $component = $this->parseName($name);
-        $component['error']     = "";
-        $component['files']     = [];
-        $component['root_path'] = $this->root_path;
-        $component['full_path'] = $this->getPath($component,true);  
-        $component['file_path'] = $this->getPath($component,false); 
+        $component = new Component($name,$language);
+      
+        $component->setFullPath($this->getPath($component,true));  
+        $component->setFilePath($this->getPath($component,false)); 
         
-        if ($language == null) {
-            $language = Template::getLanguage();
-        }
-        $component['language'] = $language;
+        $file_name = $this->getOptionsFileName($component);
+        $component->setOptionsFileName($file_name);
 
-        $component = $this->getComponentFiles($component);
-    
-        if ($this->isValid($component) == false) {
-            $component['error'] = Arikaim::getError("TEMPLATE_COMPONENT_NOT_FOUND",["full_component_name" => $name]);
+        // js file
+        $file = $this->addComponentFile($component,'js');
+        $component->addFile($file,'js');
+
+        // css file
+        $file = $this->addComponentFile($component,'css');
+        $component->addFile($file,'css');
+
+        // html file
+        $file = $this->addComponentFile($component,'html');
+        $component->addFile($file,'html');
+
+        // properties
+        $file_name = $this->getPropertiesFileName($component);       
+        $component->setPropertiesFileName($file_name);
+  
+        if ($component->isValid() == false) {
+            $component->setError(Arikaim::getError("TEMPLATE_COMPONENT_NOT_FOUND",["full_component_name" => $name]));
+            return $component;
         }
        
-        if (isset($component['files']['html']['file_name']) == true) {
-            $component['template_file'] = $component['file_path'] . $component['files']['html']['file_name'];
-        } else {
-            $component['template_file'] = false;
-        }
-       
-        if (isset($component['files']['options']['file_name']) == true) {
-            $component['options'] = $this->loadOptions($component)->toArray();
-        } else {
-            $component['options'] = [];
-        }
-        $component['properties'] = $this->loadComponentProperties($component)->toArray();
-        $component['html_code'] = "";
+        $component->setOptions($this->loadOptions($component)->toArray());
+     
+        $component->setProperties($this->loadComponentProperties($component)->toArray());
+        $component->setHtmlCode("");
 
-        // process options
-        $result = $this->processOptions($component);
-        if ($result !== true) {
-            $component['error'] = Arikaim::getError("TEMPLATE_COMPONENT_ERROR",["full_component_name" => $name,'details' => $result]);
-        }
+        $component = $this->processOptions($component);            
         return $component;
-    }
-
-    public function hasError($component)
-    {
-        return empty($component['error']) ? false : true;
     }
 
     public function getFileUrl($component,$file_name)
     {
-        $template_url = Template::getTemplateUrl($component['template_name'],$component['type']);
-        return $template_url . "/" . str_replace(DIRECTORY_SEPARATOR,'/',$this->root_path . '/'. $component['path']) . "/" . $file_name;
+        $template_url = Template::getTemplateUrl($component->getTemplateName(),$component->getType());
+        return $template_url . '/' . str_replace(DIRECTORY_SEPARATOR,'/',$this->root_path . '/'. $component->getPath()) . '/' . $file_name;
     }
 
     public function addComponentFile($component,$file_ext)
     {
         $file_name = $this->getComponentFile($component,$file_ext);
-        if ($file_name != false) {
-            $component['files'][$file_ext]['file_name'] = $file_name;
-            $component['files'][$file_ext]['path'] = $this->getPath($component,false); 
-            $component['files'][$file_ext]['full_path'] = $this->getPath($component,true);   
-            $component['files'][$file_ext]['url'] = $this->getFileUrl($component,$file_name);
-        }
-        return $component;
-    }
-
-    public function getComponentFiles($component)
-    {
-        $file_name = $this->getOptionsFileName($component);
-        if ($file_name !== false) {
-            $component['files']['options']['file_name'] = $file_name;
-        }
-        // js file
-        $component = $this->addComponentFile($component,"js");
-        // css file
-        $component = $this->addComponentFile($component,"css");
-        // html file
-        $component = $this->addComponentFile($component,"html");
-        // properties
-        $file_name = $this->getPropertiesFileName($component);
-        if ($file_name !== false) {
-            $component['files']['properties']['file_name'] = $file_name;
-        }
-        return $component;
-    }
-
-    public function parseName($component_name)
-    {
-        $name_parts = explode(':',$component_name);
-        $result['template_name'] = Template::getTemplateName();
-        $result['full_name'] = $component_name;
-
-        if (isset($name_parts[1]) == false) {                                
-            $result['path'] = str_replace('.','/',$name_parts[0]);            
-            $result['type'] = Template::USER;
-            $result['extension_name'] = ""; 
-        } else {
-            $result['extension_name'] = $name_parts[0];
-            $result['template_name'] = $name_parts[0];
-            $result['path'] = str_replace('.','/',$name_parts[1]);
-            $result['type'] = Template::EXTENSION;
-        }
-
-        $parts = explode('/',$result['path']);
-        $result['name'] = end($parts);
-
-        // parse path
-        $path_parts = explode('#',$result['path']);
-        if (isset($path_parts[1]) == true) {
-            $result['template_name'] = $path_parts[0];
-            $result['path'] = $path_parts[1];
-            $result['type'] = Template::USER;
-        } 
-
-        if ($result['extension_name'] == Template::SYSTEM_TEMPLATE_NAME) {
-            $result['template_name'] = Template::SYSTEM_TEMPLATE_NAME;
-            $result['extension_name'] = "";
-            $result['type'] = Template::SYSTEM;            
-        }       
-        return $result;
-    }   
-
-    public function hasContent($component)
-    {
-        if ($component['template_file'] == false) {
+        if ($file_name === false) {
             return false;
         }
-        return true;
-    }
 
-    public function isValid($component)
-    {
-        return (count($component['files']) == 0) ? false : true;
-    }
-
-    public function getProperties($component)
-    {
-        if (isset($component['properties']) == true) {
-            return $component['properties'];
-        }
-        return [];
+        $file['file_name'] = $file_name;
+        $file['path'] = $this->getPath($component,false); 
+        $file['full_path'] = $this->getPath($component,true);   
+        $file['url'] = $this->getFileUrl($component,$file_name);
+        return $file;
     }
 
     public function getComponentFile($component, $file_ext = "html", $language_code = "") 
     {         
-        $file_name = $component['name'] . $language_code . "." . $file_ext;
-        $full_file_name = $component['full_path'] . DIRECTORY_SEPARATOR . $file_name;
+        $file_name = $component->getName() . $language_code . "." . $file_ext;
+        $full_file_name = $component->getFullPath() . DIRECTORY_SEPARATOR . $file_name;
         return File::exists($full_file_name) ? $file_name : false;
     }
 }

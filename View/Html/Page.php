@@ -13,10 +13,10 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Html\BaseComponent;
 use Arikaim\Core\View\Template;
 use Arikaim\Core\Utils\Collection;
-use Arikaim\Core\Interfaces\View\ComponentView;
+use Arikaim\Core\Interfaces\View\ComponentViewInterface;
 use Arikaim\Core\Db\Model;
 
-class Page extends BaseComponent implements ComponentView
+class Page extends BaseComponent implements ComponentViewInterface
 {
     protected $current_page;
     protected $head;
@@ -38,37 +38,38 @@ class Page extends BaseComponent implements ComponentView
     public function load($name, $params = [], $language = null)
     {     
         $component = $this->render($name,$params,$language);
-        return Arikaim::response()->getBody()->write($component['html_code']);
+        return Arikaim::response()->getBody()->write($component->getHtmlCode());
     }
 
     public function render($name, $params = [], $language = null)
     {
-        $component = $this->resolve($name,$language);
+        $component = $this->create($name,$language);
 
-        if ($this->hasContent($component) == false) {
-            if ($component['type'] != Template::SYSTEM) {
-                $component = $this->resolve("system:" . $component['path']);                
+        if ($component->hasContent() == false) {
+            if ($component->getType() != Template::SYSTEM) {
+                $component = $this->create("system:" . $component['path']);                
             }
         }
         
-        if ($this->hasContent($component) == false) {
-            $component =  $this->render('page-not-found',$params);
+        if ($component->hasContent() == false) {
+           // $component = $this->render('page-not-found',$params);
         }
-        if (isset($component['options']['loader']) == true) {
-            Arikaim::session()->set("template.loader",$component['options']['loader']);
+        $loader = $component->getOption('loader');
+        if (empty($loader) == false) {
+            Arikaim::session()->set("template.loader",$loader);
         }
 
         $page_body = $this->getCode($component,$params);
-        $index_page = $this->getIndexPath($component);
+        $index_page = $this->getIndexPath($component->getType());
 
         $params = array_merge($params,['body' => $page_body, 'head' => $this->head]);
-        $component['html_code'] = Arikaim::view()->fetch($index_page,$params);
+        $component->setHtmlCode(Arikaim::view()->fetch($index_page,$params));
         return $component;
     }
 
-    private function getIndexPath($page)
+    private function getIndexPath($page_type)
     {
-        if ($page['type'] == Template::SYSTEM) {
+        if ($page_type == Template::SYSTEM) {
             return Template::SYSTEM_TEMPLATE_NAME . DIRECTORY_SEPARATOR . "index.html";
         }
         return Template::getTemplateName() . DIRECTORY_SEPARATOR . "index.html";
@@ -78,39 +79,35 @@ class Page extends BaseComponent implements ComponentView
     {
         $this->includeFiles($component);
       
-        $this->setCurrent($component['path']);
-        Template::includeFiles($component['type']);
+        $this->setCurrent($component->getpath());
+        Template::includeFiles($component->getType());
 
-        $properties = $this->getProperties($component);
+        $properties = $component->getProperties();
         if (isset($properties['head']) == true) {
             $this->head = array_merge($this->head,$properties['head']);
         }
         $params = array_merge_recursive($params,$properties);
-        return Arikaim::view()->fetch($component['template_file'],$params);
+        return Arikaim::view()->fetch($component->getTemplateFile(),$params);
     }
     
-    public function has($full_page_name) 
+    public function has($page_name) 
     {
-        $page = $this->resolve($full_page_name);
-        if ($page == false) {
-            return false;
-        }
-        return true;        
+        $page = $this->create($page_name);
+        return ($page->isValid() == false) ? false : true;          
     }
 
     public function includeFiles($component)
     {
         // js file
-        $file_url = isset($component['files']['js']['url']) ? $component['files']['js']['url'] : null;
-        if (empty($file_url) == false) {
-            Arikaim::page()->properties()->add('include.page.js',$file_url);
+        $js_files = $component->getFiles('js');
+        foreach ($js_files as $file) {
+            Arikaim::page()->properties()->add('include.components.js',$file['url']);
         }
-        
-        // css file
-        $file_url = isset($component['files']['css']['url']) ? $component['files']['css']['url'] : null;
-        if (empty($file_url) == false) {
-            Arikaim::page()->properties()->add('include.page.css',$file_url);
-        }
+        // css files
+        $css_files = $component->getFiles('css');
+        foreach ($css_files as $file) {
+            Arikaim::page()->properties()->add('include.page.css',$file['url']);
+        }   
     }
 
     public function setHeadAttribute($name,$value)

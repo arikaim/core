@@ -10,7 +10,7 @@
 namespace Arikaim\Core\View;
 
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\View\Html\Component;
+use Arikaim\Core\View\Html\HtmlComponent;
 use Arikaim\Core\Utils\Collection;
 
 class View
@@ -24,7 +24,7 @@ class View
         $this->loader = $this->createLoader($path);
         $this->environment = new \Twig_Environment($this->loader,$settings);
         $this->components = new Collection();
-        $this->component = new Component();
+        $this->component = new HtmlComponent();
     }
 
     public function addExtension(\Twig_ExtensionInterface $extension)
