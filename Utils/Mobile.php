@@ -223,6 +223,7 @@ class Mobile
                 return true;
             }
         }
+        return false;
     }
 
     protected function match($regex)
