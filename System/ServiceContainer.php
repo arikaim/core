@@ -169,22 +169,6 @@ class ServiceContainer
         // Init Eloquent ORM
         $this->container['db'] = function() {  
             try {  
-                /*                
-                $capsule = new \Illuminate\Database\Capsule\Manager;
-                $capsule->addConnection($this->container->get('config')['db']);
-                $capsule->setAsGlobal();
-                // schema db
-                $schema_db = $this->container->get('config')['db'];               
-                $schema_db['database'] = 'information_schema';               
-                $capsule->addConnection($schema_db,"schema");
-                $capsule->bootEloquent();
-              //  $result = \Arikaim\Core\System\Install::checkDbConnection($capsule->connection());
-               
-               // if ($result == false) {
-              //      $this->container->get('errors')->addError('DB_CONNECTION_ERROR');
-              //      $this->container->get('errors')->addError('SYSTEM_ERROR');
-              //  }   
-              */
               $db = new \Arikaim\Core\Db\Db($this->container->get('config')['db']);
             } catch(\PDOException $e) {
                 $this->container->get('errors')->addError('DB_CONNECTION_ERROR');

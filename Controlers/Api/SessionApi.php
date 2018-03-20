@@ -32,6 +32,7 @@ class SessionApi extends ApiControler
     public function getInfo($request, $response, $args) 
     {           
         $session_info = Arikaim::session()->getParams();   
+        $session_info['recreate'] = Arikaim::options()->get('session.recreation.interval');
         $this->setApiResult($session_info);
         return $this->getApiResponse();
     }
@@ -39,7 +40,8 @@ class SessionApi extends ApiControler
     public function restart($request, $response, $args) 
     {           
         Arikaim::session()->recrete();
-        $session_info = Arikaim::session()->getParams();       
+        $session_info = Arikaim::session()->getParams();  
+        $session_info['recreate'] = Arikaim::options()->get('session.recreation.interval');     
         $this->setApiResult($session_info);
         return $this->getApiResponse();
     }

@@ -26,8 +26,7 @@ class Component implements ComponentInterface
     protected $language;
     protected $html_code;
     protected $error;
-    protected $root_path;
-
+  
     protected $files;
     protected $options;
     protected $properties;
@@ -57,6 +56,7 @@ class Component implements ComponentInterface
         }
 
     }
+
     public function hasError()
     {
         return (empty($this->error) == true) ? false : true;
@@ -203,16 +203,6 @@ class Component implements ComponentInterface
         $this->error = $error;
     }
 
-    public function setRootPath($path) 
-    {
-        $this->root_path = $path;
-    }
-
-    public function getRootPath() 
-    {
-        return $this->root_path;
-    }
-
     public function isValid()
     {
         $content = 0;
@@ -302,7 +292,7 @@ class Component implements ComponentInterface
         $this->files['properties']['file_name'] = $file_name;          
     }
 
-    // options
+   
     public function getOptionsFileName()
     {
         if (isset($this->files['options']['file_name']) == true) {

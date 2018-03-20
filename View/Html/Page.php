@@ -47,7 +47,7 @@ class Page extends BaseComponent implements ComponentViewInterface
 
         if ($component->hasContent() == false) {
             if ($component->getType() != Template::SYSTEM) {
-                $component = $this->create("system:" . $component['path']);                
+                $component = $this->create("system:" . $component->getPath());                
             }
         }
         

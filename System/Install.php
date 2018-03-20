@@ -196,6 +196,8 @@ class Install
         // logger
         Arikaim::options()->set('logger',true,true);
         Arikaim::options()->set('logger.stats',true,true);
+        // session
+        Arikaim::options()->set('session.recreation.interval',30,false);
     }
 
     private function initDefaultValues() 
