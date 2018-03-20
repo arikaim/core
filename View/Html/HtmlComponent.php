@@ -34,7 +34,7 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
 
     public function getErrorMessage($component)
     {
-        $params = ['message' => $component['error']];
+        $params = ['message' => $component->getError()];
         return $this->load('system:message.error',$params);
     }
 
