@@ -9,6 +9,8 @@
 */
 namespace Arikaim\Core\Utils;
 
+use Arikaim\Core\Arikaim;
+
 class Mobile
 {
     protected $cache;
@@ -206,6 +208,11 @@ class Mobile
 
     public function isMobile()
     {
+        $is_mobile = Arikaim::session()->get('mobile.mode');
+        if ($is_mobile !== null) {
+            return $is_mobile;
+        }
+
         if ($this->isCloudFront() == true) {
             return true;
         }
@@ -214,6 +221,16 @@ class Mobile
             return true;
         }
         return $this->matchUserAgent();
+    }
+
+    public function setDesktopMode()
+    {
+        Arikaim::session()->get('mobile.mode',false);
+    }
+
+    public function setMobileMode()
+    {
+        Arikaim::session()->get('mobile.mode',true);
     }
 
     public function isCloudFront()

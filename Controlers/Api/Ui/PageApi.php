@@ -20,26 +20,17 @@ class PageApi extends ApiControler
     public function loadPage($request, $response, $args) 
     {
         $page_name = $args['name'];
-        return $this->load($page_name);        
-    }
-
-    private function load($page_name) 
-    {
         if ($page_name == false) {
-            $this->setApiError("Not valid page name!");   
-        } else {
-            $html_code = Arikaim::page()->load($page_name);
-            if ($result_code == false) {
-                $this->setApiError("Page not exists!");    
-            } else {
-                $result_code['html'] = $html_code;
-                $result_code['css_files']  = $css_files;
-                $result_code['js_files']   = $js_files;
-                $result_code['properties'] = $properties;
-                $this->setApiResult($result_code);
-            }
-
+            $this->setApiError("Not valid page name!");  
+            return $this->getApiResponse(); 
         }
+        $component = Arikaim::page()->render($page_name);
+        $result['html'] = $component->getHtmlCode();
+        $result['css_files']  = Arikaim::page()->properties()->get('include.page.css',[]);
+        $result['js_files']   = Arikaim::page()->properties()->get('include.page.js',[]);
+        $result['properties'] = json_encode($component->getProperties());
+        $this->setApiResult($result);
+
         return $this->getApiResponse();
     }
 
@@ -50,9 +41,9 @@ class PageApi extends ApiControler
         } else {
             $page_name = Arikaim::page()->getCurrent();
         }
-        $result_code['properties']['page_name'] = $page_name;
-        $result_code['properties']['libraries'] = Template::getIncludedLibraries(); 
-        $result_code['properties']['version']   = System::getVersion(); 
+        $result['properties']['page_name'] = $page_name;
+        $result['properties']['libraries'] = Template::getIncludedLibraries(); 
+        $result['properties']['version']   = System::getVersion(); 
 
         $loader = Arikaim::session()->get("template.loader");
         if (empty($loader) == false) {
@@ -60,12 +51,12 @@ class PageApi extends ApiControler
         } else {
             $loader_code = "";
         }
-        $result_code['properties']['loader'] = $loader_code;
-        $result_code['properties']['default_language'] = Model::Language()->getDefaultLanguage();
-        $result_code['properties']['language'] = Template::getLanguage();
-        $result_code['properties']['site_url'] = Arikaim::getBaseUrl();
+        $result['properties']['loader'] = $loader_code;
+        $result['properties']['default_language'] = Model::Language()->getDefaultLanguage();
+        $result['properties']['language'] = Template::getLanguage();
+        $result['properties']['site_url'] = Arikaim::getBaseUrl();
 
-        $this->setApiResult($result_code);
+        $this->setApiResult($result);
         return $this->getApiResponse();
     }
 }

@@ -50,6 +50,7 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
     public function render($name, $vars = [], $language = null) 
     {    
         $component = $this->create($name,$language);
+       
         if ($component->hasError() == true) {
             return $component;
         }      
@@ -76,12 +77,13 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
             Arikaim::page()->properties()->add('include.components.js',$file['url']);
             Arikaim::view()->component()->files()->add("js_files",$file['url']);
         }
+
         // css files
         $css_files = $component->getFiles('css');
         foreach ($css_files as $file) {
             Arikaim::page()->properties()->add('include.components.css',$file['url']);
             Arikaim::view()->component()->files()->add("css_files",$file['url']);
-        }      
+        }     
     }
     
     public function getComponentProperties($name, $params = [], $language = null)
@@ -91,12 +93,5 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
             return $component->getError();
         }
         return $component->getProperties();
-    }
-
-    public function getComponentDetails($component_name)
-    {
-        $component = $this->create($component_name);
-      
-        return $component;
     }
 }

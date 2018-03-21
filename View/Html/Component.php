@@ -33,7 +33,6 @@ class Component implements ComponentInterface
 
     public function __construct($name, $language = null) 
     {
-       
         if ($language == null) {
             $this->language = Template::getLanguage();
         } else {
@@ -51,10 +50,8 @@ class Component implements ComponentInterface
     {
         if (isset($this->files['html'][0]['file_name']) == true) {
             return $this->getFilePath() . $this->files['html'][0]['file_name'];
-        } else {
-           return false;
         }
-
+        return false;
     }
 
     public function hasError()
@@ -224,6 +221,9 @@ class Component implements ComponentInterface
     {
         if (is_array($files) == false) {
             return false;
+        }
+        if (isset($this->files[$file_type]) == false) {
+            $this->files[$file_type] = [];
         }
         foreach ($files as $file) {
             array_push($this->files[$file_type],$file);           

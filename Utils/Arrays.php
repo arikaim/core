@@ -13,6 +13,10 @@ use  Arikaim\Core\System\System;
 
 class Arrays 
 {
+    public static function unique($array) {
+        return array_keys(array_flip($array));
+    } 
+
     public static function setValue($array, $path, $value, $separator = '/') 
     {
         if (!$path) return null;   

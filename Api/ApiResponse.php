@@ -104,7 +104,7 @@ class ApiResponse
         if ($this->trace == true) {
             $this->result['trace'] = Utils::jsonEncode(System::getBacktrace());
         }
-        $code = Utils::jsonEncode($this->result);
+        $code = json_encode($this->result);
         $this->response->withHeader('Content-Type','application/json');
         // enable cors
         if ($this->enableCors == true) {

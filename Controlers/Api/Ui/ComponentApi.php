@@ -51,12 +51,12 @@ class ComponentApi extends ApiControler
         }
         $properties = Arikaim::view()->components()->get($component->getPath());
 
-        $result_code['html'] = $component->getHtmlCode();
-        $result_code['css_files']  = Arikaim::view()->component()->files()->get('css_files',[]);
-        $result_code['js_files']   = Arikaim::view()->component()->files()->get('js_files',[]);
-        $result_code['properties'] = json_encode($properties);
-
-        $this->setApiResult($result_code);
+        $result['html'] = $component->getHtmlCode();
+        $result['css_files']  = Arikaim::view()->component()->files()->get('css_files',[]);
+        $result['js_files']   = Arikaim::view()->component()->files()->get('js_files',[]);
+        $result['properties'] = json_encode($properties);
+       
+        $this->setApiResult($result);
         return $this->getApiResponse();
     }
 

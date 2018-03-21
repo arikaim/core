@@ -38,7 +38,7 @@ class Collection implements \Iterator,CollectionInterface
             $this->data[$key] = [];
         }       
         array_push($this->data[$key],$value);
-        $this->data[$key] = array_unique($this->data[$key]);
+        $this->data[$key] = array_values(array_unique($this->data[$key]));
         return true;
     }
     
