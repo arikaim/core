@@ -26,10 +26,18 @@ class Session
            $lifetime = $this->default_lifetime;
         }
         $this->setLifetime($lifetime);
-        session_start();      
+        if ($this->isStarted() == false) {
+            session_start();   
+        }
+         
         session_cache_limiter(false);  
         $this->set('time_start',time());      
         $this->set('lifetime',$lifetime);      
+    }
+
+    public function isStarted()
+    {
+        return (empty(session_id()) == false) ? true : false;
     }
 
     public function recrete($lifetime = null) 

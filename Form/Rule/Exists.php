@@ -17,14 +17,12 @@ class Exists extends AbstractRule
 {
     protected $model;
     protected $field_name;
-    protected $search_key;
-
-    public function __construct($model_class_name, $field_name, $search_key = null) 
+   
+    public function __construct($model_class_name, $field_name, $extension_name = null) 
     {
         parent::__construct();
         $this->field_name = $field_name;
-        $this->search_key = $search_key;
-        $this->model = Model::create($model_class_name);        
+        $this->model = Model::create($model_class_name,$extension_name);        
     }
 
     public function customFilter($value) 

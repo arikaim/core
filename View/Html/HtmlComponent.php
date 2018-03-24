@@ -22,8 +22,7 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
     private $files;
 
     public function __construct() {
-        parent::__construct();
-        $this->setRootPath("components");
+        parent::__construct();      
         $this->files = new Collection();
     }
 
@@ -49,7 +48,7 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
 
     public function render($name, $vars = [], $language = null) 
     {    
-        $component = $this->create($name,$language);
+        $component = $this->create($name,'components',$language);
        
         if ($component->hasError() == true) {
             return $component;
@@ -65,8 +64,11 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
         $params = Arrays::merge($component->getProperties(),Arikaim::view()->components()->get($component->getPath()));      
         $params = Arrays::merge($params,$vars);
 
-        Arikaim::view()->components()->set($component->getPath(),$params);          
-        return $this->fetch($component,$params);
+        Arikaim::view()->components()->set($component->getPath(),$params);     
+        if ($component->getOption('render') !== false) {                 
+            return $this->fetch($component,$params);
+        }
+        return "";
     }
 
     public function includeFiles($component) 
@@ -92,6 +94,6 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
         if ($component->hasError() == true) {
             return $component->getError();
         }
-        return $component->getProperties();
+        return $this->loadComponentProperties($component);
     }
 }

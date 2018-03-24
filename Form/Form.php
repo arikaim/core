@@ -28,7 +28,7 @@ class Form extends Collection
         $this->rules = [];
     }
 
-    public function addRule($field_name,AbstractRule $rule,$required = true) 
+    public function addRule($field_name,AbstractRule $rule, $required = true) 
     {             
         try {
             if ($rule instanceof AbstractRule) {                          
@@ -43,7 +43,7 @@ class Form extends Collection
         return false;
     }
 
-    public function addFilter($field_name,AbstractFilter $filter) 
+    public function addFilter($field_name, AbstractFilter $filter) 
     {             
         try {
             if ($filter instanceof AbstractFilter) {
@@ -65,15 +65,18 @@ class Form extends Collection
     }
 
     public function filterValues($fields = null) 
-    {   
-        $this->setFields($fields);    
-        if (is_array($this->data) == false) $this->data = [];
-
+    {          
+        if (is_array($fields) == true) {
+            $this->setFields($fields);    
+        }
+        if (is_array($this->data) == false) {
+            $this->data = [];
+        }
         foreach ($this->data as $field_name => $value) {     
             $filters = $this->getFilters($field_name); 
             foreach ($filters as $filter) {
                 if (is_object($filter) == true) {
-                    $this->data[$field_name] = $filter->processFilter($this->get($field_name));
+                    $this->data[$field_name] = $filter->processFilter($this->data[$field_name]);
                 }
             }                 
         }      

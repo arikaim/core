@@ -78,7 +78,7 @@ class UsersApi extends ApiControler
         // access from contorl panel only 
         $this->requireControlPanelPermission();
         
-        $messages = Arikaim::view()->component()->getComponentProperties('system:admin/system/settings/user');
+        $messages = Arikaim::view()->component()->getComponentProperties('system:admin/settings/user');
      
         $this->form->setFields($request->getParsedBody());
         $this->form->addRule('user_name',Form::Rule()->text(2),true);   

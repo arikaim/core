@@ -13,6 +13,7 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\Interfaces\ExtensionInterface;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Utils\Factory;
+use Arikaim\Core\Models\Routes;
 
 class Extension implements ExtensionInterface
 {
@@ -61,17 +62,13 @@ class Extension implements ExtensionInterface
 
     public function addPageRoute($pattern, $handler_class, $handler_method, $auth = 0)
     {
-        $routes = Model::Routes();
-        $extension_name = $this->getName();
-        $result= $routes->addPageRoute($pattern,$handler_class,$handler_method,$extension_name,$auth);
+        $result = $this->addRoute('GET',$pattern,$handler_class,$handler_method,$auth,Routes::TYPE_PAGE);
         return $result;
     }
 
     public function addApiRoute($method, $pattern, $handler_class, $handler_method, $auth = 0)
     {
-        $routes = Model::Routes();
-        $extension_name = $this->getName();
-        $result= $routes->addApiRoute($method,$pattern,$handler_class,$handler_method,$extension_name,$auth);
+        $result = $this->addRoute($method,$pattern,$handler_class,$handler_method,$auth,Routes::TYPE_API);
         return $result;
     }
 

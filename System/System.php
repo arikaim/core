@@ -192,6 +192,14 @@ class System
             $item['status'] = 1; // ok
         }
         array_push($info['items'],$item);
+        
+        // GD extension 
+        $item['message'] = 'GD PHP extension';
+        $item['status'] = 2; // warning
+        if (Self::hasPhpExtension('gd') == true) {
+            $item['status'] = 1; // ok
+        }
+        array_push($info['items'],$item);
 
         $info['errors'] = $errors;
         return $info;

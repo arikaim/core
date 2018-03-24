@@ -130,6 +130,7 @@ class LanguageApi extends ApiControler
                 // set selected default to 1
                 $language = Model::Language()->where('uuid','=',$args['uuid'])->first();
                 $language->default = 1;
+                $language->status = 1;
                 $language->update();       
             } catch(\Exception $e) {
                 $this->setApiError($e->getMessage());

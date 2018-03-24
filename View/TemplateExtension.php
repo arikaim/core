@@ -66,7 +66,7 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFunction('callStatic', [$template_function, 'callStatic']),
             new \Twig_SimpleFunction('currentYear', [$template_function, 'currentYear']),
             new \Twig_SimpleFunction('getCurrentLanguage', [$template_function, 'getCurrentLanguage']),
-            new \Twig_SimpleFunction('getLanguageCode', ["\\Arikaim\\Core\\View\\Template","getLanguage"]),
+            new \Twig_SimpleFunction('getLanguage', ["\\Arikaim\\Core\\View\\Template","getLanguage"]),
             new \Twig_SimpleFunction('getHiddenClass', [$template_function, 'getHiddenClass']),
             new \Twig_SimpleFunction('getOption', [$template_function, 'getOption']),
             new \Twig_SimpleFunction('getOptions', [$template_function, 'getOptions']),

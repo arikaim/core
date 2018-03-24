@@ -17,6 +17,8 @@ use Arikaim\Core\View\Theme;
 
 class UiLibrary 
 {
+    const FRAMEWORK = 1;
+
     protected $properties = null;
 
     public function __construct($library_name = null) 
@@ -103,6 +105,7 @@ class UiLibrary
         $details['files'] = $properties->get('files',[]);
         $details['themes'] = $properties->get('themes',[]);
         $details['params'] = $properties->get('params',[]);
+        $details['framework'] = $properties->get('framework',false);
         return $details;
     }
 

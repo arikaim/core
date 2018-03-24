@@ -81,14 +81,23 @@ class Collection implements \Iterator,CollectionInterface
     }
 
     public function get($key, $default_value = null)
-    {
-        if ($this->isEmpty($key) == false) {
-            return $this->data[$key];
-        } 
-        if ($default_value !== null) {
+    {      
+        if (($default_value != null) && ($this->isEmpty($key) == true)) {
             return $default_value;
+        }      
+        if (isset($this->data[$key]) == true) {
+            return $this->data[$key];      
         }
         return null;
+    }
+
+    public function getArray($key, $default_value = null)
+    {
+        $result = $this->get($key,$default_value);
+        if (is_array($result) == false) {
+            return [];
+        }
+        return $result;
     }
 
     public function clear() 

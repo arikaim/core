@@ -14,9 +14,9 @@ use Arikaim\Core\Form\AbstractFilter;
 class Text extends AbstractFilter
 {  
     public function customFilter($value) 
-    {       
-        $value = trim($value);
-        $value = filter_var($value,FILTER_SANITIZE_STRING);
+    {      
+        $value = trim($value);      
+        $value = filter_var($value,FILTER_SANITIZE_STRING);     
         return $value;
     } 
 

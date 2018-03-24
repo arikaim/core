@@ -28,8 +28,9 @@ class Routes
             foreach($routes as $item) {
                 $methods = explode(',',$item['method']);
                 $handler = $item['handler_class'] . ":" . $item['handler_method'];
-                $middleware = Factory::createAuthMiddleware($item['auth']);               
+                $middleware = Factory::createAuthMiddleware($item['auth']);                
                 $route = $app->map($methods,$item['pattern'],$handler);
+            
                 if ($middleware != null) {
                     $route->add($middleware);
                 }

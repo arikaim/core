@@ -23,7 +23,7 @@ abstract class AbstractFilter implements FilterInterface
     public function processFilter($value)
     {
         $filter = $this->getFilter();
-        $filter_options = $this->getFilterOptions();
+        $filter_options = $this->getFilterOptions();      
         $result = filter_var($value,$filter,$filter_options);
         if ($result == false) {
             return $value;

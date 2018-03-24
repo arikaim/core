@@ -26,12 +26,13 @@ class Component implements ComponentInterface
     protected $language;
     protected $html_code;
     protected $error;
-  
+    protected $root_path;
+
     protected $files;
     protected $options;
     protected $properties;
 
-    public function __construct($name, $language = null) 
+    public function __construct($name, $root_path, $language = null) 
     {
         if ($language == null) {
             $this->language = Template::getLanguage();
@@ -41,6 +42,7 @@ class Component implements ComponentInterface
 
         $this->parseName($name);
         $this->error = "";
+        $this->root_path = $root_path;
         $this->files = [];
         $this->options = [];
         $this->properties = [];
@@ -52,6 +54,11 @@ class Component implements ComponentInterface
             return $this->getFilePath() . $this->files['html'][0]['file_name'];
         }
         return false;
+    }
+
+    public function getRootPath()
+    {
+        return $this->root_path;
     }
 
     public function hasError()

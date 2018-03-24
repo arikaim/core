@@ -20,7 +20,6 @@ use Arikaim\Core\View\Html\Component;
 
 class BaseComponent   
 {
-    protected $root_path;
     protected $options;
     protected $options_file_name;
   
@@ -83,15 +82,10 @@ class BaseComponent
         } else {
             $path = $relative_path;
         }
-        $path = $template_name . DIRECTORY_SEPARATOR . $this->root_path . DIRECTORY_SEPARATOR . $path . DIRECTORY_SEPARATOR;
+        $path = $template_name . DIRECTORY_SEPARATOR . $component->getRootPath() . DIRECTORY_SEPARATOR . $path . DIRECTORY_SEPARATOR;
         return $path;   
     }
- 
-    protected function setRootPath($path) 
-    {
-        $this->root_path = $path;
-    }
-    
+  
     protected function setOptionsFileName($file_name)
     {
         $this->options_file_name = $file_name;
@@ -176,6 +170,7 @@ class BaseComponent
                $component->clearContent();               
             }
         }
+        
         if ($error !== false) {
             $error = Arikaim::getError("TEMPLATE_COMPONENT_ERROR",["full_component_name" => $component->getName(),'details' => $error]);
             $component->setError($error);
@@ -185,24 +180,14 @@ class BaseComponent
 
     public function getComponentFiles($component_name, $file_type = "js")
     {
-        $component = $this->create($component_name);
+        $component = $this->create($component_name,'components');
         $files = $component->getFiles($file_type);      
         return $files;
     }
 
-    
-    public function getParentComponentPath($path)
-    {       
-        $parts = explode(DIRECTORY_SEPARATOR,$path);       
-        if (last($parts) == $this->root_path) {
-            return false;
-        }
-        return dirname($path);
-    }
-
-    public function create($name, $language = null)
+    public function create($name, $root_path, $language = null)
     {
-        $component = new Component($name,$language);
+        $component = new Component($name,$root_path,$language);
       
         $component->setFullPath($this->getPath($component,true));  
         $component->setFilePath($this->getPath($component,false)); 
@@ -243,7 +228,7 @@ class BaseComponent
     public function getFileUrl($component,$file_name)
     {
         $template_url = Template::getTemplateUrl($component->getTemplateName(),$component->getType());
-        return $template_url . '/' . str_replace(DIRECTORY_SEPARATOR,'/',$this->root_path . '/'. $component->getPath()) . '/' . $file_name;
+        return $template_url . '/' . str_replace(DIRECTORY_SEPARATOR,'/',$component->getRootPath() . '/'. $component->getPath()) . '/' . $file_name;
     }
 
     public function addComponentFile($component,$file_ext)

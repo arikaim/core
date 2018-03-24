@@ -24,7 +24,6 @@ class Page extends BaseComponent implements ComponentViewInterface
 
     public function __construct() {
         parent::__construct();
-        $this->setRootPath("pages");
         $this->setOptionsFileName("page.json");  
         $this->head = [];
         $this->properties = new Collection();  
@@ -43,16 +42,16 @@ class Page extends BaseComponent implements ComponentViewInterface
 
     public function render($name, $params = [], $language = null)
     {
-        $component = $this->create($name,$language);
+        $component = $this->create($name,'pages',$language);
 
         if ($component->hasContent() == false) {
             if ($component->getType() != Template::SYSTEM) {
-                $component = $this->create("system:" . $component->getPath());                
+                $component = $this->create("system:" . $component->getPath(),'pages',$language);                
             }
         }
         
         if ($component->hasContent() == false) {
-           // $component = $this->render('page-not-found',$params);
+            $component = $this->render('page-not-found',$params);
         }
         $loader = $component->getOption('loader');
         if (empty($loader) == false) {
@@ -92,7 +91,7 @@ class Page extends BaseComponent implements ComponentViewInterface
     
     public function has($page_name) 
     {
-        $page = $this->create($page_name);
+        $page = $this->create($page_name,'pages');
         return ($page->isValid() == false) ? false : true;          
     }
 
@@ -115,9 +114,9 @@ class Page extends BaseComponent implements ComponentViewInterface
         $this->head[$name] = $value;
     }
 
-    public function setHead(array $head_attributes)
+    public function setHead(array $head)
     {
-        $this->head = $head_attributes;
+        $this->head = $head;
     }
 
     public static function getPageJsFiles()
