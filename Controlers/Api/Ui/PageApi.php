@@ -42,9 +42,9 @@ class PageApi extends ApiControler
             $page_name = Arikaim::page()->getCurrent();
         }
         $result['properties']['page_name'] = $page_name;
-        $result['properties']['libraries'] = Template::getLibraries(); 
+        $result['properties']['library'] = Template::getLibraries(); 
         $result['properties']['version']   = System::getVersion(); 
-        $result['properties']['framework'] = [];
+        $result['properties']['framework'] = Template::getFrameworks();
 
         $loader = Arikaim::session()->get("template.loader");
         if (empty($loader) == false) {

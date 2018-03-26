@@ -15,10 +15,10 @@ use Arikaim\Core\View\Template;
 use Arikaim\Core\Utils\Collection;
 use Arikaim\Core\Interfaces\View\ComponentViewInterface;
 use Arikaim\Core\Db\Model;
+use Arikaim\Core\Interfaces\View\ComponentInterface;
 
 class Page extends BaseComponent implements ComponentViewInterface
-{
-    protected $current_page;
+{   
     protected $head;
     protected $properties;
 
@@ -74,10 +74,10 @@ class Page extends BaseComponent implements ComponentViewInterface
         return Template::getTemplateName() . DIRECTORY_SEPARATOR . "index.html";
     }
 
-    public function getCode($component, $params = [])
+    public function getCode(ComponentInterface $component, $params = [])
     {
         $this->includeFiles($component);
-        $this->processPageOptions();
+        $this->processPageOptions($component);
 
         $this->setCurrent($component->getpath());
         Template::includeFiles($component->getType());
@@ -90,10 +90,10 @@ class Page extends BaseComponent implements ComponentViewInterface
         return Arikaim::view()->fetch($component->getTemplateFile(),$params);
     }
     
-    public function processPageOptions($component)
+    public function processPageOptions(ComponentInterface $component)
     {
         // option:  include/library
-
+        // TODO
     }
 
     public function has($page_name) 
@@ -102,7 +102,7 @@ class Page extends BaseComponent implements ComponentViewInterface
         return ($page->isValid() == false) ? false : true;          
     }
 
-    public function includeFiles($component)
+    public function includeFiles(ComponentInterface $component)
     {
         // js file
         $js_files = $component->getFiles('js');
@@ -124,12 +124,6 @@ class Page extends BaseComponent implements ComponentViewInterface
     public function setHead(array $head)
     {
         $this->head = $head;
-    }
-
-    public static function getFrameworks()    
-    {
-        $libs = Arikaim::session()->get("ui.included.libraries");
-        return json_decode($libs);
     }
 
     public static function getPageJsFiles()
@@ -154,12 +148,12 @@ class Page extends BaseComponent implements ComponentViewInterface
 
     public function setCurrent($name)
     {
-        Arikaim::session()->set("current_page",$name);
+        Arikaim::session()->set("current.page",$name);
     }
 
     public static function getCurrent()
     {
-        return Arikaim::session()->get("current_page");
+        return Arikaim::session()->get("current.page");
     }
 
     public static function getLanguagePath($path, $language = null)

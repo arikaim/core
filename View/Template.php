@@ -67,7 +67,8 @@ class Template
     }
 
     public function includeLibraryFiles($properties)
-    {
+    {   
+        $frameworks = [];
         $library = new UiLibrary();
         $library_files = $properties->getByPath("include/library",[]);  
     
@@ -85,9 +86,13 @@ class Template
                 $item['library'] = $library_name;
                 array_push($include_lib,$item);
             }           
+            if ($library->isFramework($params) == true) {
+                array_push($frameworks,$library_name);
+            }
         }
         Arikaim::page()->properties()->set('ui.library.files',$include_lib);
         $this->setIncludedLibraries($library_files);
+        $this->setFrameworks($frameworks);
         return true;
     }
 
@@ -180,14 +185,24 @@ class Template
 
     public function setIncludedLibraries(array $libraries)    
     {
-        $libs = Utils::jsonEncode($libraries);
+        $libs = json_encode($libraries);
         Arikaim::session()->set("ui.included.libraries",$libs);
+    }
+
+    public function setFrameworks(array $frameworks)
+    {
+        $frameworks = json_encode($frameworks);
+        Arikaim::session()->set("ui.included.frameworks",$frameworks);
     }
 
     public static function getLibraries()    
     {
-        $libs = Arikaim::session()->get("ui.included.libraries");
-        return json_decode($libs);
+        return Arikaim::session()->get("ui.included.libraries");
+    }
+    
+    public static function getFrameworks()    
+    {
+        return Arikaim::session()->get("ui.included.frameworks");
     }
 
     public static function getVars()
@@ -311,5 +326,21 @@ class Template
         Arikaim::session()->set('language',$language_code);
         Arikaim::cookies()->set('language',$language_code);
         return $language_code;
+    }
+
+    public static function setCurrentFramework($library_name)
+    {
+        Arikaim::session()->set("current.framework",$library_name);
+    }
+
+    public static function getCurrentFramework()
+    {
+        $framework = Arikaim::session()->get("current.framework");
+        if (empty($framework) == true) {
+            $frameworks = json_decode(Self::getFrameworks());
+            $framework = last($frameworks);
+            Self::setCurrentFramework($framework);
+        }
+        return $framework;
     }
 }

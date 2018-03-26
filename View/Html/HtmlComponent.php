@@ -16,6 +16,7 @@ use Arikaim\Core\Extension\ExtensionsManager;
 use Arikaim\Core\View\Html\BaseComponent;
 use Arikaim\Core\View\Template;
 use Arikaim\Core\Interfaces\View\ComponentViewInterface;
+use Arikaim\Core\Interfaces\View\ComponentInterface;
 
 class HtmlComponent extends BaseComponent implements ComponentViewInterface
 {
@@ -31,7 +32,7 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
         return $this->files;
     }
 
-    public function getErrorMessage($component)
+    public function getErrorMessage(ComponentInterface $component)
     {
         $params = ['message' => $component->getError()];
         return $this->load('system:message.error',$params);
@@ -71,7 +72,7 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
         return "";
     }
 
-    public function includeFiles($component) 
+    public function includeFiles(ComponentInterface $component) 
     {
         // js file
         $js_files = $component->getFiles('js');

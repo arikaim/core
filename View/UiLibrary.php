@@ -109,6 +109,16 @@ class UiLibrary
         return $details;
     }
 
+    public function isFramework($params)
+    {       
+        if (isset($this->properties['framework']) == true) {           
+            if ($this->properties['framework'] === true || $this->properties['framework'] == "true") {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public function getFiles($library_name = null)
     {
         if (empty($library_name) == false) {
@@ -129,6 +139,11 @@ class UiLibrary
             return $this->properties['params'];
         }
         return [];
+    }
+
+    public function getProperties()
+    {
+        return $this->properties;
     }
 
     public static function getThemeFile($library_name, $theme_name)

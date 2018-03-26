@@ -17,18 +17,20 @@ use Arikaim\Core\Form\Properties;
 use Arikaim\Core\Access\Access;
 use Arikaim\Core\Utils\Mobile;
 use Arikaim\Core\View\Html\Component;
+use Arikaim\Core\Interfaces\View\ComponentInterface;
 
 class BaseComponent   
 {
     protected $options;
     protected $options_file_name;
-  
+    protected $framework;
+
     public function __construct() 
     {
         $this->setOptionsFileName("component.json");    
     }
 
-    public function fetch($component, $params = [])
+    public function fetch(ComponentInterface $component, $params = [])
     {
         if (empty($component->getTemplateFile()) == true) {
             return $component;
@@ -43,7 +45,7 @@ class BaseComponent
         return $component;
     }
 
-    public function getPropertiesFileName($component)
+    public function getPropertiesFileName(ComponentInterface $component)
     {
         $language = $component->getLanguage();
         $language_code = ($language != "en") ? "-". $language : "";
@@ -59,14 +61,14 @@ class BaseComponent
         return $component->getFullPath() . $file_name;   
     }
 
-    public function loadComponentProperties($component)
+    public function loadComponentProperties(ComponentInterface $component)
     {
         $file_name = $component->getPropertiesFileName();
         $properties = new Properties($file_name,null,Template::getVars());                 
         return $properties;
     }
 
-    public function getPath($component, $full = true, $relative_path = null) 
+    public function getPath(ComponentInterface $component, $full = true, $relative_path = null) 
     {
         if ($full == true) {
             $template_name = Template::getTemplatePath($component->getTemplateName(),$component->getType());
@@ -103,7 +105,7 @@ class BaseComponent
         return $parent_path; 
     }
 
-    public function getOptionsFileName($component, $parent_path = null)
+    public function getOptionsFileName(ComponentInterface $component, $parent_path = null)
     {   
         if (empty($parent_path) == true) {
             $path = $component->getFullpath();
@@ -124,14 +126,14 @@ class BaseComponent
         return $file_name;
     }
 
-    protected function loadOptions($component)
+    protected function loadOptions(ComponentInterface $component)
     {
         $file_name = $component->getOptionsFileName();
         $options = new Properties($file_name,'');         
         return $options;
     }
 
-    public function processOptions($component)
+    public function processOptions(ComponentInterface $component)
     {
         $error = false;       
         // check auth access 
@@ -187,6 +189,8 @@ class BaseComponent
 
     public function create($name, $root_path, $language = null)
     {
+        $this->framework = Template::getCurrentFramework();
+        
         $component = new Component($name,$root_path,$language);
       
         $component->setFullPath($this->getPath($component,true));  
@@ -225,13 +229,13 @@ class BaseComponent
         return $component;
     }
 
-    public function getFileUrl($component,$file_name)
+    public function getFileUrl(ComponentInterface $component,$file_name)
     {
         $template_url = Template::getTemplateUrl($component->getTemplateName(),$component->getType());
         return $template_url . '/' . str_replace(DIRECTORY_SEPARATOR,'/',$component->getRootPath() . '/'. $component->getPath()) . '/' . $file_name;
     }
 
-    public function addComponentFile($component,$file_ext)
+    public function addComponentFile(ComponentInterface $component,$file_ext)
     {
         $file_name = $this->getComponentFile($component,$file_ext);
         if ($file_name === false) {
@@ -245,10 +249,24 @@ class BaseComponent
         return $file;
     }
 
-    public function getComponentFile($component, $file_ext = "html", $language_code = "") 
+    public function getComponentFile(ComponentInterface $component, $file_ext = "html", $language_code = "") 
     {         
         $file_name = $component->getName() . $language_code . "." . $file_ext;
+        // try framework path
+        $full_file_name = $component->getFullPath() . $this->getFrameworkPath() . $file_name;
+        if (File::exists($full_file_name) == true) {
+            return $this->getFrameworkPath() . $file_name;
+        }
+        // try default path 
         $full_file_name = $component->getFullPath() . DIRECTORY_SEPARATOR . $file_name;
         return File::exists($full_file_name) ? $file_name : false;
+    }
+
+    public function getFrameworkPath()
+    {
+        if (empty($this->framework) == false) {
+            return "." . $this->framework . DIRECTORY_SEPARATOR;
+        }
+        return "";
     }
 }
