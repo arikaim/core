@@ -154,13 +154,6 @@ class Template
         return true;
     }
 
-    public function getSupportedLanguages($template_name = null) 
-    {
-        if ($template_name == null) {
-            $template_name = Self::getTemplateName();
-        }
-    }
-
     public static function getJsFiles()
     {
         return Arikaim::page()->properties()->get('template.js.files');
@@ -191,7 +184,7 @@ class Template
         Arikaim::session()->set("ui.included.libraries",$libs);
     }
 
-    public static function getIncludedLibraries()    
+    public static function getLibraries()    
     {
         $libs = Arikaim::session()->get("ui.included.libraries");
         return json_decode($libs);

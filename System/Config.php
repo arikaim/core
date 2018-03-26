@@ -16,15 +16,11 @@ use Arikaim\Core\Utils\Collection;
 
 class Config extends Collection implements \ArrayAccess 
 {
-    private $file_name;
-
     public function __construct($file_name = null) 
     {
         parent::__construct();    
-        $this->file_name = ($file_name == null) ? "config.php" : $file_name;  
-        if ($file_name != null) {
-            $this->loadConfig($file_name);
-        }
+        $file_name = ($file_name == null) ? "config.php" : $file_name;  
+        $this->loadConfig($file_name);
     }
 
     public function loadConfig($file_name = null) 
@@ -134,13 +130,10 @@ class Config extends Collection implements \ArrayAccess
 
     public static function getConfigPath() 
     {
-        return join(DIRECTORY_SEPARATOR, array(Arikaim::getRootPath(),trim(Arikaim::getBasePath(),DIRECTORY_SEPARATOR), 'arikaim','config'));
+        return Arikaim::getRootPath() . Arikaim::getBasePath() . DIRECTORY_SEPARATOR . 'arikaim' . DIRECTORY_SEPARATOR . 'config';
     }
 
     private function getFileName($file_name) {
-        if (empty($file_name) == true) {
-            $file_name = $this->file_name;
-        }
         return Self::getConfigPath() . DIRECTORY_SEPARATOR . $file_name;
     }
 

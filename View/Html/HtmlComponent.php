@@ -94,6 +94,6 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
         if ($component->hasError() == true) {
             return $component->getError();
         }
-        return $this->loadComponentProperties($component);
+        return $this->loadComponentProperties($component)->toArray();
     }
 }

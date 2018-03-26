@@ -77,7 +77,8 @@ class Page extends BaseComponent implements ComponentViewInterface
     public function getCode($component, $params = [])
     {
         $this->includeFiles($component);
-      
+        $this->processPageOptions();
+
         $this->setCurrent($component->getpath());
         Template::includeFiles($component->getType());
 
@@ -89,6 +90,12 @@ class Page extends BaseComponent implements ComponentViewInterface
         return Arikaim::view()->fetch($component->getTemplateFile(),$params);
     }
     
+    public function processPageOptions($component)
+    {
+        // option:  include/library
+
+    }
+
     public function has($page_name) 
     {
         $page = $this->create($page_name,'pages');
@@ -117,6 +124,12 @@ class Page extends BaseComponent implements ComponentViewInterface
     public function setHead(array $head)
     {
         $this->head = $head;
+    }
+
+    public static function getFrameworks()    
+    {
+        $libs = Arikaim::session()->get("ui.included.libraries");
+        return json_decode($libs);
     }
 
     public static function getPageJsFiles()

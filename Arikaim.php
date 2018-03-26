@@ -73,19 +73,23 @@ class Arikaim
         return Self::$container;
     }
 
+    public static function registerLoader()
+    {
+        // init uri 
+        Self::$uri = Uri::createFromEnvironment(new Environment($_SERVER));
+        $loader = new \Arikaim\Core\System\ClassLoader(Self::getBasePath(),Self::getRootPath());
+        $loader->register();
+    }
+
     /**
      * Create 
      *
      * @return void
      */
     public static function create() 
-    {
-        // init uri 
-        Self::$uri = Uri::createFromEnvironment(new Environment($_SERVER));
-       
-        $loader = new \Arikaim\Core\System\ClassLoader(Self::getBasePath(),Self::getRootPath());
-        $loader->register();
-    
+    {        
+        Self::registerLoader();
+        
         // set start time
         System::initStartTime();
         
@@ -121,14 +125,12 @@ class Arikaim
 
     public static function getConsoleRootPath()
     {
-        return dirname(dirname(dirname(__DIR__)));
+        return dirname(dirname(__DIR__));
     }
 
     public static function getConsoleBasePath()
     {
-        $root_path = Self::getConsoleRootPath();
-        $base_path = dirname(dirname(__DIR__));
-        return str_replace($root_path,"",$base_path);
+        return ""; 
     }
 
     public static function getRootPath() 
@@ -144,7 +146,9 @@ class Arikaim
     {        
         if (Self::isConsole() == false) {
             $path = rtrim(str_ireplace('index.php','',Self::$uri->getBasePath()), DIRECTORY_SEPARATOR);
-            if ($path == "/") $path = "";
+            if ($path == "/") {
+                $path = "";
+            }
         } else {
             $path = Self::getConsoleBasePath();
         }
