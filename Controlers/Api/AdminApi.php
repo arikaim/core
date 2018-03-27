@@ -121,7 +121,10 @@ class AdminApi extends ApiControler
             $this->setApiErrors('Control panel user email not valid!');
             return $this->getApiResponse();
         }       
-        $message = Arikaim::mailer()->messageFromTemplate($user->email,"system:admin.email-messges.test",[],$user->email);
+
+        $message = Arikaim::mailer()->messageFromTemplate("system:admin.email-messges.test");
+        $message->addTo($user->email);
+        $message->addFrom($user->email);
         $result = Arikaim::mailer()->send($message);
         if ($result == false) {
             $this->setApiErrors('Error send test email!');

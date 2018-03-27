@@ -61,23 +61,19 @@ class Mailer
         return $message;
     }
 
-    public function messageFromTemplate($to, $html_component_name, $params = [], $from = null, $from_name = null)
+    public function messageFromTemplate($component_name, $params = [])
     {
         $message = $this->createMessage($to,$from,$from_name);
-        $code = Arikaim::view()->component()->load($html_component_name,$params);
-        $data = json_decode($code,true);
-
-        if (isset($data['body']) == true) {
-            $message->setBody($data['body']);
-            if (Utils::hasHtml($data['body']) == true) {
-                $message->setContentType('text/html');
-            }
+        $body = Arikaim::view()->component()->load($component_name,$params);
+        $properties = Arikaim::view()->component()->getComponentProperties($component_name);
+      
+        $message->setBody($body);
+        if (Utils::hasHtml($body) == true) {
+            $message->setContentType('text/html');
         }
-        if (isset($data['subject']) == true) {
-            $message->setSubject($data['subject']);
-        }
-        if (isset($data['to']) == true) {
-            $message->addTo($data['to'],$data['to']['name']);
+        
+        if (isset($properties['subject']) == true) {
+            $message->setSubject($properties['subject']);
         }
         return $message;
     }

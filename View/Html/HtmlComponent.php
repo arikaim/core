@@ -65,11 +65,12 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
         $params = Arrays::merge($component->getProperties(),Arikaim::view()->components()->get($component->getPath()));      
         $params = Arrays::merge($params,$vars);
 
-        Arikaim::view()->components()->set($component->getPath(),$params);     
+        Arikaim::view()->components()->set($component->getPath(),$params);
+        $component->setHtmlCode("");  
         if ($component->getOption('render') !== false) {                 
-            return $this->fetch($component,$params);
+            $component = $this->fetch($component,$params);
         }
-        return "";
+        return  $component;
     }
 
     public function includeFiles(ComponentInterface $component) 
@@ -80,7 +81,6 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
             Arikaim::page()->properties()->add('include.components.js',$file['url']);
             Arikaim::view()->component()->files()->add("js_files",$file['url']);
         }
-
         // css files
         $css_files = $component->getFiles('css');
         foreach ($css_files as $file) {
@@ -89,9 +89,9 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
         }     
     }
     
-    public function getComponentProperties($name, $params = [], $language = null)
+    public function getComponentProperties($name, $language = null)
     {
-        $component = $this->render($name,$params,$language);
+        $component = $this->create($name,'components',$language);
         if ($component->hasError() == true) {
             return $component->getError();
         }
