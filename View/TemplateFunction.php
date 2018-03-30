@@ -33,6 +33,7 @@ class TemplateFunction
         $this->allowClass(Factory::getCoreNamespace() . '\\Extension\\Routes');           
         $this->allowClass(Factory::getCoreNamespace() . '\\View\\TemplatesManager');
         $this->allowClass(Factory::getCoreNamespace() . '\\View\\UiLibrary');
+        $this->allowClass(Factory::getCoreNamespace() . '\\View\\Html\\HtmlComponent');
         $this->allowClass(Factory::getCoreNamespace() . '\\System\\Install');
         $this->allowClass(Factory::getCoreNamespace() . '\\System\\Update');
         $this->allowClass(Factory::getCoreNamespace() . '\\Access\\Access');
@@ -88,7 +89,9 @@ class TemplateFunction
 
     public function isAllowedMethod($method_name)
     {
-        if (in_array($method_name,$this->deny_methods) == true ) return false;
+        if (in_array($method_name,$this->deny_methods) == true ) {
+            return false;
+        }
         return true;
     }
 
@@ -301,5 +304,10 @@ class TemplateFunction
             return null;
         }
         return Utils::call($obj,$method_name,$params);
+    }
+
+    public function getComponentProperties($name, $language = null)
+    {
+        return Arikaim::view()->component()->getComponentProperties($name,$language)->toArray();
     }
 }

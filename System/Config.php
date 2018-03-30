@@ -16,15 +16,22 @@ use Arikaim\Core\Utils\Collection;
 
 class Config extends Collection implements \ArrayAccess 
 {
+    private $file_name;
+
     public function __construct($file_name = null) 
     {
-        parent::__construct();    
-        $file_name = ($file_name == null) ? "config.php" : $file_name;  
-        $this->loadConfig($file_name);
+        parent::__construct();  
+        if ($file_name != null) {  
+            $this->loadConfig($file_name);
+            $this->file_name = $file_name;
+        }
     }
 
     public function loadConfig($file_name = null) 
     {
+        if ($file_name == null) {
+            $file_name = $this->file_name;
+        }
         $config = $this->includeConfigFile($file_name); 
         if (is_array($config) == false) {     
             $this->showError();
@@ -99,6 +106,9 @@ class Config extends Collection implements \ArrayAccess
 
     public function saveConfigFile($file_name = null)
     {
+        if ($file_name == null) {
+            $file_name = $this->file_name;
+        }
         $file_name = $this->getFileName($file_name);
         if (File::isWritable($file_name) == false) {
             File::setWritable($file_name);

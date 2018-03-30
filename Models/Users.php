@@ -110,6 +110,16 @@ class Users extends Model
         Arikaim::access()->clearToken();
     }
 
+    public function getControlPanelUserEmail()
+    {
+        $uuid = $this->getControlPanelUser();
+        if ($uuid === false) {
+            return false;
+        }
+        $model = $this->where('uuid','=',$uuid)->first();
+        return (is_object($model) == true) ? $model->email : false;
+    }
+
     public function getControlPanelUser()
     {
         if (Schema::hasTable($this) == false) {
@@ -124,20 +134,13 @@ class Users extends Model
             return false;
         }
         $user = $this->validUUID($permissions->object_uuid);
-        if ($user == false) {
-            return false;
-        }
-        return $permissions->object_uuid;
+        return ($user == false) ? false : $permissions->object_uuid;           
     }
 
     public function hasControlPanelUser() 
     {
         $user = $this->getControlPanelUser();
-        
-        if ($user == false) {
-            return false;
-        }
-        return true;
+        return ($user == false) ? false : true;
     }
 
     public function EncryptPassword($password, $algo = PASSWORD_BCRYPT) 
@@ -165,19 +168,13 @@ class Users extends Model
     public function getId($user_name) 
     {
         $user = $this->getUser($user_name);   
-        if (is_object($user) == true) { 
-            return $user->id;
-        }
-        return null;
+        return (is_object($user) == true) ? $user->id : null; 
     }
 
     public function getUUID($user_name) 
     {
         $user = $this->getUser($user_name);    
-        if (is_object($user) == true) { 
-            return $user->uuid;
-        }
-        return null;
+        return (is_object($user) == true) ? $user->uuid : null;           
     }
 
     public function validUUID($uuid) 
@@ -186,10 +183,7 @@ class Users extends Model
         if (is_object($user) == false) {
             return false;
         }        
-        if ($user->id > 0) {
-            return $user->id;
-        }
-        return false;
+        return ($user->id > 0) ? $user->id : false;
     }
 
     public function createUser($user_name, $password, $email = null)
@@ -211,11 +205,7 @@ class Users extends Model
         } catch(\Exception $e) {
             return false;
         }
-
-        if ($result == false) {
-            return false;
-        }
-        return $this->uuid;
+        return ($result == false) ? false : $this->uuid;           
     }
 
     public function changePassword($id, $password)
@@ -226,9 +216,10 @@ class Users extends Model
             $model = $this->where('uuid','=',$id)->first();
         }
 
-        if (is_object($model) == false) return false;
+        if (is_object($model) == false) {
+            return false;
+        }
         $model->password = $this->EncryptPassword($password);    
-        $result = $model->save();        
-        return $result;
+        return $model->save();
     }    
 }

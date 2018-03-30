@@ -330,7 +330,7 @@ class ExtensionsManager
         if (empty($extension_name) == true) {
             return $result;
         }
-        return TemplatesManager::getComponents(Self::getExtensionComponentsPath($extension_name));
+        return TemplatesManager::getComponents($extension_name,Self::getExtensionComponentsPath($extension_name));
     }
 
     public function getExtensionTemplatePages($extension_name)

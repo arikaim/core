@@ -16,6 +16,24 @@ use Arikaim\Core\Utils\Utils;
 
 class ComponentApi extends ApiControler
 {
+    public function componentDetails($request, $response, $args)
+    {
+        // control panel only
+        $this->requireControlPanelPermission();
+
+        $component = Arikaim::view()->component()->render($args['name']);
+        if ($component->hasError() == true) {
+            $this->setApiError($component->getError());
+            return $this->getApiResponse();
+        }
+        $details['properties'] = $component->getProperties();
+        $details['options'] = $component->getOptions();
+        $details['files'] = $component->getFiles();
+        
+        $this->setApiResult($details);
+        return $this->getApiResponse();
+    }
+
     public function loadComponent($request, $response, $args)
     {       
         $params = $this->getParams($request);

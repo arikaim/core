@@ -98,7 +98,7 @@ class ServiceContainer
         };
         // Errors  
         $this->container['errors'] = function() {
-            $errors = new \Arikaim\Core\Errors\Errors();
+            $errors = new \Arikaim\Core\System\Errors();
             return $errors;
         };
         // Session 

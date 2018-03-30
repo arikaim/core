@@ -72,7 +72,7 @@ class TemplatesManager
         return $properties->get('themes',[]); 
     }
 
-    public static function getComponents($path, $parent_path = null)
+    public static function getComponents($template_name, $path, $parent_path = null)
     {
         $items = [];
         $root_path = $path;
@@ -92,10 +92,10 @@ class TemplatesManager
                     $item['path'] = $parent_path . DIRECTORY_SEPARATOR . $item['path'];
                 }
                 $item['name'] = str_replace(DIRECTORY_SEPARATOR,'.',$item['path']);
+                $item['full_name'] = $template_name . ":" . $item['name'];
                 array_push($items,$item);
-
                 // get child items
-                $child_items = Self::getComponents($root_path, $item['path'] );
+                $child_items = Self::getComponents($template_name,$root_path,$item['path']);
                 if (count($child_items) > 0) {
                     $items = array_merge($items,$child_items);
                 }
@@ -107,7 +107,7 @@ class TemplatesManager
     public function getTemplateComponents($template_name = null)
     {          
         $path = Template::getComponentsPath($template_name);
-        return Self::getComponents($path);
+        return Self::getComponents($template_name,$path);
     }
 
     public function getTemplateMacros($template_name)

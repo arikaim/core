@@ -24,31 +24,47 @@ abstract class AbstractRule implements FilterInterface
     protected $min;
     protected $max;
     protected $error;
-    protected $error_name;
+    protected $error_code;
+    protected $required;
 
-    public function __construct($min_value = null,$max_value = null,$error_name = "NOT_VALID_VALUE_ERROR") 
+    public function __construct($min_value = null, $max_value = null, $error_code = "NOT_VALID_VALUE_ERROR") 
     {
         $this->min = $min_value;
         $this->max = $max_value;
         $this->error = "";
-        $this->error_name = $error_name;
+        $this->required = true;
+        $this->setErrorCode($error_code);
+    }
+
+    public function setRequired($required)
+    {
+        $this->required = $required;
+    }
+
+    public function isRequired($required)
+    {
+        return ($this->required === false) ? false : true;
     }
 
     public function validate($value)
     {
+        if ((empty($value) == true) && ($this->required == false)) {
+            return true;
+        }
+
         $filter = $this->getFilter();
         $filter_options = $this->getFilterOptions();
         $result = filter_var($value,$filter,$filter_options);
         if ($result == false) {
             if ($filter != FILTER_CALLBACK) {
-                $this->setError($this->getErrorName());
+                $this->setError();
             }
             return false;
         }
         return true;
     }
 
-    protected function validateType($value,$error_name,$type)
+    protected function validateType($value, $error_code, $type)
     {
         switch ($type) {
             case AbstractRule::INT : {
@@ -72,11 +88,12 @@ abstract class AbstractRule implements FilterInterface
                 break;
             }
         }
-        $this->setError($error_name);
+        $this->setErrorCode($error_code);
+        $this->setError();
         return false;
     }
 
-    protected function validateMinValue($value,$error_name,$text_field = false)
+    protected function validateMinValue($value, $error_code, $text_field = false)
     {
         if ($this->error != "") {
             return true;
@@ -89,14 +106,15 @@ abstract class AbstractRule implements FilterInterface
 
         if (empty($this->min) == false) {                 
             if ($min < $this->min) {         
-                $this->setError($error_name);
+                $this->setErrorCode($error_code);
+                $this->setError();
                 return false;
             }
         }
         return true;
     }
 
-    protected function validateMaxValue($value,$error_name,$text_field = false)
+    protected function validateMaxValue($value, $error_code, $text_field = false)
     {
         if ($this->error != "") {
             return true;
@@ -109,7 +127,8 @@ abstract class AbstractRule implements FilterInterface
 
         if (empty($this->max) == false) {           
             if ($max > $this->max) {          
-                $this->setError($error_name);              
+                $this->setErrorCode($error_code); 
+                $this->setError();            
                 return false;
             }
         }
@@ -118,13 +137,20 @@ abstract class AbstractRule implements FilterInterface
 
     public function isValid()
     {
-        if ($this->error == "") return true;
-        return false;
+        return (empty($this->error) == true) ? true : false; 
     }
 
-    public function setError($error_name)
+    public function setError($error = null, $params = [])
     {
-        $this->error = $error_name;
+        if ($error == null) {
+            $error = $this->getErrorMessage($params);
+        }
+        $this->error = $error;
+    }
+
+    public function setErrorCode($code)
+    {
+        $this->error_code = $code;
     }
 
     protected function getCustomFilterOptions()
@@ -132,15 +158,25 @@ abstract class AbstractRule implements FilterInterface
         return array('options' => array($this, 'customFilter'));
     }
 
-    public function getError($params = []) 
+    public function getErrorMessage($params = []) 
     {
-        $vars = ['min' => $this->min,'max' => $this->max];
-        $vars = array_merge($vars,$params);                 
-        return Arikaim::getError($this->error,$vars);
+        if (empty($this->error_code) == false) {
+            $vars = ['min' => $this->min,'max' => $this->max];
+            $vars = array_merge($vars,$params);  
+                       
+            $error = Arikaim::getError($this->error_code,$vars);
+            return ($error === false) ? $this->error_code : $error;              
+        }
+        return null;
     }
     
-    public function getErrorName()
+    public function getError()
     {
-        return "NOT_VALID_VALUE_ERROR";
+        return $this->error;
+    }
+
+    public function getErrorCode()
+    {
+        return $this->error_code;
     }
 }

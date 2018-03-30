@@ -13,6 +13,11 @@ use Arikaim\Core\Form\AbstractRule;
 
 class Ip extends AbstractRule
 {    
+    public function __construct($error_code = "IP_NOT_VALID_ERROR") 
+    {
+        parent::__construct(null,null,$error_code);
+    }
+
     public function customFilter($value) 
     {       
     } 
@@ -21,12 +26,7 @@ class Ip extends AbstractRule
     {       
         return FILTER_VALIDATE_IP;
     }
-
-    public function getErrorName()
-    {
-        return "IP_NOT_VALID_ERROR";
-    }
-
+    
     public function getFilterOptions()
     {
         return [];

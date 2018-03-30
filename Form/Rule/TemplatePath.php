@@ -17,9 +17,9 @@ class TemplatePath extends AbstractRule
 {  
     protected $extension_name;
 
-    public function __construct($extension_name) 
+    public function __construct($extension_name, $error_code = "TEMPLATE_NOT_EXISTS") 
     {
-        parent::__construct();
+        parent::__construct(null,null,$error_code);
         $this->extension_name = $extension_name; 
     }
 
@@ -27,7 +27,7 @@ class TemplatePath extends AbstractRule
     {           
         $template_path = Template::getTemplatePath($value);
         if (File::exists($template_path) == false) {           
-            $this->setError("TEMPLATE_NOT_EXISTS");
+            $this->setError();
         } 
         return $this->isValid();
     } 

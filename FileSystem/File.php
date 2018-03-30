@@ -11,9 +11,8 @@ namespace Arikaim\Core\FileSystem;
 
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\System\Config;
-use Arikaim\Core\Errors\Errors;
+use Arikaim\Core\System\Errors;
 use Arikaim\Core\Arikaim;
-
 
 class File 
 {

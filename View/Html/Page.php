@@ -92,7 +92,7 @@ class Page extends BaseComponent implements ComponentViewInterface
     
     public function processPageOptions(ComponentInterface $component)
     {
-        // option:  include/library
+        // option: include/library
         // TODO
     }
 

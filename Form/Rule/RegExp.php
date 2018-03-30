@@ -12,7 +12,12 @@ namespace Arikaim\Core\Form\Rule;
 use Arikaim\Core\Form\AbstractRule;
 
 class RegExp extends AbstractRule
-{    
+{   
+    public function __construct($error_code = "REGEXP_NOT_VALID_ERROR") 
+    {
+        parent::__construct(null,null,$error_code);
+    }
+
     public function customFilter($value) 
     {        
     } 
@@ -20,11 +25,6 @@ class RegExp extends AbstractRule
     public function getFilter()
     {       
         return FILTER_VALIDATE_REGEXP;
-    }
-
-    public function getErrorName()
-    {
-        return "REGEXP_NOT_VALID_ERROR";
     }
 
     public function getFilterOptions()

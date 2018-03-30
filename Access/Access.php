@@ -30,7 +30,7 @@ class Access
     const DELETE = ['delete'];
     const EXECUTE = ['execute'];
 
-    const CONTROL_PANEL = "control_panel";
+    const CONTROL_PANEL = "ControlPanel";
     
     // tokens 
     const JWT_TOKEN = 1;

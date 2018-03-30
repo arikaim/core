@@ -13,6 +13,11 @@ use Arikaim\Core\Form\AbstractRule;
 
 class Text extends AbstractRule
 {    
+    public function __construct($error_code = "TEXT_NOT_VALID_ERROR") 
+    {
+        parent::__construct(null,null,$error_code);
+    }
+
     public function customFilter($value) 
     {
         $this->validateType($value,"TEXT_NOT_VALID_ERROR",AbstractRule::STRING);

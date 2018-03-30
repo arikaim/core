@@ -15,21 +15,21 @@ class CheckList extends AbstractRule
 {
     private $allowed_values = null;
 
-    public function __construct($allowed_values,$error = "NOT_VALID_VALUE_ERROR") 
+    public function __construct($allowed_values, $error_code = "NOT_VALID_VALUE_ERROR") 
     {
+        parent::__construct(null,null,$error_code);
         if (is_array($allowed_values) == true) {
             $this->allowed_values = $allowed_values;
         }
-        $this->error_name = $error;
     }
 
     public function customFilter($value) 
     {
         if ($this->allowed_values == null) {
-            $this->setError($this->error_name);  
+            $this->setError();  
         }
         if (in_array($value,$this->allowed_values,false) == false) {        
-            $this->setError($this->error_name,$this->allowed_values);           
+            $this->setError(null,$this->allowed_values);           
         } 
         return $this->isValid();
     } 

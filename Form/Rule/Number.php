@@ -13,6 +13,11 @@ use Arikaim\Core\Form\AbstractRule;
 
 class Number extends AbstractRule
 {
+    public function __construct($min_value = null, $max_value = null, $error_code = "NUMBER_NOT_VALID_ERROR") 
+    {
+        parent::__construct($min_value,$max_value,$error_code);
+    }
+
     public function customFilter($value) 
     {
         $this->validateType($value,"NUMBER_NOT_VALID_ERROR",AbstractRule::NUMBER);

@@ -33,7 +33,7 @@ class SiteStats
         $info['http_user_agent'] = $request->getheader('HTTP_USER_AGENT');
         $info['client_ip'] = $request->getAttribute('client_ip');
     
-        if (Arikaim::errors()->hasError("DB_CONNECTION_ERROR") == false) {            
+        if (Arikaim::errors()->hasError() == false) {            
             Arikaim::logger()->addStats('Request',$info);
         }
         $response = $next($request, $response);

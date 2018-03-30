@@ -43,11 +43,11 @@ class ApiResponse
 
     public function addErrors(array $errors)
     {
-        if (is_array($errors) == true) {
-            $this->errors = array_merge($this->errors,$errors);
-            return true;
+        if (is_array($errors) == false) {
+            return false;
         }
-        return false;
+        $this->errors = array_merge($this->errors,$errors);
+        return true;
     }
 
     public function setErrors(array $errors)
@@ -81,10 +81,7 @@ class ApiResponse
 
     public function hasError() 
     {    
-        if ($this->getErrorCount() > 0 ) {
-            return true;
-        }
-        return false;
+        return ($this->getErrorCount() > 0) ? true : false;          
     }
 
     public function getResponse() 
@@ -104,7 +101,9 @@ class ApiResponse
         if ($this->trace == true) {
             $this->result['trace'] = Utils::jsonEncode(System::getBacktrace());
         }
-        $code = json_encode($this->result);
+       
+        $code = json_encode($this->result,true);
+
         $this->response->withHeader('Content-Type','application/json');
         // enable cors
         if ($this->enableCors == true) {

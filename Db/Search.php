@@ -11,7 +11,6 @@ namespace Arikaim\Core\Db;
 
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Condition;
-use Arikaim\Core\Errors\Errors;
 use Arikaim\Core\Utils\Utils;
 
 class Search 

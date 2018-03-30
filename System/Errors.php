@@ -7,7 +7,7 @@
  * @license     http://www.arikaim.com/license.html
  * 
  */
-namespace Arikaim\Core\Errors;
+namespace Arikaim\Core\System;
 
 use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Utils\Utils;
@@ -16,35 +16,32 @@ use Arikaim\Core\Utils\Collection;
 class Errors extends Collection
 {
     private $prefix;
-    private $errors = [];
+    private $errors;
 
     public function __construct() 
     {
+        $this->errors = [];
         $this->loadErrorsConfig();
     }
 
-    public function addError($error_name,$params = [])
+    public function addError($error_code,$params = [])
     {       
-        $message = $this->getError($error_name,$params);  
-        $this->errors[$error_name] = $message;
+        $message = $this->getError($error_code,$params);  
+        if ($message != false) {
+            array_push($this->errors,$message);
+            return true;
+        }
+        return false;
     }
     
-    public function addErrorMessage($error_name, $message)
-    {       
-        $this->errors[$error_name] = $message;
-    }
-
-    public function errorsCount()
+    public function count()
     {
         return count($this->errors);
     }
 
-    public function hasError($error_name)
+    public function hasError()
     {       
-        if (isset($this->errors[$error_name]) == true) {
-            return true;
-        }
-        return false;
+        return ($this->count() > 0) ? true : false;         
     }
 
     public function getErrors()
@@ -52,9 +49,9 @@ class Errors extends Collection
         return $this->errors;
     }
 
-    public function getError($error_name,$params = []) 
+    public function getError($error_code,$params = []) 
     {
-        $error = $this->get($error_name,false);
+        $error = $this->get($error_code,false);
         if ($error == false) {
             return false;
         }

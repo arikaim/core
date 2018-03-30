@@ -146,7 +146,6 @@ class Install
             return false;
         }
         $user_uuid = $user->getControlPanelUser();
-
         if ($user_uuid == false) {
             $user_uuid = $user->createUser("admin","admin");
             if ($user_uuid == false) {

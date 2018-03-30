@@ -56,14 +56,14 @@ class Mailer
             }
             $message->setTo($to);
         } catch(\Exception $e) {
-            Arikaim::errors()->addErrorMessage("NOT_VALID_EMAIL",$e->getMessage());
+            Arikaim::errors()->addError("SYSTEM_ERROR",['details' => $e->getMessage()]);
         }
         return $message;
     }
 
-    public function messageFromTemplate($component_name, $params = [])
+    public function messageFromTemplate($to, $component_name, $params = [])
     {
-        $message = $this->createMessage($to,$from,$from_name);
+        $message = $this->createMessage($to);
         $body = Arikaim::view()->component()->load($component_name,$params);
         $properties = Arikaim::view()->component()->getComponentProperties($component_name);
       
@@ -73,7 +73,7 @@ class Mailer
         }
         
         if (isset($properties['subject']) == true) {
-            $message->setSubject($properties['subject']);
+            $message->setSubject($properties->get('subject'));
         }
         return $message;
     }

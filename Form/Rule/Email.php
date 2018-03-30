@@ -14,6 +14,11 @@ use Arikaim\Core\Form\AbstractRule;
 class Email extends AbstractRule
 {
     
+    public function __construct($error_code = "EMAIL_NOT_VALID_ERROR") 
+    {
+        parent::__construct(null,null,$error_code);
+    }
+
     public function customFilter($value) 
     {
     } 
@@ -21,11 +26,6 @@ class Email extends AbstractRule
     public function getFilter()
     {       
         return FILTER_VALIDATE_EMAIL;
-    }
-
-    public function getErrorName()
-    {       
-        return "EMAIL_NOT_VALID_ERROR";
     }
 
     public function getFilterOptions()

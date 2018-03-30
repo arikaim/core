@@ -17,21 +17,25 @@ class Unique extends AbstractRule
 {
     protected $model;
     protected $field_name;
-    protected $search_key;
+    protected $except_value;
 
-    public function __construct($model_class_name, $field_name, $search_key = null) 
+    public function __construct($model_class_name, $field_name, $extension_name = null, $except_value = null, $error_code = "VALUE_EXIST_ERROR") 
     {
-        parent::__construct();
+        parent::__construct(null,null,$error_code);
         $this->field_name = $field_name;
-        $this->search_key = $search_key;
-        $this->model = Model::create($model_class_name);        
+        $this->except_value = $except_value;
+        $this->model = Model::create($model_class_name,$extension_name);        
     }
 
     public function customFilter($value) 
     {           
-        $data = $this->model->where($this->field_name,'=',$value)->first();
+        $model = $this->model->where($this->field_name,'=',$value);
+        if ($this->except_value != null) {
+            $model = $model->where($this->field_name,'<>',$this->except_value);
+        }
+        $data = $model->first();
         if (is_object($data) == true) {           
-            $this->setError("VALUE_EXIST_ERROR");
+            $this->setError();
         }
         return $this->isValid();
     } 

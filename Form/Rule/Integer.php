@@ -12,7 +12,12 @@ namespace Arikaim\Core\Form\Rule;
 use Arikaim\Core\Form\AbstractRule;
 
 class Integer extends AbstractRule
-{           
+{          
+    public function __construct($min_value = null, $max_value = null, $error_code = "INT_NOT_VALID_ERROR") 
+    {
+        parent::__construct($min_value,$max_value,$error_code);
+    }
+
     public function customFilter($value) 
     {       
         $this->validateType($value,"INT_NOT_VALID_ERROR",AbstractRule::INT);
@@ -29,12 +34,7 @@ class Integer extends AbstractRule
         $filter = FILTER_CALLBACK; 
         return $filter;
     }
-
-    public function getErrorName()
-    {
-        return "INT_NOT_VALID_ERROR";
-    }
-
+    
     public function getFilterOptions()
     {
         return $this->getCustomFilterOptions();

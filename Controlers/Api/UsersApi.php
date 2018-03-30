@@ -143,4 +143,30 @@ class UsersApi extends ApiControler
         $this->setApiErrors($this->form->getErrors());            
         return $this->getApiResponse(); 
     }
+
+    public function passwordRecovery($request, $response, $args)
+    {
+        $admin_email = Model::Users()->getControlPanelUserEmail();
+        $messages = Arikaim::view()->component()->getComponentProperties('system:admin/password-recovery');
+        $error = $messages->getByPath('errors/email');
+      
+        $this->form->setFields($request->getParsedBody());
+
+        $this->form->addRule('email',Form::Rule()->equal($admin_email,$error));
+        $this->form->addRule('email',Form::Rule()->email($error));
+
+        if ($this->form->validate() == true) {
+            // send email
+            $message = Arikaim::mailer()->messageFromTemplate($admin_email,"system:admin.email-messges.password-recovery");
+            $message->setFrom($admin_email);
+            $result = Arikaim::mailer()->send($message);
+            if ($result == false) {
+                $error = $messages->getByPath('errors/send');
+                $this->setApiError($error);
+                return $this->getApiResponse();
+            }
+        }
+        $this->setApiErrors($this->form->getErrors());
+        return $this->getApiResponse(); 
+    }
 }

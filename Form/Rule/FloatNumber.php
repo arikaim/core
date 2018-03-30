@@ -13,6 +13,11 @@ use Arikaim\Core\Form\AbstractRule;
 
 class FloatNumber extends AbstractRule
 {       
+    public function __construct($min_value = null, $max_value = null, $error_code = "FLOAT_NOT_VALID_ERROR") 
+    {
+        parent::__construct($min_value,$max_value,$error_code);
+    }
+
     public function customFilter($value) 
     {
         $this->validateType($value,"FLOAT_NOT_VALID_ERROR",AbstractRule::FLOAT);
@@ -28,11 +33,6 @@ class FloatNumber extends AbstractRule
         } 
         $filter = FILTER_CALLBACK; 
         return $filter;
-    }
-
-    public function getErrorName()
-    {       
-        return "FLOAT_NOT_VALID_ERROR";
     }
 
     public function getFilterOptions()

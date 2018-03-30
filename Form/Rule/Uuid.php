@@ -14,10 +14,15 @@ use Arikaim\Core\Utils\Utils;
 
 class Uuid extends AbstractRule
 {
+    public function __construct($error_code = "UUID_NOT_VALID_ERROR") 
+    {
+        parent::__construct(null,null,$error_code);
+    }
+
     public function customFilter($value) 
     {
         if (Utils::isValidUUID($value) == false) {
-            $this->setError("UUID_NOT_VALID_ERROR");
+            $this->setError();
         }       
         return $this->isValid();
     } 

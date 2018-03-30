@@ -10,26 +10,20 @@
 namespace Arikaim\Core\Form\Rule;
 
 use Arikaim\Core\Form\AbstractRule;
-use Arikaim\Core\Extension\ExtensionsManager;
-use Arikaim\Core\FileSystem\File;
 
-class ExtensionPath extends AbstractRule
-{  
-    protected $extension_name;
-
-    public function __construct($extension_name, $error_code = "EXTENSION_NOT_EXISTS") 
+class Equal extends AbstractRule
+{    
+    public function __construct($value, $error_code = "NOT_VALID_VALUE_ERROR") 
     {
         parent::__construct(null,null,$error_code);
-        $this->extension_name = $extension_name; 
+        $this->min = $value;
     }
 
     public function customFilter($value) 
-    {           
-        $path = ExtensionsManager::getExtensionsPath();
-        $extension_path = $path . $value;
-        if (File::exists($extension_path) == false) {           
+    { 
+        if ($value != $this->min) {
             $this->setError();
-        } 
+        }
         return $this->isValid();
     } 
 

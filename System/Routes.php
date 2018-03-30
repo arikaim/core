@@ -20,7 +20,7 @@ class Routes
 {
     public static function mapRoutes($app)
     {
-        if (Arikaim::errors()->hasError("DB_CONNECTION_ERROR") == true) {
+        if (Arikaim::errors()->hasError() == true) {
             return $app;
         }
         $routes = Model::Routes()->getRoutes(Model::getConstant('Routes','ACTIVE'));      
@@ -64,7 +64,8 @@ class Routes
         $app->get('/api/session/',"$api_controles_namespace\SessionApi:getInfo")->add($session_auth);
         $app->get('/api/session/restart/',"$api_controles_namespace\SessionApi:restart")->add($jwt_auth);
         // UI Component       
-        $app->get('/api/ui/component/{name}[/{params:.*}]',"$api_controles_namespace\Ui\ComponentApi:loadComponent"); //->add($session_auth);
+        $app->get('/api/ui/component/{name}[/{params:.*}]',"$api_controles_namespace\Ui\ComponentApi:loadComponent");
+        $app->get('/api/ui/component/details/{name}[/]',"$api_controles_namespace\Ui\ComponentApi:componentDetails")->add($jwt_auth);
         // UI Page  
         $app->get('/api/ui/page/{name}',"$api_controles_namespace\Ui\PageApi:loadPage")->add($session_auth);
         $app->get('/api/ui/page/properties/',"$api_controles_namespace\Ui\PageApi:loadPageProperties")->add($session_auth);  
@@ -78,7 +79,7 @@ class Routes
         $app->get('/admin/api/update/check',"$api_controles_namespace\AdminApi:updateCheckVersion")->add($jwt_auth);    
         // Admin user
         $app->post('/admin/api/user/login/',"$api_controles_namespace\UsersApi:adminLogin")->add($session_auth); 
-        $app->post('/admin/api/user/reset-passord',"$api_controles_namespace\UsersApi:resetPassword")->add($jwt_auth); 
+        $app->post('/admin/api/user/passord/recovery/',"$api_controles_namespace\UsersApi:passwordRecovery")->add($session_auth); 
         $app->post('/admin/api/user/',"$api_controles_namespace\UsersApi:changeDetails")->add($jwt_auth);
         $app->get('/admin/api/user/logout/',"$api_controles_namespace\UsersApi:logout");
         // Languages

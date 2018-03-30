@@ -38,9 +38,9 @@ class ApiControler extends Controler
         return $this->api_response->setError($error_message);   
     }
     
-    public function setApiErrors($errors_array)
+    public function setApiErrors(array $errors)
     {
-        return $this->api_response->setErrors($errors_array);
+        return $this->api_response->setErrors($errors);
     }
 
     public function setApiResult($result_code)

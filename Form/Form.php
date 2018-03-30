@@ -19,6 +19,7 @@ class Form extends Collection
     private $rules;   
     private $filters;
     private $errors;
+    private static $self;
 
     public function __construct($fields = null) 
     {
@@ -31,10 +32,12 @@ class Form extends Collection
     public function addRule($field_name,AbstractRule $rule, $required = true) 
     {             
         try {
-            if ($rule instanceof AbstractRule) {                          
-                if ($required != true) $required = false;
-                $this->rules['required'][$field_name] = $required;
-                $this->rules[$field_name] = $rule;
+            if ($rule instanceof AbstractRule) {       
+                $rule->setRequired($required);
+                if (array_key_exists($field_name,$this->rules) == false) {
+                    $this->rules[$field_name] = [];
+                }
+                array_push($this->rules[$field_name],$rule);
                 return true;
             }
         } catch (\Exception $e) {
@@ -47,7 +50,7 @@ class Form extends Collection
     {             
         try {
             if ($filter instanceof AbstractFilter) {
-                if (array_key_exists($field_name,$this->filters) == false ) {
+                if (array_key_exists($field_name,$this->filters) == false) {
                     $this->filters[$field_name] = [];
                 }    
                 array_push($this->filters[$field_name],$filter);               
@@ -89,23 +92,25 @@ class Form extends Collection
         return $this->validate($fields,$on_success,$on_error);
     }
 
+    public function validateRules($field_name, $value)
+    {
+        $rules = $this->getRules($field_name);     
+        foreach ($rules as $rule) {
+            $valid = $rule->validate($value);
+            if ($valid == false) {
+                $error['field_name'] = $field_name;
+                $error['message'] = $rule->getError();
+                $this->addError($error);
+            }
+        }
+    }
+
     public function validate(array $fields = null, \Closure $on_success = null, \Closure $on_error = null)
     {
         $this->errors = [];
         $this->setFields($fields);
         foreach ($this->data as $field_name => $value) {
-            $required = $this->isRequiredRule($field_name);
-            if ((empty($value) == true) && ($required == false)) continue;
-            
-            $rule = $this->getRule($field_name);
-            if ($rule != false) {                
-                $valid = $rule->validate($value);
-                if ($valid == false) {
-                    $error['field_name'] = $field_name;
-                    $error['message'] = $rule->getError();
-                    $this->addError($error);
-                }
-            }
+            $this->validateRules($field_name,$value);
         }
 
         if ($this->isValid() == true) {
@@ -170,20 +175,12 @@ class Form extends Collection
         array_push($this->errors,$error);
     }
 
-    public function isRequiredRule($field_name)
-    {
-        if (isset($this->rules['required'][$field_name]) == true) {
-            return $this->rules['required'][$field_name];
-        }
-        return false;
-    }
-
-    public function getRule($field_name)
+    public function getRules($field_name)
     {
         if (isset($this->rules[$field_name]) == true) {
             return $this->rules[$field_name];
         }
-        return false;
+        return [];
     }
 
     public function getFilters($field_name)

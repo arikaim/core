@@ -21,16 +21,20 @@ class LanguageApi extends ApiControler
     {       
         // access from contorl panel only 
         $this->requireControlPanelPermission();
-        
-        $update = true;    
+        $language = Model::Language();
+
+        $update = false;    
         $this->form->setFields($request->getParsedBody());       
         $uuid = $this->form->get('uuid');
-        if (empty($uuid) == true) {
-            // add record rules
-            $this->form->addRule('code',Form::Rule()->unique('Language','code'));
-            $this->form->addRule('code_3',Form::Rule()->unique('Language','code_3'));  
-            $update = false;    
-        }
+        if (empty($uuid) == false) {
+            // edit record rules
+            $update = true;
+            $language = $language->where('uuid',$uuid)->first();
+        } 
+
+        $this->form->addRule('code',Form::Rule()->unique('Language','code',null,$language->code)); 
+        $this->form->addRule('code_3',Form::Rule()->unique('Language','code_3',null,$language->code_3)); 
+
         $this->form->addRule('title',Form::Rule()->text(2));
         $this->form->addRule('native_title',Form::Rule()->text(2),false);
         $this->form->addRule('code',Form::Rule()->text(2,2));
@@ -39,10 +43,8 @@ class LanguageApi extends ApiControler
 
         if ($this->form->validate() == true) {
             try {               
-                $language = Model::Language();
                 if ($update == true) {       
                     // update record
-                    $language = $language->where('uuid',$uuid)->first();           
                     $result = $language->update($this->form->toArray());                                      
                 } else {
                     // add record 

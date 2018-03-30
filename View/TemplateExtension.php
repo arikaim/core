@@ -36,7 +36,7 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
         return array(
             // html components
             new \Twig_SimpleFunction('component', [Arikaim::view()->component(), 'load'], ['needs_environment' => false,'is_safe' => ['html']]),
-            new \Twig_SimpleFunction('componentProperties', [Arikaim::view()->component(), 'getComponentProperties']),
+            new \Twig_SimpleFunction('componentProperties', [$template_function, 'getComponentProperties']),
             
             // page
             new \Twig_SimpleFunction('getPageJsFiles', ["\\Arikaim\\Core\\View\\Html\\Page", 'getPageJsFiles']),

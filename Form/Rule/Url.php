@@ -13,6 +13,11 @@ use Arikaim\Core\Form\AbstractRule;
 
 class Url extends AbstractRule
 {       
+    public function __construct($error_code = "URL_NOT_VALID_ERROR") 
+    {
+        parent::__construct(null,null,$error_code);
+    }
+
     public function customFilter($value) 
     {       
     } 
@@ -21,12 +26,7 @@ class Url extends AbstractRule
     {       
         return FILTER_VALIDATE_URL;
     }
-
-    public function getErrorName()
-    {
-        return "URL_NOT_VALID_ERROR";
-    }
-
+    
     public function getFilterOptions()
     {
         return [];
