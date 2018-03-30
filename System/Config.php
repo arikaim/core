@@ -19,10 +19,9 @@ class Config extends Collection implements \ArrayAccess
     private $file_name;
     private $root_path;
 
-    public function __construct($file_name = null, $root_path = null) 
+    public function __construct($file_name = null) 
     {
         parent::__construct();  
-        $this->root_path = $root_path;
         if ($file_name != null) {  
             $this->loadConfig($file_name);
             $this->file_name = $file_name;
@@ -36,8 +35,6 @@ class Config extends Collection implements \ArrayAccess
         }
         $config = $this->includeConfigFile($file_name); 
         if (is_array($config) == false) {   
-            echo $this->getConfigPath();
-
             $this->showError();
         }
         $this->data = $config;
@@ -144,10 +141,7 @@ class Config extends Collection implements \ArrayAccess
 
     public function getConfigPath() 
     {
-        if (empty($this->root_path) == true) {
-            return Arikaim::getRootPath() . Arikaim::getBasePath() . DIRECTORY_SEPARATOR . 'arikaim' . DIRECTORY_SEPARATOR . 'config';
-        }
-        return $this->root_path . DIRECTORY_SEPARATOR . 'config';
+        return Arikaim::getRootPath() . Arikaim::getBasePath() . DIRECTORY_SEPARATOR . 'arikaim' . DIRECTORY_SEPARATOR . 'config';
     }
 
     private function getFileName($file_name) {

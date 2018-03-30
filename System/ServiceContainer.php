@@ -95,7 +95,7 @@ class ServiceContainer
         };
         // Config
         $this->container['config'] = function() {                 
-            $config = new \Arikaim\Core\System\Config("config.php",Utils::constant('ARIKAIM_PATH'));
+            $config = new \Arikaim\Core\System\Config("config.php");
             return $config;
         };
         // Errors  
