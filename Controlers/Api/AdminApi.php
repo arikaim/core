@@ -126,7 +126,7 @@ class AdminApi extends ApiControler
         $message->setFrom($user->email);
         $result = Arikaim::mailer()->send($message);
         if ($result == false) {
-            $this->setApiErrors('Error send test email!');
+            $this->setApiError('Error send test email!');
             return $this->getApiResponse();
         }
         return $this->getApiResponse();
