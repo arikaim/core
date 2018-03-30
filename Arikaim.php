@@ -125,6 +125,9 @@ class Arikaim
 
     public static function getConsoleRootPath()
     {
+        if (defined('ARIKAIM_PATH') == true) {
+            return ARIKAIM_PATH;
+        }
         return dirname(dirname(__DIR__));
     }
 
