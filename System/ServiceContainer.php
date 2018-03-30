@@ -12,12 +12,14 @@ namespace Arikaim\Core\System;
 use Arikaim\Container\Container;
 use Slim\Collection;
 use Slim\DefaultServicesProvider;
+
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Template;
 use Arikaim\Core\Events\EventsManager;
 use Arikaim\Core\System\Session;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Utils\Factory;
+use Arikaim\Core\Utils\Utils;
 
 class ServiceContainer
 {
@@ -92,8 +94,8 @@ class ServiceContainer
             return $loader;
         };
         // Config
-        $this->container['config'] = function() {
-            $config = new \Arikaim\Core\System\Config("config.php");
+        $this->container['config'] = function() {                 
+            $config = new \Arikaim\Core\System\Config("config.php",Utils::constant('ARIKAIM_PATH'));
             return $config;
         };
         // Errors  

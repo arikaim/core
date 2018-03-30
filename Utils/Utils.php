@@ -93,6 +93,11 @@ class Utils
         return false;
     }
     
+    public static function constant($name, $default_value = null)
+    {
+        return (defined($name) == true) ? constant($name) : $default_value; 
+    }
+
     public static function convertPathToUrl($file_path) 
     {
         return str_replace('\\','/',$file_path);
@@ -199,5 +204,13 @@ class Utils
             $text = substr($text, 3);
         }
         return $text;
+    }
+
+    public static function isEmpty($value)
+    {       
+        if (is_object($value) == true) {
+            return empty((array) $value);    
+        }
+        return empty($value);
     }
 }

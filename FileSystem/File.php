@@ -10,7 +10,6 @@
 namespace Arikaim\Core\FileSystem;
 
 use Arikaim\Core\Utils\Utils;
-use Arikaim\Core\System\Config;
 use Arikaim\Core\System\Errors;
 use Arikaim\Core\Arikaim;
 
@@ -36,7 +35,7 @@ class File
 
     public static function readConfigFile($file_name) 
     {
-        return File::readJSONFile(Config::getConfigPath() . DIRECTORY_SEPARATOR . $file_name);
+        return File::readJSONFile(Arikaim::config()->getConfigPath() . DIRECTORY_SEPARATOR . $file_name);
     }
 
     public static function scanDir($path,\Closure $callback) 

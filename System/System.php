@@ -289,6 +289,11 @@ class System
         }
     }
 
+    public static function getScriptPath()
+    {
+        return realpath(dirname(__FILE__));
+    }
+    
     public static function getStoreUrl()
     {
         return "http://store.arikaim.com/";

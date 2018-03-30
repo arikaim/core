@@ -192,6 +192,8 @@ class Install
         Arikaim::options()->set('mailer.smpt.host','',true);
         Arikaim::options()->set('mailer.username','',true);
         Arikaim::options()->set('mailer.password','',true);
+        // email settings
+        Arikaim::options()->set('mailer.from.email','',false);
         // logger
         Arikaim::options()->set('logger',true,true);
         Arikaim::options()->set('logger.stats',true,true);

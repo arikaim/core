@@ -48,13 +48,17 @@ class Mailer
         $message = new \Swift_Message();
         try {
             if ($from == null) {
-                $from = Arikaim::options('mailer.from.email');
+                $from = Arikaim::options()->get('mailer.from.email',null);
             }
             $message->setContentType('text/plain');
             if (empty($from) == false) {
                 $message->setFrom($from,$from_name);
-            }
+            } 
             $message->setTo($to);
+            $message->setReplyTo($to);
+            if (empty($to) == true) {
+                Arikaim::errors()->addError("SYSTEM_ERROR",['details' => 'Missing email to']);
+            }
         } catch(\Exception $e) {
             Arikaim::errors()->addError("SYSTEM_ERROR",['details' => $e->getMessage()]);
         }
@@ -64,16 +68,23 @@ class Mailer
     public function messageFromTemplate($to, $component_name, $params = [])
     {
         $message = $this->createMessage($to);
+      
         $body = Arikaim::view()->component()->load($component_name,$params);
         $properties = Arikaim::view()->component()->getComponentProperties($component_name);
-      
+       
+
         $message->setBody($body);
         if (Utils::hasHtml($body) == true) {
             $message->setContentType('text/html');
         }
+        $subject = $properties->get('subject');
         
-        if (isset($properties['subject']) == true) {
-            $message->setSubject($properties->get('subject'));
+        $message->setSubject($subject);
+        if (empty($subject) == true) {
+            Arikaim::errors()->addError("SYSTEM_ERROR",['details' => 'Missing email subject']);
+        }
+        if (empty($body) == true) {
+            Arikaim::errors()->addError("SYSTEM_ERROR",['details' => 'Missing email body']);
         }
         return $message;
     }
