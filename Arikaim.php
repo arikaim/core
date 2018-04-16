@@ -24,15 +24,44 @@ use Arikaim\Core\Interfaces\CollectionInterface;
  */
 class Arikaim  
 {
+    /**
+     * Slim application object
+     * 
+     * @var object
+    */
     private static $app;
+    
+    /**
+     * Service container 
+     * 
+     * @var object
+    */
     private static $container;
+
+    /**
+     * Uri
+     * 
+     * @var object
+    */
     private static $uri;
 
+    /**
+     * Get Slim application object
+     *
+     * @return [object]
+    */
     public static function getApp()
     {
         return Self::$app;
     }
-    
+
+    /**
+     * Get container service
+     *
+     * @param string $name Service name
+     * @param array $arguments Service params
+     * @return mixed service
+    */
     public static function __callStatic($name, $arguments)
     {    
         $service = null;
@@ -63,29 +92,44 @@ class Arikaim
         return $service;
     }
     
+    /**
+     * Check if core mudule exists
+     *
+     * @param string $name Module name.
+     * @return boolean
+    */
     public static function hasModule($name)
     {
         return Self::$container->has($name);
     }
 
+    /**
+     * Return service container object.
+     *
+     * @return object
+    */
     public static function getContainer()
     {
         return Self::$container;
     }
 
+    /**
+     * Register Arikaim class loader.
+     *
+     * @return void
+    */
     public static function registerLoader()
     {
-        // init uri 
         Self::$uri = Uri::createFromEnvironment(new Environment($_SERVER));
         $loader = new \Arikaim\Core\System\ClassLoader(Self::getBasePath(),Self::getRootPath());
         $loader->register();
     }
 
     /**
-     * Create 
+     * Initialize Arikaim system. Create container services, load system routes 
      *
      * @return void
-     */
+    */
     public static function create() 
     {        
         Self::registerLoader();
@@ -105,24 +149,46 @@ class Arikaim
         // map routes
         Self::$app = Routes::mapSystemRoutes(Self::$app);
     }
-  
+
+    /**
+     * Start Arikaim
+     *
+     * @return void
+    */
     public static function run() 
     {
         Self::create();
         Self::$app->run();
     }
     
+    /**
+     * Force garbage collector before exit
+     *
+     * @return void
+     */
     public static function end() 
     {
         gc_collect_cycles();            
         exit(0);
     }
 
-    public static function getError($error_name,$params = []) 
+    /**
+     * Return error message
+     *
+     * @param string $error_code Error code
+     * @param array $params Erorr params
+     * @return string
+    */
+    public static function getError($error_code,array $params = []) 
     {
-        return Self::errors()->getError($error_name,$params);
+        return Self::errors()->getError($error_code,$params);
     }
 
+    /**
+     * Return console root path.
+     *
+     * @return string
+    */
     public static function getConsoleRootPath()
     {
         if (defined('ARIKAIM_PATH') == true) {
@@ -136,6 +202,11 @@ class Arikaim
         return ""; 
     }
 
+    /**
+     * Return root path.
+     *
+     * @return string
+    */
     public static function getRootPath() 
     {
         if (Self::isConsole() == false) {
@@ -145,40 +216,67 @@ class Arikaim
         return Self::getConsoleRootPath();
     }
 
+    /**
+     * Return base path.
+     *
+     * @return string
+    */
     public static function getBasePath() 
     {        
         if (Self::isConsole() == false) {
             $path = rtrim(str_ireplace('index.php','',Self::$uri->getBasePath()), DIRECTORY_SEPARATOR);
-            if ($path == "/") {
-                $path = "";
-            }
+            $path = ($path == "/") ? "" : $path;               
         } else {
             $path = Self::getConsoleBasePath();
         }
         return $path;
     }
 
+    /**
+     * Return Arikaim system path.
+     *
+     * @return string
+    */
     public static function getArikaimPath()
     {
         return Self::getRootPath() . Self::getBasePath() . DIRECTORY_SEPARATOR . 'arikaim'; 
     }
 
+    /**
+     * Return core modules path.
+     *
+     * @return string
+    */
     public static function getModulesPath()
     {
         return Self::getArikaimPath() . DIRECTORY_SEPARATOR . 'modules'; 
     }
 
+    /**
+     *  Return view path.
+     *
+     * @return string
+    */
     public static function getViewPath() 
     {
-        return Self::getRootPath() . Self::getBasePath() . DIRECTORY_SEPARATOR . 'arikaim' . DIRECTORY_SEPARATOR . 'view';       
-    }
-    
-    public static function getViewURL() 
-    {
-        $path = join('/',array(Self::getBaseUrl(),'arikaim','view'));
-        return $path;
+        return Self::getArikaimPath() . DIRECTORY_SEPARATOR . 'view';       
     }
 
+    /**
+     * Return view url.
+     *
+     * @return string
+    */
+    public static function getViewURL() 
+    {
+        return Self::getBaseUrl() . '/arikaim/view';
+    }
+
+    /**
+     * Return domain url.
+     *
+     * @return string
+    */
     public static function getDomain() 
     {
         $scheme = Self::$uri->getScheme();
@@ -187,16 +285,23 @@ class Arikaim
         return $domain;
     }
 
+    /**
+     * Return base url.
+     *
+     * @return string
+    */
     public static function getBaseUrl() 
     {       
         return Self::getDomain() . Self::getBasePath();       
     }
 
+    /**
+     * Return true if script is run from console.
+     *
+     * @return boolean
+    */
     public static function isConsole()
     {
-        if (php_sapi_name() == "cli") {
-           return true;
-        }
-        return false;
+        return (php_sapi_name() == "cli") ? true : false;         
     }    
 }

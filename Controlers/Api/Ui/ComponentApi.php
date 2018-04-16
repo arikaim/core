@@ -14,6 +14,9 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Paginator;
 use Arikaim\Core\Utils\Utils;
 
+/**
+ * Component Api controler
+*/
 class ComponentApi extends ApiControler
 {
     public function componentDetails($request, $response, $args)

@@ -11,10 +11,18 @@ namespace Arikaim\Core\Models\Schema;
 
 use Arikaim\Core\Db\Schema;
 
+/**
+ * Routes database table schema definition.
+*/
 class RoutesSchema extends Schema  
 {    
     protected $table_name = "routes";
 
+    /**
+     * Ceate table
+     *
+     * @return void
+     */
     public function create() 
     {
         $this->createTable(function($table) {
@@ -32,7 +40,7 @@ class RoutesSchema extends Schema
             $table->integer('status')->nullable(false)->default(1);
             $table->integer('auth')->nullable(false)->default(0);
             $table->string('required_permission')->nullable(true);
-            $table->string('permission_type',20)->nullable(true);
+            $table->string('permission_type')->nullable(true);
             $table->integer('type')->nullable(false)->default(0);
             $table->string('uuid')->nullable(false);
             // indexes           
@@ -46,6 +54,11 @@ class RoutesSchema extends Schema
         });
     }
 
+    /**
+     * Modify table
+     *
+     * @return void
+     */
     public function update()
     {
         $this->updateTable(function($table) {            

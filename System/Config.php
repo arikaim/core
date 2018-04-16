@@ -14,11 +14,13 @@ use Arikaim\Core\Form\Properties;
 use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Utils\Collection;
 
+/**
+ * Config file helper
+ */
 class Config extends Collection implements \ArrayAccess 
 {
     private $file_name;
-    private $root_path;
-
+  
     public function __construct($file_name = null) 
     {
         parent::__construct();  

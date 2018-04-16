@@ -13,15 +13,32 @@ use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model as DbModel;
 use Arikaim\Core\Db\UUIDAttribute;
+use Arikaim\Core\Db\DateTimeUpdate;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Access\Access;
+use Arikaim\Core\Utils\DateTime;
 
+/**
+ * Users database model
+*/
 class Users extends Model  
 {
     use UUIDAttribute;
 
-    protected $fillable = ['id','user_name','email','password','uuid','api_key','api_secret'];
+    protected $fillable = [
+        'id',
+        'user_name',
+        'email',
+        'password',
+        'uuid',
+        'api_key',
+        'api_secret',
+        'access_key',
+        'access_key_expire',
+        'last_login',
+        'created'];
+
     public $timestamps = false;
     
     public function userNameExist($user_name) 
@@ -65,10 +82,7 @@ class Users extends Model
 
     public function isLoged() 
     {
-        if ($this->getCurrentUser() > 0)  {
-            return true;
-        }
-        return false;
+        return ($this->getCurrentUser() > 0) ? true : false;  
     }
     
     public function isLogedAdminUser() 
@@ -139,8 +153,7 @@ class Users extends Model
 
     public function hasControlPanelUser() 
     {
-        $user = $this->getControlPanelUser();
-        return ($user == false) ? false : true;
+        return ($this->getControlPanelUser() == false) ? false : true;
     }
 
     public function EncryptPassword($password, $algo = PASSWORD_BCRYPT) 
@@ -197,8 +210,8 @@ class Users extends Model
         $info['email'] = $email;
         $info['api_key'] = Utils::getUUID();
         $info['api_secret'] = Utils::getRandomKey();
-        $info['created_at'] = time();
-
+        $infp['created'] = DateTime::getCurrentTime();
+        
         $this->fill($info);
         try {
             $result = $this->save();
@@ -222,4 +235,46 @@ class Users extends Model
         $model->password = $this->EncryptPassword($password);    
         return $model->save();
     }    
+
+    public function createAccessKey($uuid, $expire_period = 1800)
+    {
+        if ($expire_period < 1000) {
+            $expire_period = 1000;
+        }
+        $model = $this->where('uuid','=',$uuid)->first();
+        if (is_object($model) == true) {
+            $model->access_key = Utils::getUUID();
+            $model->access_key_expire = time() + $expire_period;
+            $result = $model->save();
+            return ($result == true) ? $model->access_key : false;
+        }
+        return false;
+    }
+
+    public function validateAccessKey($access_key)
+    {
+        $model = $this->where('access_key','=',$access_key)->first();
+        if (is_object($model) == false) {
+            // not valid access key
+            return false;
+        }
+        if (time() > $model->access_key_expire) {
+            // expired
+            return false;
+        }
+        return true;
+    }
+
+    public function getAccessKey($uuid)
+    {
+        $model = $this->where('uuid','=',$uuid)->first();
+        if (is_object($model) == false) {
+            return false;
+        }
+        if (time() > $model->access_key_expire) {
+            // expired
+            return false;
+        }
+        return $model->access_key;
+    }
 }

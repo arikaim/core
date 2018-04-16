@@ -13,6 +13,9 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Condition;
 use Arikaim\Core\Utils\Utils;
 
+/**
+ * Database search
+*/
 class Search 
 {    
     private $search;

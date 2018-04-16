@@ -11,6 +11,9 @@ namespace Arikaim\Core\Db;
 
 use Arikaim\Core\Arikaim;
 
+/**
+ * Create pages for database result
+*/
 class Paginator 
 {    
     public static function getRowsPerPage()
@@ -33,13 +36,17 @@ class Paginator
     public static function getCurrentPage()
     {
         $page = Arikaim::session()->get('paginator.current.page');
-        if ((isset($page) == false) || ($page < 1)) $page = 1;
+        if ((isset($page) == false) || ($page < 1)) {
+            $page = 1;
+        }
         return $page;
     }
 
     public static function setCurrentPage($page)
     {
-        if ($page < 1) $page = 1;
+        if ($page < 1) {
+            $page = 1;
+        }
         $page = Arikaim::session()->set('paginator.current.page',$page);       
     }
 
@@ -62,14 +69,18 @@ class Paginator
     public static function getPrevPage()
     {
         $page = Self::getCurrentPage() - 1;
-        if ($page < 1) $page = 1;
+        if ($page < 1) {
+            $page = 1;
+        }
         return $page;
     }
 
     public static function getNextPage($max_pages)
     {
         $page = Self::getCurrentPage() + 1;
-        if ($page > $max_pages) $page = $max_pages;
+        if ($page > $max_pages) {
+            $page = $max_pages;
+        }
         return $page;
     }
 }

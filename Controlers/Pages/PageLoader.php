@@ -13,10 +13,12 @@ use Arikaim\Core\Db\Model;
 use Arikaim\Core\System\Install;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Controlers\Controler;
-use Arikaim\Core\System\Config;
 use Arikaim\Core\View\Template;
 use Arikaim\Core\Utils\Arrays;
 
+/**
+ * Page loader controler
+*/
 class PageLoader extends Controler 
 {
     public function __construct() 
@@ -89,6 +91,17 @@ class PageLoader extends Controler
         }        
         $params = ['page' => 'system:admin','loged_in' => $loged_in];
         return $this->loadPage($request,$response,Arrays::merge($params,$args));    
+    }
+
+    public function loadChangePassword($request, $response, $args)
+    {
+        if (isset($args['code']) == true) {
+            $code = $args['code'];
+            $params = ['page' => 'system:admin/change-password'];
+            return $this->loadPage($request,$response,Arrays::merge($params,$args));
+        } 
+        Arikaim::page()->load("system-error",$args);
+        return $response;
     }
 
     public function pageNotFound($request, $response, $args = []) 

@@ -13,6 +13,9 @@ use Arikaim\Core\Controlers\ApiControler;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Form\Form;
 
+/**
+ * Session controler
+*/
 class SessionApi extends ApiControler
 {
     public function setValue($request, $response, $args) 

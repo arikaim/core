@@ -19,6 +19,9 @@ use Arikaim\Core\Utils\Mobile;
 use Arikaim\Core\View\Html\Component;
 use Arikaim\Core\Interfaces\View\ComponentInterface;
 
+/**
+ *  Base html component
+ */
 class BaseComponent   
 {
     protected $options;
@@ -187,7 +190,7 @@ class BaseComponent
         return $files;
     }
 
-    public function create($name, $root_path, $language = null)
+    public function create($name, $root_path, $language = null, $with_options = true)
     {
         $this->framework = Template::getCurrentFramework();
         
@@ -225,7 +228,9 @@ class BaseComponent
         $component->setProperties($this->loadComponentProperties($component)->toArray());
         $component->setHtmlCode("");
 
-        $component = $this->processOptions($component);            
+        if ($with_options == true) {
+            $component = $this->processOptions($component);
+        }            
         return $component;
     }
 
@@ -241,7 +246,6 @@ class BaseComponent
         if ($file_name === false) {
             return false;
         }
-
         $file['file_name'] = $file_name;
         $file['path'] = $this->getPath($component,false); 
         $file['full_path'] = $this->getPath($component,true);   

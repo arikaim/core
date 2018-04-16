@@ -11,6 +11,9 @@ namespace Arikaim\Core\Controlers;
 
 use Arikaim\Core\Arikaim;
 
+/**
+ * Base class for all controlers
+*/
 class Controler
 {
     const PAGE = 1;

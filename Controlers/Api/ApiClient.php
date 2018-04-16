@@ -13,6 +13,9 @@ use Arikaim\Core\Controlers\ApiControler;
 use Arikaim\Core\Form\Form;
 use Arikaim\Core\Db\Model;
 
+/**
+ * Api client controler
+*/
 class ApiClient extends ApiControler
 {
     public function createToken($request, $response, $args) 

@@ -15,6 +15,9 @@ use Arikaim\Core\Db\Model;
 use Arikaim\Core\Extension\ExtensionsManager;
 use Arikaim\Core\Arikaim;
 
+/**
+ * Extensions Api controler
+*/
 class ExtensionsApi extends ApiControler
 {
     
@@ -59,7 +62,7 @@ class ExtensionsApi extends ApiControler
     {
         $this->requireControlPanelPermission();
 
-        $this->form->addRule('name',Form::Rule()->extensionPath($args['name']));
+        $this->form->addRule('name',Form::Rule()->exists('Extensions','name'));
    
         if ($this->form->validate($args) == true) {
             $extension_manager = new ExtensionsManager();

@@ -14,6 +14,9 @@ use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 
+/**
+ * JSON Web Token Authentication
+*/
 class Jwt
 {
     private $token;

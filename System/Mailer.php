@@ -69,16 +69,15 @@ class Mailer
     {
         $message = $this->createMessage($to);
       
-        $body = Arikaim::view()->component()->load($component_name,$params);
-        $properties = Arikaim::view()->component()->getComponentProperties($component_name);
-       
+        $component = Arikaim::view()->component()->render($component_name,$params,null,false);
+        $properties = $component->getProperties();
+        $body = $component->getHtmlCode();
 
         $message->setBody($body);
         if (Utils::hasHtml($body) == true) {
             $message->setContentType('text/html');
         }
-        $subject = $properties->get('subject');
-        
+        $subject = (isset($properties['subject']) == true) ? $properties['subject'] : "";
         $message->setSubject($subject);
         if (empty($subject) == true) {
             Arikaim::errors()->addError("SYSTEM_ERROR",['details' => 'Missing email subject']);

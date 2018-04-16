@@ -18,6 +18,9 @@ use Arikaim\Core\Form\Properties;
 use Arikaim\Core\Extension\ExtensionsManager;
 use Arikaim\Core\Db\Model;
 
+/**
+ * Html Template
+*/
 class Template
 {
     const USER      = 1;
@@ -239,7 +242,15 @@ class Template
 
     public static function getMacroPath($macro_name, $template_name = null)
     {
+        if (empty($template_name) == true) {
+            $template_name = Self::getTemplateName();
+        }
         return DIRECTORY_SEPARATOR . $template_name . DIRECTORY_SEPARATOR . "macros" . DIRECTORY_SEPARATOR . $macro_name;
+    }
+
+    public static function getExtensionMacroPath($macro_name, $extension_name)
+    {
+        return ExtensionsManager::getExtensionMacrosPath($extension_name,false) . $macro_name;       
     }
 
     public static function getSystemMacroPath($macro_name)
@@ -280,7 +291,6 @@ class Template
         if ($type == Self::SYSTEM) {
             $template_name = Self::SYSTEM_TEMPLATE_NAME;
         }
-
         if ($template_name == Self::SYSTEM) {
             $template_name = Self::SYSTEM_TEMPLATE_NAME;              
         }
@@ -321,6 +331,12 @@ class Template
         return $language;
     }
     
+    /**
+     * Set current language
+     *
+     * @param string $language_code Language code
+     * @return string
+     */
     public static function setLanguage($language_code) 
     {
         Arikaim::session()->set('language',$language_code);
@@ -328,11 +344,22 @@ class Template
         return $language_code;
     }
 
+    /**
+     * Set current front end framework.
+     *
+     * @param string $library_name UI library name
+     * @return void
+     */
     public static function setCurrentFramework($library_name)
     {
         Arikaim::session()->set("current.framework",$library_name);
     }
 
+    /**
+     * Return current front end framework used in page
+     *
+     * @return string
+     */
     public static function getCurrentFramework()
     {
         $framework = Arikaim::session()->get("current.framework");

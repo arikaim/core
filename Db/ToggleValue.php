@@ -9,11 +9,17 @@
 */
 namespace Arikaim\Core\Db;
 
+/**
+ * Update boolean database values (true or false)
+*/
 trait ToggleValue 
 {       
-    public static function toggleValue($uuid, $field_name)
+    public function toggleValue($uuid, $field_name)
     {        
         $model = parent::where('uuid','=',$uuid)->first();
+        if (is_object($model) == false) {
+            return false;
+        }
         $current_value = $model->getAttribute($field_name);
         if ($current_value == 0) {
             $value = 1;

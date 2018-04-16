@@ -11,10 +11,18 @@ namespace Arikaim\Core\Models\Schema;
 
 use Arikaim\Core\Db\Schema;
 
+/**
+ * Options database table schema definition.
+*/
 class OptionsSchema extends Schema  
 {    
     protected $table_name = "options";
 
+    /**
+     * Create table
+     *
+     * @return void
+     */
     public function create() 
     {
         $this->createTable(function($table) {
@@ -33,6 +41,11 @@ class OptionsSchema extends Schema
         });
     }
 
+    /**
+     * Modify table
+     *
+     * @return void
+     */
     public function update() 
     {
         $this->updateTable(function($table) {  

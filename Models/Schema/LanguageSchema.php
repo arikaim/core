@@ -11,10 +11,18 @@ namespace Arikaim\Core\Models\Schema;
 
 use Arikaim\Core\Db\Schema;
 
+/**
+ * Language database table schema definition.
+ */
 class LanguageSchema extends Schema  
 {    
     protected $table_name = "language";
 
+    /**
+     * Create table
+     *
+     * @return void
+     */
     public function create() 
     {
         $this->createTable(function($table) {
@@ -44,6 +52,11 @@ class LanguageSchema extends Schema
         });
     }
 
+    /**
+     * Modify table
+     *
+     * @return void
+     */
     public function update() 
     {
         $this->updateTable(function($table) {

@@ -9,6 +9,9 @@
 */
 namespace Arikaim\Core\Db;
 
+/**
+ * Update position field
+*/
 trait Position 
 {    
     public abstract function getModel();

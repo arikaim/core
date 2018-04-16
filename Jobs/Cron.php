@@ -162,8 +162,7 @@ class Cron implements QueueServiceInterface
 
     public function pushCommands(array $commands) 
     {
-        $output = shell_exec('echo "'. Arrays::toString($commands).'" | crontab -');
-        return $output; 
+        return shell_exec('echo "'. Arrays::toString($commands).'" | crontab -');
     }
 
     public function removeCommand($command) 

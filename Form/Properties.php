@@ -11,9 +11,9 @@ namespace Arikaim\Core\Form;
 
 use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Utils\Arrays;
-use Arikaim\Core\Form\Form;
+use Arikaim\Core\Utils\Collection;
 
-class Properties extends Form
+class Properties extends Collection
 {
     public function __construct($json_file_name = null, $root_element = null, $vars = null) 
     {
@@ -48,11 +48,6 @@ class Properties extends Form
             }
         }
         return true;
-    }
-
-    public function clear()
-    {
-        $this->data = [];
     }
 
     public function getByPath($path, $default_value = null)

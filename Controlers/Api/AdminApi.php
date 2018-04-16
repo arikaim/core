@@ -19,6 +19,9 @@ use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Module\ModulesManager;
 
+/**
+ * Control Panel controler
+*/
 class AdminApi extends ApiControler
 {
     public function install($request, $response, $args) 
@@ -65,6 +68,7 @@ class AdminApi extends ApiControler
     public function update($request, $response, $args) 
     {           
         $this->requireControlPanelPermission();
+
         $update = new Update();
         $result = $update->update();
         return $this->getApiResponse();
@@ -78,6 +82,7 @@ class AdminApi extends ApiControler
     public function clearLogs($request, $response, $args)
     {
         $this->requireControlPanelPermission();
+
         $result = Arikaim::logger()->deleteSystemLogs();
         if ($result == false) {
             $this->setApiErrors(Arikaim::errors()->getError("DELETE_FILE_ERROR"));
@@ -96,6 +101,7 @@ class AdminApi extends ApiControler
     public function updateQueueWorkerJobs($request, $response, $args)
     {
         $this->requireControlPanelPermission();
+        
         Arikaim::jobs()->update();
         return $this->getApiResponse();
     }
@@ -103,6 +109,7 @@ class AdminApi extends ApiControler
     public function updateModules($request, $response, $args)
     {
         $this->requireControlPanelPermission();
+
         $modules = new ModulesManager();
         $result = $modules->install();
         return $this->getApiResponse();
@@ -111,6 +118,7 @@ class AdminApi extends ApiControler
     public function sendTestEmail($request, $response, $args)
     {
         $this->requireControlPanelPermission();
+
         $user = Model::Users()->getLogedUser();
         if ($user == false) {
             $this->setApiErrors('Not loged in!');

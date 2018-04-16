@@ -11,6 +11,9 @@ namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Utils\Utils;
 
+/**
+ * Api Client Response
+*/
 class ApiClientResponse
 {
     private $response_text;

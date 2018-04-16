@@ -14,6 +14,9 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Access\Jwt;
 
+/**
+ * Manage access.
+ */
 class Access 
 {
     // route auth type
@@ -23,7 +26,7 @@ class Access
     const AUTH_JWT          = 3;
     const AUTH_CUSTOM_TOKEN = 4;
 
-    // permissions
+    // permissions type
     const FULL = ['read','write','delete','execute'];
     const READ = ['read'];
     const WRITE = ['write'];
@@ -44,6 +47,12 @@ class Access
         $this->initToken();
     }
     
+    /**
+     * Return class constant value
+     *
+     * @param string $constant_name Constant name.
+     * @return mixed
+    */
     public function get($constant_name)
     {
         return constant("Self::" . $constant_name);
@@ -80,18 +89,12 @@ class Access
 
     public function isJwtAuth()
     {
-        if ($this->getTokenAuthType() == Self::AUTH_JWT) {
-            return true;
-        }
-        return false;
+        return ($this->getTokenAuthType() == Self::AUTH_JWT) ? true : false;
     }
 
     public function isSessionAuth()
     {
-        if ($this->getTokenAuthType() == Self::AUTH_SESSION) {
-            return true;
-        }
-        return false;
+        return ($this->getTokenAuthType() == Self::AUTH_SESSION) ? true : false;          
     }
 
     public function getToken()
@@ -158,30 +161,29 @@ class Access
 
     public function getAuthName($auth)
     {
-        if (isset($this->auth_names[$auth]) == true) {
-            return $this->auth_names[$auth];
-        }        
-        return false;
+        return (isset($this->auth_names[$auth]) == true) ? $this->auth_names[$auth] : false;          
     }
 
     public function getAuthType($auth_name)
     {
         $key = array_search($auth_name,$this->auth_names);
-        if ($key === false) { 
-            $key = 0;
-        }
-        return $key;
+        return ($key === false) ? 0 : $key;           
     }
 
     public function isValidAuthName($auth_name)
     {
         $key = array_search($auth_name,$this->auth_names);
-        if ($key === false) {
-            return false;
-        }
-        return true;
+        return ($key === false) ? false : true;           
     }
 
+    /**
+     * Create auth token.
+     *
+     * @param int $user_id User Id
+     * @param string $user_uuid User uuid
+     * @param int $type Token type
+     * @return object
+     */
     public function createToken($user_id, $user_uuid, $type = Self::JWT_TOKEN) 
     {
         $jwt = new Jwt();
@@ -192,10 +194,10 @@ class Access
     }
 
     /**
-     * Get token
+     * Get token from request header
      *
      * @param \Psr\Http\Message\RequestInterface $request
-     * @return string|null Base64 encoded JSON Web Token, Session ID or false if not found.
+     * @return string|false Base64 encoded JSON Web Token, Session ID or false if not found.
      */
     protected function readToken($request)
     {
@@ -239,6 +241,11 @@ class Access
         return $result;
     }
 
+    /**
+     * Return true if JWT token have valid user id 
+     *
+     * @return boolean
+    */
     public function isValidUser()
     {
         if ($this->isValidToken() == false) {
@@ -250,10 +257,7 @@ class Access
         $uuid = $this->getTokenParam('uuid');
 
         $id = $model->validUUID($uuid);
-        if ($id == $user_id) {
-            return true;
-        }
-        return false;
+        return ($id == $user_id) ? true : false;
     }
 
     public function hasControlPanelAccess($uuid = null)

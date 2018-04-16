@@ -14,6 +14,9 @@ use Arikaim\Core\Api\ApiResponse;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Controlers\Controler;
 
+/**
+ * Base class for all Api controlers
+*/
 class ApiControler extends Controler
 {    
     protected $form;
@@ -43,8 +46,8 @@ class ApiControler extends Controler
         return $this->api_response->setErrors($errors);
     }
 
-    public function setApiResult($result_code)
+    public function setApiResult($result_code, $pretty_format = false)
     {     
-        $this->api_response->setResult($result_code);
+        $this->api_response->setResult($result_code,$pretty_format);
     }
 }

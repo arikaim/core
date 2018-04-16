@@ -13,6 +13,9 @@ use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Utils\Curl;
 use Arikaim\Core\Api\ApiClientResponse;
 
+/**
+ * Api Client
+*/
 class ApiClient 
 {
     private $host;

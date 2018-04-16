@@ -13,6 +13,9 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Number;
 use Arikaim\Core\Interfaces\Events\EventSubscriberInterface;
 
+/**
+ * Base class for event subscribers.
+*/
 abstract class EventSubscriber implements EventSubscriberInterface
 {
     protected $subscribed_events = [];

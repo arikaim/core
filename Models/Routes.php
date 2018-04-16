@@ -15,6 +15,9 @@ use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Access\Access;
 use Arikaim\Core\Arikaim;
 
+/**
+ * Routes db table model
+ */
 class Routes extends Model  
 {
     // route types
@@ -27,6 +30,7 @@ class Routes extends Model
     const ACTIVE    = 1;
     
     protected $fillable = [
+        'id',
         'name',
         'pattern',
         'method',
@@ -120,6 +124,17 @@ class Routes extends Model
         return $model;
     }
 
+    public function getTemplateRoute($pattern, $template_name)
+    {
+        $pattern .= $this->getLanguagePattern($pattern);       
+        $model = $this->where('pattern','=',$pattern);
+        $model = $model->where('template_name','=',$template_name)->first();
+        if (is_object($model) == false) {
+            return false;
+        }
+        return $model;
+    }
+
     public function getPageRoute($method, $pattern)
     {
         $pattern .= $this->getLanguagePattern($pattern);
@@ -201,13 +216,31 @@ class Routes extends Model
         return $this->addRoute($route);
     }
 
+    public function setPermission($id, $permission_name, array $permission)
+    {
+        if (is_integer($id) == true) {
+            $model = $this->where('id','=',$id)->first();
+        }
+        if (is_string($id) == true) {
+            $model = $this->where('uuid','=',$id)->first();
+        }
+        if (is_object($model) == false) {
+            return false;
+        }
+        $model->required_permission = $permission_name;
+        $model->permission_type = json_encode($permission);
+        return $model->update();
+    }
+
     public static function isValidAuth($auth)
     {
-        if (($auth < 0) || ($auth > 4)) return false;
+        if (($auth < 0) || ($auth > 4)) {
+            return false;
+        }
         return true;
     }
 
-    private function isValid($route) 
+    public function isValid(array $route) 
     {
         if (isset($route['pattern']) == false) return false;
         if (isset($route['handler_class']) == false) return false;

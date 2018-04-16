@@ -50,8 +50,12 @@ class Component implements ComponentInterface
 
     public function getTemplateFile()
     {
+        $path = "";
+        if (empty($this->getExtensionName()) == false) {
+            $path = $this->getExtensionName() . DIRECTORY_SEPARATOR . 'view';
+        }
         if (isset($this->files['html'][0]['file_name']) == true) {
-            return $this->getFilePath() . $this->files['html'][0]['file_name'];
+            return $path . $this->getFilePath() . $this->files['html'][0]['file_name'];
         }
         return false;
     }

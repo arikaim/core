@@ -9,7 +9,9 @@
 */
 namespace Arikaim\Core\Db;
 
-
+/**
+ * Database condition
+*/
 class Condition
 {   
     const DEFAULT_OPERATOR = '=';

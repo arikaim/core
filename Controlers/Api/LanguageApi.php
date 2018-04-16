@@ -15,14 +15,17 @@ use Arikaim\Core\Db\Model;
 use Arikaim\Core\Form\Form;
 use Arikaim\Core\Controlers\ApiControler;
 
+/**
+ * Languages Api controler
+*/
 class LanguageApi extends ApiControler
 {
     public function add($request, $response, $args) 
     {       
         // access from contorl panel only 
         $this->requireControlPanelPermission();
-        $language = Model::Language();
 
+        $language = Model::Language();
         $update = false;    
         $this->form->setFields($request->getParsedBody());       
         $uuid = $this->form->get('uuid');

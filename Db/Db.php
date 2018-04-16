@@ -12,6 +12,9 @@ namespace Arikaim\Core\Db;
 use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Arikaim;
 
+/**
+ *Manage database connections
+*/
 class Db  
 {
     private $capsule;
@@ -52,10 +55,7 @@ class Db
         } catch(\Exception $e) {
             return false;
         }
-        if (isset($result[0]->SCHEMA_NAME) == true) {
-            return true;
-        }
-        return false;
+        return (isset($result[0]->SCHEMA_NAME) == true) ? true : false;           
     }
 
     public function createDb($database_name) 
@@ -78,7 +78,6 @@ class Db
     {
         try {
             $result = $connection->statement('SELECT 1');
-            return $result;
         } catch(\PDOException $e) {
             return false;
         }

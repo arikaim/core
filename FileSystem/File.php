@@ -13,6 +13,9 @@ use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\System\Errors;
 use Arikaim\Core\Arikaim;
 
+/**
+ * File
+*/
 class File 
 {
     public static function readJSONFile($file_name, $vars = null, $to_array = true) 

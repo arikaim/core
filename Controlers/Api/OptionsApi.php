@@ -13,6 +13,9 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\Controlers\ApiControler;
 use Arikaim\Core\Form\Form;
 
+/**
+ * System options controler
+*/
 class OptionsApi extends ApiControler
 {
     public function save($request, $response, $args) 

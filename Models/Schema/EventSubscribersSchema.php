@@ -11,10 +11,18 @@ namespace Arikaim\Core\Models\Schema;
 
 use Arikaim\Core\Db\Schema;
 
+/**
+ * EventSubscribers database table schema definition.
+*/
 class EventSubscribersSchema extends Schema  
 {    
     protected $table_name = "event_subscribers";
 
+    /**
+     * Create table
+     *
+     * @return void
+    */
     public function create() 
     {
         $this->createTable(function($table) {
@@ -40,6 +48,11 @@ class EventSubscribersSchema extends Schema
         });
     }
 
+    /**
+     * Modify table
+     *
+     * @return void
+    */
     public function update()
     {
         $this->updateTable(function($table) {

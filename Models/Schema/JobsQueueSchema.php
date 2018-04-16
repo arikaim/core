@@ -11,10 +11,18 @@ namespace Arikaim\Core\Models\Schema;
 
 use Arikaim\Core\Db\Schema;
 
+/**
+ * JobsQueue database table schema definition.
+ */
 class JobsQueueSchema extends Schema  
 {    
     protected $table_name = "jobs_queue";
 
+    /**
+     * Create table
+     *
+     * @return void
+     */
     public function create() 
     {
         $this->createTable(function($table) {
@@ -45,6 +53,11 @@ class JobsQueueSchema extends Schema
         });
     }
 
+    /**
+     * Modify table
+     *
+     * @return void
+     */
     public function update()
     {
         $this->updateTable(function($table) {

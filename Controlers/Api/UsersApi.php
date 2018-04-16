@@ -15,6 +15,9 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\Form\Form;
 use Arikaim\Core\Access\Access;
 
+/**
+ * Users controler login, logout, change password api controler.
+*/
 class UsersApi extends ApiControler  
 {   
     public function adminLogin($request, $response, $args) {
@@ -146,7 +149,8 @@ class UsersApi extends ApiControler
 
     public function passwordRecovery($request, $response, $args)
     {
-        $admin_email = Model::Users()->getControlPanelUserEmail();
+        $users = Model::Users();
+        $admin_email = $users->getControlPanelUserEmail();
         $messages = Arikaim::view()->component()->getComponentProperties('system:admin/password-recovery');
         $error = $messages->getByPath('errors/email');
       
@@ -156,15 +160,26 @@ class UsersApi extends ApiControler
         $this->form->addRule('email',Form::Rule()->email($error));
 
         if ($this->form->validate() == true) {
+            // create access code
+            $user_uuid = $users->getControlPanelUser();
+            $access_key = $users->createAccessKey($user_uuid);
+            if ($access_key === false) {
+                $error = $messages->getByPath('errors/access_key');
+                $this->setApiError($error);
+                return $this->getApiResponse();
+            }
             // send email
-            $message = Arikaim::mailer()->messageFromTemplate($admin_email,"system:admin.email-messges.password-recovery");
+            $params = ['access_key' => $access_key];
+            $message = Arikaim::mailer()->messageFromTemplate($admin_email,"system:admin.email-messages.password-recovery",$params);
             $message->setFrom($admin_email);
+            
             $result = Arikaim::mailer()->send($message);
             if ($result == false) {
                 $error = $messages->getByPath('errors/send');
                 $this->setApiError($error);
                 return $this->getApiResponse();
             }
+
         }
         $this->setApiErrors($this->form->getErrors());
         return $this->getApiResponse(); 

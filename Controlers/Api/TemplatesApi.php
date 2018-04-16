@@ -16,6 +16,9 @@ use Arikaim\Core\View\TemplatesManager;
 use Arikaim\Core\View\Template;
 use Arikaim\Core\View\Theme;
 
+/**
+ * Control panel templates controler
+*/
 class TemplatesApi extends ApiControler
 {
     public function setCurrent($request, $response, $args)

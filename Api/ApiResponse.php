@@ -13,6 +13,9 @@ use Arikaim\Core\System\System;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Arikaim;
 
+/**
+ * Api Respnse support JSON format only.
+*/
 class ApiResponse 
 {
     protected $result;
@@ -21,6 +24,7 @@ class ApiResponse
     protected $debug;
     protected $trace;
     protected $enableCors;
+    protected $pretty_format;
 
     public function __construct($response, $debug = false, $trace = false, $cors = true) 
     {                    
@@ -37,7 +41,8 @@ class ApiResponse
         $this->result['result'] = "";
         $this->result['status'] = "ok";  
         $this->result['code'] = 200; 
-        $this->result['errors'] = $this->errors;       
+        $this->result['errors'] = $this->errors;  
+        $this->pretty_format = false;     
         $this->setResult("");
     }
 
@@ -59,6 +64,11 @@ class ApiResponse
         return false;
     }
 
+    /**
+     * Clear all errors.
+     *
+     * @return void
+    */
     public function clearErrors()
     {
         $this->errors = [];
@@ -69,9 +79,10 @@ class ApiResponse
         array_push($this->errors,$error_message);       
     }
 
-    public function setResult($result_code) 
+    public function setResult($result_code, $pretty_format = false) 
     {
         $this->result['result'] = $result_code;
+        $this->pretty_format = $pretty_format;
     }
 
     public function getErrorCount()
@@ -101,9 +112,13 @@ class ApiResponse
         if ($this->trace == true) {
             $this->result['trace'] = Utils::jsonEncode(System::getBacktrace());
         }
-       
-        $code = json_encode($this->result,true);
 
+        if ($this->pretty_format == true) {
+            $code = Utils::jsonEncode($this->result);
+        } else {
+            $code = json_encode($this->result,true);
+        }
+       
         $this->response->withHeader('Content-Type','application/json');
         // enable cors
         if ($this->enableCors == true) {

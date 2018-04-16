@@ -11,10 +11,18 @@ namespace Arikaim\Core\Models\Schema;
 
 use Arikaim\Core\Db\Schema;
 
+/**
+ * Extensions database table schema definition.
+ */
 class ExtensionsSchema extends Schema  
 {    
     protected $table_name = "extensions";
 
+    /**
+     * Create table
+     *
+     * @return void
+    */
     public function create() 
     {
         $this->createTable(function($table) {
@@ -50,6 +58,11 @@ class ExtensionsSchema extends Schema
         });
     }
 
+    /**
+     * Modify table
+     *
+     * @return void
+    */
     public function update() 
     {
         $this->updateTable(function($table) {

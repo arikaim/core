@@ -47,18 +47,12 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
         return $component->getHtmlCode();
     }
 
-    public function render($name, $vars = [], $language = null) 
+    public function render($name, $vars = [], $language = null, $with_options = true) 
     {    
-        $component = $this->create($name,'components',$language);
-       
+        $component = $this->create($name,'components',$language,$with_options);
         if ($component->hasError() == true) {
             return $component;
         }      
-       
-        if ($component->getType() == Template::EXTENSION) {
-            $path = ExtensionsManager::getExtensionViewPath($component->getExtensionName());               
-            Arikaim::view()->addPath($path); 
-        }
        
         $this->includeFiles($component);
        
@@ -70,7 +64,7 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
         if ($component->getOption('render') !== false) {                 
             $component = $this->fetch($component,$params);
         }
-        return  $component;
+        return $component;
     }
 
     public function includeFiles(ComponentInterface $component) 
@@ -92,9 +86,6 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
     public function getComponentProperties($name, $language = null)
     {
         $component = $this->create($name,'components',$language);
-        if ($component->hasError() == true) {
-            return $component->getError();
-        }
         return $this->loadComponentProperties($component);
     }
 

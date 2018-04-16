@@ -13,6 +13,9 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Html\HtmlComponent;
 use Arikaim\Core\Utils\Collection;
 
+/**
+ * View
+ */
 class View
 {
     private $loader;
@@ -69,19 +72,10 @@ class View
 
     private function createLoader($paths)
     {
-        $loader = new \Twig_Loader_Filesystem();
-        if (is_array($paths) == false) {
-            $loader->addPath($paths);
-            return $loader;
+        if (is_string($paths) == true) {
+            $paths = array($paths); 
         }
-
-        foreach ($paths as $namespace => $path) {
-            if (is_string($namespace)) {
-                $loader->setPaths($path, $namespace);
-            } else {
-                $loader->addPath($path);
-            }
-        }
+        $loader = new \Twig_Loader_Filesystem($paths);
         return $loader;
     }
 

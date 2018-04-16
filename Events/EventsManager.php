@@ -17,6 +17,9 @@ use Arikaim\Core\Events\Event;
 use Arikaim\Core\Interfaces\Events\EventInterface;
 use Arikaim\Core\Interfaces\Events\EventSubscriberInterface;
 
+/**
+ * Manage events
+*/
 class EventsManager 
 {
     private $events;

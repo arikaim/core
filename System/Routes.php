@@ -72,6 +72,8 @@ class Routes
     
         // Control Panel
         $app->get('/admin/[{language}/]',Controler::getControlersNamespace() . "\Pages\PageLoader:loadControlPanel");
+        // change password page
+        $app->get('/admin/change-password/{code}/[{language}/]',Controler::getControlersNamespace() . "\Pages\PageLoader:loadChangePassword");
         // Install
         $app->post('/admin/api/install/',"$api_controles_namespace\AdminApi:install")->add($session_auth);    
         // Update
@@ -79,7 +81,9 @@ class Routes
         $app->get('/admin/api/update/check',"$api_controles_namespace\AdminApi:updateCheckVersion")->add($jwt_auth);    
         // Admin user
         $app->post('/admin/api/user/login/',"$api_controles_namespace\UsersApi:adminLogin")->add($session_auth); 
-        $app->post('/admin/api/user/passord/recovery/',"$api_controles_namespace\UsersApi:passwordRecovery")->add($session_auth); 
+        $app->post('/admin/api/user/password/recovery/',"$api_controles_namespace\UsersApi:passwordRecovery")->add($session_auth); 
+        $app->post('/admin/api/user/password/change/',"$api_controles_namespace\UsersApi:changePassword")->add($session_auth); 
+
         $app->post('/admin/api/user/',"$api_controles_namespace\UsersApi:changeDetails")->add($jwt_auth);
         $app->get('/admin/api/user/logout/',"$api_controles_namespace\UsersApi:logout");
         // Languages

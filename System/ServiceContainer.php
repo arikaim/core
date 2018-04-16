@@ -20,7 +20,11 @@ use Arikaim\Core\System\Session;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Utils\Utils;
+use Arikaim\Core\Extension\ExtensionsManager;
 
+/**
+ * Create system services
+ */
 class ServiceContainer
 {
     private $container;
@@ -118,8 +122,14 @@ class ServiceContainer
             return new \Slim\Http\Cookies($request->getCookieParams());
         };
         // Init template view. 
-        $this->container['view'] = function () {       
-            $view = new \Arikaim\Core\View\View(Template::getTemplatesPath(),['cache' => false]);
+        $this->container['view'] = function () {   
+            $paths = [ExtensionsManager::getExtensionsPath(),Template::getTemplatesPath()];    
+            $cache = false;
+            if (isset($this->container->get('config')['settings']['cache']) == true) {
+                $cache = $this->container->get('config')['settings']['cache'];
+            }
+
+            $view = new \Arikaim\Core\View\View($paths,['cache' => $cache]);
             // add template extensions
             $view->addExtension(new \Arikaim\Core\View\TemplateExtension());
             return $view;

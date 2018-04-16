@@ -13,6 +13,9 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Number;
 use Arikaim\Core\Interfaces\Events\EventInterface;
 
+/**
+ * Base event
+*/
 class Event implements EventInterface
 {
     protected $parameters = [];

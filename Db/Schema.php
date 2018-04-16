@@ -14,6 +14,9 @@ use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\System\Install;
 
+/**
+ * Database schema base class
+*/
 abstract class Schema  
 {
     protected $table_name;

@@ -15,12 +15,20 @@ use Arikaim\Core\Db\Model;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Models\Routes;
 
+/**
+ * Base class for all extensions.
+*/
 class Extension implements ExtensionInterface
 {
     public function __construct() 
     {                
     }
     
+    /**
+     * return extension name
+     *
+     * @return string
+     */
     public function getName() 
     {    
         $currentClass = get_class($this);

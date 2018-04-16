@@ -15,6 +15,9 @@ use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Condition;
 use Arikaim\Core\Db\Search;
 
+/**
+ * Database Model Factory 
+*/
 class Model 
 {    
     public static function create($class_name, $extension_name = null) 

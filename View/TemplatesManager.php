@@ -16,6 +16,9 @@ use Arikaim\Core\Db\Model;
 use Arikaim\Core\Controlers\Controler;
 use Arikaim\Core\FileSystem\File;
 
+/**
+ * Manage templates
+*/
 class TemplatesManager 
 {
     private $template;
@@ -43,6 +46,12 @@ class TemplatesManager
         return $items;
     }
 
+    /**
+     * Return template details
+     *
+     * @param string $template_name template name
+     * @return array
+     */
     public function getTemlateDetails($template_name)
     {   
         $properties = $this->template->loadProperties($template_name); 
@@ -147,6 +156,12 @@ class TemplatesManager
         return $items;
     }
 
+    /**
+     * Return template routes
+     *
+     * @param string $template_name Template name
+     * @return void
+     */
     public function getRoutesList($template_name)
     {
         $model = Model::Routes();
@@ -156,7 +171,7 @@ class TemplatesManager
         }
         foreach ($routes as $key => $item) {
             $routes[$key]['method'] = "GET";
-            $route = $model->getPageRoute('GET', $routes[$key]['path']);
+            $route = $model->getTemplateRoute($routes[$key]['path'],$template_name);
             if ($route != false) {
                 $routes[$key]['status'] = $route->status;
                 $routes[$key]['auth'] = $route->auth;

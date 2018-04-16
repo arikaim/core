@@ -11,6 +11,9 @@ namespace Arikaim\Core\Db;
 
 use Arikaim\Core\Utils\DateTime;
 
+/**
+ * Update created date field.
+*/
 trait DateTimeUpdate 
 {    
     public function fill(array $attributes)

@@ -11,6 +11,9 @@ namespace Arikaim\Core\Db;
 
 use Arikaim\Core\Utils\Utils;
 
+/**
+ * Update UUID field
+*/
 trait UUIDAttribute 
 {    
     public function fill(array $attributes)

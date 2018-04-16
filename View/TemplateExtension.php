@@ -15,17 +15,30 @@ use Arikaim\Core\View\TemplateFunction;
 use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Utils\Mobile;
 
+/**
+ *  Template engine functions, filters and tests.
+ */
 class TemplateExtension extends \Twig_Extension implements \Twig_Extension_GlobalsInterface
 {
     public function __construct() 
     {       
     }
 
+    /**
+     * Rempate engine global variables
+     *
+     * @return array
+     */
     public function getGlobals() 
     {
         return Template::getVars();
     }
 
+    /**
+     * Template engine functions
+     *
+     * @return array
+     */
     public function getFunctions() 
     {
         $template_function = new TemplateFunction();
@@ -37,7 +50,6 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             // html components
             new \Twig_SimpleFunction('component', [Arikaim::view()->component(), 'load'], ['needs_environment' => false,'is_safe' => ['html']]),
             new \Twig_SimpleFunction('componentProperties', [$template_function, 'getComponentProperties']),
-            
             // page
             new \Twig_SimpleFunction('getPageJsFiles', ["\\Arikaim\\Core\\View\\Html\\Page", 'getPageJsFiles']),
             new \Twig_SimpleFunction('getPageCssFiles', ["\\Arikaim\\Core\\View\\Html\\Page", 'getPageCssFiles']),
@@ -47,7 +59,6 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFunction('fullUrl', ["\\Arikaim\\Core\\View\\Html\\Page", 'getFullUrl']),
             new \Twig_SimpleFunction('currentUrl', ["\\Arikaim\\Core\\View\\Html\\Page", 'getCurrentUrl']),
             new \Twig_SimpleFunction('isMobile', [$mobile, 'isMobile']),
-
             // database 
             new \Twig_SimpleFunction('loadData', [$template_function, 'loadData']),
             new \Twig_SimpleFunction('loadExtensionData', [$template_function, 'loadExtensionData']),
@@ -72,7 +83,6 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFunction('getOptions', [$template_function, 'getOptions']),
             new \Twig_SimpleFunction('condition', [$template_function, 'createCondition']),
             new \Twig_SimpleFunction('getErrors', [$errors, 'getErrors']),
-           
             // template
             new \Twig_SimpleFunction('getTemplateJsFiles', ["\\Arikaim\\Core\\View\\Template", 'getJsFiles']),
             new \Twig_SimpleFunction('getTemplateCssFiles', ["\\Arikaim\\Core\\View\\Template", 'getCssFiles']),
@@ -84,10 +94,16 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFunction('timeInterval', [$date, 'getInterval']),
             // macros
             new \Twig_SimpleFunction('macro', ["\\Arikaim\\Core\\View\\Template","getMacroPath"]),
+            new \Twig_SimpleFunction('extensionMacro', ["\\Arikaim\\Core\\View\\Template","getExtensionMacroPath"]),
             new \Twig_SimpleFunction('systemMacro', ["\\Arikaim\\Core\\View\\Template","getSystemMacroPath"])
         );
     }
 
+    /**
+     * Template engine filters
+     *
+     * @return array
+     */
     public function getFilters() 
     {
         $filters = new Filters();
@@ -107,6 +123,11 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
         );
     }
 
+    /**
+     * Template engine tests
+     *
+     * @return array
+     */
     public function getTests() {
         $template_function = new TemplateFunction();
         return array(

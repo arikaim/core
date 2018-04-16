@@ -15,6 +15,9 @@ use Arikaim\Core\Controlers\ApiControler;
 use Arikaim\Core\View\Template;
 use Arikaim\Core\Db\Model;
 
+/**
+ * Page Api controler
+*/
 class PageApi extends ApiControler 
 {
     public function loadPage($request, $response, $args) 

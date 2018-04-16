@@ -12,12 +12,26 @@ namespace Arikaim\Core\Models;
 use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\Schema;
 
+/**
+ * Permissions database model
+ */
 class Permissions extends Model  
 {
     const USER  = 'user';
     const GROUP = 'group';
     
-    protected $fillable = ['id','read','write','delete','execute','object_type','key','object_uuid','title','description'];
+    protected $fillable = [
+        'id',
+        'read',
+        'write',
+        'delete',
+        'execute',
+        'object_type',
+        'key',
+        'object_uuid',
+        'title',
+        'description'];
+        
     public $timestamps = false;
     
     public function setUserPermission($user_uuid, $key, $permissions) 
@@ -65,7 +79,7 @@ class Permissions extends Model
         return $result;
     }
 
-    private function validatePermissions(array $access) 
+    public function validatePermissions(array $access) 
     {
         $permissions['read'] = in_array('read',$access) ? 1:0;
         $permissions['write'] = in_array('write',$access) ? 1:0;

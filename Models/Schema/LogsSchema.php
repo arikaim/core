@@ -11,10 +11,18 @@ namespace Arikaim\Core\Models\Schema;
 
 use Arikaim\Core\Db\Schema;
 
+/**
+ * Logs database table schema definition.
+ */
 class LogsSchema extends Schema  
 {    
     protected $table_name = "logs";
 
+    /**
+     * Create table
+     *
+     * @return void
+     */
     public function create() 
     {
         $this->createTable(function($table) {            
@@ -43,6 +51,11 @@ class LogsSchema extends Schema
         });
     }
 
+    /**
+     * Modify table
+     *
+     * @return void
+     */
     public function update() 
     {
         $this->updateTable(function($table) {
