@@ -224,7 +224,6 @@ class BaseComponent
         }
        
         $component->setOptions($this->loadOptions($component)->toArray());
-     
         $component->setProperties($this->loadComponentProperties($component)->toArray());
         $component->setHtmlCode("");
 

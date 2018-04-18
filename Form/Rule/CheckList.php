@@ -11,6 +11,9 @@ namespace Arikaim\Core\Form\Rule;
 
 use Arikaim\Core\Form\AbstractRule;
 
+/**
+ * Check if value is in list
+ */
 class CheckList extends AbstractRule
 {
     private $allowed_values = null;

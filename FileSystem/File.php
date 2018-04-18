@@ -124,6 +124,23 @@ class File
         return File::exists($file_path);
     }
 
+    public static function writeUplaodedFile(array $file, $path, $mode = null, $flags = 0)
+    {
+        $file_name = $path . $file['name'];
+        $data = explode(',',$file['data']);
+        $result = Self::writeEncoded($file_name,$data[1],$flags);
+        if (($result != false) && ($mode != null)) {
+            chmod($file_name,$mode);
+        }
+        return $result;
+    }
+
+    public static function writeEncoded($file_name, $encoded_data, $flags = 0)
+    {
+        $data = base64_decode($encoded_data);
+        return Self::write($file_name,$data,$flags);
+    }
+
     public static function write($file_name, $data, $flags = 0)
     {
         return file_put_contents($file_name,$data,$flags);
