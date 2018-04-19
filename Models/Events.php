@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\UUIDAttribute;
 use Arikaim\Core\Utils\Number;
 
+/**
+ * Events database model
+ */
 class Events extends Model  
 {
     use UUIDAttribute;
@@ -20,7 +23,13 @@ class Events extends Model
     const DISABLED = 0;
     const ACTIVE = 1;
 
-    protected $fillable = ['name','title','extension_name','uuid','description'];
+    protected $fillable = [
+        'name',
+        'title',
+        'extension_name',
+        'uuid',
+        'description'];
+
     public $timestamps = false;
 
     public function getEvents($extension_name)

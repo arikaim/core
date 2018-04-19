@@ -14,12 +14,25 @@ use Arikaim\Core\Db\UUIDAttribute;
 use Arikaim\Core\Db\ToggleValue;
 use Arikaim\Core\Db\Position;
 
+/**
+ * Language database model
+ */
 class Language extends Model  
 {
     use UUIDAttribute,ToggleValue,Position;
 
     protected $table = 'language';
-    protected $fillable = ['id','code','title','position','uuid','default','status','native_title','code_3','country_code'];
+    protected $fillable = [
+        'id',
+        'code',
+        'title',
+        'position',
+        'uuid',
+        'default',
+        'status',
+        'native_title',
+        'code_3',
+        'country_code'];
    
     public $timestamps = false;
     

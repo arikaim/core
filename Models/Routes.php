@@ -16,7 +16,7 @@ use Arikaim\Core\Access\Access;
 use Arikaim\Core\Arikaim;
 
 /**
- * Routes db table model
+ * Routes database model
  */
 class Routes extends Model  
 {

@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\UUIDAttribute;
 use Arikaim\Core\Utils\Number;
 
+/**
+ * EventSubscribers database model
+ */
 class EventSubscribers extends Model  
 {
     use UUIDAttribute;
@@ -20,7 +23,15 @@ class EventSubscribers extends Model
     const DISABLED = 0;
     const ACTIVE = 1;
 
-    protected $fillable = ['name','handler_class','handler_method','extension_name','uuid','priority'];
+    protected $fillable = [
+        'id',
+        'name',
+        'handler_class',
+        'handler_method',
+        'extension_name',
+        'uuid',
+        'priority'];
+        
     public $timestamps = false;
 
     public function getExtensionSubscribers($extension_name, $status = null) 

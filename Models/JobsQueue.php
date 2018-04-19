@@ -13,10 +13,11 @@ use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\DateTimeUpdate;
 use Arikaim\Core\Db\UUIDAttribute;
 
+/**
+ * JobsQueue database model
+ */
 class JobsQueue extends Model  
 {
-   // use DateTimeUpdate;
-
     protected $table = "jobs_queue";
     protected $fillable = [
         'name',

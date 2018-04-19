@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\UUIDAttribute;
 use Arikaim\Core\Db\ToggleValue;
 
+/**
+ * Extensions database model
+ */
 class Extensions extends Model  
 {
     const USER = 0;

@@ -15,11 +15,19 @@ use Arikaim\Core\Utils\Arrays;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Model as DbModel;
 
+/**
+ * Options database model
+ */
 class Options extends Model  
 {    
     public $timestamps = false;
 
-    protected $fillable = ['key','value','auto_load','extension'];
+    protected $fillable = [
+        'key',
+        'value',
+        'auto_load',
+        'extension'];
+        
     private $options = [];
   
     public function read($key) 

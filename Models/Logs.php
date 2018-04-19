@@ -12,10 +12,23 @@ namespace Arikaim\Core\Models;
 use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\DateTimeUpdate;
 
+/**
+ * Options database model
+ */
 class Logs extends Model  
 {
     use DateTimeUpdate;
 
-    protected $fillable = ['message','url','user_agent','ip_address','level','channel','method','created','route_uuid'];
+    protected $fillable = [
+        'message',
+        'url',
+        'user_agent',
+        'ip_address',
+        'level',
+        'channel',
+        'method',
+        'created',
+        'route_uuid'];
+        
     public $timestamps = false;
 }

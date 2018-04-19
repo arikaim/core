@@ -266,10 +266,7 @@ class TemplateFunction
     public function getOption($name,$default_value = null) 
     {
         $value = Arikaim::options()->get($name,$default_value);   
-        if ($value == null) {
-            $value = "";
-        }
-        return $value;
+        return ($value == null) ? "" : $value;
     }
 
     public function createCondition($field_name, $operator, $value, array $conditions = null)

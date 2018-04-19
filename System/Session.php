@@ -107,11 +107,10 @@ class Session
     {
         if (isset($_SESSION[$name])) {
             return $_SESSION[$name];
-        } else {
-            if ($default_value != null) {
-                $this->set($name,$default_value);
-                return $default_value;
-            }
+        } 
+        if ($default_value != null) {
+            $this->set($name,$default_value);
+            return $default_value;
         }
         return null;
     }
