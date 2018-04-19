@@ -227,7 +227,7 @@ class Routes extends Model
         if (is_object($model) == false) {
             return false;
         }
-        $model->required_permission = $permission_name;
+        $model->permission = $permission_name;
         $model->permission_type = json_encode($permission);
         return $model->update();
     }

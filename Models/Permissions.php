@@ -27,47 +27,38 @@ class Permissions extends Model
         'delete',
         'execute',
         'object_type',
-        'key',
-        'object_uuid',
-        'title',
-        'description'];
+        'name',
+        'object_uuid'];
         
     public $timestamps = false;
     
-    public function setUserPermission($user_uuid, $key, $permissions) 
+    public function setUserPermission($user_uuid, $name, $permissions) 
     {
-        return $this->setPermission($user_uuid,$key,$permissions,Permissions::USER);
+        return $this->setPermission($user_uuid,$name,$permissions,Permissions::USER);
     }
     
-    public function setGroupPermission($group_uuid, $key, $permissions)
+    public function setGroupPermission($group_uuid, $name, $permissions)
     {
-        return $this->setPermission($user_uuid,$key,$permissions,Permissions::GROUP);
+        return $this->setPermission($user_uuid,$name,$permissions,Permissions::GROUP);
     }
 
-    public function getPermission($key, $object_uuid = null)
+    public function getPermission($name, $object_uuid)
     {
         if (Schema::hasTable($this) == false) {          
             return false;
         }
-
-        if ($object_uuid != null) {
-            $model = $this->where('object_uuid','=',$object_uuid);
-            $model = $model->where('key','=',$key)->first();
-        } else {
-            $model = $this->where("key","=",$key)->first();
-        }
-        if (is_object($model) == true) {
-            return $model;
-        }
-        return null;
+        $model = $this->where('object_uuid','=',$object_uuid);
+        $model = $model->where('name','=',$name)->first();
+        
+        return (is_object($model) == true) ? $model : false;           
     }
 
-    public function setPermission($object_uuid, $key, $access, $type = Permissions::USER) 
+    public function setPermission($object_uuid, $name, $access, $type = Permissions::USER) 
     {
         $permissions = $this->validatePermissions($access); 
         $permissions['object_type'] = $type;
         $permissions['object_uuid'] = $object_uuid;
-        $permissions['key'] = $key;
+        $permissions['name'] = $name;
         
         $this->fill($permissions);
 

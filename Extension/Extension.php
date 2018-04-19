@@ -80,6 +80,12 @@ class Extension implements ExtensionInterface
         return $result;
     }
 
+    public function registerPermission($name, $title = null, $descriptin = null, $parent_id = 0)
+    {
+        $permission = Model::PermissionsList();
+        return $permission->add($name,$this->getName(),$title,$descriptin,$parent_id);
+    }
+
     public function onAfterInstall()
     {   
     }

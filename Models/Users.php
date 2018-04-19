@@ -26,6 +26,8 @@ class Users extends Model
 {
     use UUIDAttribute;
 
+    const ACTIVE_STATUS = 1;
+
     protected $fillable = [
         'id',
         'user_name',
@@ -36,8 +38,8 @@ class Users extends Model
         'api_secret',
         'access_key',
         'access_key_expire',
-        'last_login',
-        'created'];
+        'date_login',
+        'date_created'];
 
     public $timestamps = false;
     
@@ -54,7 +56,7 @@ class Users extends Model
     {
         $user = $this->where('api_key','=',$api_key);
         $user = $user->where('api_secret','=',$api_secret);
-        $user = $user->where('status','=',1)->first();
+        $user = $user->where('status','=',Self::ACTIVE_STATUS)->first();
         if (is_object($user) == false) {
             return false;
         }
@@ -71,7 +73,6 @@ class Users extends Model
         if (Schema::hasTable($this) == false) {          
             return false;
         }
-
         $user_id = $this->getCurrentUser();  
         $model = $this->where("id","=",$user_id)->first();
         if (is_object($model) == true) {
@@ -95,25 +96,33 @@ class Users extends Model
         return false;
     }
 
-    public function login($user_name, $password) 
+    public function login($user_name, $password, $permission_name = null, $permission_type = null) 
     {
         $user = $this->where('user_name','=',$user_name);
         $user = $user->orWhere('email','=',$user_name);
-        $user = $user->where('status','=',1)->first();
+        $user = $user->where('status','=',Self::ACTIVE_STATUS)->first();
 
         if (is_object($user) == false) {
             return false;
         }
-        
-        if (Self::VerifyPassword($password,$user->password) == true) {
-            $user->last_login = time();
-            $user->update();
-            Arikaim::session()->set('user_id',$user->id);
-            Arikaim::session()->set('login_time',time());
-            Arikaim::session()->set('uuid',$user->uuid);
-            return $user;
+        if (Self::VerifyPassword($password,$user->password) == false) {
+            return false;
         }
-        return false;
+        if ($permission_name != null) {
+            // check for permission 
+            $result = Arikaim::access()->hasPermission($permission_name,$permission_type,$user->uuid);
+            if ($result == false) {
+                return false;
+            }
+        }
+        
+        $user->date_login = time();
+        $user->update();
+        Arikaim::session()->set('user_id',$user->id);
+        Arikaim::session()->set('date_login',time());
+        Arikaim::session()->set('uuid',$user->uuid);
+        
+        return $user;
     }
 
     public function logout() 
@@ -143,7 +152,8 @@ class Users extends Model
         if (Schema::hasTable($permissions) == false) {
             return false;
         }
-        $permissions = $permissions->getPermission(Access::CONTROL_PANEL);
+        $permissions = $permissions->where('name','=',Access::CONTROL_PANEL);
+        $permissions = $permissions->where('object_type','=','user')->first();
         if (is_object($permissions) == false) {
             return false;
         }
@@ -173,9 +183,12 @@ class Users extends Model
 
     private function getUser($user_name)
     {
-        $params['user_name'] = $user_name;
-        $user = $this->whereRaw(" user_name = '$user_name' OR email = '$user_name' ")->first();
-        return $user;
+        $model = $this->where('user_name','=',$user_name);
+        $model = $model->orWhere('email','=',$email)->first();
+        if (is_object($model) == false) {
+            return false;
+        }
+        return $model;
     }
 
     public function getId($user_name) 
@@ -210,7 +223,7 @@ class Users extends Model
         $info['email'] = $email;
         $info['api_key'] = Utils::getUUID();
         $info['api_secret'] = Utils::getRandomKey();
-        $infp['created'] = DateTime::getCurrentTime();
+        $info['date_created'] = DateTime::getCurrentTime();
         
         $this->fill($info);
         try {

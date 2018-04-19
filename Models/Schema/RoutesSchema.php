@@ -39,7 +39,7 @@ class RoutesSchema extends Schema
             $table->string('template_page')->nullable(false)->default('');
             $table->integer('status')->nullable(false)->default(1);
             $table->integer('auth')->nullable(false)->default(0);
-            $table->string('required_permission')->nullable(true);
+            $table->string('permission')->nullable(true);
             $table->string('permission_type')->nullable(true);
             $table->integer('type')->nullable(false)->default(0);
             $table->string('uuid')->nullable(false);

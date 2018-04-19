@@ -17,8 +17,6 @@ use Arikaim\Core\Db\DateTimeUpdate;
  */
 class Logs extends Model  
 {
-    use DateTimeUpdate;
-
     protected $fillable = [
         'message',
         'url',
@@ -27,7 +25,7 @@ class Logs extends Model
         'level',
         'channel',
         'method',
-        'created',
+        'date_created',
         'route_uuid'];
         
     public $timestamps = false;

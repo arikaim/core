@@ -265,16 +265,24 @@ class Access
         return $this->hasPermission(Access::CONTROL_PANEL,ACCESS::FULL,$uuid);
     }
 
-    public function hasPermission($name, $access = Self::FULL,$uuid = null)
+    public function hasPermission($name, $type = Self::FULL, $uuid = null)
     {
-        $result = false;
         $permissions = Model::Permissions();
         if ($uuid == null) {
             $uuid = $this->getTokenParam('uuid');
         }
-        $permissions = $permissions->getPermission($name,$uuid);       
-        if (is_object($permissions) == true) {
-            $result = $permissions->hasPermissions($access);
+        if (empty($uuid) == true) {
+            return false;
+        }
+        $permissions = $permissions->getPermission($name,$uuid); 
+        if (is_object($permissions) == false) {
+            return false;
+        }
+        
+        $result = $permissions->hasPermissions($type);
+        if ($result == false) {
+            // check for control panel permission
+            $result = $this->hasControlPanelAccess($uuid);
         }              
         return $result;
     }

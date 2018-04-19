@@ -20,16 +20,8 @@ use Arikaim\Core\Access\Access;
 */
 class UsersApi extends ApiControler  
 {   
-    public function adminLogin($request, $response, $args) {
-        return $this->login($request, $response, ['permissions' => Access::CONTROL_PANEL]);
-    }
-
-    public function login($request, $response, $args) 
-    { 
-        $permissions = false;
-        if (isset($args['permissions']) == true) {
-            $permissions = $args['permissions'];
-        }
+    public function adminLogin($request, $response, $args) 
+    {
         $this->form->setFields($request->getParsedBody());
         $this->form->addRule('user_name',Form::Rule()->text(2));   
         $this->form->addRule('password',Form::Rule()->text(2));  
@@ -43,19 +35,11 @@ class UsersApi extends ApiControler
         $password = $this->form->get('password');
         $user = Model::Users();   
       
-        $user = $user->login($user_name,$password);
+        $user = $user->login($user_name,$password,Access::CONTROL_PANEL,Access::READ);
        
         if ($user == false) {
             $this->setApiError(Arikaim::getError("LOGIN_ERROR"));   
-        } else {
-            // check permissions
-            if ($permissions != false) {
-                $access = Arikaim::access()->hasPermission($permissions,Access::READ,$user->uuid);
-                if ($access == false) {
-                    $this->setApiError(Arikaim::getError("ACCESS_DENIED"));   
-                    return $this->getApiResponse();   
-                }
-            }
+        } else {            
             // create JWT token
             $token = Arikaim::access()->createToken($user->id,$user->uuid);            
             $this->setApiResult($token);     

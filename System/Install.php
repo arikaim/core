@@ -248,6 +248,7 @@ class Install
             $errors += Schema::schema()->hasTable('options') ? 0:1;
             $errors += Schema::schema()->hasTable('extensions') ? 0:1;
             $errors += Schema::schema()->hasTable('permissions') ? 0:1;
+            $errors += Schema::schema()->hasTable('permissions_list') ? 0:1;
             $errors += Schema::schema()->hasTable('users') ? 0:1;
             $errors += Schema::schema()->hasTable('routes') ? 0:1;
             $errors += Schema::schema()->hasTable('event_subscribers') ? 0:1;
@@ -279,6 +280,7 @@ class Install
         'LogsSchema',
         'OptionsSchema',
         'PermissionsSchema',
+        'PermissionsListSchema',
         'RoutesSchema',
         'UsersSchema'];
     }

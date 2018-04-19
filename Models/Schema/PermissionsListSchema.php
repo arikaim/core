@@ -12,11 +12,11 @@ namespace Arikaim\Core\Models\Schema;
 use Arikaim\Core\Db\Schema;
 
 /**
- * Permissions database table schema definition.
+ * Permissions List database table schema definition.
 */
-class PermissionsSchema extends Schema  
+class PermissionsListSchema extends Schema  
 {    
-    protected $table_name = "permissions";
+    protected $table_name = "permissions_list";
 
     /**
      * Create table
@@ -29,16 +29,16 @@ class PermissionsSchema extends Schema
             
             // columns
             $table->bigIncrements('id')->nullable(false);
-            $table->string('object_uuid')->nullable(false);
+            $table->integer('parent_id')->nullable(true)->default(0);
             $table->string('name')->nullable(false);
-            $table->string('object_type',50)->nullable(false)->default('user');
-            $table->integer('read')->nullable(false)->default(0);
-            $table->integer('write')->nullable(false)->default(0);
-            $table->integer('delete')->nullable(false)->default(0);
-            $table->integer('execute')->nullable(false)->default(0);
+            $table->string('extension_name')->nullable(true);
+            $table->string('title')->nullable(true);
+            $table->string('description')->nullable(true);
+            $table->string('uuid')->nullable(false);
             // indexes
-            $table->unique(array('name','object_uuid'));
-            $table->index(array('name','object_uuid','object_type'));
+            $table->unique('uuid');
+            $table->unique('name');
+            $table->index('extension_name');
             // storage engine           
             $table->engine = 'InnoDB';
             

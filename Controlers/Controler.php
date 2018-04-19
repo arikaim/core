@@ -10,6 +10,7 @@
 namespace Arikaim\Core\Controlers;
 
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\Access\Access;
 
 /**
  * Base class for all controlers
@@ -35,14 +36,14 @@ class Controler
         return $result;
     }
 
-    public function requireControlPanelPermission()
+    public function requireControlPanelPermission($uuid = null)
     {
-        return $this->requirePermission(Arikaim::access()->get("CONTROL_PANEL"),Arikaim::access()->get("FULL"));
+        return $this->requirePermission(Access::CONTROL_PANEL,Access::FULL,$uuid);
     }
     
-    public function requirePermission($name, $access)
+    public function requirePermission($name, $access, $uuid = null)
     {
-        $result = Arikaim::access()->hasPermission($name,$access);  
+        $result = Arikaim::access()->hasPermission($name,$access, $uuid);  
         if ($result == true) {
             return true;
         }

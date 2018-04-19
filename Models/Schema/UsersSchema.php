@@ -36,8 +36,8 @@ class UsersSchema extends Schema
             $table->string('api_secret')->nullable(true);
             $table->integer('status')->nullable(false)->default(1);
             $table->string('uuid')->nullable(false);
-            $table->bigInteger('last_login')->nullable(true);
-            $table->bigInteger('created')->nullable(true);
+            $table->bigInteger('date_login')->nullable(true);
+            $table->bigInteger('date_created')->nullable(true);
             $table->string('access_key')->nullable(true);
             $table->integer('access_key_expire')->nullable(true);
             // indexes

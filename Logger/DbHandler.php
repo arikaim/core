@@ -14,7 +14,11 @@ use Monolog\Handler\AbstractProcessingHandler;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Db\Schema;
+use Arikaim\Core\Utils\DateTime;
 
+/**
+ * Database log handler, write log record to database 
+ */
 class DbHandler extends AbstractProcessingHandler
 {
     private $model;
@@ -41,6 +45,7 @@ class DbHandler extends AbstractProcessingHandler
         $info['level'] = $record['level'];
         $info['message'] = $record['message'];
         $info['ip_address'] = $record['context']['client_ip'];
+        $info['date_created'] = DateTime::getCurrentTime();
         
         if (is_object($this->model) == true) {           
             $this->model->fill($info);

@@ -74,8 +74,7 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFunction('executeMethod', [$template_function, 'executeMethod']),
             new \Twig_SimpleFunction('extension', [$template_function, 'extensionMethod']),
             new \Twig_SimpleFunction('service', [$template_function, 'service']),
-            new \Twig_SimpleFunction('callStatic', [$template_function, 'callStatic']),
-            new \Twig_SimpleFunction('currentYear', [$template_function, 'currentYear']),
+            new \Twig_SimpleFunction('callStatic', [$template_function, 'callStatic']),           
             new \Twig_SimpleFunction('getCurrentLanguage', [$template_function, 'getCurrentLanguage']),
             new \Twig_SimpleFunction('getLanguage', ["\\Arikaim\\Core\\View\\Template","getLanguage"]),
             new \Twig_SimpleFunction('getHiddenClass', [$template_function, 'getHiddenClass']),
@@ -92,6 +91,7 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             // date and time
             new \Twig_SimpleFunction('getTimeZonesList', [$date, 'getTimeZonesList']),
             new \Twig_SimpleFunction('timeInterval', [$date, 'getInterval']),
+            new \Twig_SimpleFunction('currentYear', [$template_function, 'currentYear']),
             // macros
             new \Twig_SimpleFunction('macro', ["\\Arikaim\\Core\\View\\Template","getMacroPath"]),
             new \Twig_SimpleFunction('extensionMacro', ["\\Arikaim\\Core\\View\\Template","getExtensionMacroPath"]),
