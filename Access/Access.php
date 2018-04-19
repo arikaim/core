@@ -274,17 +274,19 @@ class Access
         if (empty($uuid) == true) {
             return false;
         }
+    
         $permissions = $permissions->getPermission($name,$uuid); 
         if (is_object($permissions) == false) {
-            return false;
+            // check for control panel permission
+            return ($name == Access::CONTROL_PANEL) ? false : $this->hasControlPanelAccess($uuid);
         }
         
         $result = $permissions->hasPermissions($type);
         if ($result == false) {
             // check for control panel permission
-            $result = $this->hasControlPanelAccess($uuid);
-        }              
-        return $result;
+            return ($name == Access::CONTROL_PANEL) ? false : $this->hasControlPanelAccess($uuid);  
+        }  
+        return true; 
     }
 
     public function clearToken()
