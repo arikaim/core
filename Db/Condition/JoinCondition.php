@@ -45,7 +45,7 @@ class JoinCondition extends BaseCondition
         if ($condition == false) {
             return $model;
         }
-        $field = $model.getTable() . '.' . $condition['field'];
+        $field = $model->getTable() . '.' . $condition['field'];
         $join_field = $condition['table_name'] . "." . $condition['join_field'];
 
         switch($condition['type']) {
