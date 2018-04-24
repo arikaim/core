@@ -85,13 +85,21 @@ class File
 
     public static function getSize($file_name)
     {
-        if (File::exists($file_name) == false) return false;
-        $size = filesize($file_name);
-        $labels = ['B','KB','MB','GB','TB','PB','EB','ZB','YB'];
+        if (File::exists($file_name) == false) {
+            return false;
+        }
+        return filesize($file_name);
+    }
+
+    public static function getSizeText($size, $labels = null, $as_text = true)
+    {        
+        if (is_array($labels) == false) {
+            $labels = ['Bytes','KB','MB','GB','TB','PB','EB','ZB','YB'];
+        }
         $power = $size > 0 ? floor(log($size, 1024)) : 0;
         $result['size'] = $size / pow(1024, $power);
         $result['label'] = labels[$power];
-        return $result;        
+        return ($as_text == true) ? $result['size'] . " " . $result['label'] : $result; 
     }
 
     public static function makeDir($path, $mode = 0755, $recursive = true)

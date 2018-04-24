@@ -296,7 +296,7 @@ class ExtensionsManager
         $details['pages'] = $this->getExtensionTemplatePages($extension_name); 
         $details['macros'] = $this->getExtensionTemplateMacros($extension_name); 
         
-        $condition = Model::createCondition('extension_name','=',$extension_name)->toArray();
+        $condition = Model::createCondition('extension_name','=',$extension_name);
         $details['jobs'] = Arikaim::jobs()->getStorage()->getRecuringJobs($condition,true);
 
         return $details;

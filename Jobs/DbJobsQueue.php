@@ -83,7 +83,7 @@ class DbJobsQueue implements QueueStorageInterface
         return $model->delete();
     }
 
-    public function getRecuringJobs(array $condition = null, $to_array = false)
+    public function getRecuringJobs($condition = null, $to_array = false)
     {
         $model = Model::JobsQueue();
         $model = Model::applyCondition($model,$condition);
@@ -122,7 +122,7 @@ class DbJobsQueue implements QueueStorageInterface
 
     public function getJobs($condition = null)
     {
-        $model = Model::JobsQueue();       
+        $model = Model::JobsQueue();        
         $model = Model::applyCondition($model,$condition);
         $model = $model->orderBy('priority','desc');
         $model = $model->get();

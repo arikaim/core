@@ -118,6 +118,7 @@ class Users extends Model
         
         $user->date_login = time();
         $user->update();
+        
         Arikaim::session()->set('user_id',$user->id);
         Arikaim::session()->set('date_login',time());
         Arikaim::session()->set('uuid',$user->uuid);

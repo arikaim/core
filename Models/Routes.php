@@ -143,9 +143,6 @@ class Routes extends Model
 
     public function findRoute($condition)
     {
-        if (is_array($condition) == false) {
-            return null;
-        }
         $model = Model::applyCondition($this,$condition);
         $model = $model->get();
         if (is_object($nodel) == false) {

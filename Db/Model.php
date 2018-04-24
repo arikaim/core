@@ -12,8 +12,11 @@ namespace Arikaim\Core\Db;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Utils\FunctionArguments;
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Db\Condition;
-use Arikaim\Core\Db\Search;
+use Arikaim\Core\Db\Condition\BaseCondition;
+use Arikaim\Core\Db\Condition\Condition;
+use Arikaim\Core\Db\Condition\SearchCondition;
+use Arikaim\Core\Db\Condition\JoinCondition;
+use Arikaim\Core\Db\OrderBy;
 
 /**
  * Database Model Factory 
@@ -67,31 +70,56 @@ class Model
         if (empty($condition) == true) {
             return $model;
         } 
-        if ($condition instanceof Condition) {
-            $condition = $condition->toArray();
-        }
-        
-        if (is_array($condition) == false) {
-            $model = $model->whereRaw($condition);
+        if ($condition instanceof BaseCondition) {
+            $model = $condition->applyConditions($model);
             return $model;
         }
+        return $model->whereRaw($condition);
+    }
+
+    public static function applyOrderBy($model,$order_by)
+    {
+        if (empty($order_by) == true) {
+            return $model;
+        } 
         
-        foreach ($condition as $item) {
-            $model = Condition::applyCondition($model,$item);
+        if (is_string($order_by) == true) {
+            $model = $model->orderByRaw($order_by);
+            return $model;
+        } 
+
+        if ($order_by instanceof OrderBy) {
+            $model = $order_by->apply($model);
+            return $model;
         }
         return $model;
     }
 
-    public static function createCondition($field_name, $operator, $value, array $conditions = null)
+    public static function createCondition($field_name, $operator, $value, $conditions = null)
     {
         $condition = new Condition($field_name, $operator, $value);
         $condition->append($conditions);
         return $condition;
     }
-
-    public static function getSearchConditions($model, $search = null)
+    
+    public static function createJoinCondition($table_name, $field, $join_field, $type, $operator = '=', $conditions = null)
     {
-        $obj = new Search();
-        return $obj->getSearchConditions($model,$search);
+        $condition = new JoinCondition($table_name,$field,$join_field,$type,$operator);
+        $condition->append($conditions);
+        return $condition;
+    }
+
+    public static function createSearchCondition($model_class_name, $extension_name = null, $search = null, $conditions = null)
+    {
+        $condition = new SearchCondition($model_class_name,$extension_name,$search);
+        $condition->append($conditions);
+        return $condition;
+    }
+
+    public static function createOrderBy($field_name, $type = OrderBy::ASC, OrderBy $order_by = null)
+    {
+        $order = new OrderBy($field_name,$type);
+        $order->append($order_by);
+        return $order;
     }
 }

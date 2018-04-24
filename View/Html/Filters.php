@@ -64,10 +64,7 @@ class Filters
 
     public function showArray($array)
     {
-        if (is_array($array) == false) {
-            return "$array";
-        }
-        return print_r($array,true);
+        return (is_string($array) == true) ? "$array" : print_r((array) $array,true);          
     }
 
     public function is($value, $equal, $return_value)

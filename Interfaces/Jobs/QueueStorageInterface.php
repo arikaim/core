@@ -17,7 +17,7 @@ interface QueueStorageInterface
     public function removeJob(JobInterface $job);
     public function updateExecutionTime(JobInterface $job);
     public function removeJobs($condition);
-    public function getRecuringJobs(array $condition, $to_array = false);
+    public function getRecuringJobs($condition, $to_array = false);
     public function getScheduledJobs();
     public function getJobs($condition = null);
     public function getExtensionJobs($extension_name);

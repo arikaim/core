@@ -20,6 +20,14 @@ use Arikaim\Core\Controlers\ApiControler;
 */
 class LanguageApi extends ApiControler
 {
+    /**
+     * Add or edit language
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $args
+     * @return object
+     */
     public function add($request, $response, $args) 
     {       
         // access from contorl panel only 

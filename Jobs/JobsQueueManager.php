@@ -114,7 +114,7 @@ class JobsQueueManager
         Arikaim::event()->trigger('core.jobs.queue.run',['jobs_executed' => $this->run_counter]);
     }
 
-    public function runRecuringJobs(array $condition = null)
+    public function runRecuringJobs($condition = null)
     {
         $jobs = $this->getStorage()->getRecuringJobs($condition);
         if (is_array($jobs) == false) {

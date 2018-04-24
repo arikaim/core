@@ -14,6 +14,7 @@ use Arikaim\Core\View\Html\Filters;
 use Arikaim\Core\View\TemplateFunction;
 use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Utils\Mobile;
+use Arikaim\Core\FileSystem\File;
 
 /**
  *  Template engine functions, filters and tests.
@@ -62,13 +63,14 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             // database 
             new \Twig_SimpleFunction('loadData', [$template_function, 'loadData']),
             new \Twig_SimpleFunction('loadExtensionData', [$template_function, 'loadExtensionData']),
-            new \Twig_SimpleFunction('searchData', [$template_function, 'searchData']),
-            new \Twig_SimpleFunction('searchExtensionData', [$template_function, 'searchExtensionData']),
             new \Twig_SimpleFunction('loadDataRow', [$template_function, 'loadDataRow']),
-            new \Twig_SimpleFunction('loadExtensionDataRow', [$template_function, 'loadExtensionDataRow']),
             new \Twig_SimpleFunction('createModel', [$template_function, 'createModel']),
             new \Twig_SimpleFunction('createExtensionModel', [$template_function, 'createExtensionModel']),
             new \Twig_SimpleFunction('hasExtension', [$template_function, 'hasExtension']),
+            new \Twig_SimpleFunction('condition', ["\\Arikaim\\Core\\Db\\Model", 'createCondition']),
+            new \Twig_SimpleFunction('searchCondition', ["\\Arikaim\\Core\\Db\\Model", 'createSearchCondition']),
+            new \Twig_SimpleFunction('joinCondition', ["\\Arikaim\\Core\\Db\\Model", 'createJoinCondition']),
+            new \Twig_SimpleFunction('orderBy', ["\\Arikaim\\Core\\Db\\Model", 'createOrderBy']),
             // other
             new \Twig_SimpleFunction('getFileType', [$template_function, 'getFileType']),
             new \Twig_SimpleFunction('executeMethod', [$template_function, 'executeMethod']),
@@ -80,7 +82,6 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFunction('getHiddenClass', [$template_function, 'getHiddenClass']),
             new \Twig_SimpleFunction('getOption', [$template_function, 'getOption']),
             new \Twig_SimpleFunction('getOptions', [$template_function, 'getOptions']),
-            new \Twig_SimpleFunction('condition', [$template_function, 'createCondition']),
             new \Twig_SimpleFunction('getErrors', [$errors, 'getErrors']),
             // template
             new \Twig_SimpleFunction('getTemplateJsFiles', ["\\Arikaim\\Core\\View\\Template", 'getJsFiles']),
@@ -115,11 +116,14 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFilter('getAttr', [$filters, 'getAttributes'],['is_safe' => ['html']]),
             new \Twig_SimpleFilter('showArray', [$filters, 'showArray'],['is_safe' => ['html']]),
             new \Twig_SimpleFilter('ifthen', [$filters, 'is']),
+            new \Twig_SimpleFilter('jsonDecode', ["\\Arikaim\\Core\\Utils\\Utils", 'jsonDecode']),
             // date time
             new \Twig_SimpleFilter('dateFormat', [$filters, 'dateFormat']),
             new \Twig_SimpleFilter('timeFormat', [$filters, 'timeFormat']),
             // numbers
-            new \Twig_SimpleFilter('numberFormat', ["\\Arikaim\\Core\\Utils\\Number", 'format']),  
+            new \Twig_SimpleFilter('numberFormat', ["\\Arikaim\\Core\\Utils\\Number", 'format']),
+            // files
+            new \Twig_SimpleFilter('fileSize', ["\\Arikaim\\Core\\FileSystem\\File", 'getSizeText']),
         );
     }
 

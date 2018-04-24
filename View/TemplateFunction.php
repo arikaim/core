@@ -17,6 +17,7 @@ use Arikaim\Core\Db\Model;
 use Arikaim\Core\Db\Paginator;
 use Arikaim\Core\Db\Search;
 use Arikaim\Core\View\Template;
+use Arikaim\Core\Db\OrderBy;
 
 class TemplateFunction  
 {
@@ -28,7 +29,6 @@ class TemplateFunction
         $this->allowed_classes = [];
         $this->deny_methods = [];
         $this->allowClass(Factory::getCoreNamespace() . '\\Extension\\ExtensionsManager');     
-        $this->allowClass(Factory::getCoreNamespace() . '\\Db\\Search');
         $this->allowClass(Factory::getCoreNamespace() . '\\Db\\Paginator');
         $this->allowClass(Factory::getCoreNamespace() . '\\Extension\\Routes');           
         $this->allowClass(Factory::getCoreNamespace() . '\\View\\TemplatesManager');
@@ -155,24 +155,15 @@ class TemplateFunction
         return "";
     }
     
-    private function loadModelData($class_name, $extension_name = null, $condition = null, $order_by = null, $paginate = false, $search = false) 
+    private function loadModelData($class_name, $extension_name = null, $condition = null, $order_by = null, $paginate = false) 
     {           
         $model = Model::create($class_name,$extension_name);   
         if ($model == null) {
             return [];
         }    
-        
-        if ($search != false) {
-            $search_conditions = Model::getSearchConditions($model,$search);
-            $model = Model::applyCondition($model,$search_conditions);
-        }   
-
         $model = Model::applyCondition($model,$condition);
-              
-        if ($order_by != null) {
-            $model = $model->orderByRaw($order_by);
-        } 
-        
+        $model = Model::applyOrderBy($model,$order_by);
+
         if ($paginate == true) {           
             $model = $model->paginate(Paginator::getRowsPerPage(),['*'], 'page',Paginator::getCurrentPage());
             if (is_object($model) == false) {
@@ -198,49 +189,23 @@ class TemplateFunction
         return [];
     }
 
-    public function searchData($model_class_name, $order_by = null, $paginate = false)
-    {
-        return $this->loadModelData($model_class_name,null,null,$order_by,$paginate,true);
-    }
-
-    public function searchExtensionData($model_class_name, $extension_name, $order_by = null, $paginate = false)
-    {
-        return $this->loadModelData($model_class_name,$extension_name,null,$order_by,$paginate,true);
-    }
-
-    public function loadData($model_class_name, $condition = null, $order_by = null, $paginate = false, $search = null) 
+    public function loadData($model_class_name, $condition = null, $order_by = null, $paginate = false) 
     {     
-        return $this->loadModelData($model_class_name,null,$condition,$order_by,$paginate,$search);
+        return $this->loadModelData($model_class_name,null,$condition,$order_by,$paginate);
     }
 
-    public function loadExtensionData($model_class_name, $extension_name, $condition = null, $order_by = null, $paginate = false, $search = null) 
+    public function loadExtensionData($model_class_name, $extension_name, $condition = null, $order_by = null, $paginate = false) 
     {    
-        return $this->loadModelData($model_class_name,$extension_name,$condition,$order_by,$paginate,$search);
+        return $this->loadModelData($model_class_name,$extension_name,$condition,$order_by,$paginate);
     }
 
-    private function loadModelDataRow($model_class_name, $condition, $extension_name = null)
-    {            
-        $model = Model::create($model_class_name,$extension_name);
-        if ($model == null) {
-            return [];
-        }                   
-        $model = Model::applyCondition($model,$condition);
-
-        $data = $model->first();
-        if ($data != null) {
-            return $data->toArray();
+    public function loadDataRow($model_class_name, $condition, $extension_name = null)
+    {
+        $result = $this->loadModelData($model_class_name,$extension_name,$condition);
+        if (is_array($result[0]) == true) {
+            return $result[0];
         }
         return [];
-    }
-
-    public function loadDataRow($model_class_name, $condition)
-    {
-        return $this->loadModelDataRow($model_class_name,$condition);
-    }
-
-    public function loadExtensionDataRow($model_class_name, $extension_name, $condition)
-    {
-        return $this->loadModelDataRow($model_class_name,$condition,$extension_name);
     }
 
     public function createModel($class_name, $method_name = null, $args = null)
@@ -267,12 +232,6 @@ class TemplateFunction
     {
         $value = Arikaim::options()->get($name,$default_value);   
         return ($value == null) ? "" : $value;
-    }
-
-    public function createCondition($field_name, $operator, $value, array $conditions = null)
-    {
-        $condition = Model::createCondition($field_name,$operator,$value,$conditions);
-        return $condition->toArray();
     }
 
     public function getOptions($search_key)
