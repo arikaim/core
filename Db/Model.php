@@ -102,7 +102,7 @@ class Model
         return $condition;
     }
     
-    public static function createJoinCondition($table_name, $field, $join_field, $type, $operator = '=', $conditions = null)
+    public static function createJoinCondition($table_name, $field, $join_field, $type = JoinCondition::LEFT_JOIN, $operator = '=', $conditions = null)
     {
         $condition = new JoinCondition($table_name,$field,$join_field,$type,$operator);
         $condition->append($conditions);

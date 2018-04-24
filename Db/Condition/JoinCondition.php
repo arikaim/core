@@ -24,11 +24,11 @@ class JoinCondition extends BaseCondition
     {
         parent::__construct();
         if ($field != null) {
-            $this->addCondition($table_name,$field,$join_field,$type,$operator);
+            $this->addItem($table_name,$field,$join_field,$type,$operator);
         }
     }
 
-    private function addCondition($table_name, $field, $join_field, $type = Self::INNER_JOIN, $operator = DEFAULT_OPERATOR)
+    private function addItem($table_name, $field, $join_field, $type = Self::INNER_JOIN, $operator = DEFAULT_OPERATOR)
     {
         $condition['table_name'] = $table_name;
         $condition['field'] = $field;
