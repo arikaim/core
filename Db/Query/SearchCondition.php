@@ -13,11 +13,12 @@ use Arikaim\Core\Db\Query\Condition;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Utils;
+use Arikaim\Core\Interfaces\QueryBuilderInterface;
 
 /**
  * Database search condition
 */
-class SearchCondition extends Condition
+class SearchCondition extends Condition implements QueryBuilderInterface
 {   
     public function __construct($model_class_name, $extension_name = null, $search = null) 
     {

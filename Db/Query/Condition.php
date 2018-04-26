@@ -9,13 +9,13 @@
 */
 namespace Arikaim\Core\Db\Query;
 
-use Arikaim\Core\Db\Query\BaseCondition;
+use Arikaim\Core\Db\Query\QueryBuilder;
 use Arikaim\Core\Interfaces\QueryBuilderInterface;
 
 /**
  * Database condition
 */
-class Condition extends BaseCondition implements QueryBuilderInterface
+class Condition extends QueryBuilder implements QueryBuilderInterface
 {   
     const AND_OPERATOR = 'and';
     const OR_OPERATOR = 'or';

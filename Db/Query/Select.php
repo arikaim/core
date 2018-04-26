@@ -9,13 +9,13 @@
 */
 namespace Arikaim\Core\Db\Query;
 
-use Arikaim\Core\Utils\Collection;
+use Arikaim\Core\Db\Query\QueryBuilder;
 use Arikaim\Core\Interfaces\QueryBuilderInterface;
 
 /**
  * Database query builder select
 */
-class Select extends Collection implements QueryBuilderInterface
+class Select extends QueryBuilder implements QueryBuilderInterface
 {   
     public function __construct(array $columns) 
     {
@@ -26,19 +26,6 @@ class Select extends Collection implements QueryBuilderInterface
     public function addItem($field_name)
     {       
         array_push($this->data,$field_name);
-        return true;
-    }
-
-    public function append($select)
-    {
-        if ($select instanceof Select) {
-            $select = $select->toArray();
-        }
-       
-        if (is_array($order) == false) {
-            return false;
-        }
-        $this->data = array_merge($this->data,$select);
         return true;
     }
 

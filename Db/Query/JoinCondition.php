@@ -9,13 +9,13 @@
 */
 namespace Arikaim\Core\Db\Query;
 
-use Arikaim\Core\Db\Query\BaseCondition;
+use Arikaim\Core\Db\Query\QueryBuilder;
 use Arikaim\Core\Interfaces\QueryBuilderInterface;
 
 /**
  * Database condition
 */
-class JoinCondition extends BaseCondition implements QueryBuilderInterface
+class JoinCondition extends QueryBuilder implements QueryBuilderInterface
 {   
     const LEFT_JOIN = 'left';
     const CROSS_JOIN = 'cross';

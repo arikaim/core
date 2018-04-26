@@ -15,7 +15,7 @@ use Arikaim\Core\Interfaces\QueryBuilderInterface;
 /**
  * Database order by
 */
-class OrderBy extends Collection implements QueryBuilderInterface
+class OrderBy extends QueryBuilder implements QueryBuilderInterface
 {   
     const ASC = 'asc';
     const DESC = 'desc';
@@ -34,19 +34,6 @@ class OrderBy extends Collection implements QueryBuilderInterface
         $order['field'] = $field_name;
         $order['type'] = $type;
         array_push($this->data,$order);
-        return true;
-    }
-
-    public function append($order)
-    {
-        if ($order instanceof OrderBy) {
-            $order = $order->toArray();
-        }
-       
-        if (is_array($order) == false) {
-            return false;
-        }
-        $this->data = array_merge($this->data,$order);
         return true;
     }
 

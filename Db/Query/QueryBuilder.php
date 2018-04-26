@@ -15,7 +15,7 @@ use Arikaim\Core\Interfaces\QueryBuilderInterface;
 /**
  * Database base condition
 */
-abstract class BaseCondition extends Collection implements QueryBuilderInterface
+abstract class QueryBuilder extends Collection implements QueryBuilderInterface
 {   
     const DEFAULT_OPERATOR = '=';
     const DEFAULT_STATEMENT_OPERATOR = 'and';
@@ -36,16 +36,16 @@ abstract class BaseCondition extends Collection implements QueryBuilderInterface
         return false;
     }
 
-    public function append($condition)
+    public function append($query_builder)
     {
-        if ($condition instanceof BaseCondition) {
-            $condition = $condition->toArray();
+        if ($query_builder instanceof QueryBuilder) {
+            $query_builder = $query_builder->toArray();
         }
        
-        if (is_array($condition) == false) {
+        if (is_array($query_builder) == false) {
             return false;
         }
-        $this->data = array_merge($this->data,$condition);
+        $this->data = array_merge($this->data,$query_builder);
         return true;
     }
 
