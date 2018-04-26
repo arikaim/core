@@ -12,11 +12,11 @@ namespace Arikaim\Core\Db;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Utils\FunctionArguments;
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Db\Condition\BaseCondition;
-use Arikaim\Core\Db\Condition\Condition;
-use Arikaim\Core\Db\Condition\SearchCondition;
-use Arikaim\Core\Db\Condition\JoinCondition;
-use Arikaim\Core\Db\OrderBy;
+use Arikaim\Core\Interfaces\QueryBuilderInterface;
+use Arikaim\Core\Db\Query\Condition;
+use Arikaim\Core\Db\Query\SearchCondition;
+use Arikaim\Core\Db\Query\JoinCondition;
+use Arikaim\Core\Db\Query\OrderBy;
 
 /**
  * Database Model Factory 
@@ -87,32 +87,13 @@ class Model
         return is_subclass_of($instance,"\\Illuminate\\Database\\Eloquent\\Model");
     }
 
-    public static function applyCondition($model, $condition)
+    public static function buildQuery($model, $query_builder)
     {
-        if (empty($condition) == true) {
+        if (empty($query_builder) == true) {
             return $model;
         } 
-        if ($condition instanceof BaseCondition) {
-            $model = $condition->applyConditions($model);
-            return $model;
-        }
-        return $model->whereRaw($condition);
-    }
-
-    public static function applyOrderBy($model,$order_by)
-    {
-        if (empty($order_by) == true) {
-            return $model;
-        } 
-        
-        if (is_string($order_by) == true) {
-            $model = $model->orderByRaw($order_by);
-            return $model;
-        } 
-
-        if ($order_by instanceof OrderBy) {
-            $model = $order_by->apply($model);
-            return $model;
+        if ($query_builder instanceof QueryBuilderInterface) {
+            $model = $query_builder->build($model);
         }
         return $model;
     }

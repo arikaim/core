@@ -73,7 +73,7 @@ class DbJobsQueue implements QueueStorageInterface
     public function removeJobs($condition)
     {
         $model = Model::JobsQueue();
-        $model = Model::applyCondition($model,$condition);
+        $model = Model::buildQuery($model,$condition);
         return $model->delete();
     }
 
@@ -86,7 +86,7 @@ class DbJobsQueue implements QueueStorageInterface
     public function getRecuringJobs($condition = null, $to_array = false)
     {
         $model = Model::JobsQueue();
-        $model = Model::applyCondition($model,$condition);
+        $model = Model::buildQuery($model,$condition);
         $model = $model->where('recuring_interval','<>','')->get();
         if (is_object($model) == true) {
             $jobs = $model->toArray();
@@ -123,7 +123,7 @@ class DbJobsQueue implements QueueStorageInterface
     public function getJobs($condition = null)
     {
         $model = Model::JobsQueue();        
-        $model = Model::applyCondition($model,$condition);
+        $model = Model::buildQuery($model,$condition);
         $model = $model->orderBy('priority','desc');
         $model = $model->get();
         if (is_object($model) == true) {

@@ -83,4 +83,23 @@ class Paginator
         }
         return $page;
     }
+
+    public static function create($model)
+    {
+        $model = $model->paginate(Self::getRowsPerPage(),['*'], 'page',Self::getCurrentPage());
+        if (is_object($model) == false) {
+            return [];
+        }   
+        $model = $model->toArray(); 
+        $result['paginator']['total'] = $model['total'];
+        $result['paginator']['per_page'] = $model['per_page'];
+        $result['paginator']['current_page'] = $model['current_page'];
+        $result['paginator']['prev_page'] = Self::getPrevPage();
+        $result['paginator']['next_page'] = Self::getNextPage($model['last_page']);
+        $result['paginator']['last_page'] = $model['last_page'];
+        $result['paginator']['from'] = $model['from'];
+        $result['paginator']['to'] = $model['to'];
+        $result['rows'] = $model['data'];            
+        return $result;   
+    }
 }

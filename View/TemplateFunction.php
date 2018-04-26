@@ -17,7 +17,6 @@ use Arikaim\Core\Db\Model;
 use Arikaim\Core\Db\Paginator;
 use Arikaim\Core\Db\Search;
 use Arikaim\Core\View\Template;
-use Arikaim\Core\Db\OrderBy;
 
 class TemplateFunction  
 {
@@ -132,7 +131,7 @@ class TemplateFunction
     {
         if (is_array($array) == false) return false;
         foreach ($array as $key => $value) {        
-            if ( is_array($array[$key]) == true) {               
+            if (is_array($array[$key]) == true) {               
                 return true;
             }
         }
@@ -155,54 +154,38 @@ class TemplateFunction
         return "";
     }
     
-    private function loadModelData($class_name, $extension_name = null, $condition = null, $order_by = null, $paginate = false) 
+    public function dbQuery($model_class_name, $query_builder = null, $extension_name = null, $paginate = false, $debug = false) 
     {           
-        $model = Model::create($class_name,$extension_name);   
+        $model = Model::create($model_class_name,$extension_name);   
         if ($model == null) {
             return [];
         }    
-        $model = Model::applyCondition($model,$condition);
-        $model = Model::applyOrderBy($model,$order_by);
-
-        if ($paginate == true) {           
-            $model = $model->paginate(Paginator::getRowsPerPage(),['*'], 'page',Paginator::getCurrentPage());
-            if (is_object($model) == false) {
-                return [];
-            }
-            $model = $model->toArray(); 
-            $result['paginator']['total'] = $model['total'];
-            $result['paginator']['per_page'] = $model['per_page'];
-            $result['paginator']['current_page'] = $model['current_page'];
-            $result['paginator']['prev_page'] = Paginator::getPrevPage();
-            $result['paginator']['next_page'] = Paginator::getNextPage($model['last_page']);
-            $result['paginator']['last_page'] = $model['last_page'];
-            $result['paginator']['from'] = $model['from'];
-            $result['paginator']['to'] = $model['to'];
-            $result['rows'] = $model['data'];            
-            return $result;            
-        } 
+        $model = Model::buildQuery($model,$query_builder);
         
+        if ($paginate == true) {   
+            return Paginator::create($model);        
+        } 
+        if ($debug == true) {
+            echo "query: " . $model->toSql();
+            exit();
+        }
         $model = $model->get();
+
         if (is_object($model) == true) {
             return $model->toArray(); 
         }
         return [];
     }
 
-    public function loadData($model_class_name, $condition = null, $order_by = null, $paginate = false) 
-    {     
-        return $this->loadModelData($model_class_name,null,$condition,$order_by,$paginate);
-    }
-
-    public function loadExtensionData($model_class_name, $extension_name, $condition = null, $order_by = null, $paginate = false) 
-    {    
-        return $this->loadModelData($model_class_name,$extension_name,$condition,$order_by,$paginate);
-    }
-
-    public function loadDataRow($model_class_name, $condition, $extension_name = null)
+    public function dbQueryPage($model_class_name, $query_builder = null, $extension_name = null)
     {
-        $result = $this->loadModelData($model_class_name,$extension_name,$condition);
-        if (is_array($result[0]) == true) {
+        return $this->dbQuery($model_class_name,$query_builder,$extension_name,true);
+    }
+
+    public function dbQueryRow($model_class_name, $query_builder = null, $extension_name = null, $debug = false)
+    {
+        $result = $this->dbQuery($model_class_name,$query_builder,$extension_name,false,$debug);
+        if (isset($result[0]) == true) {
             return $result[0];
         }
         return [];

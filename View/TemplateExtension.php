@@ -61,9 +61,9 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFunction('currentUrl', ["\\Arikaim\\Core\\View\\Html\\Page", 'getCurrentUrl']),
             new \Twig_SimpleFunction('isMobile', [$mobile, 'isMobile']),
             // database 
-            new \Twig_SimpleFunction('loadData', [$template_function, 'loadData']),
-            new \Twig_SimpleFunction('loadExtensionData', [$template_function, 'loadExtensionData']),
-            new \Twig_SimpleFunction('loadDataRow', [$template_function, 'loadDataRow']),
+            new \Twig_SimpleFunction('dbQuery', [$template_function, 'dbQuery']),
+            new \Twig_SimpleFunction('dbQueryPage', [$template_function, 'dbQueryPage']),
+            new \Twig_SimpleFunction('dbQueryRow', [$template_function, 'dbQueryRow']),
             new \Twig_SimpleFunction('createModel', [$template_function, 'createModel']),
             new \Twig_SimpleFunction('createExtensionModel', [$template_function, 'createExtensionModel']),
             new \Twig_SimpleFunction('hasExtension', [$template_function, 'hasExtension']),

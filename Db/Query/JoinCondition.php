@@ -7,14 +7,15 @@
  * @license     http://www.arikaim.com/license.html
  * 
 */
-namespace Arikaim\Core\Db\Condition;
+namespace Arikaim\Core\Db\Query;
 
-use Arikaim\Core\Db\Condition\BaseCondition;
+use Arikaim\Core\Db\Query\BaseCondition;
+use Arikaim\Core\Interfaces\QueryBuilderInterface;
 
 /**
  * Database condition
 */
-class JoinCondition extends BaseCondition
+class JoinCondition extends BaseCondition implements QueryBuilderInterface
 {   
     const LEFT_JOIN = 'left';
     const CROSS_JOIN = 'cross';
@@ -39,26 +40,26 @@ class JoinCondition extends BaseCondition
         return $this->addCondition($condition);
     }
 
-    public function apply($model,$condition)
+    public function apply($model,$data)
     {
-        $condition = $this->normalizeCondition($condition);
-        if ($condition == false) {
+        $data = $this->normalizeCondition($data);
+        if ($data == false) {
             return $model;
         }
-        $field = $model->getTable() . '.' . $condition['field'];
-        $join_field = $condition['table_name'] . "." . $condition['join_field'];
+        $field = $model->getTable() . '.' . $data['field'];
+        $join_field = $data['table_name'] . "." . $data['join_field'];
 
-        switch($condition['type']) {
+        switch($data['type']) {
             case Self::LEFT_JOIN: {
-                $model = $model->leftJoin($condition['table_name'],$field,$condition['operator'],$join_field);
+                $model = $model->leftJoin($data['table_name'],$field,$data['operator'],$join_field);
                 break;
             }
             case Self::INNER_JOIN: {
-                $model = $model->Join($condition['table_name'],$field,$condition['operator'],$join_field);
+                $model = $model->join($data['table_name'],$field,$data['operator'],$join_field);
                 break;
             }
             case Self::CROSS_JOIN: {
-                $model = $model->crossJoin($condition['table_name'],$field,$condition['operator'],$join_field);
+                $model = $model->crossJoin($data['table_name'],$field,$data['operator'],$join_field);
                 break;
             }
         }

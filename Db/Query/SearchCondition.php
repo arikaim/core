@@ -7,9 +7,9 @@
  * @license     http://www.arikaim.com/license.html
  * 
 */
-namespace Arikaim\Core\Db\Condition;
+namespace Arikaim\Core\Db\Query;
 
-use Arikaim\Core\Db\Condition\Condition;
+use Arikaim\Core\Db\Query\Condition;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Utils;

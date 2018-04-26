@@ -7,14 +7,15 @@
  * @license     http://www.arikaim.com/license.html
  * 
 */
-namespace Arikaim\Core\Db\Condition;
+namespace Arikaim\Core\Db\Query;
 
-use Arikaim\Core\Db\Condition\BaseCondition;
+use Arikaim\Core\Db\Query\BaseCondition;
+use Arikaim\Core\Interfaces\QueryBuilderInterface;
 
 /**
  * Database condition
 */
-class Condition extends BaseCondition
+class Condition extends BaseCondition implements QueryBuilderInterface
 {   
     const AND_OPERATOR = 'and';
     const OR_OPERATOR = 'or';

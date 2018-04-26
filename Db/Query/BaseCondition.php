@@ -7,14 +7,15 @@
  * @license     http://www.arikaim.com/license.html
  * 
 */
-namespace Arikaim\Core\Db\Condition;
+namespace Arikaim\Core\Db\Query;
 
 use Arikaim\Core\Utils\Collection;
+use Arikaim\Core\Interfaces\QueryBuilderInterface;
 
 /**
  * Database base condition
 */
-abstract class BaseCondition extends Collection
+abstract class BaseCondition extends Collection implements QueryBuilderInterface
 {   
     const DEFAULT_OPERATOR = '=';
     const DEFAULT_STATEMENT_OPERATOR = 'and';
@@ -24,7 +25,7 @@ abstract class BaseCondition extends Collection
         parent::__construct();
     }
 
-    public abstract function apply($model,$condition);
+    public abstract function apply($model,$data);
 
     public function addCondition($condition)
     {
@@ -48,7 +49,7 @@ abstract class BaseCondition extends Collection
         return true;
     }
 
-    public function applyConditions($model)
+    public function build($model)
     {       
         foreach ($this->data as $condition) {            
             $model = $this->apply($model,$condition);

@@ -7,14 +7,15 @@
  * @license     http://www.arikaim.com/license.html
  * 
 */
-namespace Arikaim\Core\Db;
+namespace Arikaim\Core\Db\Query;
 
 use Arikaim\Core\Utils\Collection;
+use Arikaim\Core\Interfaces\QueryBuilderInterface;
 
 /**
  * Database order by
 */
-class OrderBy extends Collection
+class OrderBy extends Collection implements QueryBuilderInterface
 {   
     const ASC = 'asc';
     const DESC = 'desc';
@@ -22,6 +23,9 @@ class OrderBy extends Collection
     public function __construct($field_name, $type = Self::ASC) 
     {
         parent::__construct();
+        if (is_array($field_name) == true) {
+            $this->data = $field_name;
+        }
         $this->additem($field_name,$type);
     }
 
@@ -46,23 +50,29 @@ class OrderBy extends Collection
         return true;
     }
 
-    public function apply($model)
+    public function apply($model, $data)
+    { 
+        $data = $this->normalize($data);
+        $model = $model->orderBy($data['field'],$data['type']);
+        return $model;
+    }
+
+    public function build($model)
     {       
-        foreach ($this->data as $order) {    
-            $order = $this->normalize($order);
-            $model = $model->orderBy($order['field'],$order['type']);
+        foreach ($this->data as $data) {  
+            $model = $this->apply($model,$data);
         }
         return $model;
     }
 
-    private function normalize($order_by)
+    private function normalize($data)
     {
-        if (isset($order_by['field']) == false) {
+        if (isset($data['field']) == false) {
             return false;
         }
-        if (isset($order_by['type']) == false) {
-            $order_by['type'] = Self::ASC;
+        if (isset($data['type']) == false) {
+            $data['type'] = Self::ASC;
         }
-        return $order_by;
+        return $data;
     }
 }
