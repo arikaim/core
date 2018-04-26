@@ -98,31 +98,31 @@ class Model
         return $model;
     }
 
-    public static function createCondition($field_name, $operator, $value, $conditions = null)
+    public static function createCondition($field_name, $operator, $value, $query_builder = null)
     {
         $condition = new Condition($field_name, $operator, $value);
-        $condition->append($conditions);
+        $condition->append($query_builder);
         return $condition;
     }
     
-    public static function createJoinCondition($table_name, $field, $join_field, $type = JoinCondition::LEFT_JOIN, $operator = '=', $conditions = null)
+    public static function createJoinCondition($table_name, $field, $join_field, $type = JoinCondition::LEFT_JOIN, $operator = '=', $query_builder = null)
     {
         $condition = new JoinCondition($table_name,$field,$join_field,$type,$operator);
-        $condition->append($conditions);
+        $condition->append($query_builder);
         return $condition;
     }
 
-    public static function createSearchCondition($model_class_name, $extension_name = null, $search = null, $conditions = null)
+    public static function createSearchCondition($model_class_name, $extension_name = null, $search = null, $query_builder = null)
     {
         $condition = new SearchCondition($model_class_name,$extension_name,$search);
-        $condition->append($conditions);
+        $condition->append($query_builder);
         return $condition;
     }
 
-    public static function createOrderBy($field_name, $type = OrderBy::ASC, OrderBy $order_by = null)
+    public static function createOrderBy($field_name, $type = OrderBy::ASC, $query_builder = null)
     {
         $order = new OrderBy($field_name,$type);
-        $order->append($order_by);
+        $order->append($query_builder);
         return $order;
     }
 }
