@@ -93,7 +93,7 @@ class File
 
     public static function getSizeText($size, $labels = null, $as_text = true)
     {        
-        if (is_array($labels) == null) {
+        if (is_array($labels) == false) {
             $labels = ['Bytes','KB','MB','GB','TB','PB','EB','ZB','YB'];
         }
         $power = $size > 0 ? floor(log($size, 1024)) : 0;

@@ -34,6 +34,19 @@ class Model
         return null;
     }
 
+    public static function getModelPath($model, $parent_field_name = "parent_id")
+    {
+        array_unshift($result,$model->toArray());
+        while ($model != false) {
+            $parent_id = $model->{$parent_field_name};
+            $model = $model->where('id','=',$parent_id)->first();
+            if (is_object($model) == true) {
+                array_unshift($result,$model->toArray());
+            }
+        }
+        return $result;
+    }
+
     public static function getTreePath($class_name, $id, $extension_name = null, $parent_field_name = "parent_id")
     {
         $model = Self::create($class_name,$extension_name);
@@ -45,15 +58,7 @@ class Model
         if (is_object($model) == false) {
             return false;
         }
-        array_unshift($result,$model->toArray());
-        while ($model != false) {
-            $parent_id = $model->{$parent_field_name};
-            $model = $model->where('id','=',$parent_id)->first();
-            if (is_object($model) == true) {
-                array_unshift($result,$model->toArray());
-            }
-        }
-        return $result;
+        return Self::getModelPath($model,$parent_field_name);
     }
 
     public static function getFullClassName($class_name, $extension_name = null)
