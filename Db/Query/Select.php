@@ -10,37 +10,25 @@
 namespace Arikaim\Core\Db\Query;
 
 use Arikaim\Core\Db\Query\QueryBuilder;
-use Arikaim\Core\Interfaces\QueryBuilderInterface;
 
 /**
  * Database query builder select
 */
-class Select extends QueryBuilder implements QueryBuilderInterface
+class Select extends QueryBuilder
 {   
-    public function __construct(array $columns) 
+    protected $columns;
+
+    public function __construct($columns) 
     {
         parent::__construct();
-        $this->data = $fields;
-    }
-
-    public function addItem($field_name)
-    {       
-        array_push($this->data,$field_name);
-        return true;
-    }
-
-    public function build($model)
-    {       
-        foreach ($this->data as $columns) {    
-            $this->apply($model,$columns);
-        }
-        return $model;
+        $this->columns = $columns;
+        $this->append($this);
     }
     
-    public function apply($model,$data)
+    public function apply($model)
     {
-        if (is_array($columns) == true) {
-            $model = $model->select($data);
+        if (empty($this->columns) == false) {
+            $model = $model->select($this->columns);
         }
         return $model;
     }

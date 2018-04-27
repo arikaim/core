@@ -20,60 +20,30 @@ abstract class QueryBuilder extends Collection implements QueryBuilderInterface
     const DEFAULT_OPERATOR = '=';
     const DEFAULT_STATEMENT_OPERATOR = 'and';
     
+    const AND_OPERATOR = 'and';
+    const OR_OPERATOR = 'or';
+
     public function __construct() 
     {
         parent::__construct();
     }
 
-    public abstract function apply($model,$data);
-
-    public function addCondition($condition)
-    {
-        if (is_array($condition) == true) {
-            array_push($this->data,$condition);
-            return true;      
-        }
-        return false;
-    }
+    public abstract function apply($model);
 
     public function append($query_builder)
-    {
-        if ($query_builder instanceof QueryBuilder) {
-            $query_builder = $query_builder->toArray();
-        }
-       
-        if (is_array($query_builder) == false) {
+    {   
+        if (is_object($query_builder) == false) {
             return false;
         }
-        $this->data = array_merge($this->data,$query_builder);
+        array_push($this->data,$query_builder);
         return true;
     }
 
     public function build($model)
     {       
-        foreach ($this->data as $condition) {            
-            $model = $this->apply($model,$condition);
+        foreach ($this->data as $builder) {            
+            $model = $builder->apply($model);
         }
         return $model;
-    }
-
-    protected function normalizeCondition($condition)
-    {
-        if (isset($condition['field']) == false) {
-            return false;
-        }
-        if (isset($condition['statement_operator']) == false) {
-            $condition['statement_operator'] = Self::DEFAULT_STATEMENT_OPERATOR;
-        }
-        if (isset($condition['operator']) == false) {
-            $condition['operator'] = Self::DEFAULT_OPERATOR;
-        }
-        if (isset($condition['value']) == false) {
-            $condition['value'] = "";
-        }
-        if (strtolower($condition['operator']) == 'like') {
-            $condition['value'] = "%" . $condition['value'] . "%";
-        }
-        return $condition;
     }
 }

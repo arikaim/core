@@ -10,59 +10,64 @@
 namespace Arikaim\Core\Db\Query;
 
 use Arikaim\Core\Db\Query\QueryBuilder;
-use Arikaim\Core\Interfaces\QueryBuilderInterface;
 
 /**
  * Database condition
 */
-class Condition extends QueryBuilder implements QueryBuilderInterface
+class Condition extends QueryBuilder
 {   
-    const AND_OPERATOR = 'and';
-    const OR_OPERATOR = 'or';
-  
+    protected $field;
+    protected $operator;
+    protected $value;
+    protected $statement_operator;
+
     public function __construct($field = null, $operator = null, $value = null, $statement_operator = Self::AND_OPERATOR) 
     {
-        parent::__construct();
-        if ($field != null) {
-            $this->andCondition($field, $operator, $value);
-        }
+        parent::__construct();       
+
+        $this->field = $field;
+        $this->operator = $operator;
+        $this->value = $value;
+        $this->statement_operator = $statement_operator;
+        $this->append($this);
     }
 
-    private function create($field, $operator, $value, $statement_operator = Self::AND_OPERATOR)
+    public function apply($model)
     {
-        $condition['field'] = $field;
-        $condition['operator'] = $operator;
-        $condition['value'] = $value;
-        $condition['statement_operator'] = $statement_operator;
-        return $this->addCondition($condition);
-    }
-
-    public function andCondition($field, $operator, $value)
-    {
-        return $this->create($field,$operator,$value,"and");
-    }
-
-    public function orCondition($field, $operator, $value)
-    {
-        return $this->create($field,$operator,$value,"or");
-    }
-
-    public function apply($model, $condition)
-    {
-        $condition = $this->normalizeCondition($condition);
-        if ($condition == false) {
+        $valid = $this->validate();
+        if ($valid == false) {
             return $model;
         }
-        switch($condition['statement_operator']) {
+        switch($this->statement_operator) {
             case Self::AND_OPERATOR: {
-                $model = $model->where($condition['field'],$condition['operator'],$condition['value']);
+                $model = $model->where($this->field,$this->operator,$this->value);
                 break;
             }
             case Self::OR_OPERATOR: {
-                $model = $model->orWhere($condition['field'],$condition['operator'],$condition['value']);
+                $model = $model->orWhere($this->field,$this->operator,$this->value);
                 break;
             }
         }
         return $model;
+    }
+
+    protected function validate()
+    {
+        if (isset($this->field) == false) {
+            return false;
+        }
+        if (isset($this->statement_operator) == false) {
+            $this->statement_operator = Self::DEFAULT_STATEMENT_OPERATOR;
+        }
+        if (isset($this->operator) == false) {
+            $this->operator = Self::DEFAULT_OPERATOR;
+        }
+        if (isset($this->value) == false) {
+            $this->value = "";
+        }
+        if (strtolower($this->operator) == 'like') {
+            $this->value = "%" . $this->value . "%";
+        }
+        return true;
     }
 }

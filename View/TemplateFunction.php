@@ -162,13 +162,13 @@ class TemplateFunction
         }    
         $model = Model::buildQuery($model,$query_builder);
         
+        if ($debug == true) {
+            echo "query: " . $model->toSql();
+        }
+      
         if ($paginate == true) {   
             return Paginator::create($model);        
         } 
-        if ($debug == true) {
-            echo "query: " . $model->toSql();
-            exit();
-        }
         $model = $model->get();
 
         if (is_object($model) == true) {
@@ -177,9 +177,9 @@ class TemplateFunction
         return [];
     }
 
-    public function dbQueryPage($model_class_name, $query_builder = null, $extension_name = null)
+    public function dbQueryPage($model_class_name, $query_builder = null, $extension_name = null, $debug = false)
     {
-        return $this->dbQuery($model_class_name,$query_builder,$extension_name,true);
+        return $this->dbQuery($model_class_name,$query_builder,$extension_name,true,$debug);
     }
 
     public function dbQueryRow($model_class_name, $query_builder = null, $extension_name = null, $debug = false)

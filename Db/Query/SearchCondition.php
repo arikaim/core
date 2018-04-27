@@ -9,17 +9,17 @@
 */
 namespace Arikaim\Core\Db\Query;
 
+use Arikaim\Core\Db\Query\QueryBuilder;
 use Arikaim\Core\Db\Query\Condition;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Utils;
-use Arikaim\Core\Interfaces\QueryBuilderInterface;
 
 /**
  * Database search condition
 */
-class SearchCondition extends Condition implements QueryBuilderInterface
-{   
+class SearchCondition extends QueryBuilder
+{
     public function __construct($model_class_name, $extension_name = null, $search = null) 
     {
         parent::__construct();
@@ -67,7 +67,8 @@ class SearchCondition extends Condition implements QueryBuilderInterface
         $fields = $this->createSearchFields($model,$search_array);
         foreach ($fields as $condition) {
             $condition['value'] = $search_value;
-            $this->addCondition($condition);
+            $condition = new Condition($condition['field'],$condition['operator'],$condition['value'],$condition['statement_operator']);
+            $this->append($condition);
         }
         return $this;
     }
@@ -82,5 +83,10 @@ class SearchCondition extends Condition implements QueryBuilderInterface
             $fields = $this->getModelFields($model,$fields);
         } 
         return $fields;
+    }
+
+    public function apply($model)
+    {
+        return $model;
     }
 }

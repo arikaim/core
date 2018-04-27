@@ -11,6 +11,6 @@ namespace Arikaim\Core\Interfaces;
 
 interface QueryBuilderInterface
 {
-    public function apply($model,$data); 
+    public function apply($model); 
     public function build($model); 
 }

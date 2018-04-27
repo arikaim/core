@@ -70,6 +70,7 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFunction('condition', ["\\Arikaim\\Core\\Db\\Model", 'createCondition']),
             new \Twig_SimpleFunction('searchCondition', ["\\Arikaim\\Core\\Db\\Model", 'createSearchCondition']),
             new \Twig_SimpleFunction('joinCondition', ["\\Arikaim\\Core\\Db\\Model", 'createJoinCondition']),
+            new \Twig_SimpleFunction('select', ["\\Arikaim\\Core\\Db\\Model", 'createSelect']),
             new \Twig_SimpleFunction('orderBy', ["\\Arikaim\\Core\\Db\\Model", 'createOrderBy']),
             new \Twig_SimpleFunction('getTreePath', ["\\Arikaim\\Core\\Db\\Model", 'getTreePath']),
             // other

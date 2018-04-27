@@ -10,56 +10,44 @@
 namespace Arikaim\Core\Db\Query;
 
 use Arikaim\Core\Utils\Collection;
-use Arikaim\Core\Interfaces\QueryBuilderInterface;
 
 /**
  * Database order by
 */
-class OrderBy extends QueryBuilder implements QueryBuilderInterface
+class OrderBy extends QueryBuilder
 {   
     const ASC = 'asc';
     const DESC = 'desc';
     
+    protected $field;
+    protected $type;
+    
     public function __construct($field_name, $type = Self::ASC) 
     {
         parent::__construct();
-        if (is_array($field_name) == true) {
-            $this->data = $field_name;
-        }
-        $this->additem($field_name,$type);
+        $this->field = $field_name;
+        $this->type = $type;
+        $this->append($this);
     }
 
-    public function addItem($field_name, $type = Self::ASC)
-    {
-        $order['field'] = $field_name;
-        $order['type'] = $type;
-        array_push($this->data,$order);
-        return true;
-    }
-
-    public function apply($model, $data)
+    public function apply($model)
     { 
-        $data = $this->normalize($data);
-        $model = $model->orderBy($data['field'],$data['type']);
-        return $model;
-    }
-
-    public function build($model)
-    {       
-        foreach ($this->data as $data) {  
-            $model = $this->apply($model,$data);
+        $valid = $this->validate();
+        if ($valid == false) {
+            return $model;
         }
+        $model = $model->orderBy($this->field,$this->type);
         return $model;
     }
 
-    private function normalize($data)
+    protected function validate()
     {
-        if (isset($data['field']) == false) {
+        if (isset($this->field) == false) {
             return false;
         }
-        if (isset($data['type']) == false) {
-            $data['type'] = Self::ASC;
+        if (isset($this->type) == false) {
+            $this->type = Self::ASC;
         }
-        return $data;
+        return true;
     }
 }

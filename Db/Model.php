@@ -17,6 +17,7 @@ use Arikaim\Core\Db\Query\Condition;
 use Arikaim\Core\Db\Query\SearchCondition;
 use Arikaim\Core\Db\Query\JoinCondition;
 use Arikaim\Core\Db\Query\OrderBy;
+use Arikaim\Core\Db\Query\Select;
 
 /**
  * Database Model Factory 
@@ -105,11 +106,18 @@ class Model
         return $condition;
     }
     
-    public static function createJoinCondition($table_name, $field, $join_field, $type = JoinCondition::LEFT_JOIN, $operator = '=', $query_builder = null)
+    public static function createJoinCondition($type = JoinCondition::LEFT_JOIN, $table_name, $field, $operator, $join_field, $query_builder = null)
     {
-        $condition = new JoinCondition($table_name,$field,$join_field,$type,$operator);
+        $condition = new JoinCondition($type,$table_name,$field,$operator,$join_field);
         $condition->append($query_builder);
         return $condition;
+    }
+
+    public static function createSelect($fields, $query_builder = null)
+    {
+        $builder = new Select($fields);
+        $builder->append($query_builder);
+        return $builder;
     }
 
     public static function createSearchCondition($model_class_name, $extension_name = null, $search = null, $query_builder = null)

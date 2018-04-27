@@ -10,59 +10,77 @@
 namespace Arikaim\Core\Db\Query;
 
 use Arikaim\Core\Db\Query\QueryBuilder;
-use Arikaim\Core\Interfaces\QueryBuilderInterface;
 
 /**
  * Database condition
 */
-class JoinCondition extends QueryBuilder implements QueryBuilderInterface
+class JoinCondition extends QueryBuilder
 {   
     const LEFT_JOIN = 'left';
     const CROSS_JOIN = 'cross';
     const INNER_JOIN = 'inner';
 
-    public function __construct($table_name, $field, $join_field, $type = Self::INNER_JOIN, $operator = Self::DEFAULT_OPERATOR) 
+    protected $table_name;
+    protected $type;
+    protected $join_field;
+    protected $field;
+    protected $operator;
+    protected $statement_operator;
+
+    public function __construct($type = Self::INNER_JOIN, $table_name, $field, $operator, $join_field, $statement_operator = Self::DEFAULT_STATEMENT_OPERATOR) 
     {
         parent::__construct();
-        if ($field != null) {
-            $this->addItem($table_name,$field,$join_field,$type,$operator);
-        }
+    
+        $this->field = $field;
+        $this->operator = $operator;
+        $this->statement_operator = $statement_operator;
+        $this->table_name = $table_name;
+        $this->join_field = $join_field;      
+        $this->type = $type;      
+        $this->append($this);
     }
 
-    private function addItem($table_name, $field, $join_field, $type = Self::INNER_JOIN, $operator = DEFAULT_OPERATOR)
+    public function apply($model)
     {
-        $condition['table_name'] = $table_name;
-        $condition['field'] = $field;
-        $condition['operator'] = $operator;
-        $condition['join_field'] = $join_field;
-        $condition['statement_operator'] = Self::DEFAULT_STATEMENT_OPERATOR;
-        $condition['type'] = $type;
-        return $this->addCondition($condition);
-    }
-
-    public function apply($model,$data)
-    {
-        $data = $this->normalizeCondition($data);
-        if ($data == false) {
+        $valid = $this->validate();
+        if ($valid == false) {
             return $model;
         }
-        $field = $model->getTable() . '.' . $data['field'];
-        $join_field = $data['table_name'] . "." . $data['join_field'];
 
-        switch($data['type']) {
+        switch($this->type) {
             case Self::LEFT_JOIN: {
-                $model = $model->leftJoin($data['table_name'],$field,$data['operator'],$join_field);
+                $model = $model->leftJoin($this->table_name,$this->field,$this->operator,$this->join_field);
                 break;
             }
             case Self::INNER_JOIN: {
-                $model = $model->join($data['table_name'],$field,$data['operator'],$join_field);
+                $model = $model->join($this->table_name,$this->field,$this->operator,$this->join_field);
                 break;
             }
             case Self::CROSS_JOIN: {
-                $model = $model->crossJoin($data['table_name'],$field,$data['operator'],$join_field);
+                $model = $model->crossJoin($this->table_name,$this->field,$this->operator,$this->join_field);
                 break;
             }
         }
         return $model;
+    }
+
+    protected function validate()
+    {
+        if (empty($this->field) == true) {
+            return false;
+        }
+        if (empty($this->join_field) == true) {
+            return false;
+        }
+        if (empty($this->table_name) == true) {
+            return false;
+        }
+        if (empty($this->statement_operator) == false) {
+            $this->statement_operator = Self::DEFAULT_STATEMENT_OPERATOR;
+        }
+        if (empty($this->operator) == false) {
+            $this->operator = Self::DEFAULT_OPERATOR;
+        }
+        return true;
     }
 }
