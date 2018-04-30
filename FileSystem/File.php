@@ -99,7 +99,7 @@ class File
         $power = $size > 0 ? floor(log($size, 1024)) : 0;
         $result['size'] = round($size / pow(1024, $power),2);
         $result['label'] = $labels[$power];
-        return ($as_text == true) ? $result['size'] . " " . $result['label'] : $result; 
+        return ($as_text == true) ? $result['size'] . $result['label'] : $result; 
     }
 
     public static function makeDir($path, $mode = 0755, $recursive = true)

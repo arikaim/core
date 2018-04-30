@@ -12,6 +12,9 @@ namespace Arikaim\Core\Form;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Interfaces\FilterInterface;
 
+/**
+ * Base class for all form validation rules
+ */
 abstract class AbstractRule implements FilterInterface
 {    
     const INT       = 1;
@@ -36,16 +39,33 @@ abstract class AbstractRule implements FilterInterface
         $this->setErrorCode($error_code);
     }
 
+    /**
+     * Set field as required
+     *
+     * @param bool $required
+     * @return void
+     */
     public function setRequired($required)
     {
         $this->required = $required;
     }
 
-    public function isRequired($required)
+    /**
+     * Return true if field rule is required
+     *
+     * @return boolean
+     */
+    public function isRequired()
     {
         return ($this->required === false) ? false : true;
     }
 
+    /**
+     * Validate form rule
+     *
+     * @param mixed $value Filed value
+     * @return bool
+     */
     public function validate($value)
     {
         if ((empty($value) == true) && ($this->required == false)) {
@@ -68,24 +88,27 @@ abstract class AbstractRule implements FilterInterface
     {
         switch ($type) {
             case AbstractRule::INT : {
-                if (is_int($value) == true) return true;
+                if (is_numeric($value) == true) {
+                    $value = (int)$value;
+                    return is_int($value);
+                }
                 break;
             }
             case AbstractRule::STRING : {
-                if (is_string($value) == true) return true;
-                break;
+                return is_string($value);
             }
             case AbstractRule::FLOAT : {
-                if (is_float($value) == true) return true;
+                if (is_numeric($value) == true) {
+                    $value = (float)$value;
+                    return is_float($value);
+                }
                 break;
             }
             case AbstractRule::NUMBER : {
-                if (is_numeric($value) == true) return true;
-                break;
+                return is_numeric($value);
             }
             case AbstractRule::ITEMS_ARRAY : {
-                if (is_array($value) == true) return true;
-                break;
+                return is_array($value);
             }
         }
         $this->setErrorCode($error_code);
@@ -98,11 +121,7 @@ abstract class AbstractRule implements FilterInterface
         if ($this->error != "") {
             return true;
         }
-        if ($text_field == true) { 
-            $min = strlen($value); 
-        } else {
-            $min = $value;
-        }
+        $min = ($text_field == true) ? strlen($value) : $value;
 
         if (empty($this->min) == false) {                 
             if ($min < $this->min) {         
@@ -119,11 +138,7 @@ abstract class AbstractRule implements FilterInterface
         if ($this->error != "") {
             return true;
         }
-        if ($text_field == true) { 
-            $max = strlen($value); 
-        } else {
-            $max = $value;
-        }
+        $max = ($text_field == true) ? strlen($value) : $value;
 
         if (empty($this->max) == false) {           
             if ($max > $this->max) {          
@@ -135,11 +150,23 @@ abstract class AbstractRule implements FilterInterface
         return true;
     }
 
+    /**
+     * Return true if rule is valid
+     *
+     * @return boolean
+     */
     public function isValid()
     {
         return (empty($this->error) == true) ? true : false; 
     }
 
+    /**
+     * Set validation error
+     *
+     * @param string $error
+     * @param array $params
+     * @return void
+     */
     public function setError($error = null, $params = [])
     {
         if ($error == null) {
@@ -170,11 +197,21 @@ abstract class AbstractRule implements FilterInterface
         return null;
     }
     
+    /**
+     * Return validation error
+     *
+     * @return string
+     */
     public function getError()
     {
         return $this->error;
     }
 
+    /**
+     * Retuirn validation error code
+     *
+     * @return string
+     */
     public function getErrorCode()
     {
         return $this->error_code;
