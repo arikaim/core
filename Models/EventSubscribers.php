@@ -24,7 +24,6 @@ class EventSubscribers extends Model
     const ACTIVE = 1;
 
     protected $fillable = [
-        'id',
         'name',
         'handler_class',
         'handler_method',

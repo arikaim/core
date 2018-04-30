@@ -30,7 +30,6 @@ class Routes extends Model
     const ACTIVE    = 1;
     
     protected $fillable = [
-        'id',
         'name',
         'pattern',
         'method',

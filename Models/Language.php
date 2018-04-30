@@ -23,7 +23,6 @@ class Language extends Model
 
     protected $table = 'language';
     protected $fillable = [
-        'id',
         'code',
         'title',
         'position',

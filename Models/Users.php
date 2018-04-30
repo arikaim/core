@@ -29,7 +29,6 @@ class Users extends Model
     const ACTIVE_STATUS = 1;
 
     protected $fillable = [
-        'id',
         'user_name',
         'email',
         'password',

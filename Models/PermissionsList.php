@@ -19,7 +19,6 @@ use Arikaim\Core\Utils\Utils;
 class PermissionsList extends Model  
 {
     protected $fillable = [
-        'id',
         'parent_id',
         'name',
         'title',

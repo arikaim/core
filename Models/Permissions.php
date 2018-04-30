@@ -21,7 +21,6 @@ class Permissions extends Model
     const GROUP = 'group';
     
     protected $fillable = [
-        'id',
         'read',
         'write',
         'delete',
