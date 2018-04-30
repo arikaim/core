@@ -14,6 +14,14 @@ namespace Arikaim\Core\Db;
 */
 trait IncrementValue 
 {       
+    /**
+     * Increment  field value
+     *
+     * @param string|integer $uuid  Unique row id or uuid
+     * @param string $field_name Field name
+     * @param integer $increment 
+     * @return integer
+     */
     public function incrementValue($uuid, $field_name, $increment = 1)
     {        
         if (is_string($uuid) == true) {

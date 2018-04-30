@@ -16,6 +16,12 @@ use Arikaim\Core\Utils\DateTime;
 */
 trait DateTimeUpdate 
 {    
+    /**
+     * Set current timestamp to date fields
+     *
+     * @param array $attributes
+     * @return void
+     */
     public function fill(array $attributes)
     {
         if (empty($attributes) == false ) {
@@ -26,6 +32,13 @@ trait DateTimeUpdate
         return parent::fill($attributes);
     }
 
+    /**
+     * Set current timestamp to field
+     *
+     * @param [type] $name
+     * @param array $attributes
+     * @return array
+     */
     public function updateAttribute($name, array $attributes)
     {
         if (isset($attributes[$name]) == false) {

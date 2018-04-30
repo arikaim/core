@@ -25,9 +25,9 @@ trait ToggleValue
         if (is_object($model) == false) {
             return false;
         }
-        $current_value = $model->getAttribute($field_name);
-        $current_value = ($current_value == 0) ? 1 : 0;
-          
+        $value = $model->getAttribute($field_name);
+        $value = ($value == 0) ? 1 : 0;
+         
         $model->setAttribute($field_name,$value);
         $model->update();        
         return $value;

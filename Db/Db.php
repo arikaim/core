@@ -24,6 +24,12 @@ class Db
         $this->init($db_config);
     }
 
+    /**
+     * Create db connection and boot Eloquent
+     *
+     * @param array $db_config
+     * @return boolean
+     */
     public function init($db_config)
     {
         try {                  
@@ -42,11 +48,22 @@ class Db
         return true;
     }
 
+    /**
+     * Return capsule object
+     *
+     * @return object
+     */
     public function getCapsule()
     {
         return $this->capsule;
     }
 
+    /**
+     *  Check if database exist
+     *
+     * @param string $database_name
+     * @return boolean
+     */
     public function has($database_name)
     {   
         try {
@@ -58,6 +75,12 @@ class Db
         return (isset($result[0]->SCHEMA_NAME) == true) ? true : false;           
     }
 
+    /**
+     * Create database
+     *
+     * @param string $database_name
+     * @return boolean
+     */
     public function createDb($database_name) 
     {    
         if (Self::has($database_name) == true) {
@@ -74,6 +97,12 @@ class Db
         return $result;
     }
 
+    /**
+     * Verify db connection
+     *
+     * @param object $connection
+     * @return boolean
+     */
     public static function checkConnection($connection)
     {
         try {
