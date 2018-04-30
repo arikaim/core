@@ -10,24 +10,24 @@
 namespace Arikaim\Core\Db;
 
 /**
- * Update boolean database values (true or false)
+ * Increment field value
 */
-trait ToggleValue 
+trait IncrementValue 
 {       
-    public function toggleValue($uuid, $field_name)
+    public function incrementValue($uuid, $field_name, $increment = 1)
     {        
         if (is_string($uuid) == true) {
             $model = parent::where('uuid','=',$uuid)->first();
         } else {
             $model = parent::where('id','=',$uuid)->first();
         }
-
+        
         if (is_object($model) == false) {
             return false;
         }
-        $current_value = $model->getAttribute($field_name);
-        $current_value = ($current_value == 0) ? 1 : 0;
-          
+        $value = $model->getAttribute($field_name);
+        $value += $increment;
+
         $model->setAttribute($field_name,$value);
         $model->update();        
         return $value;

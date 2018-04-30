@@ -36,6 +36,7 @@ class Model
 
     public static function getModelPath($model, $parent_field_name = "parent_id")
     {
+        $result = [];
         array_unshift($result,$model->toArray());
         while ($model != false) {
             $parent_id = $model->{$parent_field_name};
