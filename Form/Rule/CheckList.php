@@ -18,30 +18,51 @@ class CheckList extends AbstractRule
 {
     private $allowed_values = null;
 
-    public function __construct($allowed_values, $error_code = "NOT_VALID_VALUE_ERROR") 
+    /**
+     * Constructor
+     *
+     * @param array $allowed_values
+     * @param string $error
+     */
+    public function __construct(array $allowed_values, $error = "NOT_VALID_VALUE_ERROR") 
     {
-        parent::__construct(null,null,$error_code);
-        if (is_array($allowed_values) == true) {
-            $this->allowed_values = $allowed_values;
-        }
+        parent::__construct(null,null,$error);
+        $this->allowed_values = $allowed_values;
     }
 
+    /**
+     * Validate value
+     *
+     * @param mixed $value
+     * @return void
+     */
     public function customFilter($value) 
     {
         if ($this->allowed_values == null) {
-            $this->setError();  
+            return false;
         }
         if (in_array($value,$this->allowed_values,false) == false) {        
-            $this->setError(null,$this->allowed_values);           
+            $this->setErrorParams($this->allowed_values);  
+            return false;         
         } 
-        return $this->isValid();
+        return true;
     } 
 
+    /**
+     * Return filter type
+     *
+     * @return int
+     */
     public function getFilter()
     {       
         return FILTER_CALLBACK;
     }
 
+    /**
+     * Return filter options
+     *
+     * @return array
+     */
     public function getFilterOptions()
     {
         return $this->getCustomFilterOptions();

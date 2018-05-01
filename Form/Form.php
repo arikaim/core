@@ -19,6 +19,7 @@ class Form extends Collection
     private $rules;   
     private $filters;
     private $errors;
+
     private static $self;
 
     public function __construct($fields = null) 
@@ -31,19 +32,16 @@ class Form extends Collection
 
     public function addRule($field_name,AbstractRule $rule, $required = true) 
     {             
-        try {
-            if ($rule instanceof AbstractRule) {       
-                $rule->setRequired($required);
-                if (array_key_exists($field_name,$this->rules) == false) {
-                    $this->rules[$field_name] = [];
-                }
-                array_push($this->rules[$field_name],$rule);
-                return true;
+        if ($rule instanceof AbstractRule) {       
+            $rule->setRequired($required);
+            if (array_key_exists($field_name,$this->rules) == false) {
+                $this->rules[$field_name] = [];
             }
-        } catch (\Exception $e) {
-            return false;
-        }     
-        return false;
+            array_push($this->rules[$field_name],$rule);
+            return true;
+        } 
+        throw new \Exception("Not valid rule for field: $field_name");
+        return false;       
     }
 
     public function addFilter($field_name, AbstractFilter $filter) 
@@ -94,12 +92,12 @@ class Form extends Collection
 
     public function validateRules($field_name, $value)
     {
-        $rules = $this->getRules($field_name);     
+        $rules = $this->getRules($field_name);   
         foreach ($rules as $rule) {
             $valid = $rule->validate($value);
             if ($valid == false) {
                 $error['field_name'] = $field_name;
-                $error['message'] = $rule->getError();
+                $error['message'] = $rule->getErrorMessage(['field_name' => $field_name]);
                 $this->addError($error);
             }
         }
@@ -109,7 +107,7 @@ class Form extends Collection
     {
         $this->errors = [];
         $this->setFields($fields);
-        foreach ($this->data as $field_name => $value) {
+        foreach ($this->data as $field_name => $value) {          
             $this->validateRules($field_name,$value);
         }
 

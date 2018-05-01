@@ -12,26 +12,47 @@ namespace Arikaim\Core\Form\Rule;
 use Arikaim\Core\Form\AbstractRule;
 use Arikaim\Core\Utils\Utils;
 
+/**
+ *  Uuid validation rule.Check if value is valid uuid.
+ */
 class Uuid extends AbstractRule
 {
-    public function __construct($error_code = "UUID_NOT_VALID_ERROR") 
+    /**
+     * Constructor
+     *
+     * @param string $error Default error code or error message.
+     */
+    public function __construct($error = "UUID_NOT_VALID_ERROR") 
     {
-        parent::__construct(null,null,$error_code);
+        parent::__construct(null,null,$error);
     }
 
+    /**
+     * Validate value
+     *
+     * @param string $value
+     * @return boolean
+     */
     public function customFilter($value) 
     {
-        if (Utils::isValidUUID($value) == false) {
-            $this->setError();
-        }       
-        return $this->isValid();
+        return (Utils::isValidUUID($value) == false) ? false : true;          
     } 
 
+    /**
+     * Return filter type
+     *
+     * @return int
+     */
     public function getFilter()
     {       
         return FILTER_CALLBACK;
     }
 
+    /**
+     * Return filter options
+     *
+     * @return array
+     */
     public function getFilterOptions()
     {
         return $this->getCustomFilterOptions();

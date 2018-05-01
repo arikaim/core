@@ -13,32 +13,56 @@ use Arikaim\Core\Form\AbstractRule;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Arikaim;
 
+/**
+ * Check if value exists in database table
+ */
 class Exists extends AbstractRule
 {
     protected $model;
     protected $field_name;
    
-    public function __construct($model_class_name, $field_name, $extension_name = null, $error_code = "VALUE_NOT_EXIST_ERROR") 
+    /**
+     * Constructor
+     *
+     * @param string $model_class_name Db model class name
+     * @param string $field_name Db field name
+     * @param string|null $extension_name Extension name
+     * @param string $error
+     */
+    public function __construct($model_class_name, $field_name, $extension_name = null, $error = "VALUE_NOT_EXIST_ERROR") 
     {
-        parent::__construct(null,null,$error_code);
+        parent::__construct(null,null,$error);
         $this->field_name = $field_name;
         $this->model = Model::create($model_class_name,$extension_name);        
     }
 
+    /**
+     * Validate value
+     *
+     * @param mixed $value
+     * @return boolean
+     */
     public function customFilter($value) 
     {           
         $data = $this->model->where($this->field_name,'=',$value)->first();
-        if (is_object($data) == false) {           
-            $this->setError();
-        } 
-        return $this->isValid();
+        return (is_object($data) == false) ? false : true;                   
     } 
 
+    /**
+     * Return filter type
+     *
+     * @return int
+     */
     public function getFilter()
     {       
         return FILTER_CALLBACK;
     }
 
+    /**
+     * Return filter options
+     *
+     * @return array
+     */
     public function getFilterOptions()
     {
         return $this->getCustomFilterOptions();

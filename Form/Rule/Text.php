@@ -11,26 +11,66 @@ namespace Arikaim\Core\Form\Rule;
 
 use Arikaim\Core\Form\AbstractRule;
 
+/**
+ * Text field rule 
+ */
 class Text extends AbstractRule
 {    
-    public function __construct($min_value = null, $max_value = null, $error_code = "TEXT_NOT_VALID_ERROR") 
+    /**
+     * Constructor
+     *
+     * @param int $min_lenght
+     * @param int $max_lenght
+     * @param string $error Error text or error code
+     */
+    public function __construct($min_lenght = null, $max_lenght = null, $error = "TEXT_NOT_VALID_ERROR") 
     {
-        parent::__construct($min_value,$max_value,$error_code);
+        parent::__construct($min_lenght,$max_lenght,$error);
     }
 
+    /**
+     * Verify if value is valid
+     *
+     * @param string $value
+     * @return boolean
+     */
     public function customFilter($value) 
     {
-        $this->validateType($value,"TEXT_NOT_VALID_ERROR",AbstractRule::STRING);
-        $this->validateMinValue($value,"TEXT_MIN_LENGHT_ERROR",true);
-        $this->validateMaxValue($value,"TEXT_MAX_LENGHT_ERROR",true);
-        return $this->isValid();
+        $errors = 0;
+        $result = $this->validateType($value,AbstractRule::STRING_TYPE);
+        if ($result == false) {
+            $this->setError("TEXT_NOT_VALID_ERROR");
+            $errors++;
+        } 
+        $result = $this->validateMinValue($value,true);
+        if ($result == false) {
+            $this->setError("TEXT_MIN_LENGHT_ERROR");
+            $errors++;
+        }   
+        $result = $this->validateMaxValue($value,true);
+        if ($result == false) {
+            $this->setError("TEXT_MAX_LENGHT_ERROR");
+            $errors++;
+        }
+        return ($errors > 0) ? false : true;
+
     } 
 
+    /**
+     * Return filter type
+     *
+     * @return int
+     */
     public function getFilter()
     {       
         return FILTER_CALLBACK;
     }
 
+    /**
+     * Return filter options
+     *
+     * @return array
+     */
     public function getFilterOptions()
     {
         return $this->getCustomFilterOptions();

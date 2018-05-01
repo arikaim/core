@@ -11,22 +11,40 @@ namespace Arikaim\Core\Form\Rule;
 
 use Arikaim\Core\Form\AbstractRule;
 
+/**
+ * Url validation rule
+ */
 class Url extends AbstractRule
 {       
-    public function __construct($error_code = "URL_NOT_VALID_ERROR") 
+    /**
+     * Constructor
+     *
+     * @param string $error Error code or error message
+     */
+    public function __construct($error = "URL_NOT_VALID_ERROR") 
     {
-        parent::__construct(null,null,$error_code);
+        parent::__construct(null,null,$error);
     }
 
     public function customFilter($value) 
     {       
     } 
 
+    /**
+     * Return filter type
+     *
+     * @return int
+     */
     public function getFilter()
     {       
         return FILTER_VALIDATE_URL;
     }
     
+    /**
+     * Return filter options
+     *
+     * @return array
+     */
     public function getFilterOptions()
     {
         return [];

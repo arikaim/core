@@ -16,32 +16,53 @@ use Arikaim\Core\Form\AbstractRule;
  */
 class File extends AbstractRule
 {    
-    public function __construct($error_code = "NOT_VALID_VALUE_ERROR") 
+    /**
+     * Constructor
+     *
+     * @param string $error
+     */
+    public function __construct($error = "NOT_VALID_VALUE_ERROR") 
     {
-        parent::__construct(null,null,$error_code);
+        parent::__construct(null,null,$error);
     }
 
+    /**
+     * Validate file data array
+     *
+     * @param array $value
+     * @return boolean
+     */
     public function customFilter($value) 
     { 
         if (is_array($value) == false) {
-            $this->setError();
+            return false;
         }
         if (isset($value['data']) == false) {
             // missing data 
-            $this->setError();
+            return false;
         }
         if (isset($value['name']) == false) {
             // missing name 
-            $this->setError();
+            return false;
         }
-        return $this->isValid();
+        return true;
     } 
 
+    /**
+     * Return filter type
+     *
+     * @return int
+     */
     public function getFilter()
     {       
         return FILTER_CALLBACK;
     }
 
+    /**
+     * Return filter options
+     *
+     * @return array
+     */
     public function getFilterOptions()
     {
         return $this->getCustomFilterOptions();

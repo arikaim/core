@@ -11,27 +11,51 @@ namespace Arikaim\Core\Form\Rule;
 
 use Arikaim\Core\Form\AbstractRule;
 
-class File extends AbstractRule
+/**
+ * Equal validation rule. 
+ */
+class Equal extends AbstractRule
 {    
-    public function __construct($value, $error_code = "NOT_VALID_VALUE_ERROR") 
+    protected $value;
+
+    /**
+     * Constructor
+     *
+     * @param [type] $value
+     * @param string $error
+     */
+    public function __construct($value, $error = "NOT_VALID_VALUE_ERROR") 
     {
-        parent::__construct(null,null,$error_code);
-        $this->min = $value;
+        parent::__construct(null,null,$error);
+        $this->value = $value;
     }
 
+    /**
+     * Validate value
+     *
+     * @param mixed $value
+     * @return boolean
+     */
     public function customFilter($value) 
     { 
-        if ($value != $this->min) {
-            $this->setError();
-        }
-        return $this->isValid();
+        return ($value != $this->value) ? false : true;
     } 
 
+    /**
+     * Return filter type
+     *
+     * @return int
+     */
     public function getFilter()
     {       
         return FILTER_CALLBACK;
     }
 
+    /**
+     * Return filter options
+     *
+     * @return array
+     */
     public function getFilterOptions()
     {
         return $this->getCustomFilterOptions();

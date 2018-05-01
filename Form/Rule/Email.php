@@ -11,23 +11,40 @@ namespace Arikaim\Core\Form\Rule;
 
 use Arikaim\Core\Form\AbstractRule;
 
+/**
+ *Email address validation rule
+ */
 class Email extends AbstractRule
 {
-    
-    public function __construct($error_code = "EMAIL_NOT_VALID_ERROR") 
+    /**
+     * Constructor
+     *
+     * @param string $error
+     */
+    public function __construct($error = "EMAIL_NOT_VALID_ERROR") 
     {
-        parent::__construct(null,null,$error_code);
+        parent::__construct(null,null,$error);
     }
 
     public function customFilter($value) 
     {
     } 
 
+    /**
+     * Return filter type
+     *
+     * @return int
+     */
     public function getFilter()
     {       
         return FILTER_VALIDATE_EMAIL;
     }
 
+    /**
+     * Return filter options
+     *
+     * @return array
+     */
     public function getFilterOptions()
     {
         return [];

@@ -45,7 +45,6 @@ class LanguageApi extends ApiControler
 
         $this->form->addRule('code',Form::Rule()->unique('Language','code',null,$language->code)); 
         $this->form->addRule('code_3',Form::Rule()->unique('Language','code_3',null,$language->code_3)); 
-
         $this->form->addRule('title',Form::Rule()->text(2));
         $this->form->addRule('native_title',Form::Rule()->text(2),false);
         $this->form->addRule('code',Form::Rule()->text(2,2));
@@ -66,7 +65,6 @@ class LanguageApi extends ApiControler
                         $this->setApiErrors($this->form->getErrors());
                         return $this->getApiResponse(); 
                     }
-                    
                     $language->fill($this->form->toArray());        
                     $result = $language->save();
                 }

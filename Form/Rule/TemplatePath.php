@@ -13,30 +13,52 @@ use Arikaim\Core\Form\AbstractRule;
 use Arikaim\Core\View\Template;
 use Arikaim\Core\FileSystem\File;
 
+/**
+ *  Check if template file exist.
+ */
 class TemplatePath extends AbstractRule
 {  
     protected $extension_name;
 
-    public function __construct($extension_name, $error_code = "TEMPLATE_NOT_EXISTS") 
+    /**
+     * Constructor
+     *
+     * @param string $extension_name
+     * @param string $error
+     */
+    public function __construct($extension_name, $error = "TEMPLATE_NOT_EXISTS") 
     {
-        parent::__construct(null,null,$error_code);
+        parent::__construct(null,null,$error);
         $this->extension_name = $extension_name; 
     }
 
+    /**
+     * Validate value
+     *
+     * @param mixed $value
+     * @return boolean
+     */
     public function customFilter($value) 
     {           
         $template_path = Template::getTemplatePath($value);
-        if (File::exists($template_path) == false) {           
-            $this->setError();
-        } 
-        return $this->isValid();
+        return (File::exists($template_path) == false) ? false : true;
     } 
 
+    /**
+     * Return filter type
+     *
+     * @return int
+     */
     public function getFilter()
     {       
         return FILTER_CALLBACK;
     }
 
+    /**
+     * Return filter options
+     *
+     * @return array
+     */
     public function getFilterOptions()
     {
         return $this->getCustomFilterOptions();
