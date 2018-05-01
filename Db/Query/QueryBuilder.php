@@ -40,9 +40,10 @@ abstract class QueryBuilder extends Collection implements QueryBuilderInterface
     }
 
     public function build($model)
-    {       
-        foreach ($this->data as $builder) {            
-            $model = $builder->apply($model);
+    {         
+        $model = $this->apply($model);   
+        foreach ($this->data as $builder) {   
+            $model = $builder->build($model);
         }
         return $model;
     }

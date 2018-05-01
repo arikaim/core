@@ -73,7 +73,7 @@ class SearchCondition extends QueryBuilder
         return $this;
     }
 
-    private function createSearchFields($model,$search)
+    private function createSearchFields($model, $search)
     {
         if (isset($search['fields']) == false) {
             return [];

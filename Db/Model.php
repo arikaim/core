@@ -96,9 +96,6 @@ class Model
 
     public static function buildQuery($model, $query_builder)
     {
-        if (empty($query_builder) == true) {
-            return $model;
-        } 
         if ($query_builder instanceof QueryBuilderInterface) {
             $model = $query_builder->build($model);
         }

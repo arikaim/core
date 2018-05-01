@@ -29,7 +29,6 @@ class Condition extends QueryBuilder
         $this->operator = $operator;
         $this->value = $value;
         $this->statement_operator = $statement_operator;
-        $this->append($this);
     }
 
     public function apply($model)

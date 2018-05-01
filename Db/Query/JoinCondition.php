@@ -37,7 +37,6 @@ class JoinCondition extends QueryBuilder
         $this->table_name = $table_name;
         $this->join_field = $join_field;      
         $this->type = $type;      
-        $this->append($this);
     }
 
     public function apply($model)

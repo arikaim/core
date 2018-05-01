@@ -22,13 +22,15 @@ class Select extends QueryBuilder
     {
         parent::__construct();
         $this->columns = $columns;
-        $this->append($this);
     }
     
     public function apply($model)
     {
-        if (empty($this->columns) == false) {
+        if (is_array($this->columns) == true) {
             $model = $model->select($this->columns);
+        }
+        if (is_string($this->columns) == true) {
+            $model = $model->selectRaw($this->columns);
         }
         return $model;
     }

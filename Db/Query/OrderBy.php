@@ -27,7 +27,6 @@ class OrderBy extends QueryBuilder
         parent::__construct();
         $this->field = $field_name;
         $this->type = $type;
-        $this->append($this);
     }
 
     public function apply($model)
