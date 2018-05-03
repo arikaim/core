@@ -58,6 +58,11 @@ class Access
         return constant("Self::" . $constant_name);
     }
     
+    /**
+     * Initialize token
+     *
+     * @return void
+     */
     private function initToken()
     {
         $this->token['decoded'] = [];
@@ -66,6 +71,11 @@ class Access
         $this->token['type'] = Self::AUTH_NONE;
     }
 
+    /**
+     * Return true if token is valid
+     *
+     * @return boolean
+     */
     public function isValidToken()
     {
         if (isset($this->token['valid']) == false) {
@@ -74,11 +84,21 @@ class Access
         return $this->token['valid'];
     }
     
+    /**
+     * Return true if token is not epmpty
+     *
+     * @return boolean
+     */
     public function hasToken()
     {
         return !empty($this->token['token']);
     }
 
+    /**
+     * Return auth type
+     *
+     * @return int
+     */
     public function getTokenAuthType()
     {
         if (empty($this->token['type']) == true) {
@@ -87,21 +107,42 @@ class Access
         return $this->token['type'];
     }
 
+    /**
+     * Return true if auth is JWT
+     *
+     * @return boolean
+     */
     public function isJwtAuth()
     {
         return ($this->getTokenAuthType() == Self::AUTH_JWT) ? true : false;
     }
 
+    /**
+     * Return true if auth is session
+     *
+     * @return boolean
+     */
     public function isSessionAuth()
     {
         return ($this->getTokenAuthType() == Self::AUTH_SESSION) ? true : false;          
     }
 
+    /**
+     * Return token array data
+     *
+     * @return array
+     */
     public function getToken()
     {
         return $this->token;
     }
 
+    /**
+     * Return token param from decoded token
+     *
+     * @param string $name
+     * @return mixed|null
+     */
     public function getTokenParam($name)
     {
         if (isset($this->token['decoded'][$name]) == false) {
@@ -113,11 +154,22 @@ class Access
         return null;
     }
 
+    /**
+     * Return token type name
+     *
+     * @return string
+     */
     public function getTokenTypeName()
     {
         return Self::getAuthName($this->token['type']);
     }
 
+    /**
+     * Retrive encoded token from request
+     *
+     * @param object $request
+     * @return boolean
+     */
     public function fetchToken($request) 
     {
         $token = $this->readToken($request);
@@ -134,6 +186,13 @@ class Access
         return false;
     }
 
+    /**
+     * Decode and save token data.
+     *
+     * @param string $token
+     * @param int $type
+     * @return boolean
+     */
     public function applyToken($token, $type = Self::AUTH_JWT)
     {
         switch ($type) {
@@ -159,17 +218,35 @@ class Access
         return $valid;
     }
 
+    /**
+     * Return auth name
+     *
+     * @param int $auth
+     * @return string
+     */
     public function getAuthName($auth)
     {
         return (isset($this->auth_names[$auth]) == true) ? $this->auth_names[$auth] : false;          
     }
 
+    /**
+     * Return auth type code
+     *
+     * @param string $auth_name
+     * @return int
+     */
     public function getAuthType($auth_name)
     {
         $key = array_search($auth_name,$this->auth_names);
         return ($key === false) ? 0 : $key;           
     }
 
+    /**
+     * Check if auth name is valid 
+     *
+     * @param string $auth_name
+     * @return boolean
+     */
     public function isValidAuthName($auth_name)
     {
         $key = array_search($auth_name,$this->auth_names);
@@ -260,12 +337,26 @@ class Access
         return ($id == $user_id) ? true : false;
     }
 
+    /**
+     * Check if current loged user have control panel permission
+     *
+     * @param string $uuid
+     * @return boolean
+     */
     public function hasControlPanelAccess($uuid = null)
     {
         return $this->hasPermission(Access::CONTROL_PANEL,ACCESS::FULL,$uuid);
     }
-
-    public function hasPermission($name, $type = Self::FULL, $uuid = null)
+    
+    /**
+     * Check permission 
+     *
+     * @param string $name Permission name
+     * @param array $type PermissionType (read,write,execute,delete)
+     * @param string $uuid User UUID, if is null uuid from  current token are used.
+     * @return boolean
+     */
+    public function hasPermission($name,array $type = Self::FULL, $uuid = null)
     {
         $permissions = Model::Permissions();
         if ($uuid == null) {
@@ -289,6 +380,11 @@ class Access
         return true; 
     }
 
+    /**
+     * Remove token data.
+     *
+     * @return void
+     */
     public function clearToken()
     {
         Arikaim::cookies()->set("token",null);  

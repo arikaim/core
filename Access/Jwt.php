@@ -22,12 +22,23 @@ class Jwt
     private $token;
     private $key;
 
+    /**
+     * Constructor
+     *
+     * @param int|null $expire_time Expire time stamp, default value 1 month
+     */
     public function __construct($expire_time = null)
     {
         $this->init($expire_time);
     }
 
-    private function init($expire_time) 
+    /**
+     * Init token data
+     *
+     * @param int|null $expire_time
+     * @return void
+     */
+    private function init($expire_time = null) 
     {
         $this->key = Arikaim::config('settings/jwt_key');
         if ($expire_time == null) {
@@ -44,18 +55,37 @@ class Jwt
         $this->token->setExpiration($expire_time);
     }
 
+    /**
+     * Set token parameter
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return void
+     */
     public function set($key,$value) 
     {        
         $this->token->set($key,$value);
     }
-   
+    
+    /**
+     * Create JWT token
+     *
+     * @return string
+     */
     public function createToken() 
     {    
         $signer = new Sha256();
         $this->token->sign($signer, $this->key);
         return (string)$this->token->getToken();
     }
-   
+    
+    /**
+     * Decode encrypted JWT token
+     *
+     * @param string $jwt_token
+     * @param boolean $verify
+     * @return boolean
+     */
     public function decodeToken($jwt_token,$verify = false)
     {
         try {
@@ -70,12 +100,23 @@ class Jwt
         }
     }
 
+    /**
+     * Verify token data
+     *
+     * @return boolean
+     */
     public function verify() 
     {
         $signer = new Sha256();
         return $this->token->verify($signer, $this->key);
     }
 
+    /**
+     * Validate token data
+     *
+     * @param mixed $validation_data
+     * @return void
+     */
     public function validate($validation_data) 
     {
         return $this->token->validate($validation_data);

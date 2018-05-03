@@ -10,7 +10,7 @@
 namespace Arikaim\Core\View;
 
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\View\Html\Filters;
+use Arikaim\Core\View\Filters;
 use Arikaim\Core\View\TemplateFunction;
 use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Utils\Mobile;
@@ -118,6 +118,7 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFilter('getAttr', [$filters, 'getAttributes'],['is_safe' => ['html']]),
             new \Twig_SimpleFilter('showArray', [$filters, 'showArray'],['is_safe' => ['html']]),
             new \Twig_SimpleFilter('ifthen', [$filters, 'is']),
+            new \Twig_SimpleFilter('defaultValue', [$filters, 'getDefaultValue']),
             new \Twig_SimpleFilter('jsonDecode', ["\\Arikaim\\Core\\Utils\\Utils", 'jsonDecode']),
             // date time
             new \Twig_SimpleFilter('dateFormat', [$filters, 'dateFormat']),

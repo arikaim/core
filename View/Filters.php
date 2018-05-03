@@ -7,7 +7,7 @@
  * @license     http://www.arikaim.com/license.html
  * 
 */
-namespace Arikaim\Core\View\Html;
+namespace Arikaim\Core\View;
 
 use Arikaim\Core\Utils\DateTime;
 
@@ -97,5 +97,13 @@ class Filters
             $format = DateTime::getTimeFormat(); 
         }
         return date($format,$timestamp);
+    }
+
+    public function getDefaultValue($value, $default)
+    {
+        if (empty($value) == true || $value == null) {
+            return $default;
+        }
+        return $value;
     }
 }
