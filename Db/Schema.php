@@ -24,16 +24,34 @@ abstract class Schema
     abstract public function create();
     abstract public function update();
 
+    /**
+     * Constructor
+     *
+     * @param string|null $table_name
+     */
     public function __construct($table_name = null) 
     {
-        if ($table_name != null) $this->table_name = $table_name;
+        if ($table_name != null) {
+            $this->table_name = $table_name;
+        }
     }
 
+    /**
+     * Return table name
+     *
+     * @return string
+     */
     public function getTableName() 
     {
         return $this->table_name;
     }
     
+    /**
+     * Create table
+     *
+     * @param \Closure $callback
+     * @return void
+     */
     public function createTable(\Closure $callback) 
     {
         $has_table = $this->tableExists();
@@ -44,12 +62,27 @@ abstract class Schema
         }
     } 
 
+    public function addForeignKeys(\Closure $callback)
+    {
+        Manager::schema()->table($this->table_name,$callback);
+    }
+
+    /**
+     * Check if database exist.
+     *
+     * @param  object|string $model Table name or db model object
+     * @return boolean
+     */
     public static function hasTable($model)
     {      
         if (Arikaim::db()->has(Arikaim::config('db/database')) == false) {
             return false;
         }
-        $table_name = $model->getTable();      
+        if (is_object($model) == true) {
+            $table_name = $model->getTable();
+        } else {
+            $table_name = $model;
+        }     
         return Manager::schema()->hasTable($table_name);      
     }
 
@@ -57,7 +90,12 @@ abstract class Schema
     {
         Manager::schema()->table($this->table_name,$callback);
     } 
-  
+    
+    /**
+     * Drop table
+     *
+     * @return void
+     */
     public function dropTable() 
     {
         Manager::schema()->dropIfExists($this->table_name);
@@ -68,6 +106,12 @@ abstract class Schema
         return Manager::schema()->hasTable($this->table_name);
     }
 
+    /**
+     * Check if table column exists.
+     *
+     * @param string $column_name
+     * @return boolean
+     */
     public function hasColumn($column_name) 
     {
         return Manager::schema()->hasColumn($this->table_name,$column_name); 
@@ -120,8 +164,12 @@ abstract class Schema
         return $model_class_name . "Schema";
     }
 
-    public static function getSchemaNamespace()
+    public static function getSchemaNamespace($extension_name = null)
     {
+        if ($extension_name != null) {
+            $extension_name = ucfirst($extension_name);
+            return "Arikaim\\Extensions\\$extension_name\\Models\\Schema\\";
+        }
         return "Arikaim\\Core\\Models\\Schema\\";
     }
 
@@ -138,12 +186,6 @@ abstract class Schema
 
     public static function getExtensionModelSchemaClass($extension_name, $base_class_name)
     {
-        return Self::getExtensionModelSchemaNamespace($extension_name) . "\\" . $base_class_name;
-    }
-
-    public static function getExtensionModelSchemaNamespace($extension_name)
-    {
-        $extension_name = ucfirst($extension_name);
-        return "Arikaim\\Extensions\\$extension_name\\Models\\Schema";
+        return Self::getSchemaNamespace($extension_name) . $base_class_name;
     }
 }   
