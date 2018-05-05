@@ -54,18 +54,12 @@ abstract class Schema
      */
     public function createTable(\Closure $callback) 
     {
-        $has_table = $this->tableExists();
-        if ($has_table == true) {
+        if ($this->tableExists() == true) {
             $this->update();
         } else {
             Manager::schema()->create($this->table_name,$callback);
         }
     } 
-
-    public function addForeignKeys(\Closure $callback)
-    {
-        Manager::schema()->table($this->table_name,$callback);
-    }
 
     /**
      * Check if database exist.
@@ -148,10 +142,9 @@ abstract class Schema
         if (is_object($instance) == true) {
             try {
                 $instance->create();
-                if ($instance->tableExists() == false ) {
-                    return false;
-                } 
-                return true;
+                $instance->update();
+                exit();
+                return $instance->tableExists();
             } catch(\Exception $e) {
                 return false;
             }
