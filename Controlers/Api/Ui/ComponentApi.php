@@ -70,7 +70,7 @@ class ComponentApi extends ApiControler
             $this->setApiError($component->getError());
             return $this->getApiResponse();
         }
-        $properties = Arikaim::view()->components()->get($component->getPath());      
+        $properties = $component->getProperties();
         $result['html'] = $component->getHtmlCode();
         $result['css_files']  = Arikaim::view()->component()->files()->getArray('css_files');
         $result['js_files']   = Arikaim::view()->component()->files()->getArray('js_files');

@@ -22,8 +22,11 @@ abstract class EventSubscriber implements EventSubscriberInterface
 
     abstract public function execute($event);
 
-    public function __construct()
+    public function __construct($event_name = null, $extension_name = "", $priority = 0)
     {
+        if ($event_name != null) {
+            $this->subscribe($event_name,$extension_name,$priority);
+        }
     }
 
     public function subscribe($event_name, $extension_name = "", $priority = 0)

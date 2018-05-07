@@ -215,7 +215,7 @@ class BaseComponent
         $component->addFile($file,'html');
 
         // properties
-        $file_name = $this->getPropertiesFileName($component);       
+        $file_name = $this->getPropertiesFileName($component);   
         $component->setPropertiesFileName($file_name);
   
         if ($component->isValid() == false) {

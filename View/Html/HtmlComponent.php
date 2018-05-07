@@ -56,10 +56,7 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
        
         $this->includeFiles($component);
        
-        $params = Arrays::merge($component->getProperties(),Arikaim::view()->components()->get($component->getPath()));      
-        $params = Arrays::merge($params,$vars);
-
-        Arikaim::view()->components()->set($component->getPath(),$params);
+        $params = Arrays::merge($component->getProperties(),$vars);
         $component->setHtmlCode("");  
         if ($component->getOption('render') !== false) {                 
             $component = $this->fetch($component,$params);
