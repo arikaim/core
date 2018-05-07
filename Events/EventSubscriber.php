@@ -20,6 +20,8 @@ abstract class EventSubscriber implements EventSubscriberInterface
 {
     protected $subscribed_events = [];
 
+    abstract public function execute($event);
+
     public function __construct()
     {
     }
@@ -30,10 +32,6 @@ abstract class EventSubscriber implements EventSubscriberInterface
         $event['priority'] = Number::getNumericValue($priority);
         array_push($this->subscribed_events,$event); 
         $this->subscribed_events = array_unique($this->subscribed_events);
-    }
-
-    public function execute($event)
-    {
     }
 
     public function getSubscribedEvents()

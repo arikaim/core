@@ -143,7 +143,6 @@ abstract class Schema
             try {
                 $instance->create();
                 $instance->update();
-                exit();
                 return $instance->tableExists();
             } catch(\Exception $e) {
                 return false;
@@ -173,7 +172,7 @@ abstract class Schema
 
     public static function createExtensionModelSchema($extension_name, $base_class_name)
     {
-        $full_class_name = Schema::getExtensionModelSchemaClass($extension_name, $base_class_name);      
+        $full_class_name = Schema::getExtensionModelSchemaClass($extension_name, $base_class_name);            
         return Factory::createInstance($full_class_name);
     }
 

@@ -73,23 +73,22 @@ class ExtensionsManager
     }
 
     public function install($extension_name, $update = false) 
-    {          
+    {            
         $details = $this->getExtensionProperties($extension_name);
-      
         $ext_obj = Factory::createExtension($extension_name,$details['class']);
         if (is_object($ext_obj) == false) {
             Arikaim::errors()->addError("EXTENSION_CLASS_NOT_VALID");
             return false;
         }
         // extension before install handler
-         if ($update != true) {
+        if ($update != true) {
             // trigger core.extension.before.install event
             Arikaim::event()->trigger('core.extension.before.install',$details);
             $ext_obj->onBeforeInstall();
         }
         // create db tables 
         $db_tables = $this->getExtensionDatabaseModels($extension_name,true);
-        
+    
         // delete extension routes
         $this->deleteRoutes($extension_name);
         // delete jobs 
@@ -101,9 +100,8 @@ class ExtensionsManager
 
         // run install extension
         $ext_obj->install();
-        // register events subscribers 
+        // register events subscribers        
         $this->registerEventsSubscribers($extension_name);
-
 
         // add to extensions db table
         $extension = Model::Extensions();       
@@ -316,7 +314,7 @@ class ExtensionsManager
     public function registerEventsSubscribers($extension_name)
     {
         $count = 0;
-        $path = Self::getExtensionEventsPath($extension_name);
+        $path = Self::getExtensionEventsPath($extension_name);       
         if (File::exists($path) == false) {
             return $count;
         }
@@ -328,7 +326,7 @@ class ExtensionsManager
             $file_name = $file->getFilename();
             $base_class = str_replace(".php","",$file_name);
             $result = Arikaim::event()->registerSubscriber($base_class,$extension_name);
-            $count += ($result == true) ? 1:0;
+            $count += ($result == true) ? 1 : 0;
         }     
         return $count;
     }
