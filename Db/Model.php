@@ -64,7 +64,10 @@ class Model
 
     public static function getFullClassName($class_name, $extension_name = null)
     {
-        return empty($extension_name) ? Factory::getModelClass($class_name) : Factory::getExtensionModelClass($extension_name,$class_name);
+        if ($extension_name == null || empty($extension_name) == true) {
+            return Factory::getModelClass($class_name);
+        }
+        return Factory::getExtensionModelClass($extension_name,$class_name);
     }
 
     public static function getConstant($class_name,$name)
