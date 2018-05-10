@@ -79,7 +79,7 @@ class ExtensionsApi extends ApiControler
     public function install($request, $response, $args)    
     {       
         $this->requireControlPanelPermission();
-
+        
         $this->form->addRule('name',Form::Rule()->extensionPath($args['name']));
     
         if ($this->form->validate($args) == true) {

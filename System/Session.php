@@ -137,11 +137,7 @@ class Session
 
     public function toArray()
     {
-        if (is_array($_SESSION) == true) {
-            return $_SESSION;
-        } else {
-            return [];
-        }
+        return (is_array($_SESSION) == true) ? $_SESSION : [];          
     }
 
     public function isUseCookies() {

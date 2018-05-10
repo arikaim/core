@@ -11,6 +11,9 @@ namespace Arikaim\Core\Form;
 
 use Arikaim\Core\Utils\Factory;
 
+/**
+ * Filter factory class
+ */
 class Filter
 {
     public function __construct() 

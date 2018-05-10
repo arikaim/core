@@ -103,18 +103,13 @@ class TimeInterval
     }
 
     public static function create($interval)
-    {
-        $interval = new Self($interval);
-        return $interval->toArray();
+    {       
+        $result = new Self($interval);
+        return $result->toArray();
     }
 
     public static function isDurationInverval($text)
     {
-        if (substr($text,0,1) == 'P') {
-            return true;
-        }
-        return false;
+        return (substr($text,0,1) == 'P') ? true : false;           
     }
-
-    
 }

@@ -12,6 +12,9 @@ namespace Arikaim\Core\System;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Utils;
 
+/**
+ * Send emails
+ */
 class Mailer 
 {
     private $mailer;

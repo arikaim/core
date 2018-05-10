@@ -46,15 +46,13 @@ class Extensions extends Model
     public function isInstalled($extension_name)
     {
         $model = $this->where('name','=',$extension_name)->first();       
-        if (is_object($model) == true) return true;
-        return false;       
+        return (is_object($model) == true) ? true : false;   
     }
 
     public function getStatus($extension_name)
     {
         $model = $this->where('name','=',$extension_name)->first();       
-        if (is_object($model) == false) return 0;
-        return $model->status;       
+        return (is_object($model) == false) ? 0 : $model->status;            
     }
 
     public function getConstant($constant_name)

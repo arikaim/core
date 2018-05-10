@@ -128,10 +128,7 @@ class Routes extends Model
         $pattern .= $this->getLanguagePattern($pattern);       
         $model = $this->where('pattern','=',$pattern);
         $model = $model->where('template_name','=',$template_name)->first();
-        if (is_object($model) == false) {
-            return false;
-        }
-        return $model;
+        return (is_object($model) == false) ? false : $model;           
     }
 
     public function getPageRoute($method, $pattern)
@@ -144,10 +141,7 @@ class Routes extends Model
     {
         $model = Model::buildQuery($this,$condition);
         $model = $model->get();
-        if (is_object($nodel) == false) {
-            return false;
-        }
-        return $model;
+        return (is_object($nodel) == false) ? false : $model;          
     }
 
     public function hasRoute($method, $pattern)
@@ -179,7 +173,6 @@ class Routes extends Model
         $route['template_name'] = $template_name;
         // fire event        
         Arikaim::event()->trigger('core.route.register',$route);
-
         return $this->addRoute($route);
     }
 
@@ -230,10 +223,7 @@ class Routes extends Model
 
     public static function isValidAuth($auth)
     {
-        if (($auth < 0) || ($auth > 4)) {
-            return false;
-        }
-        return true;
+        return (($auth < 0) || ($auth > 4)) ? false : true;           
     }
 
     public function isValid(array $route) 

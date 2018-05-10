@@ -20,18 +20,37 @@ use Arikaim\Core\Utils\Utils;
 */
 class SearchCondition extends QueryBuilder
 {
+    /**
+     * Constructor
+     *
+     * @param string $model_class_name
+     * @param string $extension_name
+     * @param string $search
+     */
     public function __construct($model_class_name, $extension_name = null, $search = null) 
     {
         parent::__construct();
-        $this->createSearchConditions($model_class_name,$search);
+        $this->createSearchConditions($model_class_name,$extension_name,$search);
     }
 
+    /**
+     * Return current search text
+     *
+     * @return mixed
+     */
     public static function getCurrentSearch()
     {
         return Arikaim::session()->get('search');
     }
 
-    public function getModelFields($model,array $field)
+    /**
+     * Return all model fields
+     *
+     * @param object $model
+     * @param array $field
+     * @return array
+     */
+    public function getModelFields($model, array $field)
     {
         $model = $model->find(1);
         $fields = $model->getAttributes();
@@ -48,11 +67,19 @@ class SearchCondition extends QueryBuilder
         return $result;
     }
 
+    /**
+     * Create condition for every filed in model 
+     *
+     * @param string $model_class_name
+     * @param string $extension_name
+     * @param string $search
+     * @return boolean
+     */
     private function createSearchConditions($model_class_name, $extension_name = null, $search = null)
     {
         $model = Model::create($model_class_name,$extension_name);
         if (is_object($model) == false) {
-            return $this;
+            return false;
         }
 
         if (is_array($search) == false) {
@@ -70,9 +97,16 @@ class SearchCondition extends QueryBuilder
             $condition = new Condition($condition['field'],$condition['operator'],$condition['value'],$condition['statement_operator']);
             $this->append($condition);
         }
-        return $this;
+        return true;
     }
 
+    /**
+     * Create search fields array
+     *
+     * @param object $model
+     * @param mixed $search
+     * @return array
+     */
     private function createSearchFields($model, $search)
     {
         if (isset($search['fields']) == false) {
@@ -85,6 +119,12 @@ class SearchCondition extends QueryBuilder
         return $fields;
     }
 
+    /**
+     * Return model object
+     *
+     * @param object $model
+     * @return object
+     */
     public function apply($model)
     {
         return $model;

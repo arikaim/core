@@ -12,7 +12,7 @@ namespace Arikaim\Core\Api;
 use Arikaim\Core\Utils\Utils;
 
 /**
- * Api Client Response
+ * Rest Api Client Response
 */
 class ApiClientResponse
 {
@@ -27,65 +27,79 @@ class ApiClientResponse
         }
     }
 
+    /**
+     * Return true if response is valid
+     *
+     * @return boolean
+     */
     public function isValid()
     {
-        if (is_array($this->data) == true) {
-            return true;
-        }
-        return false;
+        return (is_array($this->data) == true) ? true : false;         
     }
 
+    /**
+     * Return response result.
+     *
+     * @return array|mixed
+     */
     public function getResult()
     {
-        if ($this->isValid() == false) {
-            return null;
-        }
-        return $this->data['result'];
+        return ($this->isValid() == false) ? null : $this->data['result'];        
     }
 
+    /**
+     * Return tru if response have error 
+     *
+     * @return boolean
+     */
     public function hasError()
     {
         if ($this->isValid() == false) {
             return null;
         }
-        if (count($this->data['errors']) > 0) {
-            return true;
-        }
-        return false;
+        return (count($this->data['errors']) > 0) ? true : false;
     }
 
+    /**
+     * Return response errors
+     *
+     * @return array
+     */
     public function getErrors()
     {
-        if ($this->isValid() == false) {
-            return [];
-        }
-        return $this->data['errors'];
+        return ($this->isValid() == false) ? [] : $this->data['errors'];       
     }
 
+    /**
+     * Return response code
+     *
+     * @return string
+     */
     public function getCode()
     {
-        if ($this->isValid() == false) {
-            return null;
-        }
-        return $this->data['code'];
+        return ($this->isValid() == false) ? null : $this->data['code'];           
     }
 
+    /**
+     * Return request execution time
+     *
+     * @return float
+     */
     public function getExecutionTime()
     {
         if ($this->isValid() == false) {
             return null;
         }
-        if (isset($this->data['execution_time']) == true) {
-            return $this->data['execution_time'];
-        }
-        return null;
+        return (isset($this->data['execution_time']) == true) ? $this->data['execution_time'] : null;
     }
 
+    /**
+     * Get response as array
+     *
+     * @return array
+     */
     public function toArray()
     {
-        if ($this->isValid() == false) {
-            return [];
-        }
-        return $this->data;
+        return ($this->isValid() == false) ? [] : $this->data;         
     }
 }

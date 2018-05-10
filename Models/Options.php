@@ -71,13 +71,10 @@ class Options extends Model
     {
         try {
             $model = $this->where('key','=',$key)->first();
-            if (empty($model) == false) {
-                return $model;
-            } 
+            return (empty($model) == false) ? $model : false;               
         } catch(\Exception $e) {
             return false;
         }
-        return false;
     }
 
     public function loadOptions()

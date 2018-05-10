@@ -27,7 +27,7 @@ class ApiControler extends Controler
         parent::__construct();
         $this->type = Controler::API;
         $this->form = new Form();
-        $this->api_response = new ApiResponse(Arikaim::response(),Arikaim::settings('debug'),Arikaim::settings('debugTrace'));     
+        $this->api_response = new ApiResponse(Arikaim::settings('debug'),Arikaim::settings('debugTrace'));     
     }
 
     public function getApiResponse() 

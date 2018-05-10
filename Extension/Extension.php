@@ -25,7 +25,7 @@ class Extension implements ExtensionInterface
     }
     
     /**
-     * return extension name
+     * Return extension name
      *
      * @return string
      */
@@ -38,11 +38,26 @@ class Extension implements ExtensionInterface
         return strtolower($name);
     }
 
+    /**
+     * Create job
+     *
+     * @param [type] $class_name
+     * @param [type] $args
+     * @return object
+     */
     public function createJob($class_name, $args = null)
     {
         return Factory::createJob($class_name,$this->getName(),$args);
     }
 
+    /**
+     * Register extension event
+     *
+     * @param string $name Event name
+     * @param string $title Event title
+     * @param string $description Event description
+     * @return void
+     */
     public function registerEvent($name, $title = null, $description = null)
     {
         return Arikaim::event()->registerEvent($name,$title,$this->getName(),$description);

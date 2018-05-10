@@ -295,6 +295,12 @@ class Access
         return false;
     }
 
+    /**
+     * Verify access
+     *
+     * @param int $auth Auth type code
+     * @return boolean
+     */
     public function checkAccess($auth)
     {
         if (is_numeric($auth) == false) {

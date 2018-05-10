@@ -30,6 +30,7 @@ class ExtensionsSchema extends Schema
             // columns
             $table->bigIncrements('id')->nullable(false);
             $table->string('name')->nullable(false);
+            $table->string('alias')->nullable(true);            
             $table->string('title')->nullable(false)->default('');
             $table->text('description')->nullable(true)->default('');
             $table->string('short_description')->nullable(true)->default('');
@@ -44,10 +45,12 @@ class ExtensionsSchema extends Schema
             $table->string('admin_link_component')->nullable(false)->default('');
             $table->string('uuid')->nullable(false);
             $table->string('license_key')->nullable(true);
-            // indexes
+            // unique indexes
             $table->unique('uuid');
+            $table->unique('alias');
             $table->unique('license_key');
             $table->unique('name');
+            // indexes
             $table->index('status');
             $table->index('title');
             $table->index('admin_link_position');

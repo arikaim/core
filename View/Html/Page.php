@@ -17,6 +17,9 @@ use Arikaim\Core\Interfaces\View\ComponentViewInterface;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Interfaces\View\ComponentInterface;
 
+/**
+ * Load html page templates
+ */
 class Page extends BaseComponent implements ComponentViewInterface
 {   
     protected $head;
@@ -92,8 +95,6 @@ class Page extends BaseComponent implements ComponentViewInterface
     
     public function processPageOptions(ComponentInterface $component)
     {
-        // option: include/library
-        // TODO
     }
 
     public function has($page_name) 
@@ -178,13 +179,17 @@ class Page extends BaseComponent implements ComponentViewInterface
         return $url . $path;
     }
 
+    /**
+     * Return url link with current language code
+     *
+     * @param string $path
+     * @param boolean $full
+     * @return string
+     */
     public static function getUrl($path = null, $full = false)
     {       
-        if ($full == true) {
-            $url = Arikaim::getBaseURL();
-        } else {
-            $url = Arikaim::getBasePath();
-        }
+        $url = ($full == true) ? Arikaim::getBaseURL() : Arikaim::getBasePath();
+        
         if ($url == "/") {
             $url = "";
         }

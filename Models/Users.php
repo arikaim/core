@@ -74,10 +74,7 @@ class Users extends Model
         }
         $user_id = $this->getCurrentUser();  
         $model = $this->where("id","=",$user_id)->first();
-        if (is_object($model) == true) {
-            return $model;
-        }
-        return false;
+        return (is_object($model) == true) ? $model : false;           
     }
 
     public function isLoged() 
@@ -89,10 +86,7 @@ class Users extends Model
     {
         $uuid = Arikaim::session()->get('uuid');
         $admin_uuid = $this->getControlPanelUser();
-        if ($uuid == $admin_uuid) {
-            return true;
-        }
-        return false;
+        return ($uuid == $admin_uuid) ? true : false;           
     }
 
     public function login($user_name, $password, $permission_name = null, $permission_type = null) 
@@ -185,10 +179,7 @@ class Users extends Model
     {
         $model = $this->where('user_name','=',$user_name);
         $model = $model->orWhere('email','=',$email)->first();
-        if (is_object($model) == false) {
-            return false;
-        }
-        return $model;
+        return (is_object($model) == false) ? false : $model;
     }
 
     public function getId($user_name) 
@@ -284,10 +275,6 @@ class Users extends Model
         if (is_object($model) == false) {
             return false;
         }
-        if (time() > $model->access_key_expire) {
-            // expired
-            return false;
-        }
-        return $model->access_key;
+        return (time() > $model->access_key_expire) ? false : $model->access_key;          
     }
 }

@@ -24,6 +24,12 @@ class ApiClient
     private $headers;  
     private $requtest_url;
 
+    /**
+     * Constructor
+     *
+     * @param string $host Host url
+     * @param integer $timeout
+     */
     public function __construct($host,$timeout = 30) 
     {
         $this->host = $host;
@@ -32,14 +38,19 @@ class ApiClient
         $this->headers = null;
         $this->api_response = null;
     }
-
-    public function connect($api_key, $api_secret)
+    
+    /**
+     * Connect to remote host
+     *
+     * @param string $api_key User api key
+     * @param string $api_secret User api secret
+     * @return boolean
+     */
+    public function connect($api_key, $api_secret, $host = null)
     {
-        return $this->init($api_key,$api_secret);
-    }
-
-    public function init($api_key, $api_secret)
-    {
+        if ($host != null) {
+            $this->setHost($host);
+        }
         $params['api_secret'] = $api_secret; 
         $params['api_key'] = $api_key; 
         $response = $this->get('/api/create/token/',$params);
@@ -57,11 +68,37 @@ class ApiClient
         return true;
     }
 
+    /**
+     *  Set remote host url
+     *
+     * @param string $host Remote host url.
+     * @return void
+     */
+    public function setHost($host)
+    {
+        $this->host = $host;
+    }
+
+    /**
+     * Set request header.
+     *
+     * @param string $name
+     * @param string $value
+     * @return void
+     */
     public function setHeader($name,$value)
     { 
         $this->headers[$name] = $value;
     }
 
+    /**
+     * Call rest api 
+     *
+     * @param string $path Url of rest api.
+     * @param [type] $method Request method 
+     * @param array $params 
+     * @return object Response object
+     */
     public function apiCall($path,$method,$params = [])
     {
         $this->requtest_url = $this->host . $path;
@@ -70,21 +107,49 @@ class ApiClient
         return $api_response;
     }
 
+    /**
+     * Api reuest GET method 
+     *
+     * @param string $path Relative url path
+     * @param array $params Request params
+     * @return object
+     */
     public function get($path,$params = [])
     {
         return $this->apiCall($path,"GET",$params);
     }
     
+    /**
+     * Api reuest POST method 
+     *
+     * @param string $path Relative url path
+     * @param array $params Request params
+     * @return object
+     */
     public function post($path,$params = [])
     {
         return $this->apiCall($path,"POST",$params);
     }
     
+    /**
+     * Api request DELETE method
+     *
+     * @param string $path Relative url path
+     * @param array $params Request params
+     * @return object
+     */
     public function delete($path,$params = [])
     {
         return $this->apiCall($path,"DELETE",$params);
     }
 
+    /**
+     * Api reuest PUT method 
+     *
+     * @param string $path Relative url path
+     * @param array $params Request params
+     * @return object
+     */
     public function put($path,$params = [])
     {
         return $this->apiCall($path,"PUT",$params);

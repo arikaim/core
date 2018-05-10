@@ -73,7 +73,7 @@ class System
             set_time_limit($time);
             return true;
         }
-
+        return false;
     }
 
     public static function getPhpVersion()
@@ -238,10 +238,7 @@ class System
 
     public static function isConsole()
     {
-        if (php_sapi_name() == "cli") {
-           return true;
-        }
-        return false;
+        return (php_sapi_name() == "cli") ? true : false;          
     }   
 
     public static function writeLine($text, $eof = null)

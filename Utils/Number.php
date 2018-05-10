@@ -32,10 +32,7 @@ class Number
     {
         $formats = Arikaim::options()->get('number.format.items',Self::$default_format);
         $key = array_search($name, array_column($formats, 'name'));
-        if ($key !== false) {
-            return $formats[$key];
-        }
-        return Self::$default_format;
+        return ($key !== false) ? $formats[$key] : Self::$default_format;          
     }
 
     public static function isNumber($value)
@@ -50,10 +47,7 @@ class Number
 
     public static function getNumericValue($value) 
     {
-        if (Self::isNumber($value) == false) {
-            return 0;
-        }
-        return $value;
+        return (Self::isNumber($value) == false) ? 0 : $value;
     }
 
     public static function getInteger($value)

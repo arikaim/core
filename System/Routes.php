@@ -68,7 +68,7 @@ class Routes
         $app->get('/api/ui/component/details/{name}[/]',"$api_controles_namespace\Ui\ComponentApi:componentDetails")->add($jwt_auth);
         // UI Page  
         $app->get('/api/ui/page/{name}',"$api_controles_namespace\Ui\PageApi:loadPage")->add($session_auth);
-        $app->get('/api/ui/page/properties/',"$api_controles_namespace\Ui\PageApi:loadPageProperties")->add($session_auth);  
+        $app->get('/api/ui/page/properties/',"$api_controles_namespace\Ui\PageApi:loadPageProperties")->add($session_auth);
     
         // Control Panel
         $app->get('/admin/[{language}/]',Controler::getControlersNamespace() . "\Pages\PageLoader:loadControlPanel");

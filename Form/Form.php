@@ -139,10 +139,7 @@ class Form extends Collection
 
     public function isValid()
     {
-        if ($this->getErrorsCount() > 0) {
-            return false;
-        }
-        return true;
+        return ($this->getErrorsCount() > 0) ? false : true;          
     }
 
     public function getFields() 

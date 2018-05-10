@@ -9,6 +9,9 @@
 */
 namespace Arikaim\Core\System;
 
+/**
+ * Class loader
+ */
 class ClassLoader 
 {
     private $root_path;
@@ -35,7 +38,7 @@ class ClassLoader
         spl_autoload_register(array($this, 'LoadClassFile'));
     }
 
-    function LoadClassFile($class) 
+    public function LoadClassFile($class) 
     {
         $file = $this->getClassFileName($class);
         if (file_exists($file) == true) {
@@ -100,6 +103,4 @@ class ClassLoader
         }        
         return false;
     }
-
-
 }

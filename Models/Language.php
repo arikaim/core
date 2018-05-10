@@ -47,10 +47,7 @@ class Language extends Model
             $language = $language->where('status','=',1);
         }
         $language = $language->first();
-        if (is_object($language) == true) {
-            return true;
-        }
-        return false;
+        return (is_object($language) == true) ? true : false;           
     }
 
     public function add(array $language)
@@ -60,8 +57,7 @@ class Language extends Model
         }
         $this->fill($language);
         $this->setPosition();
-        $result = $this->save();    
-        return $result;      
+        return $this->save();    
     }
 
     public function getDefaultLanguage()

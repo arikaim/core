@@ -40,7 +40,7 @@ class Event implements EventInterface
 
     public function setParameter($name,$value)
     {
-        return $this->parameters[$name] = $value;
+        $this->parameters[$name] = $value;
     }
 
     public function getParameters()
@@ -50,17 +50,11 @@ class Event implements EventInterface
 
     public function getParameter($name) 
     {
-        if (isset($this->parameters[$name]) == true) {
-            return $this->parameters[$name];
-        }
-        return null;
+        return (isset($this->parameters[$name]) == true) ? $this->parameters[$name] : null;         
     }
 
     public function hasParameter($name)
     {
-        if (isset($this->parameters[$name]) == true) {
-            return true;
-        }
-        return false;
+        return (isset($this->parameters[$name]) == true) ? true : false;           
     }
 }

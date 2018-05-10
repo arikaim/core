@@ -31,14 +31,12 @@ class EventsManager
     
     public function unregisterEvents($extension_name)
     {
-        $events = Model::Events();
-        return $events->deleteEvents($extension_name);
+        return Model::Events()->deleteEvents($extension_name);       
     }
 
     public function unregisterEvent($event_name)
     {
-        $events = Model::Events();
-        return $events->deleteEvent($event_name);
+        return Model::Events()->deleteEvent($event_name);
     }
 
     public function registerEvent($name, $title, $extension_name = null, $description = null)
@@ -47,7 +45,6 @@ class EventsManager
             // core events can't be registered from extension
             return false;
         }
-
         $event['name'] = $name;
         $event['extension_name'] = $extension_name;
         $event['title'] = $title;
@@ -58,10 +55,7 @@ class EventsManager
 
     public function isCoreEvent($name)
     {
-        if (substr($name,0,4) == "core") {
-            return true;
-        }
-        return false;
+        return (substr($name,0,4) == "core") ? true : false;          
     }
 
     public function registerSubscriber($base_class_name,$extension_name)

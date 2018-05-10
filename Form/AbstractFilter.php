@@ -25,10 +25,7 @@ abstract class AbstractFilter implements FilterInterface
         $filter = $this->getFilter();
         $filter_options = $this->getFilterOptions();      
         $result = filter_var($value,$filter,$filter_options);
-        if ($result == false) {
-            return $value;
-        }
-        return $result;
+        return ($result == false) ? $value : $result;
     }
 
     protected function getCustomFilterOptions()

@@ -123,6 +123,9 @@ class Arikaim
         Self::$uri = Uri::createFromEnvironment(new Environment($_SERVER));
         $loader = new \Arikaim\Core\System\ClassLoader(Self::getBasePath(),Self::getRootPath());
         $loader->register();
+        
+        // load global functions
+        $loader->LoadClassFile('\\Arikaim\\Core\\System\\Globals');
     }
 
     /**
@@ -133,7 +136,7 @@ class Arikaim
     public static function create() 
     {        
         Self::registerLoader();
-        
+      
         // set start time
         System::initStartTime();
         

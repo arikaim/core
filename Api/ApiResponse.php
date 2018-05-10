@@ -9,6 +9,7 @@
 */
 namespace Arikaim\Core\Api;
 
+use Slim\Http\Response;
 use Arikaim\Core\System\System;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Arikaim;
@@ -19,25 +20,37 @@ use Arikaim\Core\Arikaim;
 class ApiResponse 
 {
     protected $result;
-    protected $response;  
     protected $errors; 
     protected $debug;
     protected $trace;
     protected $enableCors;
     protected $pretty_format;
 
-    public function __construct($response, $debug = false, $trace = false, $cors = true) 
+    /**
+     * Constructor
+     *
+     * @param boolean $debug
+     * @param boolean $trace
+     * @param boolean $cors
+     */
+    public function __construct($debug = false, $trace = false, $cors = true) 
     {                    
-        $this->init($response,$debug,$trace);
+        $this->init($debug,$trace);
         $this->enableCors = $cors;
     }
 
-    private function init($response, $debug, $trace)
+    /**
+     * Initialize
+     *
+     * @param boolean $debug Add debug info to response
+     * @param boolean $trace Add trace info to response
+     * @return void
+     */
+    private function init($debug, $trace)
     {
         $this->errors = [];
         $this->debug = ($debug == true) ? true : false;
         $this->trace = ($trace == true) ? true : false;
-        $this->response = $response;
         $this->result['result'] = "";
         $this->result['status'] = "ok";  
         $this->result['code'] = 200; 
@@ -46,6 +59,12 @@ class ApiResponse
         $this->setResult("");
     }
 
+    /**
+     * Add errors
+     *
+     * @param array $errors
+     * @return boolean
+     */
     public function addErrors(array $errors)
     {
         if (is_array($errors) == false) {
@@ -55,6 +74,12 @@ class ApiResponse
         return true;
     }
 
+    /**
+     * Set errors 
+     *
+     * @param array $errors
+     * @return boolean
+     */
     public function setErrors(array $errors)
     {
         if (is_array($errors) == true) {
@@ -74,38 +99,64 @@ class ApiResponse
         $this->errors = [];
     }
 
+    /**
+     * Set error message
+     *
+     * @param string $error_message
+     * @return void
+     */
     public function setError($error_message) 
     {
-        array_push($this->errors,$error_message);       
+        array_push($this->errors,$error_message);   
     }
 
+    /**
+     * Set response result
+     *
+     * @param mixed $result_code
+     * @param boolean $pretty_format JSON pretty format
+     * @return void
+     */
     public function setResult($result_code, $pretty_format = false) 
     {
         $this->result['result'] = $result_code;
         $this->pretty_format = $pretty_format;
     }
 
+    /**
+     * Return errors count
+     *
+     * @return int
+     */
     public function getErrorCount()
     {
         return count($this->errors);
     }
 
+    /**
+     * Return true if response have error
+     *
+     * @return boolean
+     */
     public function hasError() 
     {    
         return ($this->getErrorCount() > 0) ? true : false;          
     }
 
+    /**
+     * Return request response
+     *
+     * @return Slim\Http\Response
+     */
     public function getResponse() 
     {    
+        $response = new Response();
         $this->result['errors'] = $this->errors;
         if ($this->hasError() == true) {
-            $this->result['status'] = "error";
-            $this->response->withStatus(401);
-        } else {
-            $this->result['status'] = "ok";
+            $this->result['status'] = "error"; 
+            $this->result['code'] = 401;
         }
-        $this->result['code'] = $this->response->getStatusCode();
-
+        
         if ($this->debug == true) {
             $this->result['execution_time'] = System::getExecutionTime();
         }
@@ -118,16 +169,20 @@ class ApiResponse
         } else {
             $code = json_encode($this->result,true);
         }
-       
-        $this->response->withHeader('Content-Type','application/json');
         // enable cors
         if ($this->enableCors == true) {
-            $this->response->withHeader('Access-Control-Allow-Origin:','*');
+            $response = $response->withHeader('Access-Control-Allow-Origin:','*');
         }
-        $this->response->getBody()->write($code);
-        return $this->response;
+        return $response->withStatus($this->result['code'])
+            ->withHeader('Content-Type','application/json')
+            ->write($code);
     }
 
+    /**
+     * Show Auth error
+     *
+     * @return void
+     */
     public function displayAuthError()
     {
         $this->setError(Arikaim::getError("AUTH_FAILED"));

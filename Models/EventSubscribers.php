@@ -40,10 +40,7 @@ class EventSubscribers extends Model
             $model = $model->where('status','=',$status);
         }
         $model = $model->orderBy('priority')->get();
-        if (is_object($model) == true) {
-            return $model->toArray();
-        } 
-        return [];
+        return (is_object($model) == true) ? $model->toArray() : [];
     }
 
     public function getSubscribers($event_name, $status = null) 
@@ -53,20 +50,14 @@ class EventSubscribers extends Model
             $model = $model->where('status','=',$status);
         }
         $model = $model->orderBy('priority')->get();
-        if (is_object($model) == true) {
-            return $model->toArray();
-        } 
-        return [];
+        return (is_object($model) == true) ? $model->toArray() : [];           
     }
 
     public function hasSubscriber($event_name, $extension_name)
     {
         $model = $this->where('name','=',$event_name);
         $model = $model->where('extension_name','=',$extension_name)->get();
-        if ($model->isEmpty() == true) {
-            return false;
-        }
-        return true;
+        return ($model->isEmpty() == true) ? false : true;           
     }
 
     public function getSubscriber($event_name, $extension_name)
@@ -109,8 +100,7 @@ class EventSubscribers extends Model
             $subscriber['priority'] = 0;
         }
         $this->fill($subscriber);
-        $result = $this->save();
-        return $result;
+        return $this->save();       
     }   
 
     public function disableExtensionSubscribers($extension_name) 

@@ -47,9 +47,6 @@ class PermissionsList extends Model
     public function has($name)
     {
         $model = $this->where('name','=',$name)->first();
-        if (is_object($model) == false) {
-            return false;
-        }
-        return true;
+        return (is_object($model) == false) ? false : true;            
     }
 }
