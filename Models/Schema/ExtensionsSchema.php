@@ -43,6 +43,7 @@ class ExtensionsSchema extends Schema
             $table->string('admin_link_icon')->nullable(false)->default('');
             $table->string('admin_link_sub_title')->nullable(false)->default('');
             $table->string('admin_link_component')->nullable(false)->default('');
+            $table->text('admin_menu_items')->true(false);
             $table->string('uuid')->nullable(false);
             $table->string('license_key')->nullable(true);
             // unique indexes

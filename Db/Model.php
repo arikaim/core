@@ -126,9 +126,9 @@ class Model
         return $builder;
     }
 
-    public static function createSearchCondition($model_class_name, $extension_name = null, $search = null, $query_builder = null)
+    public static function createSearchCondition($query_builder = null, $search = null)
     {
-        $condition = new SearchCondition($model_class_name,$extension_name,$search);
+        $condition = new SearchCondition($search);
         $condition->append($query_builder);
         return $condition;
     }

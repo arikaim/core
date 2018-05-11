@@ -10,8 +10,6 @@
 namespace Arikaim\Core\Db\Query;
 
 use Arikaim\Core\Db\Query\QueryBuilder;
-use Arikaim\Core\Db\Query\Condition;
-use Arikaim\Core\Db\Model;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Utils;
 
@@ -20,17 +18,17 @@ use Arikaim\Core\Utils\Utils;
 */
 class SearchCondition extends QueryBuilder
 {
+
+    protected $search;
     /**
      * Constructor
      *
-     * @param string $model_class_name
-     * @param string $extension_name
-     * @param string $search
+     * @param array $search 
      */
-    public function __construct($model_class_name, $extension_name = null, $search = null) 
+    public function __construct($search = null) 
     {
         parent::__construct();
-        $this->createSearchConditions($model_class_name,$extension_name,$search);
+        $this->search = ($search != null) ? $search : Self::getCurrentSearch();
     }
 
     /**
@@ -40,9 +38,11 @@ class SearchCondition extends QueryBuilder
      */
     public static function getCurrentSearch()
     {
-        return Arikaim::session()->get('search');
+        $search_json = Arikaim::session()->get('search');
+        return Utils::jsonDecode($search_json,true);
     }
 
+    
     /**
      * Return all model fields
      *
@@ -52,52 +52,21 @@ class SearchCondition extends QueryBuilder
      */
     public function getModelFields($model, array $field)
     {
-        $model = $model->find(1);
+        $result = [];
+        $model = $model->first();
+        var_dump($model);
+        exit();
         $fields = $model->getAttributes();
         if (is_array($fields) == false) {
-            return [];
+            return $result;
         }
-        $result = [];
         foreach ($fields as $key => $item) {
-            $condition['field'] = $key;
+            $condition['name'] = $key;
             $condition['operator'] = $field['operator'];
             $condition['statement_operator'] = $field['statement_operator'];
             array_push($result,$condition);
         }
         return $result;
-    }
-
-    /**
-     * Create condition for every filed in model 
-     *
-     * @param string $model_class_name
-     * @param string $extension_name
-     * @param string $search
-     * @return boolean
-     */
-    private function createSearchConditions($model_class_name, $extension_name = null, $search = null)
-    {
-        $model = Model::create($model_class_name,$extension_name);
-        if (is_object($model) == false) {
-            return false;
-        }
-
-        if (is_array($search) == false) {
-            $search = Self::getCurrentSearch();
-        }
-        $search_value = "";
-        $search_array = Utils::jsonDecode($search,true);
-     
-        if (isset($search_array['search']) == true) {
-            $search_value = $search_array['search'];
-        }
-        $fields = $this->createSearchFields($model,$search_array);
-        foreach ($fields as $condition) {
-            $condition['value'] = $search_value;
-            $condition = new Condition($condition['field'],$condition['operator'],$condition['value'],$condition['statement_operator']);
-            $this->append($condition);
-        }
-        return true;
     }
 
     /**
@@ -107,12 +76,9 @@ class SearchCondition extends QueryBuilder
      * @param mixed $search
      * @return array
      */
-    private function createSearchFields($model, $search)
+    private function createSearchFields($model)
     {
-        if (isset($search['fields']) == false) {
-            return [];
-        }
-        $fields = $search['fields'];
+        $fields = $this->getSearchFeilds();
         if (array_search('all',$fields) != false) {
             $fields = $this->getModelFields($model,$fields);
         } 
@@ -127,6 +93,42 @@ class SearchCondition extends QueryBuilder
      */
     public function apply($model)
     {
+        $search_value = $this->getSearchValue();
+        if ($search_value == null || empty($search_value) == true) {
+            return $model;
+        }
+        $fields = $this->createSearchFields($model);
+        foreach ($fields as $field) {
+            switch($field['statement_operator']) {
+                case Self::AND_OPERATOR: {
+                    $model = $model->where($field['name'],$field['operator'],$search_value);
+                    break;
+                }
+                case Self::OR_OPERATOR: {
+                    $model = $model->orWhere($field['name'],$field['operator'],$search_value);
+                    break;
+                }
+                default: {
+                    $model = $model->where($field['name'],$field['operator'],$search_value);
+                }
+            }
+        }
         return $model;
+    }
+
+    public function getSearchFeilds()
+    {
+        if (isset($this->search['fields']) == false) {
+            return [];
+        }
+        return $this->search['fields'];
+    }
+
+    public function getSearchValue()
+    {
+        if (isset($this->search['search']) == true) {
+            return $this->search['search'];
+        }
+        return null;
     }
 }
