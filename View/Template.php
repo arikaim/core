@@ -210,24 +210,22 @@ class Template
 
     public static function getVars()
     {
-        $base_path = Arikaim::getBasePath(); 
-        $base_url  = Arikaim::getBaseUrl();
         return array(
-            'base_path'             => $base_path,
-            'base_url'              => $base_url,
+            'base_path'             => ARIKAIM_BASE_PATH,
+            'base_url'              => ARIKAIM_BASE_URL,
             'template_url'          => Self::getTemplateUrl(),
             'current_template_name' => Self::getTemplateName(),
-            'ui_path'               => $base_path . Arikaim::getViewPath(),
+            'ui_path'               => ARIKAIM_BASE_PATH . ARIKAIM_VIEW_PATH,
             'system_template_url'   => Self::getTemplateUrl(Self::SYSTEM_TEMPLATE_NAME),
             'system_template_name'  => Self::SYSTEM_TEMPLATE_NAME,
-            'ui_library_path'       => $base_path . DIRECTORY_SEPARATOR . Arikaim::getViewPath() . DIRECTORY_SEPARATOR . 'library' . DIRECTORY_SEPARATOR,
-            'ui_library_url'        => Arikaim::getViewURL() . "/library/"            
+            'ui_library_path'       => ARIKAIM_BASE_PATH . DIRECTORY_SEPARATOR . ARIKAIM_VIEW_PATH . DIRECTORY_SEPARATOR . 'library' . DIRECTORY_SEPARATOR,
+            'ui_library_url'        => ARIKAIM_VIEW_URL . "/library/"            
         );
     }
 
     public static function getTemplatesPath()
     {
-        return Arikaim::getViewPath() . DIRECTORY_SEPARATOR . 'templates';
+        return ARIKAIM_VIEW_PATH . DIRECTORY_SEPARATOR . 'templates';
     }
 
     public static function getSystemMacrosPath()
@@ -297,7 +295,7 @@ class Template
         if (($template_name == null) || (is_numeric($template_name) == true))  {           
             $template_name = Template::getTemplateName();
         } 
-        return Arikaim::getViewURL() . "/templates/$template_name";       
+        return ARIKAIM_VIEW_URL . "/templates/$template_name";       
     }
 
     public static function getTemplatePath($template_name = null, $type = null) 
@@ -309,7 +307,7 @@ class Template
         if (empty($template_name) == true)  {           
             $template_name = Template::getTemplateName($type);
         } 
-        return Arikaim::getViewPath() . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . $template_name;       
+        return ARIKAIM_VIEW_PATH . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . $template_name;       
     }
 
     public static function getLanguage() 

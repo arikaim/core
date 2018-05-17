@@ -36,7 +36,6 @@ class Db
             $this->capsule = new Manager();
             $this->capsule->addConnection($db_config);
             $this->capsule->setAsGlobal();
-            
             // schema db             
             $this->initSchemaConnection($db_config);
             $this->capsule->bootEloquent();

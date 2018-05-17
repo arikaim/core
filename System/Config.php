@@ -143,7 +143,7 @@ class Config extends Collection implements \ArrayAccess
 
     public function getConfigPath() 
     {
-        return Arikaim::getRootPath() . Arikaim::getBasePath() . DIRECTORY_SEPARATOR . 'arikaim' . DIRECTORY_SEPARATOR . 'config';
+        return ARIKAIM_ROOT_PATH . ARIKAIM_BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim' . DIRECTORY_SEPARATOR . 'config';
     }
 
     private function getFileName($file_name) {

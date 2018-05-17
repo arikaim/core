@@ -34,40 +34,19 @@ class Model
         return null;
     }
 
-    public static function getModelPath($model, $parent_field_name = "parent_id")
-    {
-        $result = [];
-        array_unshift($result,$model->toArray());
-        while ($model != false) {
-            $parent_id = $model->{$parent_field_name};
-            $model = $model->where('id','=',$parent_id)->first();
-            if (is_object($model) == true) {
-                array_unshift($result,$model->toArray());
-            }
-        }
-        return $result;
-    }
-
-    public static function getTreePath($class_name, $id, $extension_name = null, $parent_field_name = "parent_id")
-    {
-        $model = Self::create($class_name,$extension_name);
-        if ($model == null) {
-            return false;
-        }
-        $result = [];
-        $model = $model->where('id','=',$id)->first();
-        if (is_object($model) == false) {
-            return false;
-        }
-        return Self::getModelPath($model,$parent_field_name);
-    }
-
     public static function getFullClassName($class_name, $extension_name = null)
     {
         if ($extension_name == null || empty($extension_name) == true) {
             return Factory::getModelClass($class_name);
         }
         return Factory::getExtensionModelClass($extension_name,$class_name);
+    }
+
+    public static function getSql($builder)
+    {
+        $sql = str_replace(array('?'), array('\'%s\''),$builder->toSql());
+        $sql = vsprintf($sql,$builder->getBindings());
+        return $sql;
     }
 
     public static function getConstant($class_name,$name)
@@ -126,9 +105,9 @@ class Model
         return $builder;
     }
 
-    public static function createSearchCondition($query_builder = null, $search = null)
+    public static function createSearchCondition(array $search_in_fields = ['all'], $query_builder = null, $search = null)
     {
-        $condition = new SearchCondition($search);
+        $condition = new SearchCondition($search,$search_in_fields);
         $condition->append($query_builder);
         return $condition;
     }

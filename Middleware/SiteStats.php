@@ -24,8 +24,8 @@ class SiteStats
           
         $info['method'] = $request->getMethod();
         $info['path'] = $path;
-        $info['domain'] = Arikaim::getDomain();
-        $info['base_url'] = Arikaim::getBaseUrl();
+        $info['domain'] = ARIKAIM_DOMAIN;
+        $info['base_url'] = ARIKAIM_BASE_URL;
         if (substr($info['base_url'],-1) == "/") {
             $info['base_url'] = substr($info['base_url'],0,-1);
         }

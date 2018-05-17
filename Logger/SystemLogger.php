@@ -50,7 +50,7 @@ class SystemLogger
 
     public static function getLogsPath() 
     {
-        return Arikaim::getRootPath() . join(DIRECTORY_SEPARATOR, array(Arikaim::getBasePath(),'arikaim','logs')) . DIRECTORY_SEPARATOR;
+        return ARIKAIM_ROOT_PATH . join(DIRECTORY_SEPARATOR, array(ARIKAIM_BASE_PATH,'arikaim','logs')) . DIRECTORY_SEPARATOR;
     }
 
     public function addStats($message, $context = [], $level = LogLevel::INFO) 

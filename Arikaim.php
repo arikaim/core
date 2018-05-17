@@ -114,29 +114,29 @@ class Arikaim
     }
 
     /**
-     * Register Arikaim class loader.
-     *
-     * @return void
-    */
-    public static function registerLoader()
-    {
-        Self::$uri = Uri::createFromEnvironment(new Environment($_SERVER));
-        $loader = new \Arikaim\Core\System\ClassLoader(Self::getBasePath(),Self::getRootPath());
-        $loader->register();
-        
-        // load global functions
-        $loader->LoadClassFile('\\Arikaim\\Core\\System\\Globals');
-    }
-
-    /**
      * Initialize Arikaim system. Create container services, load system routes 
      *
      * @return void
     */
     public static function create() 
     {        
-        Self::registerLoader();
-      
+        Self::$uri = Uri::createFromEnvironment(new Environment($_SERVER));
+
+        // init constants
+        define('ARIKAIM_DOMAIN',Self::getDomain());
+        define('ARIKAIM_BASE_PATH',Self::getBasePath());
+        define('ARIKAIM_ROOT_PATH',Self::getRootPath());
+        define('ARIKAIM_BASE_URL',Self::getBaseUrl());
+        define('ARIKAIM_PATH',Self::getArikaimPath());
+        define('ARIKAIM_VIEW_PATH',Self::getViewPath());
+        define('ARIKAIM_VIEW_URL',Self::getViewUrl());
+  
+        $loader = new \Arikaim\Core\System\ClassLoader(ARIKAIM_BASE_PATH,ARIKAIM_ROOT_PATH);
+        $loader->register();
+        
+        // load global functions
+        $loader->LoadClassFile('\\Arikaim\\Core\\System\\Globals');
+
         // set start time
         System::initStartTime();
         
@@ -242,7 +242,7 @@ class Arikaim
     */
     public static function getArikaimPath()
     {
-        return Self::getRootPath() . Self::getBasePath() . DIRECTORY_SEPARATOR . 'arikaim'; 
+        return ARIKAIM_ROOT_PATH . ARIKAIM_BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim'; 
     }
 
     /**
@@ -252,7 +252,7 @@ class Arikaim
     */
     public static function getModulesPath()
     {
-        return Self::getArikaimPath() . DIRECTORY_SEPARATOR . 'modules'; 
+        return ARIKAIM_PATH . DIRECTORY_SEPARATOR . 'modules'; 
     }
 
     /**
@@ -262,7 +262,7 @@ class Arikaim
     */
     public static function getViewPath() 
     {
-        return Self::getArikaimPath() . DIRECTORY_SEPARATOR . 'view';       
+        return ARIKAIM_PATH . DIRECTORY_SEPARATOR . 'view';       
     }
 
     /**
@@ -272,7 +272,7 @@ class Arikaim
     */
     public static function getViewURL() 
     {
-        return Self::getBaseUrl() . '/arikaim/view';
+        return ARIKAIM_BASE_URL . '/arikaim/view';
     }
 
     /**
@@ -295,7 +295,7 @@ class Arikaim
     */
     public static function getBaseUrl() 
     {       
-        return Self::getDomain() . Self::getBasePath();       
+        return ARIKAIM_DOMAIN . ARIKAIM_BASE_PATH;   
     }
 
     /**

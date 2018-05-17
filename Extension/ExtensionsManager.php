@@ -86,9 +86,7 @@ class ExtensionsManager
             Arikaim::event()->trigger('core.extension.before.install',$details);
             $ext_obj->onBeforeInstall();
         }
-        // create db tables 
-        $db_tables = $this->getExtensionDatabaseModels($extension_name,true);
-    
+       
         // delete extension routes
         $this->deleteRoutes($extension_name);
         // delete jobs 
@@ -331,7 +329,7 @@ class ExtensionsManager
         return $count;
     }
 
-    public function getExtensionDatabaseModels($extension_name, $install = false)
+    public function getExtensionDatabaseModels($extension_name)
     {      
         $result = [];
         $path = Self::getExtensionModelsSchemaPath($extension_name);
@@ -348,10 +346,7 @@ class ExtensionsManager
             $model_obj = Schema::createExtensionModelSchema($extension_name,$base_class);
 
             if (is_subclass_of($model_obj,'Arikaim\Core\Db\Schema') == true ) {               
-                $item['name'] = $model_obj->getTableName();
-                if ($install == true) {
-                    $item['created'] = (string)Schema::install($base_class,$extension_name);   
-                }
+                $item['name'] = $model_obj->getTableName();               
                 array_push($result,$item);
             }
         }     
@@ -406,12 +401,12 @@ class ExtensionsManager
 
     public static function getExtensionViewUrl($extension_name)
     {
-        return join('/',array(Arikaim::getBaseUrl(),'arikaim','extensions',$extension_name,'view'));
+        return join('/',array(ARIKAIM_BASE_URL,'arikaim','extensions',$extension_name,'view'));
     }
     
     public static function getExtensionsPath() 
     {
-        return Arikaim::getRootPath() . Arikaim::getBasePath() . DIRECTORY_SEPARATOR . 'arikaim' . DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR;
+        return ARIKAIM_ROOT_PATH . ARIKAIM_BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim' . DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR;
     }
     
     public static function getExtensionPath($extension_name, $full_path = true)   

@@ -20,14 +20,17 @@ class SearchCondition extends QueryBuilder
 {
 
     protected $search;
+    protected $fields;
+
     /**
      * Constructor
      *
      * @param array $search 
      */
-    public function __construct($search = null) 
+    public function __construct($search = null,array $fields = ['all']) 
     {
         parent::__construct();
+        $this->fields = $fields;
         $this->search = ($search != null) ? $search : Self::getCurrentSearch();
     }
 
@@ -53,9 +56,7 @@ class SearchCondition extends QueryBuilder
     public function getModelFields($model, array $field)
     {
         $result = [];
-        $model = $model->first();
-        var_dump($model);
-        exit();
+        $model = $model->first();       
         $fields = $model->getAttributes();
         if (is_array($fields) == false) {
             return $result;
@@ -79,10 +80,18 @@ class SearchCondition extends QueryBuilder
     private function createSearchFields($model)
     {
         $fields = $this->getSearchFeilds();
-        if (array_search('all',$fields) != false) {
+        if (array_search('all',$this->fields) !== false) {
             $fields = $this->getModelFields($model,$fields);
-        } 
-        return $fields;
+            return $fields;
+        }
+        $result = [];
+        foreach ($this->fields as $feild_name) {
+            $field['name'] = $feild_name;
+            $field['operator'] = $fields['operator'];
+            $field['statement_operator'] = $fields['statement_operator'];
+            array_push($result,$field);
+        }
+        return $result;
     }
 
     /**
@@ -99,21 +108,41 @@ class SearchCondition extends QueryBuilder
         }
         $fields = $this->createSearchFields($model);
         foreach ($fields as $field) {
+            $field = $this->validate($field,$search_value);
             switch($field['statement_operator']) {
                 case Self::AND_OPERATOR: {
-                    $model = $model->where($field['name'],$field['operator'],$search_value);
+                    $model = $model->where($field['name'],$field['operator'],$field['value']);
                     break;
                 }
                 case Self::OR_OPERATOR: {
-                    $model = $model->orWhere($field['name'],$field['operator'],$search_value);
+                    $model = $model->orWhere($field['name'],$field['operator'],$field['value']);
                     break;
                 }
                 default: {
-                    $model = $model->where($field['name'],$field['operator'],$search_value);
+                    $model = $model->where($field['name'],$field['operator'],$field['value']);
                 }
             }
         }
         return $model;
+    }
+
+    protected function validate($field,$search_value)
+    {
+        if (isset($field['name']) == false) {
+            return false;
+        }
+        if (isset($field['statement_operator']) == false) {
+            $field['statement_operator'] = Self::DEFAULT_STATEMENT_OPERATOR;
+        }
+        if (isset($field['operator']) == false) {
+            $field['operator'] = Self::DEFAULT_OPERATOR;
+        }        
+        if (strtolower($field['operator']) == 'like') {
+            $field['value'] = "%" . $search_value . "%";
+        } else {
+            $field['value'] = $search_value;
+        }
+        return $field;
     }
 
     public function getSearchFeilds()

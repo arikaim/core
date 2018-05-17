@@ -47,8 +47,8 @@ class Jwt
         $token_id = base64_encode(random_bytes(32));
        
         $this->token = new Builder();
-        $this->token->setIssuer(Arikaim::getDomain());
-        $this->token->setAudience(Arikaim::getDomain());
+        $this->token->setIssuer(ARIKAIM_DOMAIN);
+        $this->token->setAudience(ARIKAIM_DOMAIN);
         $this->token->setId($token_id, true);
         $this->token->setIssuedAt(time());
         $this->token->setNotBefore(time());

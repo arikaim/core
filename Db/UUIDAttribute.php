@@ -25,4 +25,17 @@ trait UUIDAttribute
         }
         return parent::fill($attributes);
     }
+
+    public function findById($id)
+    {
+        if ($id == null || empty($id) == true) {
+            return false;
+        }
+        if (is_numeric($id) == true) {
+            $model = parent::where('id','=',$id)->first();
+        } elseif (is_string($id) == true) {
+            $model = parent::where('uuid','=',$id)->first();
+        }
+        return (is_object($model) == false) ? false : $model;
+    }
 }

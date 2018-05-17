@@ -17,6 +17,7 @@ use Arikaim\Core\Db\Model;
 use Arikaim\Core\Db\Paginator;
 use Arikaim\Core\Db\Search;
 use Arikaim\Core\View\Template;
+use Illuminate\Database\Capsule\Manager;
 
 class TemplateFunction  
 {
@@ -163,7 +164,7 @@ class TemplateFunction
         $model = Model::buildQuery($model,$query_builder);
         
         if ($debug == true) {
-            echo "query: " . $model->toSql();
+            echo Model::getSql($model);
         }
       
         if ($paginate == true) {   

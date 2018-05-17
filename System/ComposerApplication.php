@@ -101,7 +101,7 @@ class ComposerApplication extends Application
 
     public function getComposerRootPath()
     {
-        return Arikaim::getRootPath() . Arikaim::getBasePath();
+        return ARIKAIM_ROOT_PATH . ARIKAIM_BASE_PATH;
     }
 
     public function getComposerBinPath()

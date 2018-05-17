@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\View;
 
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Form\Properties;
@@ -38,7 +37,7 @@ class UiLibrary
 
     public static function getLibraryRootPath()
     {        
-        return Arikaim::getViewPath() . DIRECTORY_SEPARATOR . 'library';
+        return ARIKAIM_VIEW_PATH . DIRECTORY_SEPARATOR . 'library';
     }
 
     public static function getLibraryPath($library_name)
@@ -58,7 +57,7 @@ class UiLibrary
 
     public static function getLibraryRootUrl()
     {        
-        return Arikaim::getViewUrl() . '/library';
+        return ARIKAIM_VIEW_URL . '/library';
     }
 
     public function install($library_name)

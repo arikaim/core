@@ -12,18 +12,18 @@ namespace Arikaim\Core\Extension;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Interfaces\ExtensionInterface;
 use Arikaim\Core\Db\Model;
+use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Models\Routes;
 
 /**
  * Base class for all extensions.
 */
-class Extension implements ExtensionInterface
+abstract class Extension implements ExtensionInterface
 {
-    public function __construct() 
-    {                
-    }
-    
+
+    abstract public function install();
+ 
     /**
      * Return extension name
      *
@@ -101,6 +101,18 @@ class Extension implements ExtensionInterface
         return $permission->add($name,$this->getName(),$title,$descriptin,$parent_id);
     }
 
+    /**
+     * Creaete extensin db table
+     *
+     * @param string $schema_class
+     * @return boolean
+     */
+    public function createDbTable($schema_class)
+    {
+        $extension_name = $this->getName();
+        return Schema::install($schema_class,$extension_name);
+    }
+
     public function onAfterInstall()
     {   
     }
@@ -114,10 +126,6 @@ class Extension implements ExtensionInterface
     }
 
     public function onBeforeUnInstall()
-    {        
-    }
-
-    public function install()
     {        
     }
 

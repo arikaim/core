@@ -13,7 +13,6 @@ use Arikaim\Core\Interfaces\Jobs\QueueServiceInterface;
 use Arikaim\Core\Interfaces\Jobs\JobInterface;
 use Arikaim\Core\Utils\Arrays;
 use Arikaim\Core\Utils\TimeInterval;
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\DateTime;
 
 class Cron implements QueueServiceInterface
@@ -31,7 +30,7 @@ class Cron implements QueueServiceInterface
 
     private function getDefaultScript()
     {
-        $path = Arikaim::getArikaimPath();
+        $path = ARIKAIM_PATH;
         return "php $path/jobs.php >> /dev/null 2>&1";
     }
 

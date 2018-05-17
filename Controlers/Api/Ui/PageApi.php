@@ -58,7 +58,7 @@ class PageApi extends ApiControler
         $result['properties']['loader'] = $loader_code;
         $result['properties']['default_language'] = Model::Language()->getDefaultLanguage();
         $result['properties']['language'] = Template::getLanguage();
-        $result['properties']['site_url'] = Arikaim::getBaseUrl();
+        $result['properties']['site_url'] = ARIKAIM_BASE_URL;
 
         $this->setApiResult($result);
         return $this->getApiResponse();

@@ -27,8 +27,13 @@ class Condition extends QueryBuilder
 
         $this->field = $field;
         $this->operator = $operator;
-        $this->value = $value;
+        $this->setFieldValue($value);
         $this->statement_operator = $statement_operator;
+    }
+
+    public function setFieldValue($value)
+    {
+        $this->value = ($value === "") ? null : $value;          
     }
 
     public function apply($model)
@@ -39,11 +44,19 @@ class Condition extends QueryBuilder
         }
         switch($this->statement_operator) {
             case Self::AND_OPERATOR: {
-                $model = $model->where($this->field,$this->operator,$this->value);
+                if ($this->value === null) {
+                    $model = $model->whereNull($this->field);
+                } else {
+                    $model = $model->where($this->field,$this->operator,$this->value);
+                }
                 break;
             }
             case Self::OR_OPERATOR: {
-                $model = $model->orWhere($this->field,$this->operator,$this->value);
+                if ($this->value === null) {
+                    $model = $model->orWhereNull($this->field);
+                } else {
+                    $model = $model->orWhere($this->field,$this->operator,$this->value);
+                }               
                 break;
             }
         }
@@ -60,10 +73,7 @@ class Condition extends QueryBuilder
         }
         if (isset($this->operator) == false) {
             $this->operator = Self::DEFAULT_OPERATOR;
-        }
-        if (isset($this->value) == false) {
-            $this->value = "";
-        }
+        }        
         if (strtolower($this->operator) == 'like') {
             $this->value = "%" . $this->value . "%";
         }

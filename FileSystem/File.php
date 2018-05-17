@@ -112,7 +112,7 @@ class File
 
     public static function getFilesPath()
     {
-        return Arikaim::getRootPath() . join(DIRECTORY_SEPARATOR,array(Arikaim::getBasePath(),"arikaim","files"));
+        return ARIKAIM_ROOT_PATH . join(DIRECTORY_SEPARATOR,array(ARIKAIM_BASE_PATH,"arikaim","files"));
     }
 
     public static function getTempPath()
@@ -162,10 +162,9 @@ class File
     public static function delete($file_name)
     {
         if (Self::exists($file_name) == true) {
-            $result = unlink($file_name);
-            return $result;
+            return (is_dir($file_name) == true) ? rmdir($file_name) : unlink($file_name);          
         }
-        return true;
+        return false;
     }
 
     public static function read($file_name)

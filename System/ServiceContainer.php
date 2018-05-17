@@ -94,7 +94,7 @@ class ServiceContainer
     {
         // init class loader    
         $this->container['classLoader'] = function() {
-            $loader = new \Arikaim\Core\System\ClassLoader(Arikaim::getBasePath(),Arikaim::getRootPath());
+            $loader = new \Arikaim\Core\System\ClassLoader(ARIKAIM_BASE_PATH,ARIKAIM_ROOT_PATH);
             return $loader;
         };
         // Config
@@ -140,7 +140,9 @@ class ServiceContainer
             return $page;
         }; 
         // DB
-        $this->initDb();        
+        $this->initDb();    
+        
+        
         // Options
         $this->container['options'] = function() { 
             $options = Model::Options(); 

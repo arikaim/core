@@ -170,12 +170,9 @@ class Page extends BaseComponent implements ComponentViewInterface
     }
 
     public static function getCurrentUrl($full = true)
-    {
-        $url = "";
-        if ($full == true) {
-            $url = Arikaim::getBaseURL();
-        }
-        $path =  Arikaim::session()->get('current.path');
+    {       
+        $url = ($full == true) ? ARIKAIM_BASE_URL : "";     
+        $path = Arikaim::session()->get('current.path');
         return $url . $path;
     }
 
@@ -188,7 +185,7 @@ class Page extends BaseComponent implements ComponentViewInterface
      */
     public static function getUrl($path = null, $full = false)
     {       
-        $url = ($full == true) ? Arikaim::getBaseURL() : Arikaim::getBasePath();
+        $url = ($full == true) ? ARIKAIM_BASE_URL : ARIKAIM_BASE_PATH;
         
         if ($url == "/") {
             $url = "";
