@@ -18,7 +18,7 @@ trait Position
 
     public function setPosition()
     {   
-        $model = $this->getModel();     
+        $model = $this->getModel();
         $position = $model->max('position');       
         $position++;
         $model->position = $position;        

@@ -145,14 +145,17 @@ class Install
         if ($result == true) {
             return false;
         }
-        $user_uuid = $user->getControlPanelUser();
-        if ($user_uuid == false) {
-            $user_uuid = $user->createUser("admin","admin");
-            if ($user_uuid == false) {
+        $user_id = $user->getControlPanelUser();
+        if ($user_id == false) {
+            $user_id = $user->getId('admin');
+            if ($user_id == null) {
+                $user_id = $user->createUser("admin","admin");
+            }                
+            if ($user_id == false) {
                 Arikaim::errors()->addError('CONTROL_PANEL_USER_ERROR',"Error create control panel user.");
             }                
         }     
-        $result = Model::Permissions()->setUserPermission($user_uuid,Access::CONTROL_PANEL,Access::FULL);
+        $result = Model::Permissions()->setUserPermission($user_id,Access::CONTROL_PANEL,Access::FULL);
         return $result;
     }
 
@@ -272,7 +275,10 @@ class Install
 
     public function getSystemSchemaClasses()
     {
-        return ['EventsSchema',
+        return ['UsersSchema',
+        'UserGroupsSchema',
+        'UserGroupsDetailsSchema',
+        'EventsSchema',
         'EventSubscribersSchema',
         'ExtensionsSchema',
         'JobsQueueSchema',
@@ -281,8 +287,7 @@ class Install
         'OptionsSchema',
         'PermissionsSchema',
         'PermissionsListSchema',
-        'RoutesSchema',
-        'UsersSchema'];
+        'RoutesSchema'];
     }
 
     public function getConfigDetails()

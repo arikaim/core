@@ -11,52 +11,85 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\Schema;
+use Arikaim\Core\Db\UUIDAttribute;
+use Arikaim\Core\Db\Model as DbModel;
 
 /**
  * Permissions database model
  */
 class Permissions extends Model  
 {
-    const USER  = 'user';
-    const GROUP = 'group';
+    use UUIDAttribute;
+
+    const USER  = 1;
+    const GROUP = 2;
     
     protected $fillable = [
         'read',
         'write',
         'delete',
         'execute',
-        'object_type',
+        'user_id',
         'name',
-        'object_uuid'];
+        'uuid',
+        'group_id'];
         
     public $timestamps = false;
     
-    public function setUserPermission($user_uuid, $name, $permissions) 
+    public function setUserPermission($id, $name, $permissions) 
     {
-        return $this->setPermission($user_uuid,$name,$permissions,Permissions::USER);
+        return $this->setPermission($id,$name,$permissions,Self::USER);
     }
     
-    public function setGroupPermission($group_uuid, $name, $permissions)
+    public function setGroupPermission($id, $name, $permissions)
     {
-        return $this->setPermission($user_uuid,$name,$permissions,Permissions::GROUP);
+        return $this->setPermission($id,$name,$permissions,Self::GROUP);
     }
 
-    public function getPermission($name, $object_uuid)
+    public function getUserPermission($name, $id)
+    {
+        $permission = $this->getPermission($name,$id,Self::USER);
+        if (is_object($permission) == true) {
+            return $permission;
+        }
+        $groups = Model('UserGroups');
+        $group_list = $groups->getUserGroups($id);
+        foreach ($group_list as $group) {
+            $permission = $this->getGroupPermission($name,$group['id']);
+            if (is_object($permission) == true) {
+                return $permission;
+            }
+        }
+        return false;
+    }
+
+    public function getGroupPermission($name, $id)
+    {
+        return $this->getPermission($name,$id,Self::GROUP);
+    }
+
+    public function getPermission($name, $id, $type = Self::USER)
     {
         if (Schema::hasTable($this) == false) {          
             return false;
         }
-        $model = $this->where('object_uuid','=',$object_uuid);
+        if ($type == Self::USER) {
+            $model = $this->where('user_id','=',$id);
+        } else {
+            $model = $this->where('group_id','=',$id);
+        }
         $model = $model->where('name','=',$name)->first();
-        
         return (is_object($model) == true) ? $model : false;           
     }
 
-    public function setPermission($object_uuid, $name, $access, $type = Permissions::USER) 
+    public function setPermission($id, $name, $access, $type = Self::USER) 
     {
         $permissions = $this->validatePermissions($access); 
-        $permissions['object_type'] = $type;
-        $permissions['object_uuid'] = $object_uuid;
+        if ($type == Self::USER) {
+            $permissions['user_id'] = $id;
+        } else {
+            $permissions['group_id'] = $id;
+        }
         $permissions['name'] = $name;
         
         $this->fill($permissions);
@@ -127,10 +160,11 @@ class Permissions extends Model
 
     public function hasFull()
     {
-        if ($this->hasRead() == false) return false;
-        if ($this->hasWrite() == false) return false;
-        if ($this->hasExecute() == false) return false;
-        if ($this->hasExecute() == false) return false;
-        return true;
+        $count = 0;
+        $count += ($this->hasRead() == false) ? 0 : 1;
+        $count += ($this->hasWrite() == false) ? 0 : 1;
+        $count += ($this->hasExecute() == false) ? 0 : 1;
+        $count += ($this->hasExecute() == false) ? 0 : 1;
+        return ($count == 4) ? true : false;
     }
 }

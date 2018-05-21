@@ -12,11 +12,11 @@ namespace Arikaim\Core\Models\Schema;
 use Arikaim\Core\Db\Schema;
 
 /**
- * Permissions database table schema definition.
+ * User groups database table schema definition.
 */
-class PermissionsSchema extends Schema  
+class UserGroupsSchema extends Schema  
 {    
-    protected $table_name = "permissions";
+    protected $table_name = "user_groups";
 
     /**
      * Create table
@@ -29,21 +29,12 @@ class PermissionsSchema extends Schema
             
             // columns
             $table->bigIncrements('id')->nullable(false);
-            $table->string('name')->nullable(false);
-            $table->bigInteger('user_id')->unsigned()->nullable(true);     
-            $table->bigInteger('group_id')->unsigned()->nullable(true);   
-            $table->integer('read')->nullable(false)->default(0);
-            $table->integer('write')->nullable(false)->default(0);
-            $table->integer('delete')->nullable(false)->default(0);
-            $table->integer('execute')->nullable(false)->default(0);
+            $table->string('title')->nullable(false);
+            $table->string('description')->nullable(true);   
             $table->string('uuid')->nullable(false);
             // unique indexes
             $table->unique('uuid');
-            $table->unique(array('name','user_id'));           
-            $table->unique(array('name','group_id'));
-            // foreign keys
-            $table->foreign('user_id')->references('id')->on('users'); 
-            $table->foreign('group_id')->references('id')->on('user_groups'); 
+            $table->unique('title');           
             // storage engine           
             $table->engine = 'InnoDB';
             

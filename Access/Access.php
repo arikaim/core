@@ -349,9 +349,9 @@ class Access
      * @param string $uuid
      * @return boolean
      */
-    public function hasControlPanelAccess($uuid = null)
+    public function hasControlPanelAccess($id = null)
     {
-        return $this->hasPermission(Access::CONTROL_PANEL,ACCESS::FULL,$uuid);
+        return $this->hasPermission(Access::CONTROL_PANEL,ACCESS::FULL,$id);
     }
     
     /**
@@ -362,27 +362,28 @@ class Access
      * @param string $uuid User UUID, if is null uuid from  current token are used.
      * @return boolean
      */
-    public function hasPermission($name,array $type = Self::FULL, $uuid = null)
+    public function hasPermission($name,array $type = Self::FULL, $id = null)
     {
         $permissions = Model::Permissions();
-        if ($uuid == null) {
-            $uuid = $this->getTokenParam('uuid');
+        if ($id == null) {
+            $id = $this->getTokenParam('user_id');
         }
-        if (empty($uuid) == true) {
+        if (empty($id) == true) {
             return false;
         }
     
-        $permissions = $permissions->getPermission($name,$uuid); 
+        $permissions = $permissions->getUserPermission($name,$id); 
         if (is_object($permissions) == false) {
             // check for control panel permission
-            return ($name == Access::CONTROL_PANEL) ? false : $this->hasControlPanelAccess($uuid);
+            return ($name == Access::CONTROL_PANEL) ? false : $this->hasControlPanelAccess($id);
         }
         
         $result = $permissions->hasPermissions($type);
         if ($result == false) {
             // check for control panel permission
-            return ($name == Access::CONTROL_PANEL) ? false : $this->hasControlPanelAccess($uuid);  
+            return ($name == Access::CONTROL_PANEL) ? false : $this->hasControlPanelAccess($id);  
         }  
+        
         return true; 
     }
 

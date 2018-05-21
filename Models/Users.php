@@ -89,7 +89,7 @@ class Users extends Model
         return ($uuid == $admin_uuid) ? true : false;           
     }
 
-    public function login($user_name, $password, $permission_name = null, $permission_type = null) 
+    public function login($user_name, $password) 
     {
         $user = $this->where('user_name','=',$user_name);
         $user = $user->orWhere('email','=',$user_name);
@@ -101,14 +101,7 @@ class Users extends Model
         if (Self::VerifyPassword($password,$user->password) == false) {
             return false;
         }
-        if ($permission_name != null) {
-            // check for permission 
-            $result = Arikaim::access()->hasPermission($permission_name,$permission_type,$user->uuid);
-            if ($result == false) {
-                return false;
-            }
-        }
-        
+         
         $user->date_login = time();
         $user->update();
         
@@ -147,12 +140,8 @@ class Users extends Model
             return false;
         }
         $permissions = $permissions->where('name','=',Access::CONTROL_PANEL);
-        $permissions = $permissions->where('object_type','=','user')->first();
-        if (is_object($permissions) == false) {
-            return false;
-        }
-        $user = $this->validUUID($permissions->object_uuid);
-        return ($user == false) ? false : $permissions->object_uuid;           
+        $permissions = $permissions->where('user_id','>',0)->first();
+        return (is_object($permissions) == false) ? false : $permissions->user_id;         
     }
 
     public function hasControlPanelUser() 
@@ -222,17 +211,12 @@ class Users extends Model
         } catch(\Exception $e) {
             return false;
         }
-        return ($result == false) ? false : $this->uuid;           
+        return ($result == false) ? false : $this->id;           
     }
 
     public function changePassword($id, $password)
-    {
-        if (is_numeric($id) == true) {
-            $model = $this->where('id','=',$id)->first();
-        } else {
-            $model = $this->where('uuid','=',$id)->first();
-        }
-
+    {       
+        $model = $this->findById($id);
         if (is_object($model) == false) {
             return false;
         }
@@ -269,9 +253,9 @@ class Users extends Model
         return true;
     }
 
-    public function getAccessKey($uuid)
+    public function getAccessKey($id)
     {
-        $model = $this->where('uuid','=',$uuid)->first();
+        $model = $this->findById($id);
         if (is_object($model) == false) {
             return false;
         }

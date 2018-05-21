@@ -12,11 +12,11 @@ namespace Arikaim\Core\Models\Schema;
 use Arikaim\Core\Db\Schema;
 
 /**
- * Permissions database table schema definition.
+ * User groups details database table schema definition.
 */
-class PermissionsSchema extends Schema  
+class UserGroupsDetailsSchema extends Schema  
 {    
-    protected $table_name = "permissions";
+    protected $table_name = "user_groups_details";
 
     /**
      * Create table
@@ -29,21 +29,15 @@ class PermissionsSchema extends Schema
             
             // columns
             $table->bigIncrements('id')->nullable(false);
-            $table->string('name')->nullable(false);
             $table->bigInteger('user_id')->unsigned()->nullable(true);     
-            $table->bigInteger('group_id')->unsigned()->nullable(true);   
-            $table->integer('read')->nullable(false)->default(0);
-            $table->integer('write')->nullable(false)->default(0);
-            $table->integer('delete')->nullable(false)->default(0);
-            $table->integer('execute')->nullable(false)->default(0);
-            $table->string('uuid')->nullable(false);
+            $table->bigInteger('group_id')->unsigned()->nullable(true);     
+            $table->bigInteger('date_created')->nullable(false);
+            $table->bigInteger('date_expired')->nullable(true);
             // unique indexes
-            $table->unique('uuid');
-            $table->unique(array('name','user_id'));           
-            $table->unique(array('name','group_id'));
+            $table->unique(['user_id','group_id']);   
             // foreign keys
             $table->foreign('user_id')->references('id')->on('users'); 
-            $table->foreign('group_id')->references('id')->on('user_groups'); 
+            $table->foreign('group_id')->references('id')->on('user_groups');               
             // storage engine           
             $table->engine = 'InnoDB';
             
