@@ -14,14 +14,20 @@ use Arikaim\Core\Form\AbstractRule;
 use Arikaim\Core\Form\Rule;
 use Arikaim\Core\Form\Filter;
 
+/**
+ * Request form data validation
+ */
 class Form extends Collection 
 {
     private $rules;   
     private $filters;
     private $errors;
 
-    private static $self;
-
+    /**
+     * Constructor
+     *
+     * @param array $fields
+     */
     public function __construct($fields = null) 
     {
         $this->setFields($fields);      
@@ -30,6 +36,28 @@ class Form extends Collection
         $this->rules = [];
     }
 
+    /**
+     * Create instance
+     *
+     * @param array $fields
+     * @return object
+     */
+    public static function create($fields)
+    {
+        if (is_array($fields) == false) {
+            $fields = [$fields];
+        }
+        return new Self($fields);
+    }
+
+    /**
+     * Add validation rule
+     *
+     * @param string $field_name
+     * @param AbstractRule $rule
+     * @param boolean $required
+     * @return boolean
+     */
     public function addRule($field_name,AbstractRule $rule, $required = true) 
     {             
         if ($rule instanceof AbstractRule) {       
@@ -44,6 +72,13 @@ class Form extends Collection
         return false;       
     }
 
+    /**
+     * Add filter
+     *
+     * @param string $field_name
+     * @param AbstractFilter $filter
+     * @return boolean
+     */
     public function addFilter($field_name, AbstractFilter $filter) 
     {             
         try {
@@ -65,6 +100,12 @@ class Form extends Collection
         return $this->filterValues($fields);
     }
 
+    /**
+     * Sanitize form fields values
+     *
+     * @param [type] $fields
+     * @return void
+     */
     public function filterValues($fields = null) 
     {          
         if (is_array($fields) == true) {
@@ -84,12 +125,27 @@ class Form extends Collection
         return $this->toArray();
     }
 
+    /**
+     * Sanitize and validate form
+     *
+     * @param array $fields
+     * @param \Closure $on_success
+     * @param \Closure $on_error
+     * @return void
+     */
     public function filterAndValidate(array $fields = null, \Closure $on_success = null, \Closure $on_error = null)
     {
         $this->sanitize($fields);
         return $this->validate($fields,$on_success,$on_error);
     }
 
+    /**
+     * Validate form rules
+     *
+     * @param string $field_name
+     * @param mixed $value
+     * @return void
+     */
     public function validateRules($field_name, $value)
     {
         $rules = $this->getRules($field_name);   
@@ -103,6 +159,14 @@ class Form extends Collection
         }
     }
 
+    /**
+     * Validate form data
+     *
+     * @param array $fields
+     * @param \Closure $on_success
+     * @param \Closure $on_error
+     * @return boolean
+     */
     public function validate(array $fields = null, \Closure $on_success = null, \Closure $on_error = null)
     {
         $this->errors = [];
@@ -123,6 +187,13 @@ class Form extends Collection
         return $this->isValid();   
     }
 
+    /**
+     * Set validation error
+     *
+     * @param string $field_name
+     * @param string $message
+     * @return void
+     */
     public function setError($field_name, $message)
     {
         $error['field_name'] = $field_name;
@@ -130,6 +201,13 @@ class Form extends Collection
         return $this->addError($error);
     }
 
+    /**
+     * Sanitize form value
+     *
+     * @param mixed $value
+     * @param int $type
+     * @return void
+     */
     public static function sanitizeVariable($value, $type = FILTER_SANITIZE_STRING) 
     {
         $value = trim($value);
@@ -137,16 +215,31 @@ class Form extends Collection
         return $value;
     }
 
+    /**
+     * Return true if form is valid
+     *
+     * @return boolean
+     */
     public function isValid()
     {
         return ($this->getErrorsCount() > 0) ? false : true;          
     }
 
+    /**
+     * Return form data
+     * @return array
+     */
     public function getFields() 
     {
         return $this->data;
     }
 
+    /**
+     * Set form fields
+     *
+     * @param array $fields
+     * @return void
+     */
     public function setFields($fields) 
     {
         if (is_array($fields) == true)  {
@@ -156,11 +249,21 @@ class Form extends Collection
         return false;
     }
 
+    /**
+     * Return validation errors
+     *
+     * @return array
+     */
     public function getErrors()
     {
         return $this->errors;
     }
 
+    /**
+     * Return number of errors
+     *
+     * @return int
+     */
     public function getErrorsCount()
     {
         return count($this->errors);
@@ -170,6 +273,12 @@ class Form extends Collection
         array_push($this->errors,$error);
     }
 
+    /**
+     * Return validation rules
+     *
+     * @param string $field_name
+     * @return void
+     */
     public function getRules($field_name)
     {
         if (isset($this->rules[$field_name]) == true) {
@@ -178,6 +287,12 @@ class Form extends Collection
         return [];
     }
 
+    /**
+     * Return form filters
+     *
+     * @param string $field_name
+     * @return void
+     */
     public function getFilters($field_name)
     {   
         $all = [];
@@ -190,11 +305,21 @@ class Form extends Collection
         return $all;
     }
 
+    /**
+     * Create validation rule
+     *
+     * @return void
+     */
     public static function Rule()
     {
         return new Rule();
     }  
 
+    /**
+     * Create filter
+     *
+     * @return void
+     */
     public static function Filter()
     {
         return new Filter();

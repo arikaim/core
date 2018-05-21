@@ -34,7 +34,7 @@ class UserGroups extends Model
 
     public function inGroup($groupd_id, $user_id)
     {
-        $group_details = Model('UserGroupsDetails');
+        $group_details = Model::UserGroupsDetails();
         $model = $group_details->where('group_id','=',$group_id);
         $model = $group_details->where('user_id','=',$user_id)->first();
         return (is_object($model) == false) ? true : false;  
@@ -42,14 +42,14 @@ class UserGroups extends Model
 
     public function getUserGroups($user_id)
     {
-        $group_details = Model('UserGroupsDetails');
+        $group_details = Model::UserGroupsDetails();
         $model = $group_details->where('user_id','=',$user_id)->get();
         return (is_object($model) == true) ? $molde->toArray() : [];
     }
 
     public function addUser($group_id, $user_id, $date_expire = null)
     {
-        $group_details = Model('UserGroupsDetails');
+        $group_details = Model::UserGroupsDetails();
         $info['group_id'] = $group_id;
         $info['user_id'] = $user_id;
         $info['date_expire'] = $date_expire;
@@ -61,7 +61,7 @@ class UserGroups extends Model
 
     public function removeUser($groupd_id, $user_id)
     {
-        $group_details = Model('UserGroupsDetails');
+        $group_details = Model::UserGroupsDetails();
         $model = $group_details->where('group_id','=',$group_id);
         $model = $group_details->where('user_id','=',$user_id);
         return $model->delete();
