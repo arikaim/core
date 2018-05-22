@@ -20,19 +20,27 @@ use Arikaim\Core\Access\Access;
 */
 class UsersApi extends ApiControler  
 {   
+    /**
+     * Control panel login
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $args
+     * @return object
+    */
     public function adminLogin($request, $response, $args) 
     {
-        $this->form->setFields($request->getParsedBody());
-        $this->form->addRule('user_name',Form::Rule()->text(2));   
-        $this->form->addRule('password',Form::Rule()->text(2));  
+        $form = Form::create($request->getParsedBody());   
+        $form->addRule('user_name',Form::Rule()->text(2));   
+        $form->addRule('password',Form::Rule()->text(2));  
 
-        if ($this->form->validate() == false) {
+        if ($form->validate() == false) {
             $this->setApiErrors($this->form->getErrors());
             return $this->getApiResponse();   
         }
 
-        $user_name = $this->form->get('user_name');
-        $password = $this->form->get('password');
+        $user_name = $form->get('user_name');
+        $password = $form->get('password');
         $user = Model::Users();         
         $user = $user->login($user_name,$password);
        
@@ -51,12 +59,28 @@ class UsersApi extends ApiControler
         return $this->getApiResponse();   
     }
 
+    /**
+     * Logout
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $args
+     * @return object
+    */
     public function logout($request, $response, $args) 
     {    
         Model::Users()->logout();  
         return $this->getApiResponse();   
     }   
     
+    /**
+     * Return login status
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $args
+     * @return object
+    */
     public function isLoged($request, $response, $args)
     {
         $loged = Model::Users()->isLoged();
@@ -64,23 +88,32 @@ class UsersApi extends ApiControler
         return $this->getApiResponse();
     }
 
+    /**
+     * Control Panel change user details
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $args
+     * @return object
+    */
     public function changeDetails($request, $response, $args)
     {
         // access from contorl panel only 
         $this->requireControlPanelPermission();
-        
+        $form = Form::create($request->getParsedBody());  
+
         $messages = Arikaim::view()->component()->getComponentProperties('system:admin/settings/user');
      
-        $this->form->setFields($request->getParsedBody());
-        $this->form->addRule('user_name',Form::Rule()->text(2),true);   
-        $this->form->addRule('email',Form::Rule()->email(),false);   
+        $form->addRule('user_name',Form::Rule()->text(2),true);   
+        $form->addRule('email',Form::Rule()->email(),false);   
         // change password fields
-        $this->form->addRule('old_password',Form::Rule()->text(5),false);
-        $this->form->addRule('new_password',Form::Rule()->text(5),false);
-        $this->form->addRule('repeat_password',Form::Rule()->text(5),false);
-        $form = $this->form->toArray();
+        $form->addRule('old_password',Form::Rule()->text(5),false);
+        $form->addRule('new_password',Form::Rule()->text(5),false);
+        $form->addRule('repeat_password',Form::Rule()->text(5),false);
        
-        if ($this->form->validate() == true) {
+        if ($form->validate() == true) {
+
+            $user_name = $form->get('user_name');
             $user = Model::Users();
             // check if user name is changed 
             $loged_user = $user->getLogedUser();
@@ -90,64 +123,69 @@ class UsersApi extends ApiControler
             }
 
             // check if user name exists 
-            if ($loged_user->user_name != $form['user_name']) {
-                $result = $user->userNameExist($form['user_name']); 
-                if ($result == true) {
+            if ($loged_user->user_name != $user_name) {
+                if ($user->userNameExist($user_name) == true) {
                     $error = $messages->getByPath('messages/user_name_exists');    
-                    $this->form->setError('user_name',$error);                                
+                    $form->setError('user_name',$error);                                
                 }
             }
-
-            if ($this->form->isValid() == true) {
-                $loged_user->user_name = $form['user_name'];
-                $loged_user->email = $form['email'];
+            
+            if ($form->isValid() == true) {
+                $loged_user->user_name = $user_name;
+                $loged_user->email = $form->get('email');
                 $result = $loged_user->update(); 
                 if ($result == false) {
                     $this->setApiError(Arikaim::getError("SAVE_ERROR")); 
                 }
             }
-               
+
             // check for change password 
-            if (strlen($form['old_password']) > 4) {
-                if ($loged_user->isValidPassword($form['old_password']) == false) {
+            if (strlen($form->get('old_password')) > 4) {
+                if ($loged_user->isValidPassword($form->get('old_password')) == false) {
                     $error = $messages->getByPath('messages/invalid_password');
-                    $this->form->setError('old_password',$error);  
+                    $form->setError('old_password',$error);  
                 } 
-                if ($form['new_password'] != $form['repeat_password']) {
+                if ($form->get('new_password') != $form->get('repeat_password')) {
                     // passwords not mach
                     $error = $messages->getByPath('messages/change_password_error');
-                    $this->form->setError('new_password',$error);                       
+                    $form->setError('new_password',$error);                       
                 }
-                if (strlen($form['new_password']) < 5) {
+                if (strlen($form->get('new_password')) < 5) {
                     $error = $messages->getByPath('messages/invalid_password');
-                    $this->form->setError('new_password',$error);   
+                    $form->setError('new_password',$error);   
                 }
-                if ($this->form->isValid() == true) {
-                    $result = $user->changePassword($loged_user->id,$form['new_password']);
+                if ($form->isValid() == true) {
+                    $result = $user->changePassword($loged_user->id,$form->get('new_password'));
                     if ($result == false) {
                         $this->setApiError(Arikaim::getError("SAVE_ERROR"));              
-                    }
-                }                
+                    } 
+                }             
             }
         }         
-
-        $this->setApiErrors($this->form->getErrors());            
+        $this->setApiErrors($form->getErrors());            
         return $this->getApiResponse(); 
     }
 
+    /**
+     * Password recovery
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $args
+     * @return object
+    */
     public function passwordRecovery($request, $response, $args)
     {
         $users = Model::Users();
         $admin_email = $users->getControlPanelUserEmail();
         $messages = Arikaim::view()->component()->getComponentProperties('system:admin/password-recovery');
         $error = $messages->getByPath('errors/email');
-      
-        $this->form->setFields($request->getParsedBody());
+        $form = Form::create($request->getParsedBody());  
 
-        $this->form->addRule('email',Form::Rule()->equal($admin_email,$error));
-        $this->form->addRule('email',Form::Rule()->email($error));
+        $form->addRule('email',Form::Rule()->equal($admin_email,$error));
+        $form->addRule('email',Form::Rule()->email($error));
 
-        if ($this->form->validate() == true) {
+        if ($form->validate() == true) {
             // create access code
             $user_uuid = $users->getControlPanelUser();
             $access_key = $users->createAccessKey($user_uuid);
@@ -167,9 +205,8 @@ class UsersApi extends ApiControler
                 $this->setApiError($error);
                 return $this->getApiResponse();
             }
-
         }
-        $this->setApiErrors($this->form->getErrors());
+        $this->setApiErrors($form->getErrors());
         return $this->getApiResponse(); 
     }
 }

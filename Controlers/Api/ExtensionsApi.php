@@ -21,24 +21,41 @@ use Arikaim\Core\Arikaim;
 class ExtensionsApi extends ApiControler
 {
     
+    /**
+     * Update extension
+     *
+     * @param object $request
+     * @param object $response
+     * @param array $args
+     * @return object
+     */
     public function update($request, $response, $args)
     {
         $this->requireControlPanelPermission();
         return $this->install($request, $response, $args);
     }
 
+    /**
+     * Enable/Disable extension
+     *
+     * @param object $request
+     * @param object $response
+     * @param array $args
+     * @return object
+     */
     public function changeStatus($request, $response, $args)
     {
         $this->requireControlPanelPermission();
-
         $extension_manager = new ExtensionsManager();
-        $this->form->addRule('status',Form::Rule()->checkList([0,1,'toggle']));
-        $this->form->addRule('name',Form::Rule()->extensionPath($args['name']));
+        $form = Form::create($args);
 
-        if ($this->form->validate($args) == true) {
+        $form->addRule('status',Form::Rule()->checkList([0,1,'toggle']));
+        $form->addRule('name',Form::Rule()->extensionPath($args['name']));
+
+        if ($form->validate() == true) {
             try {
-                $name = $this->form->get('name');  
-                $result['status'] = $this->form->get('status');                      
+                $name = $form->get('name');  
+                $result['status'] = $form->get('status');                      
                 if ($result['status'] == 'toggle') {  
                     $extension = Model::Extensions()->where('name','=',$name)->first();                          
                     $result['status'] = ($extension->status == 1) ? 0 : 1;
@@ -53,22 +70,31 @@ class ExtensionsApi extends ApiControler
                 $this->setApiError($e->getMessage());
             }
         } else {
-            $this->setApiErrors($this->form->getErrors());
+            $this->setApiErrors($form->getErrors());
         }
         return $this->getApiResponse();
     }
 
+    /**
+     * Uninstall extension
+     *
+     * @param object $request
+     * @param object $response
+     * @param array $args
+     * @return object
+     */
     public function unInstall($request, $response, $args)
     {
         $this->requireControlPanelPermission();
+        $form = Form::create($args);
 
-        $this->form->addRule('name',Form::Rule()->exists('Extensions','name'));
+        $form->addRule('name',Form::Rule()->exists('Extensions','name'));
    
-        if ($this->form->validate($args) == true) {
+        if ($form->validate() == true) {
             $extension_manager = new ExtensionsManager();
             $result = $extension_manager->unInstall($args['name']);
             if ($result == false) {
-                $this->setApiError( Arikaim::getError("SYSTEM_ERROR",['extension_name' => "$extension_name"]) );
+                $this->setApiError(Arikaim::getError("SYSTEM_ERROR",['extension_name' => "$extension_name"]));
             }              
         } else {
             $this->setApiError(Arikaim::getError("EXTENSION_NOT_EXISTS"));
@@ -76,17 +102,26 @@ class ExtensionsApi extends ApiControler
         return $this->getApiResponse();   
     }
 
+    /**
+     * Install extension
+     *
+     * @param object $request
+     * @param object $response
+     * @param array $args
+     * @return object
+     */
     public function install($request, $response, $args)    
     {       
         $this->requireControlPanelPermission();
-        
-        $this->form->addRule('name',Form::Rule()->extensionPath($args['name']));
+        $form = Form::create($args);
+
+        $form->addRule('name',Form::Rule()->extensionPath($args['name']));
     
-        if ($this->form->validate($args) == true) {
+        if ($form->validate() == true) {
             $extension_manager = new ExtensionsManager();
             $result = $extension_manager->install($args['name']);
             if ($result == false) {
-                $this->setApiError(Arikaim::getError("EXTENSION_INSTALL_ERROR",['extension_name' => "$extension_name"]) );
+                $this->setApiError(Arikaim::getError("EXTENSION_INSTALL_ERROR",['extension_name' => "$extension_name"]));
             }
         } else {
             $this->setApiError(Arikaim::getError("EXTENSION_NOT_EXISTS"));

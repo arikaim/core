@@ -20,6 +20,14 @@ use Arikaim\Core\Db\Model;
 */
 class PageApi extends ApiControler 
 {
+    /**
+     * Load html page
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $args
+     * @return object
+    */
     public function loadPage($request, $response, $args) 
     {
         $page_name = $args['name'];
@@ -37,6 +45,14 @@ class PageApi extends ApiControler
         return $this->getApiResponse();
     }
 
+    /**
+     * Get html page properties 
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $args
+     * @return object
+    */
     public function loadPageProperties($request, $response, $args)
     {       
         if (isset($args['name']) == true) {

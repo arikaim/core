@@ -19,6 +19,14 @@ use Arikaim\Core\Utils\Utils;
 */
 class ComponentApi extends ApiControler
 {
+    /**
+     * get html component details
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $args
+     * @return object
+    */
     public function componentDetails($request, $response, $args)
     {
         // control panel only
@@ -37,6 +45,14 @@ class ComponentApi extends ApiControler
         return $this->getApiResponse();
     }
 
+    /**
+     * load html component
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $args
+     * @return object
+    */
     public function loadComponent($request, $response, $args)
     {       
         $params = $this->getParams($request);

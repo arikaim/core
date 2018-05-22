@@ -21,16 +21,25 @@ use Arikaim\Core\View\Theme;
 */
 class TemplatesApi extends ApiControler
 {
+     /**
+     * Set current template
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $args
+     * @return object
+    */
     public function setCurrent($request, $response, $args)
     {       
         // access from contorl panel only 
         $this->requireControlPanelPermission();
-        
-        $this->form->addRule('name',Form::Rule()->templatePath($args['name']));      
-        if ($this->form->validate($args) == true) {
+        $form = Form::create($args);    
+        $form->addRule('name',Form::Rule()->templatePath($args['name']));      
+
+        if ($form->validate() == true) {
             try {
                 $current_template = Template::getTemplateName();
-                $template_name = $this->form->get('name');  
+                $template_name = $form->get('name');  
                 $templates = new TemplatesManager();
 
                 // uninstall current template routes
@@ -49,21 +58,28 @@ class TemplatesApi extends ApiControler
                 $this->setApiError($e->getMessage());
             }
         } else {
-            $this->setApiErrors($this->form->getErrors());
+            $this->setApiErrors($form->getErrors());
         }
         return $this->getApiResponse();
     }
 
+    /**
+     * Set current theme
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $args
+     * @return object
+    */
     public function setCurrentTheme($request, $response, $args)
     {       
         // access from contorl panel only 
         $this->requireControlPanelPermission();
-        
-        $this->form->setFields($request->getParsedBody());      
-
-        if ($this->form->validate() == true) {
-            $theme_name = $this->form->get('theme_name');
-            $template_name = $this->form->get('template_name');
+        $form = Form::create($request->getParsedBody());   
+      
+        if ($form->validate() == true) {
+            $theme_name = $form->get('theme_name');
+            $template_name = $form->get('template_name');
             if (empty($template_name) == true) {
                 $template_name = Template::getTemplateName();
             }
@@ -72,7 +88,7 @@ class TemplatesApi extends ApiControler
             $this->setApiResult(['template' => $template_name]);
         } else {
             $this->setApiError("Not valid theme!");
-            $this->setApiResult(['theme' => $this->form->get('theme')]);
+            $this->setApiResult(['theme' => $form->get('theme')]);
         }
         return $this->getApiResponse();
     }

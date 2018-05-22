@@ -154,7 +154,6 @@ class ApiResponse
         $this->result['errors'] = $this->errors;
         if ($this->hasError() == true) {
             $this->result['status'] = "error"; 
-            $this->result['code'] = 401;
         }
         
         if ($this->debug == true) {

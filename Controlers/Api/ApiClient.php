@@ -18,14 +18,22 @@ use Arikaim\Core\Db\Model;
 */
 class ApiClient extends ApiControler
 {
+    /**
+     * Create auth token
+     *
+     * @param object $request
+     * @param object $response
+     * @param array $args
+     * @return object
+     */
     public function createToken($request, $response, $args) 
     {           
-        $this->form->setFields($request->getParsedBody());  
-        $this->form->addRule('api_key',Form::Rule()->text(5));
-        $this->form->addRule('api_secret',Form::Rule()->text(5));
+        $form = Form::create($request->getParsedBody());
+        $form->addRule('api_key',Form::Rule()->text(5));
+        $form->addRule('api_secret',Form::Rule()->text(5));
 
-        if ($this->form->validate() == true) {
-            $user = Model::Users()->getApiUser($this->form->get('api_key'),$this->form->get('api_secret'));
+        if ($form->validate() == true) {
+            $user = Model::Users()->getApiUser($form->get('api_key'),$form->get('api_secret'));
         }
 
         if ($user == false) {
@@ -37,20 +45,28 @@ class ApiClient extends ApiControler
         return $this->getApiResponse();
     }
 
+    /**
+     * Verify api request route
+     *
+     * @param object $request
+     * @param object $response
+     * @param array $args
+     * @return object
+     */
     public function verifyRequest($request, $response, $args) 
     {
-        $this->form->setFields($request->getParsedBody());  
-        $this->form->addRule('method',Form::Rule()->text(3));
-        $this->form->addRule('path',Form::Rule()->text(3));
+        $form = Form::create($request->getParsedBody());
+        $form->addRule('method',Form::Rule()->text(3));
+        $form->addRule('path',Form::Rule()->text(3));
 
-        if ($this->form->validate() == false) {
+        if ($form->validate() == false) {
             $this->setApiError("Not valid api request!");
             return $this->getApiResponse();
         }
 
         $model = Model::Routes();
-        $condition = Model::createCondition('method','=', $this->form->get('method'));
-        $condition->addCondition('path','=',$this->form->get('path'));
+        $condition = Model::createCondition('method','=',$form->get('method'));
+        $condition->addCondition('path','=',$form->get('path'));
         $condition->addCondition('type','=',2);
         $condition->addCondition('status','=',1);
         $route = $model->findRoute($condition);

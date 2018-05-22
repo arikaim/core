@@ -32,40 +32,39 @@ class LanguageApi extends ApiControler
     {       
         // access from contorl panel only 
         $this->requireControlPanelPermission();
-
         $language = Model::Language();
-        $update = false;    
-        $this->form->setFields($request->getParsedBody());       
-        $uuid = $this->form->get('uuid');
+        $form = Form::create($request->getParsedBody());    
+        $uuid = $form->get('uuid');
         if (empty($uuid) == false) {
-            // edit record rules
             $update = true;
             $language = $language->where('uuid',$uuid)->first();
-        } 
+        } else {
+            $update = false;
+        }
 
-        $this->form->addRule('code',Form::Rule()->unique('Language','code',null,$language->code)); 
-        $this->form->addRule('code_3',Form::Rule()->unique('Language','code_3',null,$language->code_3)); 
-        $this->form->addRule('title',Form::Rule()->text(2));
-        $this->form->addRule('native_title',Form::Rule()->text(2),false);
-        $this->form->addRule('code',Form::Rule()->text(2,2));
-        $this->form->addRule('code_3',Form::Rule()->text(3,3));
-        $this->form->addRule('language_code',Form::Rule()->text(2,2));
+        $form->addRule('code',Form::Rule()->unique('Language','code',null,$language->code)); 
+        $form->addRule('code_3',Form::Rule()->unique('Language','code_3',null,$language->code_3));        
+        $form->addRule('title',Form::Rule()->text(2));
+        $form->addRule('native_title',Form::Rule()->text(2),false);
+        $form->addRule('code',Form::Rule()->text(2,2));
+        $form->addRule('code_3',Form::Rule()->text(3,3));
+        $form->addRule('language_code',Form::Rule()->text(2,2));
 
-        if ($this->form->validate() == true) {
+        if ($form->validate() == true) {
             try {               
                 if ($update == true) {       
                     // update record
-                    $result = $language->update($this->form->toArray());                                      
+                    $result = $language->update($form->toArray());                                      
                 } else {
                     // add record 
                     if ($language->has($this->form->get('code')) == true) {
                         // language exists
-                        $error = Arikaim::getError("LANGUAGE_EXISTS",['code' => $this->form->get('code')]);
-                        $this->form->setError('code',$error);
+                        $error = Arikaim::getError("LANGUAGE_EXISTS",['code' => $form->get('code')]);
+                        $form->setError('code',$error);
                         $this->setApiErrors($this->form->getErrors());
                         return $this->getApiResponse(); 
                     }
-                    $language->fill($this->form->toArray());        
+                    $language->fill($form->toArray());        
                     $result = $language->save();
                 }
                 if ($result == false) {
@@ -75,18 +74,27 @@ class LanguageApi extends ApiControler
                 $this->setApiError($e->getMessage());
             }
         } else {
-            $this->setApiErrors($this->form->getErrors());
+            $this->setApiErrors($form->getErrors());
         }
         return $this->getApiResponse();   
     }
 
+    /**
+     * Remove language
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $args
+     * @return object
+    */
     public function remove($request, $response, $args)
     {
         // access from contorl panel only 
         $this->requireControlPanelPermission();
+        $form = Form::create($args);    
 
-        $this->form->addRule('uuid',Form::Rule()->exists('Language','uuid'));
-        if ($this->form->validate($args) == true) {
+        $form->addRule('uuid',Form::Rule()->exists('Language','uuid'));
+        if ($form->validate() == true) {
             try {
                 $language = Model::Language()->where('uuid','=',$args['uuid'])->first();
                 $language->delete();
@@ -94,21 +102,30 @@ class LanguageApi extends ApiControler
                 $this->setApiError($e->getMessage());
             }
         } else {
-            $this->setApiErrors($this->form->getErrors());
+            $this->setApiErrors($form->getErrors());
         }       
         return $this->getApiResponse();     
     }
     
+    /**
+     * Enable/Disable language
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $args
+     * @return object
+    */
     public function setStatus($request, $response, $args)
     {         
         // access from contorl panel only 
         $this->requireControlPanelPermission();
+        $form = Form::create($args);    
 
-        $this->form->addRule('uuid',Form::Rule()->exists('Language','uuid'));
-        $this->form->addRule('status',Form::Rule()->checkList([0,1,'toggle']));
-        if ($this->form->validate($args) == true) {
+        $form->addRule('uuid',Form::Rule()->exists('Language','uuid'));
+        $form->addRule('status',Form::Rule()->checkList([0,1,'toggle']));
+        if ($form->validate() == true) {
             try {
-                $status = $this->form->get('status');               
+                $status = $form->get('status');               
                 if ($status == 'toggle') {
                     $result['status'] = Model::Language()->toggleValue($args['uuid'],'status');
                 } else {  
@@ -122,18 +139,27 @@ class LanguageApi extends ApiControler
                 $this->setApiError($e->getMessage());
             }
         } else {
-            $this->setApiErrors($this->form->getErrors());
+            $this->setApiErrors($form->getErrors());
         }
         return $this->getApiResponse();   
     }
 
+    /**
+     * Set default language
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $args
+     * @return object
+    */
     public function setDefault($request, $response, $args)
     {
         // access from contorl panel only 
         $this->requireControlPanelPermission();
+        $form = Form::create($args);
 
-        $this->form->addRule('uuid',Form::Rule()->exists('Language','uuid'));
-        if ($this->form->validate($args) == true) {
+        $form->addRule('uuid',Form::Rule()->exists('Language','uuid'));
+        if ($form->validate() == true) {
             try {
                 // set other default to 0
                 $language = Model::Language()->where('uuid','<>',$args['uuid']);
@@ -147,19 +173,29 @@ class LanguageApi extends ApiControler
                 $this->setApiError($e->getMessage());
             }
         } else {
-            $this->setApiErrors($this->form->getErrors());
+            $this->setApiErrors($form->getErrors());
         }
         return $this->getApiResponse();   
     }
 
+    /**
+     * Set language order
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $args
+     * @return object
+    */
     public function changeOrder($request, $response, $args)
     {
         // access from contorl panel only 
         $this->requireControlPanelPermission();
-        
-        $this->form->addRule('uuid',Form::Rule()->exists('Language','uuid'));
-        $this->form->addRule('after_uuid',Form::Rule()->exists('Language','uuid'));
-        if ($this->form->validate($args) == true) {
+        $form = Form::create($args);
+
+        $form->addRule('uuid',Form::Rule()->exists('Language','uuid'));
+        $form->addRule('after_uuid',Form::Rule()->exists('Language','uuid'));
+
+        if ($form->validate() == true) {
             try {
                 $language = Model::Language()->where('uuid','=',$args['uuid'])->first();              
                 $result = $language->movePositionAfter($args['after_uuid']);                 
@@ -167,18 +203,30 @@ class LanguageApi extends ApiControler
                 $this->setApiError($e->getMessage());
             }
         } else {
-            $this->setApiErrors($this->form->getErrors());
+            $this->setApiErrors($form->getErrors());
         }
         return $this->getApiResponse();   
     }
 
+    /**
+     * Change language order
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $args
+     * @return object
+    */
     public function changeLanguage($request, $response, $args)
     {
-        $this->form->addRule('language_code',Form::Rule()->exists('Language','code'));
-        if ($this->form->validate($args) == true) {
-            Template::setLanguage($this->form->get("language_code"));
+        $this->requireControlPanelPermission();
+        $form = Form::create($args);
+
+        $form->addRule('language_code',Form::Rule()->exists('Language','code'));
+
+        if ($form->validate() == true) {
+            Template::setLanguage($form->get("language_code"));
         } else {
-            $this->setApiErrors($this->form->getErrors());
+            $this->setApiErrors($form->getErrors());
         }
         return $this->getApiResponse();
     }

@@ -24,23 +24,30 @@ use Arikaim\Core\Module\ModulesManager;
 */
 class AdminApi extends ApiControler
 {
+    /**
+     * Install Arikaim
+     *
+     * @param object $request
+     * @param object $response
+     * @param array $args
+     * @return object
+     */
     public function install($request, $response, $args) 
     {           
         Model::Users()->logout();
         
         $install = new Install();
         $requirements = System::checkSystemRequirements();
-    
-        $this->form->setFields($request->getParsedBody());     
-        $this->form->addRule('database',Form::Rule()->text(2));
-        $this->form->addRule('username',Form::Rule()->text(2));
-        $this->form->addRule('password',Form::Rule()->text(2));
+        $form = Form::create($request->getParsedBody()); 
+        $form->addRule('database',Form::Rule()->text(2));
+        $form->addRule('username',Form::Rule()->text(2));
+        $form->addRule('password',Form::Rule()->text(2));
 
-        $user_name  = $this->form->get('username');
-        $password   = $this->form->get('password');
-        $database   = $this->form->get('database');
+        $user_name  = $form->get('username');
+        $password   = $form->get('password');
+        $database   = $form->get('database');
         
-        if ($this->form->validate() == true) { 
+        if ($form->validate() == true) { 
             // save config file               
             Arikaim::config()->setValue('db/username',$user_name);
             Arikaim::config()->setValue('db/password',$password);
@@ -60,15 +67,22 @@ class AdminApi extends ApiControler
                 $this->setApiErrors(Arikaim::errors()->getErrors());
             }           
         } else {
-            $this->setApiErrors($this->form->getErrors());
+            $this->setApiErrors($form->getErrors());
         }
         return $this->getApiResponse();
     }
 
+    /**
+     * Update Arikaim
+     *
+     * @param object $request
+     * @param object $response
+     * @param array $args
+     * @return object
+     */
     public function update($request, $response, $args) 
     {           
         $this->requireControlPanelPermission();
-
         $update = new Update();
         $result = $update->update();
         return $this->getApiResponse();
@@ -79,6 +93,14 @@ class AdminApi extends ApiControler
         return $this->getApiResponse();
     }
 
+    /**
+     * Remove system logs
+     *
+     * @param object $request
+     * @param object $response
+     * @param array $args
+     * @return object
+     */
     public function clearLogs($request, $response, $args)
     {
         $this->requireControlPanelPermission();
