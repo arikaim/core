@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\Events;
 
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Number;
 use Arikaim\Core\Interfaces\Events\EventSubscriberInterface;
 

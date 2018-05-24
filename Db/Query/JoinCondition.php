@@ -17,6 +17,7 @@ use Arikaim\Core\Db\Query\QueryBuilder;
 class JoinCondition extends QueryBuilder
 {   
     const LEFT_JOIN = 'left';
+    const LEFT_OUTER_JOIN = 'outer';
     const CROSS_JOIN = 'cross';
     const INNER_JOIN = 'inner';
 
@@ -49,6 +50,10 @@ class JoinCondition extends QueryBuilder
         switch($this->type) {
             case Self::LEFT_JOIN: {
                 $model = $model->leftJoin($this->table_name,$this->field,$this->operator,$this->join_field);
+                break;
+            }
+            case Self::LEFT_OUTER_JOIN: {
+                $model = $model->join($this->table_name,$this->field,$this->operator,$this->join_field,'left outer');
                 break;
             }
             case Self::INNER_JOIN: {

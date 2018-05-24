@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\Utils;
 
-use Arikaim\Core\Arikaim;
 use \DateInterval;
 
 class TimeInterval

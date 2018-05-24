@@ -52,7 +52,7 @@ class Permissions extends Model
         if (is_object($permission) == true) {
             return $permission;
         }
-        $groups = Model('UserGroups');
+        $groups = DbModel::UserGroups();
         $group_list = $groups->getUserGroups($id);
         foreach ($group_list as $group) {
             $permission = $this->getGroupPermission($name,$group['id']);
