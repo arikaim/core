@@ -25,6 +25,17 @@ class Collection implements \Iterator,CollectionInterface
         $this->clear();
     }
 
+    public function setBooleanValue($path, $value)
+    {
+        if (is_numeric($value) == true) {
+            $value = (intval($value) > 0) ? true : false;
+        }
+        if (is_string($value) == true) {
+            $value = ($value === "true") ? true : false;
+        }
+        $this->setValue($path,$value);
+    }
+
     public function setValue($path,$value)
     {
         $this->data = Arrays::setValue($this->data,$path,$value);
@@ -117,10 +128,10 @@ class Collection implements \Iterator,CollectionInterface
     public function get($key, $default_value = null)
     {      
         if (isset($this->data[$key]) == false) {
-            return ($default_value != null) ? $default_value : null;
+            return ($default_value !== null) ? $default_value : null;
         }
         if ($this->data[$key] == null) {
-            return ($default_value != null) ? $default_value : null;
+            return ($default_value !== null) ? $default_value : null;
         }    
         return $this->data[$key];            
     }

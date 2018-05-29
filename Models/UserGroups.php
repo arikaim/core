@@ -44,7 +44,7 @@ class UserGroups extends Model
     {
         $group_details = DbModel::UserGroupsDetails();
         $model = $group_details->where('user_id','=',$user_id)->get();
-        return (is_object($model) == true) ? $molde->toArray() : [];
+        return (is_object($model) == true) ? $model->toArray() : [];
     }
 
     public function addUser($group_id, $user_id, $date_expire = null)
@@ -65,5 +65,11 @@ class UserGroups extends Model
         $model = $group_details->where('group_id','=',$group_id);
         $model = $group_details->where('user_id','=',$user_id);
         return $model->delete();
+    }
+
+    public function getId($uuid)
+    {
+        $model = $this->where('uuid','=',$uuid)->first();
+        return (is_object($model) == true) ? $model->id : false;
     }
 }

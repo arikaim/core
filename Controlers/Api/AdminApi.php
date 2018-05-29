@@ -52,7 +52,7 @@ class AdminApi extends ApiControler
             Arikaim::config()->setValue('db/username',$user_name);
             Arikaim::config()->setValue('db/password',$password);
             Arikaim::config()->setValue('db/database',$database);
-            // save config file
+            // save and reload config file
             Arikaim::config()->saveConfigFile();
             Arikaim::config()->loadConfig();
 
@@ -159,6 +159,23 @@ class AdminApi extends ApiControler
             $this->setApiError('Error send test email!');
             return $this->getApiResponse();
         }
+        return $this->getApiResponse();
+    }
+
+    public function saveSettings($request, $response, $args)
+    {
+        $this->requireControlPanelPermission();
+        
+        $form = Form::create($request->getParsedBody());    
+        $cors = $form->get('cors',false);
+        $debug = $form->get('debug',false);
+       
+        Arikaim::config()->setBooleanValue('settings/cors',$cors);
+        Arikaim::config()->setBooleanValue('settings/debug',$debug);
+        // save and reload config file
+        Arikaim::config()->saveConfigFile();
+        Arikaim::config()->loadConfig();
+       
         return $this->getApiResponse();
     }
 }

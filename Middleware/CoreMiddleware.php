@@ -25,7 +25,7 @@ class CoreMiddleware
 
         // set current path 
         Arikaim::session()->set('current.path',$request->getUri()->getPath());
-
+        
         // sanitize requets body
         $request = $this->sanitizeRequest($request);
         

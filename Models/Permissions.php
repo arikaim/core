@@ -46,16 +46,16 @@ class Permissions extends Model
         return $this->setPermission($id,$name,$permissions,Self::GROUP);
     }
 
-    public function getUserPermission($name, $id)
+    public function getUserPermission($name, $uuid)
     {
-        $permission = $this->getPermission($name,$id,Self::USER);
+        $permission = $this->getPermission($name,$uuid,Self::USER);
         if (is_object($permission) == true) {
             return $permission;
         }
         $groups = DbModel::UserGroups();
         $group_list = $groups->getUserGroups($id);
         foreach ($group_list as $group) {
-            $permission = $this->getGroupPermission($name,$group['id']);
+            $permission = $this->getGroupPermission($name,$group['uuid']);
             if (is_object($permission) == true) {
                 return $permission;
             }
@@ -63,19 +63,21 @@ class Permissions extends Model
         return false;
     }
 
-    public function getGroupPermission($name, $id)
+    public function getGroupPermission($name, $uuid)
     {
-        return $this->getPermission($name,$id,Self::GROUP);
+        return $this->getPermission($name,$uuid,Self::GROUP);
     }
 
-    public function getPermission($name, $id, $type = Self::USER)
+    public function getPermission($name, $uuid, $type = Self::USER)
     {
         if (Schema::hasTable($this) == false) {          
             return false;
         }
         if ($type == Self::USER) {
+            $id = DbModel::Users()->validUUID($uuid);
             $model = $this->where('user_id','=',$id);
         } else {
+            $id = DbModel::UserGroups()->getId($uuid);
             $model = $this->where('group_id','=',$id);
         }
         $model = $model->where('name','=',$name)->first();

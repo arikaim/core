@@ -295,4 +295,13 @@ class System
     {
         return "http://store.arikaim.com/";
     }
+
+    public static function getConfig($variable_name)
+    {
+        $allowed = ['cors','debug','debugTrace'];
+        if (in_array($variable_name,$allowed) == true) {
+            return Arikaim::config("settings/$variable_name");
+        }
+        return null;
+    }
 }

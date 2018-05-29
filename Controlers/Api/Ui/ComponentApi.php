@@ -87,6 +87,14 @@ class ComponentApi extends ApiControler
             return $this->getApiResponse();
         }
         $properties = $component->getProperties();
+        $options = $component->getOptions();
+        $deny_request = $component->getOption('access/deny-request');
+
+        if ($deny_request == true) {
+            $this->setApiError('ACCESS_DENIED');
+            return $this->getApiResponse();
+        }
+
         $result['html'] = $component->getHtmlCode();
         $result['css_files']  = Arikaim::view()->component()->files()->getArray('css_files');
         $result['js_files']   = Arikaim::view()->component()->files()->getArray('js_files');

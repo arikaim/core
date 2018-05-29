@@ -292,6 +292,6 @@ class Install
 
     public function getConfigDetails()
     {
-        return Arikaim::config();
+        return (Self::isInstalled() == true) ? false : Arikaim::config();
     }
 }

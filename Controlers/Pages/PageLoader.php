@@ -85,7 +85,7 @@ class PageLoader extends Controler
         }
         $user = Model::Users()->getLogedUser();    
         if ($user != false) {
-            $loged_in = Arikaim::access()->hasControlPanelAccess($user->id);
+            $loged_in = Arikaim::access()->hasControlPanelAccess($user->uuid);
         } else {
             $loged_in = false;
         }        

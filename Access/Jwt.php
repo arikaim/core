@@ -86,13 +86,15 @@ class Jwt
      * @param boolean $verify
      * @return boolean
      */
-    public function decodeToken($jwt_token,$verify = false)
+    public function decodeToken($jwt_token,$verify = true)
     {
         try {
             $parser = new Parser();
             $this->token = $parser->parse($jwt_token);      
             if ($verify == true) {
-                return $this->verify($this->key);
+                if ($this->verify($this->key) == false) {
+                    return false; // Token not valid
+                }
             }
             return $this->token->getClaims();
         } catch(\Exception $e) {
@@ -108,7 +110,7 @@ class Jwt
     public function verify() 
     {
         $signer = new Sha256();
-        return $this->token->verify($signer, $this->key);
+        return $this->token->verify($signer,$this->key);
     }
 
     /**

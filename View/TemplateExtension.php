@@ -84,6 +84,7 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFunction('getOption', [$template_function, 'getOption']),
             new \Twig_SimpleFunction('getOptions', [$template_function, 'getOptions']),
             new \Twig_SimpleFunction('getErrors', [$errors, 'getErrors']),
+            new \Twig_SimpleFunction('getConfig', ["\\Arikaim\\Core\\System\\System","getConfig"]),
             // template
             new \Twig_SimpleFunction('getTemplateJsFiles', ["\\Arikaim\\Core\\View\\Template", 'getJsFiles']),
             new \Twig_SimpleFunction('getTemplateCssFiles', ["\\Arikaim\\Core\\View\\Template", 'getCssFiles']),

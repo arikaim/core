@@ -48,6 +48,11 @@ class Routes
         // Middleware for sanitize request body and client ip
         $app->add(new \Arikaim\Core\Middleware\CoreMiddleware());  
 
+        // Cors
+        if (Arikaim::config('settings/cors') == true) {
+            $app->add(new \Arikaim\Core\Middleware\CorsMiddleware());  
+        }
+
         $session_auth = new SessionAuthentication();
         $jwt_auth = new JwtAuthentication();
 
@@ -72,8 +77,6 @@ class Routes
     
         // Control Panel
         $app->get('/admin/[{language}/]',Controler::getControlersNamespace() . "\Pages\PageLoader:loadControlPanel");
-        // change password page
-        $app->get('/admin/change-password/{code}/[{language}/]',Controler::getControlersNamespace() . "\Pages\PageLoader:loadChangePassword");
         // Install
         $app->post('/admin/api/install/',"$api_controles_namespace\AdminApi:install")->add($session_auth);    
         // Update
@@ -83,6 +86,8 @@ class Routes
         $app->post('/admin/api/user/login/',"$api_controles_namespace\UsersApi:adminLogin")->add($session_auth); 
         $app->post('/admin/api/user/password/recovery/',"$api_controles_namespace\UsersApi:passwordRecovery")->add($session_auth); 
         $app->post('/admin/api/user/password/change/',"$api_controles_namespace\UsersApi:changePassword")->add($session_auth); 
+        // Change password page
+        $app->get('/admin/change-password/{code}/[{language}/]',Controler::getControlersNamespace() . "\Pages\PageLoader:loadChangePassword");
 
         $app->post('/admin/api/user/',"$api_controles_namespace\UsersApi:changeDetails")->add($jwt_auth);
         $app->get('/admin/api/user/logout/',"$api_controles_namespace\UsersApi:logout");
@@ -104,6 +109,9 @@ class Routes
         $app->get('/admin/api/options/{key}',"$api_controles_namespace\OptionsApi:get")->add($jwt_auth);
         $app->put('/admin/api/options/',"$api_controles_namespace\OptionsApi:save")->add($jwt_auth);
         $app->post('/admin/api/options/',"$api_controles_namespace\OptionsApi:saveOptions")->add($jwt_auth);
+        // Change system settigns
+        $app->put('/admin/api/settings/',"$api_controles_namespace\AdminApi:saveSettings")->add($jwt_auth);
+
         // Logs
         $app->delete('/admin/api/logs/',"$api_controles_namespace\AdminApi:clearLogs")->add($jwt_auth);
         // Jobs

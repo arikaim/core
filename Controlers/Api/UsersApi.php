@@ -43,14 +43,14 @@ class UsersApi extends ApiControler
         $password = $form->get('password');
         $user = Model::Users();         
         $user = $user->login($user_name,$password);
-       
+      
         if ($user === false) {
             $this->setApiError(Arikaim::getError("LOGIN_ERROR"));   
         } else {        
-            $access = Arikaim::access()->hasPermission(Access::CONTROL_PANEL,Access::FULL,$user->id);
+            $access = Arikaim::access()->hasPermission(Access::CONTROL_PANEL,Access::FULL,$user->uuid);
             if ($access == true) {
                 // create JWT token
-                $token = Arikaim::access()->createToken($user->id,$user->uuid);            
+                $token = Arikaim::access()->createToken($user->id,$user->uuid);      
                 $this->setApiResult($token);
             } else {
                 $this->setApiError(Arikaim::getError("LOGIN_ERROR"));   
