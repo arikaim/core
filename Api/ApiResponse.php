@@ -157,7 +157,7 @@ class ApiResponse
         }
         
         if ($this->debug == true) {
-            $this->result['execution_time'] = System::getExecutionTime();
+            $this->result['execution_time'] = Arikaim::getExecutionTime();
         }
         if ($this->trace == true) {
             $this->result['trace'] = Utils::jsonEncode(System::getBacktrace());

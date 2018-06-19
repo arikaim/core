@@ -14,7 +14,6 @@ use Slim\Http\Environment;
 
 use Arikaim\Core\Utils\Arrays;
 use Arikaim\Core\ClassLoader;
-use Arikaim\Core\System\System;
 use Arikaim\Core\System\ServiceContainer;
 use Arikaim\Core\System\Routes;
 use Arikaim\Core\Interfaces\CollectionInterface;
@@ -54,6 +53,8 @@ class Arikaim
     {
         return Self::$app;
     }
+
+    private static $start_time;
 
     /**
      * Get container service
@@ -124,21 +125,24 @@ class Arikaim
 
         // init constants
         define('ARIKAIM_DOMAIN',Self::getDomain());
+        if (defined('ARIKAIM_ROOT_PATH') == false) {
+            define('ARIKAIM_ROOT_PATH',Self::getRootPath());
+        }
         define('ARIKAIM_BASE_PATH',Self::getBasePath());
-        define('ARIKAIM_ROOT_PATH',Self::getRootPath());
+       
+        define('ARIKAIM_PATH',Self::getArikaimPath());      
         define('ARIKAIM_BASE_URL',Self::getBaseUrl());
-        define('ARIKAIM_PATH',Self::getArikaimPath());
         define('ARIKAIM_VIEW_PATH',Self::getViewPath());
         define('ARIKAIM_VIEW_URL',Self::getViewUrl());
-  
+        
         $loader = new \Arikaim\Core\System\ClassLoader(ARIKAIM_BASE_PATH,ARIKAIM_ROOT_PATH);
         $loader->register();
         
         // load global functions
         $loader->LoadClassFile('\\Arikaim\\Core\\System\\Globals');
-
+      
         // set start time
-        System::initStartTime();
+        Self::initStartTime();
         
         register_shutdown_function("\Arikaim\Core\Arikaim::end");
 
@@ -194,14 +198,17 @@ class Arikaim
     */
     public static function getConsoleRootPath()
     {
-        if (defined('ARIKAIM_PATH') == true) {
-            return ARIKAIM_PATH;
+        if (defined('ARIKAIM_ROOT_PATH') == true) {
+            return ARIKAIM_ROOT_PATH;
         }
         return dirname(dirname(__DIR__));
     }
 
     public static function getConsoleBasePath()
     {
+        if (defined('ARIKAIM_BASE_PATH') == true) {
+            return ARIKAIM_BASE_PATH;
+        }
         return ""; 
     }
 
@@ -306,5 +313,20 @@ class Arikaim
     public static function isConsole()
     {
         return (php_sapi_name() == "cli") ? true : false;         
-    }    
+    }   
+    
+    public static function initStartTime()
+    {
+        Self::$start_time = microtime(true);
+    }
+    
+    public static function getStartTime() 
+    {
+        return Self::$start_time;
+    }
+
+    public static function getExecutionTime() 
+    {
+        return (microtime(true) - Self::$start_time);
+    }
 }

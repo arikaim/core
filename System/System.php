@@ -25,9 +25,7 @@ class System
     const HTMLLF = "</br>";
 
     const VERSION = "1.0";  
-
-    private static $start_time;
-
+    
     public function __construct() 
     {       
     }
@@ -204,21 +202,6 @@ class System
         $info['errors'] = $errors;
         return $info;
     }  
-
-    public static function getStartTime() 
-    {
-        return Self::$start_time;
-    }
-
-    public static function initStartTime()
-    {
-        Self::$start_time = microtime(true);
-    }
-    
-    public static function getExecutionTime() 
-    {
-        return (microtime(true) - Self::$start_time);
-    }
 
     public static function getStreamWrappers()
     {
