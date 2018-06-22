@@ -11,6 +11,8 @@ namespace Arikaim\Core\System;
 
 use Arikaim\Core\Utils\Curl;
 use Arikaim\Core\Arikaim;
+use Symfony\Component\Process\Process;
+use Arikaim\Core\System\SystemProcess;
 
 /**
  * Update Arikaim core
@@ -23,20 +25,28 @@ class Update
     {
     }
 
-    /**
-     * Update
-     * // TODO
-     * @return boolean
-     */
+    // TODO
     public function update()
     {
         $errors = 0;
+        $output = SystemProcess::runComposerCommand('update ' . $this->core_package_name);
+        
         if ($errors == 0) {
             // trigger event core.update
             Arikaim::event()->trigger('core.update',[]);
             return true;
         }
         return false;
+    }
+
+    /**
+     * Return core package info
+     *
+     * @return string
+     */
+    public function getCoreInfo()
+    {
+        return SystemProcess::runComposerCommand('show ' . $this->core_package_name);
     }
 
     /**

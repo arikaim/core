@@ -85,6 +85,9 @@ class AdminApi extends ApiControler
         $this->requireControlPanelPermission();
         $update = new Update();
         $result = $update->update();
+        if ($result == false) {
+            $this->setApiErrors('Error update arikaim core.');
+        }
         return $this->getApiResponse();
     }
     
