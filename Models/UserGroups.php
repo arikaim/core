@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Arikaim\Core\Db\UUIDAttribute;
+use Arikaim\Core\Db\Uuid;
 use Arikaim\Core\Db\Model as DbModel;
 
 /**
@@ -18,11 +18,10 @@ use Arikaim\Core\Db\Model as DbModel;
  */
 class UserGroups extends Model  
 {
-    use UUIDAttribute;
+    use Uuid;
 
     protected $fillable = [        
         'title',
-        'uuid',
         'description'];
         
     public $timestamps = false;
@@ -53,9 +52,8 @@ class UserGroups extends Model
         $info['group_id'] = $group_id;
         $info['user_id'] = $user_id;
         $info['date_expire'] = $date_expire;
-        $info['date_created'] = time();
         
-        $result = $group_details->save($info);
+        $result = $group_details->create($info);
         return $result;
     }
 

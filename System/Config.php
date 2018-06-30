@@ -58,7 +58,7 @@ class Config extends Collection implements \ArrayAccess
        
         $code .= $this->addLine('settings','settings');
         $code .= $this->addLine('db','db');
-        $code .='return $config;'."\n";
+        $code .= 'return $config;'."\n";
         return $code;
     }
 

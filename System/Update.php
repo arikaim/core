@@ -58,10 +58,11 @@ class Update
     public function getCorePackagesList($result_length = null)
     {
         $package_info = Self::getPackageInfo("arikaim","core");
-        $list = $package_info['packages']["arikaim/core"];
+        $list = $package_info['package']['versions'];
         unset($list['dev-master']);
         $packages = [];
         $count = 0;       
+        
         foreach ($list as $key => $package) {          
             $info['version'] = $package['version'];
             $info['name'] = $package['name'];
@@ -83,7 +84,7 @@ class Update
      */
     public static function getPackageInfo($vendor,$package)
     {
-        $url = "https://packagist.org/p/$vendor/$package.json";
+        $url = "https://packagist.org/packages/$vendor/$package.json";
         $info = Curl::get($url);
         return json_decode($info,true);
     }

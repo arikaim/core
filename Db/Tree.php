@@ -14,7 +14,6 @@ namespace Arikaim\Core\Db;
 */
 trait Tree 
 {       
-
     public function getModelPath($model, $parent_field_name = "parent_id")
     {
         $result = [];
@@ -37,5 +36,4 @@ trait Tree
         }
         return $this->getModelPath($model,$parent_field_name);
     }
-
 }

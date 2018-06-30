@@ -36,18 +36,19 @@ class UsersSchema extends Schema
             $table->string('api_secret')->nullable(true);
             $table->integer('status')->nullable(false)->default(1);
             $table->string('uuid')->nullable(false);
-            $table->bigInteger('date_login')->nullable(true);
-            $table->bigInteger('date_created')->nullable(true);
             $table->string('access_key')->nullable(true);
             $table->integer('access_key_expire')->nullable(true);
+            // date time
+            $table->bigInteger('date_created')->nullable(true);
+            $table->bigInteger('date_updated')->nullable(true);
+            $table->bigInteger('date_login')->nullable(true);
+            $table->dateTime('deleted_at')->nullable(true); 
             // indexes
             $table->unique('email');
             $table->unique('user_name');
             $table->unique('uuid'); 
             $table->unique('api_key');   
             $table->unique('access_key');           
-            // options
-            $table->softDeletes();
             // storage engine
             $table->engine = 'InnoDB';   
 

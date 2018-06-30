@@ -30,8 +30,10 @@ class UserGroupsDetailsSchema extends Schema
             // columns
             $table->bigIncrements('id')->nullable(false);
             $table->bigInteger('user_id')->unsigned()->nullable(true);     
-            $table->bigInteger('group_id')->unsigned()->nullable(true);     
-            $table->bigInteger('date_created')->nullable(false);
+            $table->bigInteger('group_id')->unsigned()->nullable(true);  
+            // date time   
+            $table->bigInteger('date_created')->nullable(true);
+            $table->bigInteger('date_updated')->nullable(true);
             $table->bigInteger('date_expired')->nullable(true);
             // unique indexes
             $table->unique(['user_id','group_id']);   

@@ -45,11 +45,10 @@ class DbHandler extends AbstractProcessingHandler
         $info['level'] = $record['level'];
         $info['message'] = $record['message'];
         $info['ip_address'] = $record['context']['client_ip'];
-        $info['date_created'] = DateTime::getCurrentTime();
+       
         
         if (is_object($this->model) == true) {           
-            $this->model->fill($info);
-            return $this->model->save();
+            return $this->model->create($info);
         }
         return false;
     }  

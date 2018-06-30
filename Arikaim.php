@@ -12,6 +12,7 @@ namespace Arikaim\Core;
 use Slim\Http\Uri;
 use Slim\Http\Environment;
 
+use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Utils\Arrays;
 use Arikaim\Core\ClassLoader;
 use Arikaim\Core\System\ServiceContainer;
@@ -137,7 +138,7 @@ class Arikaim
         
         $loader = new \Arikaim\Core\System\ClassLoader(ARIKAIM_BASE_PATH,ARIKAIM_ROOT_PATH);
         $loader->register();
-        
+       
         // load global functions
         $loader->LoadClassFile('\\Arikaim\\Core\\System\\Globals');
       
@@ -153,6 +154,15 @@ class Arikaim
 
         Self::$container['settings'] = Self::config('settings');
         Self::$app = new \Slim\App(Self::$container);
+
+        // load class aliases
+        $data = File::readConfigFile('classes.json');
+        if (is_array($data) == true) {
+            if (isset($data['aliases']) == true) {
+                $loader->loadAlliases();
+            }
+        }
+
         // map routes
         Self::$app = Routes::mapSystemRoutes(Self::$app);
     }

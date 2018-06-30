@@ -12,8 +12,9 @@ namespace Arikaim\Core\Models;
 use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model as DbModel;
-use Arikaim\Core\Db\UUIDAttribute;
-use Arikaim\Core\Db\DateTimeUpdate;
+use Arikaim\Core\Db\Uuid;
+use Arikaim\Core\Db\Find;
+use Arikaim\Core\Db\DateTimeAttribute;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Access\Access;
@@ -24,7 +25,9 @@ use Arikaim\Core\Utils\DateTime;
 */
 class Users extends Model  
 {
-    use UUIDAttribute;
+    use Uuid,
+        Find,
+        DateTimeAttribute;
 
     const ACTIVE_STATUS = 1;
 
@@ -32,16 +35,14 @@ class Users extends Model
         'user_name',
         'email',
         'password',
-        'uuid',
         'api_key',
         'api_secret',
         'access_key',
         'access_key_expire',
-        'date_login',
-        'date_created'];
+        'date_login'];
 
     public $timestamps = false;
-    
+
     public function userNameExist($user_name) 
     {
         $model = $this->where("user_name","=",$user_name)->first();
@@ -85,8 +86,8 @@ class Users extends Model
     public function isLogedAdminUser() 
     {
         $uuid = Arikaim::session()->get('uuid');
-        $admin_uuid = $this->getControlPanelUser();
-        return ($uuid == $admin_uuid) ? true : false;           
+        $user = $this->getControlPanelUser();
+        return ($uuid == $user->uuid) ? true : false;           
     }
 
     public function login($user_name, $password) 
@@ -120,16 +121,6 @@ class Users extends Model
         Arikaim::access()->clearToken();
     }
 
-    public function getControlPanelUserEmail()
-    {
-        $uuid = $this->getControlPanelUser();
-        if ($uuid === false) {
-            return false;
-        }
-        $model = $this->where('uuid','=',$uuid)->first();
-        return (is_object($model) == true) ? $model->email : false;
-    }
-
     public function getControlPanelUser()
     {
         if (Schema::hasTable($this) == false) {
@@ -139,14 +130,18 @@ class Users extends Model
         if (Schema::hasTable($permissions) == false) {
             return false;
         }
-        $permissions = $permissions->where('name','=',Access::CONTROL_PANEL);
-        $permissions = $permissions->where('user_id','>',0)->first();
-        return (is_object($permissions) == false) ? false : $permissions->user_id;         
+        $permissions = $permissions->where('name','=',Access::CONTROL_PANEL)->where('user_id','>',0)->first();
+        if (is_object($permissions) == false) {
+            return false;
+        }
+        $user = $this->findById($permissions->user_id);
+
+        return (is_object($user) == false) ? false : $user;         
     }
 
     public function hasControlPanelUser() 
     {
-        return ($this->getControlPanelUser() == false) ? false : true;
+        return (is_object($this->getControlPanelUser()) == false) ? false : true;
     }
 
     public function EncryptPassword($password, $algo = PASSWORD_BCRYPT) 
@@ -166,8 +161,7 @@ class Users extends Model
 
     private function getUser($user_name)
     {
-        $model = $this->where('user_name','=',$user_name);
-        $model = $model->orWhere('email','=',$email)->first();
+        $model = $this->where('user_name','=',$user_name)->orWhere('email','=',$user_name)->first();
         return (is_object($model) == false) ? false : $model;
     }
 
@@ -175,12 +169,6 @@ class Users extends Model
     {
         $user = $this->getUser($user_name);   
         return (is_object($user) == true) ? $user->id : null; 
-    }
-
-    public function getUUID($user_name) 
-    {
-        $user = $this->getUser($user_name);    
-        return (is_object($user) == true) ? $user->uuid : null;           
     }
 
     public function validUUID($uuid) 
@@ -194,24 +182,21 @@ class Users extends Model
 
     public function createUser($user_name, $password, $email = null)
     {
-        $uuid = $this->getUUID($user_name);
-        if ($uuid != null) {
-            return $uuid; 
+        $user = $this->getUser($user_name);
+        if (is_object($user) == true) {
+            return $user;
         }
         $info['user_name'] = $user_name;
         $info['password'] = $this->EncryptPassword($password);
         $info['email'] = $email;
         $info['api_key'] = Utils::getUUID();
         $info['api_secret'] = Utils::getRandomKey();
-        $info['date_created'] = DateTime::getCurrentTime();
-        
-        $this->fill($info);
+   
         try {
-            $result = $this->save();
+            return $this->create($info);
         } catch(\Exception $e) {
             return false;
-        }
-        return ($result == false) ? false : $this->id;           
+        }     
     }
 
     public function changePassword($id, $password)

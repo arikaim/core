@@ -12,19 +12,22 @@ namespace Arikaim\Core\Models;
 use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Utils\Utils;
+use Arikaim\Core\Db\Uuid;
+
 
 /**
  * Permissions database model
  */
 class PermissionsList extends Model  
 {
+    use Uuid;
+
     protected $fillable = [
         'parent_id',
         'name',
         'title',
         'description',
-        'extension_name',
-        'uuid'];
+        'extension_name'];
         
     public $timestamps = false;
     protected $table = 'permissions_list';
@@ -39,9 +42,7 @@ class PermissionsList extends Model
         $this->title = $title;
         $this->parent_id = $parent_id;
         $this->description = $description;        
-        $this->uuid = Utils::getUUID();
-
-        return $this->save();
+        return $this->create();
     }
 
     public function has($name)

@@ -11,7 +11,7 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Db\UUIDAttribute;
+use Arikaim\Core\Db\Uuid;
 use Arikaim\Core\Db\Model as DbModel;
 
 /**
@@ -19,7 +19,7 @@ use Arikaim\Core\Db\Model as DbModel;
  */
 class Permissions extends Model  
 {
-    use UUIDAttribute;
+    use Uuid;
 
     const USER  = 1;
     const GROUP = 2;
@@ -31,7 +31,6 @@ class Permissions extends Model
         'execute',
         'user_id',
         'name',
-        'uuid',
         'group_id'];
         
     public $timestamps = false;
@@ -93,11 +92,8 @@ class Permissions extends Model
             $permissions['group_id'] = $id;
         }
         $permissions['name'] = $name;
-        
-        $this->fill($permissions);
-
         try {
-            $result = $this->save();
+            $result = $this->create($permissions);
         } catch(\Exception $e) {
           return false;
         }      

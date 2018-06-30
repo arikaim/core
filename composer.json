@@ -9,11 +9,13 @@
         "email": "info@arikaim.com",
         "homepage": "http://arikaim.com"
     }],
+    "homepage": "http://arikaim.com",
     "require": {
         "php": ">=5.6.0",
         "slim/slim": "^3.0",
         "twig/twig": "^1.35.0",
         "illuminate/database": "^5.1",
+        "illuminate/events": "^5.4",
         "monolog/monolog": "~1.23.0",
         "lcobucci/jwt": "^3.2",
         "illuminate/pagination": "^5.4",

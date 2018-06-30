@@ -176,19 +176,22 @@ class UsersApi extends ApiControler
     */
     public function passwordRecovery($request, $response, $args)
     {
-        $users = Model::Users();
-        $admin_email = $users->getControlPanelUserEmail();
+        $users = Model::Users()->getControlPanelUser();
+        if ($users == false) {
+            $this->setApiErrors('Missing control panel user');
+            return $this->getApiResponse(); 
+        }
+        
         $messages = Arikaim::view()->component()->getComponentProperties('system:admin/password-recovery');
         $error = $messages->getByPath('errors/email');
         $form = Form::create($request->getParsedBody());  
 
-        $form->addRule('email',Form::Rule()->equal($admin_email,$error));
+        $form->addRule('email',Form::Rule()->equal($users->email,$error));
         $form->addRule('email',Form::Rule()->email($error));
 
         if ($form->validate() == true) {
-            // create access code
-            $user_uuid = $users->getControlPanelUser();
-            $access_key = $users->createAccessKey($user_uuid);
+            // create access code          
+            $access_key = $users->createAccessKey($users->uuid);
             if ($access_key === false) {
                 $error = $messages->getByPath('errors/access_key');
                 $this->setApiError($error);
@@ -196,8 +199,8 @@ class UsersApi extends ApiControler
             }
             // send email
             $params = ['access_key' => $access_key];
-            $message = Arikaim::mailer()->messageFromTemplate($admin_email,"system:admin.email-messages.password-recovery",$params);
-            $message->setFrom($admin_email);
+            $message = Arikaim::mailer()->messageFromTemplate($users->email,"system:admin.email-messages.password-recovery",$params);
+            $message->setFrom($users->email);
             
             $result = Arikaim::mailer()->send($message);
             if ($result == false) {

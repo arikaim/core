@@ -141,21 +141,15 @@ class Install
     private function createDefaultAdminUser()
     {
         $user = Model::Users();
-        $result = $user->hasControlPanelUser();
-        if ($result == true) {
-            return false;
-        }
-        $user_id = $user->getControlPanelUser();
-        if ($user_id == false) {
-            $user_id = $user->getId('admin');
-            if ($user_id == null) {
-                $user_id = $user->createUser("admin","admin");
-            }                
-            if ($user_id == false) {
+        $admin_user = $user->getControlPanelUser();
+        if ($admin_user == false) {
+            $admin_user = $user->createUser("admin","admin");       
+            if (empty($admin_user->id) == true) {
                 Arikaim::errors()->addError('CONTROL_PANEL_USER_ERROR',"Error create control panel user.");
             }                
-        }     
-        $result = Model::Permissions()->setUserPermission($user_id,Access::CONTROL_PANEL,Access::FULL);
+        }
+      
+        $result = Model::Permissions()->setUserPermission($admin_user->id,Access::CONTROL_PANEL,Access::FULL);
         return $result;
     }
 
@@ -262,7 +256,9 @@ class Install
 
             $user = Model::Users();            
             $result = $user->hasControlPanelUser();           
-            if ($result == false) $errors++;
+            if ($result == false) {
+                $errors++;
+            }
            
         } catch(\Exception $e) {
             $errors++;

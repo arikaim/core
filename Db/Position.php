@@ -14,23 +14,32 @@ namespace Arikaim\Core\Db;
 */
 trait Position 
 {    
-    public abstract function getModel();
+    public static function bootPosition()
+    {
+        static::creating(function($model) {   
+            self::setPosition($model);
+        });
 
-    public function setPosition()
+        static::deleting(function($model) {   
+            
+        });
+    }
+    
+    private static function setPosition($model)
     {   
-        $model = $this->getModel();
         $position = $model->max('position');       
-        $position++;
-        $model->position = $position;        
-        return $position;
+        $model->position = $position + 1;        
+        return $model->position;
     }
 
-    public function movePositionAfter($after_uuid)
+    public function movePosition($model, $after_uuid)
     {   
-        $model = $this->getModel();
+        if (is_object($model) == false) {
+            return false;
+        }
+
         $current_position = $model->position;
-        
-        // set current possition to 0 avoid unique index error
+        // set current possition to null avoid unique index error
         $model->position = null;
         $model->update();
     
@@ -42,33 +51,31 @@ trait Position
         if ($current_position == $after_position) {
             return false;
         }
-        // right move
+        // update right rows
         if ($current_position < $after_position) {
-            $list = $model->whereRaw(" position > $current_position AND position <= $after_position ORDER BY position ")->get();
-          
+            $list = $model->where('position','>',$current_position)->where('position','<=',$after_position)->orderBy('position')->get();
             foreach ($list as $item) {
                 $item->position = $item->position - 1;
                 $item->update();
             }
-           
             $model->position = $after_position;
             $model->update();
         }
-        // left move
+        // update left rows
         if ($current_position > $after_position) {
-            $this->leftMove($model,$current_position,$after_position);
+            $this->updateLeftItems($model,$current_position,$after_position);
         }
         return true;
     }
 
-    public function moveFirst($model, $current_position)
+    private function moveFirst($model, $current_position)
     {
-        $this->leftMove($model,$current_position,0);
+        $this->updateLeftItems($model,$current_position,0);
     }
 
-    protected function leftMove($model, $current_position, $after_position)
+    private function updateLeftItems($model, $current_position, $after_position)
     {
-        $list = $model->whereRaw(" position > $after_position AND position <= $current_position ORDER BY position DESC ")->get();
+        $list = $model->where('position','>',$after_position)->where('position','<=',$current_position)->orderBy('position','desc')->get();
         foreach ($list as $item) {
             $item->position = $item->position + 1;
             $item->update();

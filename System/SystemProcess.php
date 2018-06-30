@@ -16,10 +16,9 @@ use Symfony\Component\Process\Process;
  */
 class SystemProcess 
 {
-
     public static function runComposerCommand($command)
     {        
-        $process = new Process('composer ' . $command);
+        $process = Self::create('composer ' . $command);
         try {
             $process->mustRun();
             $output = $process->getOutput();
@@ -27,5 +26,10 @@ class SystemProcess
             return "Errror:" . $e->getMessage();
         }
         return $output;
+    }
+
+    public static function create($command, $cwd = null, array $env = null, $input = null, $timeout = 60, array $options = array())
+    {
+        return new Process($command,$cwd,$env,$input,$timeout,$options);
     }
 }

@@ -12,8 +12,8 @@ namespace Arikaim\Core\Interfaces;
 interface ModuleInterface
 {    
     public function getServiceName();
-    public function getModuleTitle();
-    public function getModuleDescription();
-    public function getModuleVersion();
+    public function getTitle();
+    public function getDescription();
+    public function getVersion();
     public function isBootable();
 }

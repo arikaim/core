@@ -10,15 +10,18 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Arikaim\Core\Db\UUIDAttribute;
+use Arikaim\Core\Db\Uuid;
 use Arikaim\Core\Utils\Number;
+
+use Arikaim\Core\Utils\Utils;
+
 
 /**
  * Events database model
  */
 class Events extends Model  
 {
-    use UUIDAttribute;
+    use Uuid;
 
     const DISABLED = 0;
     const ACTIVE = 1;
@@ -27,7 +30,6 @@ class Events extends Model
         'name',
         'title',
         'extension_name',
-        'uuid',
         'description'];
 
     public $timestamps = false;
@@ -77,8 +79,7 @@ class Events extends Model
         if ($this->hasEvent($event['name']) == true) {
             return false;
         }
-        $this->fill($event);
-        $result = $this->save();
+        $result = $this->create($event);
         return $result;
     }   
 

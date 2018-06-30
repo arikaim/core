@@ -37,7 +37,7 @@ class LanguageApi extends ApiControler
         $uuid = $form->get('uuid');
         if (empty($uuid) == false) {
             $update = true;
-            $language = $language->where('uuid',$uuid)->first();
+            $language = $language->where('uuid','=',$uuid)->first();
         } else {
             $update = false;
         }
@@ -52,23 +52,18 @@ class LanguageApi extends ApiControler
 
         if ($form->validate() == true) {
             try {               
-                if ($update == true) {       
-                    // update record
-                    $result = $language->update($form->toArray());                                      
-                } else {
+                if ($update == false) {       
                     // add record 
-                    if ($language->has($this->form->get('code')) == true) {
+                    if ($language->has($form->get('code')) == true) {
                         // language exists
                         $error = Arikaim::getError("LANGUAGE_EXISTS",['code' => $form->get('code')]);
                         $form->setError('code',$error);
-                        $this->setApiErrors($this->form->getErrors());
+                        $this->setApiErrors($form->getErrors());
                         return $this->getApiResponse(); 
                     }
-                    $language->fill($form->toArray());        
-                    $result = $language->save();
-                }
-                if ($result == false) {
-                    $this->setApiError(Arikaim::errors()->getError("ERROR_SAVE_DATA"));
+                    $result = $language->add($form->toArray());                      
+                } else {
+                    $result = $language->update($form->toArray());    
                 }
             } catch(\Exception $e) {
                 $this->setApiError($e->getMessage());
@@ -198,7 +193,7 @@ class LanguageApi extends ApiControler
         if ($form->validate() == true) {
             try {
                 $language = Model::Language()->where('uuid','=',$args['uuid'])->first();              
-                $result = $language->movePositionAfter($args['after_uuid']);                 
+                $result = $language->movePosition($language,$args['after_uuid']);                 
             } catch(\Exception $e) {
                 $this->setApiError($e->getMessage());
             }

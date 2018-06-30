@@ -39,6 +39,7 @@ class LogsSchema extends Schema
             $table->string('route_uuid',100)->nullable(true);
             // date time columns
             $table->bigInteger('date_created')->nullable(true);
+            $table->bigInteger('date_updated')->nullable(true);           
             // indexes
             $table->index('url');
             $table->index('method');

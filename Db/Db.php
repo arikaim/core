@@ -35,6 +35,7 @@ class Db
         try {                  
             $this->capsule = new Manager();
             $this->capsule->addConnection($db_config);
+            $this->capsule->setEventDispatcher(new \Illuminate\Events\Dispatcher());
             $this->capsule->setAsGlobal();
             // schema db             
             $this->initSchemaConnection($db_config);

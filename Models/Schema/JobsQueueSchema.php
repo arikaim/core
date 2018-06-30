@@ -38,8 +38,9 @@ class JobsQueueSchema extends Schema
             $table->string('job_command')->nullable(true);
             $table->integer('priority')->nullable(false)->default(0);
             $table->integer('status')->nullable(false)->default(1);
-            $table->biginteger('executed')->nullable(true);
-            $table->biginteger('created')->nullable(true);
+            // date time
+            $table->bigInteger('date_created')->nullable(true);
+            $table->biginteger('date_executed')->nullable(true);
             $table->string('uuid')->nullable(false);            
             // indexes
             $table->unique('uuid');

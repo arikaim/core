@@ -14,12 +14,20 @@ use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Form\Properties;
 use Arikaim\Core\FileSystem\File;
 
+/**
+ * Manage core modules
+ */
 class ModulesManager 
 {
     public function __construct()
     {
     }
 
+    /**
+     * Install core medules
+     *
+     * @return int
+     */
     public function install()
     {
         $path = Arikaim::getModulesPath();
@@ -55,9 +63,9 @@ class ModulesManager
             $module['bootable'] = $properties->get('bootable',$service->isBootable());
             $module['status'] = 1;
             if ($full_details == true) {
-                $module['version'] = $properties->get('version',$service->getModuleVersion());
-                $module['title'] = $properties->get('title',$service->getModuleTitle());
-                $module['description'] = $properties->get('description',$service->getModuleDescription());
+                $module['version'] = $properties->get('version',$service->getVersion());
+                $module['title'] = $properties->get('title',$service->getTitle());
+                $module['description'] = $properties->get('description',$service->getDescription());
                 $module['requires'] = $properties->get('requires');
             }
             return $module;

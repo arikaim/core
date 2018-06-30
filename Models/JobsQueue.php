@@ -10,21 +10,24 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Arikaim\Core\Db\DateTimeUpdate;
-use Arikaim\Core\Db\UUIDAttribute;
+use Arikaim\Core\Db\DateTimeAttribute;
+use Arikaim\Core\Db\Uuid;
 
 /**
  * JobsQueue database model
  */
 class JobsQueue extends Model  
 {
+    use Uuid,
+        DateTimeAttribute;
+
     protected $table = "jobs_queue";
     protected $fillable = [
         'name',
         'priority',
         'execution_time',
         'recuring_interval',
-        'created','executed',
+        'executed',
         'handler_class',
         'uuid',
         'status',

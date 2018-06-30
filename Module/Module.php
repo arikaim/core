@@ -28,12 +28,12 @@ class Module implements ModuleInterface
         return $this->service_name;
     }
 
-    public function getModuleTitle()
+    public function getTitle()
     {
         return $this->title;
     }
 
-    public function getModuleDescription()
+    public function getDescription()
     {
         return $this->description;
     }
@@ -43,22 +43,22 @@ class Module implements ModuleInterface
         return $this->service_name = $name;
     }
 
-    public function setModuleTitle($title)
+    public function setTitle($title)
     {
         return $this->title = $title;
     }
 
-    public function setModuleDescription($description)
+    public function setDescription($description)
     {
         return $this->description = $description;
     }
 
-    public function getModuleVersion()
+    public function getVersion()
     {
         return $this->version;
     }
 
-    public function setModuleVersion($version)
+    public function setVersion($version)
     {
         $this->version = $version;
     }

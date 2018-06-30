@@ -12,20 +12,10 @@ namespace Arikaim\Core\Db;
 use Arikaim\Core\Utils\Utils;
 
 /**
- * Update UUID field
+ * Find model
 */
-trait UUIDAttribute 
+trait Find 
 {    
-    public function fill(array $attributes)
-    {
-        if (empty($attributes) == false ) {
-            if (empty($attributes['uuid'] ) == true) {
-                $attributes['uuid'] = Utils::getUUID();   
-            }     
-        }
-        return parent::fill($attributes);
-    }
-
     public function findById($id)
     {
         if ($id == null || empty($id) == true) {
@@ -36,6 +26,15 @@ trait UUIDAttribute
         } elseif (is_string($id) == true) {
             $model = parent::where('uuid','=',$id)->first();
         }
+        return (is_object($model) == false) ? false : $model;
+    }
+    
+    public function findByColumn($value, $column = "title")
+    {
+        if ($value == null || empty($value) == true) {
+            return false;
+        }
+        $model = parent::where($column,'=',$value)->first();
         return (is_object($model) == false) ? false : $model;
     }
 }

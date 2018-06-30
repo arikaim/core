@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Arikaim\Core\Db\UUIDAttribute;
+use Arikaim\Core\Db\Uuid;
 use Arikaim\Core\Db\ToggleValue;
 
 /**
@@ -22,7 +22,7 @@ class Extensions extends Model
     const SYSTEM = 1;
     const TYPE_NAME = ['user','system'];
 
-    use UUIDAttribute,ToggleValue;
+    use Uuid,ToggleValue;
 
     protected $fillable = [
         'name',

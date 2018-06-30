@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Arikaim\Core\Db\UUIDAttribute;
+use Arikaim\Core\Db\Uuid;
 use Arikaim\Core\Db\ToggleValue;
 use Arikaim\Core\Db\Position;
 
@@ -19,25 +19,24 @@ use Arikaim\Core\Db\Position;
  */
 class Language extends Model  
 {
-    use UUIDAttribute,ToggleValue,Position;
+    use Uuid,
+        ToggleValue,
+        Position;
 
     protected $table = 'language';
+    
     protected $fillable = [
         'code',
         'title',
-        'position',
-        'uuid',
-        'default',
-        'status',
         'native_title',
         'code_3',
         'country_code'];
    
     public $timestamps = false;
     
-    public function getModel()
+    public function setCodeAttribute($value)
     {
-        return $this;
+        $this->attributes['code'] = strtolower($value);
     }
 
     public function has($code, $active = null)
@@ -55,9 +54,7 @@ class Language extends Model
         if ($this->has($language['code']) == true) {
             return false;
         }
-        $this->fill($language);
-        $this->setPosition();
-        return $this->save();    
+        return $this->create($language);    
     }
 
     public function getDefaultLanguage()

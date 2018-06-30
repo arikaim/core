@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Arikaim\Core\Db\UUIDAttribute;
+use Arikaim\Core\Db\Uuid;
 use Arikaim\Core\Utils\Number;
 
 /**
@@ -18,7 +18,7 @@ use Arikaim\Core\Utils\Number;
  */
 class EventSubscribers extends Model  
 {
-    use UUIDAttribute;
+    use Uuid;
 
     const DISABLED = 0;
     const ACTIVE = 1;
@@ -28,7 +28,6 @@ class EventSubscribers extends Model
         'handler_class',
         'handler_method',
         'extension_name',
-        'uuid',
         'priority'];
         
     public $timestamps = false;
@@ -99,8 +98,7 @@ class EventSubscribers extends Model
         if (empty($subscriber['priority']) == true) {
             $subscriber['priority'] = 0;
         }
-        $this->fill($subscriber);
-        return $this->save();       
+        return $this->create($subscriber);       
     }   
 
     public function disableExtensionSubscribers($extension_name) 

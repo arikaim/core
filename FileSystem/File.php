@@ -20,7 +20,9 @@ class File
 {
     public static function readJSONFile($file_name, $vars = null, $to_array = true) 
     {    
-        if (File::exists($file_name) == false) return false;
+        if (File::exists($file_name) == false) {
+            return false;
+        }
         $json_text = Self::read($file_name);   
        
         if (is_array($vars) == true) {
@@ -112,7 +114,12 @@ class File
 
     public static function getFilesPath()
     {
-        return ARIKAIM_ROOT_PATH . join(DIRECTORY_SEPARATOR,array(ARIKAIM_BASE_PATH,"arikaim","files"));
+        return ARIKAIM_PATH . DIRECTORY_SEPARATOR . "files"; 
+    }
+
+    public static function getStoragePath()
+    {
+        return Self::getFilesPath() . DIRECTORY_SEPARATOR . "storage";
     }
 
     public static function getTempPath()
