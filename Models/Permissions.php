@@ -12,6 +12,7 @@ namespace Arikaim\Core\Models;
 use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Uuid;
+use Arikaim\Core\Db\Find;
 use Arikaim\Core\Db\Model as DbModel;
 
 /**
@@ -19,7 +20,8 @@ use Arikaim\Core\Db\Model as DbModel;
  */
 class Permissions extends Model  
 {
-    use Uuid;
+    use Uuid,
+        Find;
 
     const USER  = 1;
     const GROUP = 2;
@@ -51,6 +53,7 @@ class Permissions extends Model
         if (is_object($permission) == true) {
             return $permission;
         }
+        
         $groups = DbModel::UserGroups();
         $group_list = $groups->getUserGroups($id);
         foreach ($group_list as $group) {

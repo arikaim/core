@@ -23,6 +23,10 @@ class Module implements ModuleInterface
     {
     }
 
+    public function boot()
+    {        
+    }
+    
     public function getServiceName()
     {
         return $this->service_name;

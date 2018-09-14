@@ -29,10 +29,10 @@ class LogsSchema extends Schema
            
             // columns
             $table->bigIncrements('id')->nullable(false);
-            $table->integer('level')->nullable(false);
+            $table->integer('level')->nullable(true);
             $table->string('message')->nullable(false)->default("");
             $table->string('channel')->nullable(false)->default("");            
-            $table->string('url')->nullable(false);
+            $table->string('url')->nullable(true);
             $table->string('method',40)->nullable(false)->default("");   
             $table->string('user_agent')->nullable(false)->default("");
             $table->string('ip_address',50)->nullable(false)->default("");

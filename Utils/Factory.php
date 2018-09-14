@@ -35,6 +35,11 @@ class Factory
         return null;
     }
 
+    public static function getConstant($class_name,$name)
+    {
+        return constant($class_name . "::" . $name);
+    }
+
     public static function createModule($module_name, $class_name, $args = null)
     {
         $full_class_name = Self::getModuleClass($module_name,$class_name);
@@ -139,6 +144,11 @@ class Factory
     public static function getExtensionClassName($extension_name, $base_class_name)
     {
         return Self::getExtensionNamespace($extension_name) . "\\" . $base_class_name;
+    }
+
+    public static function getExtensionConsoleClassName($extension_name, $base_class_name)
+    {
+        return Self::getExtensionNamespace($extension_name) . "\\Console\\$base_class_name";
     }
 
     public static function getExtensionsNamespace()

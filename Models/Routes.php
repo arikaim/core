@@ -11,24 +11,28 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Access\Access;
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\Db\Find;
+use Arikaim\Core\Db\Status;
+use Arikaim\Core\Db\Uuid;
 
 /**
  * Routes database model
  */
 class Routes extends Model  
 {
-    // route types
+    use Uuid,
+        Find,
+        Status;
+
+    /**
+     *  Route types
+     */
     const TYPE_UNKNOW   = 0;
     const TYPE_PAGE     = 1;
     const TYPE_API      = 2;
-
-    // status
-    const DISABLED  = 0;
-    const ACTIVE    = 1;
-    
+  
     protected $fillable = [
         'name',
         'pattern',
@@ -36,9 +40,9 @@ class Routes extends Model
         'handler_class',
         'handler_method',
         'extension_name',
-        'uuid',
         'auth',
         'type',
+        'status',
         'template_name',
         'required_permission',
         'permission_type',
@@ -50,7 +54,7 @@ class Routes extends Model
     {  
         $routes = $this->where('extension_name','=',$extension_name)->get();
         foreach ($routes as $route) {
-            $route->status = 0;
+            $route->status = Self::DISABLED();
             // fire event        
             Arikaim::event()->trigger('core.route.disable',$route->toArrray());
             $route->update();
@@ -59,17 +63,15 @@ class Routes extends Model
 
     public function enableExtensionRoutes($extension_name) 
     {  
-        $routes = $this->where('extension_name','=',$extension_name)->get();
-        foreach ($routes as $route) {
-            $route->status = 1;
-            $route->update();
-        }
+        $routes = $this->where('extension_name','=',$extension_name);
+        $result = $routes->update(['status' => Self::ACTIVE()]);
+        return $result;
     }
 
-    public function getRoutes($status = Self::ACTIVE, $extension_name = null)
+    public function getRoutes($status = 1, $extension_name = null)
     {
         if (Schema::hasTable($this) == false) {
-            return null;
+            return [];
         } 
         $model = $this;
         if ($status != null) {
@@ -82,7 +84,7 @@ class Routes extends Model
         if (is_object($model) == true) {
             return $model->toArray();
         }
-        return null;
+        return [];
     }
 
     public function deleteExtensionRoutes($extension_name)
@@ -91,7 +93,7 @@ class Routes extends Model
         if (is_object($model) == true) {
             return $model->delete();
         }
-        return false;
+        return true;
     }
 
     public function deleteTemplateRoutes($template_name)
@@ -100,23 +102,21 @@ class Routes extends Model
         if (is_object($model) == true) {
             return $model->delete();
         }
-        return false;
+        return true;
     }
 
     public function deleteRoute($method, $pattern)
-    {
-        $result = true;
+    {       
         $model = $this->where('method','=',$method)->where('pattern','=',$pattern);
         if (is_object($model) == true) {
-            $result = $model->delete();
+            return $model->delete();
         }
-        return $result;
+        return true;
     }
 
     public function getRoute($method, $pattern)
     {
-        $model = $this->where('method','=',$method);
-        $model = $model->where('pattern','=',$pattern)->first();
+        $model = $this->where('method','=',$method)->where('pattern','=',$pattern)->first();
         if (is_object($model) == false) {
             return false;
         }
@@ -153,8 +153,6 @@ class Routes extends Model
     public function addRoute(array $route)
     {
         $result = false;
-        $route['uuid'] = Utils::getUUID();
-
         if ($this->hasRoute($route['method'],$route['pattern']) == false) {
             $result = Routes::create($route); 
         }       
@@ -207,15 +205,11 @@ class Routes extends Model
 
     public function setPermission($id, $permission_name, array $permission)
     {
-        if (is_integer($id) == true) {
-            $model = $this->where('id','=',$id)->first();
-        }
-        if (is_string($id) == true) {
-            $model = $this->where('uuid','=',$id)->first();
-        }
+        $model = $this->findById($id);
         if (is_object($model) == false) {
             return false;
         }
+    
         $model->permission = $permission_name;
         $model->permission_type = json_encode($permission);
         return $model->update();

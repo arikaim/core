@@ -49,9 +49,10 @@ class Model
         return $sql;
     }
 
-    public static function getConstant($class_name,$name)
+    public static function getConstant($class_name, $constant_name, $extension_name = null)
     {
-        return constant(Factory::getModelClass($class_name) . "::" .$name);
+        $class_name = Self::getFullClassName($class_name,$extension_name);
+        return Factory::getConstant($class_name,$constant_name);
     }
 
     public static function __callStatic($name, $args)

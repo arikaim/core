@@ -10,6 +10,7 @@
 namespace Arikaim\Core\Models\Schema;
 
 use Arikaim\Core\Db\Schema;
+use Arikaim\Core\Db\Status;
 
 /**
  * EventSubscribers database table schema definition.
@@ -32,8 +33,8 @@ class EventSubscribersSchema extends Schema
             $table->string('name')->nullable(false);
             $table->string('handler_class')->nullable(false);
             $table->string('handler_method')->nullable(true);            
-            $table->string('extension_name')->nullable(false)->default('');
-            $table->integer('status')->nullable(false)->default(1);
+            $table->string('extension_name')->nullable(true);
+            $table->integer('status')->nullable(false)->default(Status::ACTIVE());
             $table->integer('priority')->nullable(false)->default(0);
             $table->string('uuid')->nullable(false);
             // indexes

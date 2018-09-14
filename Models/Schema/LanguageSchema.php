@@ -10,6 +10,7 @@
 namespace Arikaim\Core\Models\Schema;
 
 use Arikaim\Core\Db\Schema;
+use Arikaim\Core\Db\Status;
 
 /**
  * Language database table schema definition.
@@ -35,7 +36,7 @@ class LanguageSchema extends Schema
             $table->string('title')->nullable(false);
             $table->string('native_title')->nullable(true)->default('');
             $table->integer('position')->nullable(true);
-            $table->integer('status')->nullable(false)->default(1);
+            $table->integer('status')->nullable(false)->default(Status::ACTIVE());
             $table->integer('default')->nullable(false)->default(0);
             $table->string('uuid')->nullable(false);       
             // indexes

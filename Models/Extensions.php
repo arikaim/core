@@ -12,6 +12,10 @@ namespace Arikaim\Core\Models;
 use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\Uuid;
 use Arikaim\Core\Db\ToggleValue;
+use Arikaim\Core\Db\Position;
+use Arikaim\Core\Db\Status;
+use Arikaim\Core\Db\Find;
+
 
 /**
  * Extensions database model
@@ -22,7 +26,11 @@ class Extensions extends Model
     const SYSTEM = 1;
     const TYPE_NAME = ['user','system'];
 
-    use Uuid,ToggleValue;
+    use Uuid,
+        Find,
+        ToggleValue,
+        Position,
+        Status;
 
     protected $fillable = [
         'name',
@@ -31,18 +39,35 @@ class Extensions extends Model
         'short_description',
         'class',
         'type',
-        'uuid',
-        'version',
-        'status',
-        'admin_link_position',
-        'admin_link_title',
-        'admin_link_icon',
-        'admin_link_sub_title',
-        'admin_link_component',
+        'version',       
+        'admin_menu',
+        'console_commands',
         'license_key'];
     
     public $timestamps = false;
    
+    public function setAdminMenuAttribute($value)
+    {
+        $value = (is_array($value) == true)  ? json_encode($value) : '';         
+        $this->attributes['admin_menu'] = $value;
+    }
+
+    public function setConsoleCommandsAttribute($value)
+    {
+        $value = (is_array($value) == true)  ? json_encode($value) : '';         
+        $this->attributes['console_commands'] = $value;
+    }
+
+    public function getConsoleCommandsAttribute()
+    {
+        return json_decode($this->attributes['console_commands']);
+    }
+
+    public function getAdminMenuAttribute()
+    {
+        return json_decode($this->attributes['admin_menu']);
+    }
+
     public function isInstalled($extension_name)
     {
         $model = $this->where('name','=',$extension_name)->first();       
@@ -53,11 +78,6 @@ class Extensions extends Model
     {
         $model = $this->where('name','=',$extension_name)->first();       
         return (is_object($model) == false) ? 0 : $model->status;            
-    }
-
-    public function getConstant($constant_name)
-    {        
-        return constant("Self::$constant_name");
     }
 
     public function getTypeId($type_name)

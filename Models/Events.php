@@ -11,20 +11,17 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\Uuid;
-use Arikaim\Core\Utils\Number;
-
-use Arikaim\Core\Utils\Utils;
-
+use Arikaim\Core\Db\Status;
+use Arikaim\Core\Db\Find;
 
 /**
  * Events database model
  */
 class Events extends Model  
 {
-    use Uuid;
-
-    const DISABLED = 0;
-    const ACTIVE = 1;
+    use Uuid,
+        Status,
+        Find;
 
     protected $fillable = [
         'name',
@@ -113,7 +110,7 @@ class Events extends Model
         }
         $events = $this->get();
         foreach ($events as $event) {
-            $event->status = Number::getInteger($status);
+            $event->status = $status;
             $event->update();
         }
     }

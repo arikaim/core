@@ -10,6 +10,7 @@
 namespace Arikaim\Core\Models\Schema;
 
 use Arikaim\Core\Db\Schema;
+use Arikaim\Core\Db\Status;
 
 /**
  * Extensions database table schema definition.
@@ -32,18 +33,15 @@ class ExtensionsSchema extends Schema
             $table->string('name')->nullable(false);
             $table->string('alias')->nullable(true);            
             $table->string('title')->nullable(false)->default('');
-            $table->text('description')->nullable(true)->default('');
-            $table->string('short_description')->nullable(true)->default('');
+            $table->text('description')->nullable(true);
+            $table->string('short_description')->nullable(true);
             $table->string('version')->nullable(false);
-            $table->integer('status')->nullable(false)->default(1);
+            $table->integer('status')->nullable(false)->default(Status::ACTIVE());
             $table->string('class')->nullable(false);     
             $table->integer('type')->nullable(false)->default(0);
-            $table->integer('admin_link_position')->nullable(true);           
-            $table->string('admin_link_title')->nullable(false)->default('');
-            $table->string('admin_link_icon')->nullable(false)->default('');
-            $table->string('admin_link_sub_title')->nullable(false)->default('');
-            $table->string('admin_link_component')->nullable(false)->default('');
-            $table->text('admin_menu_items')->true(false);
+            $table->integer('position')->nullable(false)->default(0);
+            $table->text('admin_menu')->nullable(true);
+            $table->text('console_commands')->nullable(true);
             $table->string('uuid')->nullable(false);
             $table->string('license_key')->nullable(true);
             // unique indexes
@@ -53,8 +51,8 @@ class ExtensionsSchema extends Schema
             $table->unique('name');
             // indexes
             $table->index('status');
+            $table->index('position');
             $table->index('title');
-            $table->index('admin_link_position');
             $table->index('class');
             // storage engine
             $table->engine = 'InnoDB';

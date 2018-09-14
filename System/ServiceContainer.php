@@ -21,6 +21,8 @@ use Arikaim\Core\Db\Model;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Extension\ExtensionsManager;
+use Arikaim\Core\System\ApplicationError;
+use Arikaim\Core\System\ApplicationPHPError;
 
 /**
  * Create system services
@@ -85,7 +87,7 @@ class ServiceContainer
                 return $instance;
             };
             if ($module['bootable'] == true) {
-                $this->container->get($service_name);
+                $this->container->get($service_name)->boot();
             }
         }
     }
@@ -175,6 +177,14 @@ class ServiceContainer
         $this->container['jobs'] = function() {
             $queue = new \Arikaim\Core\Jobs\JobsQueueManager();
             return $queue;
+        };
+        // Application error handler
+        $this->container['errorHandler'] = function($container) {
+            return new ApplicationError($container->get('settings')['displayErrorDetails']);            
+        };
+        // Application Throwable error handler
+        $this->container['phpErrorHandler'] = function($container) {
+            return new ApplicationPHPError($container->get('settings')['displayErrorDetails']);            
         };
     }
 

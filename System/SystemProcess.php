@@ -10,24 +10,13 @@
 namespace Arikaim\Core\System;
 
 use Symfony\Component\Process\Process;
+use Arikaim\Core\Arikaim;
 
 /**
  * System Process
  */
 class SystemProcess 
 {
-    public static function runComposerCommand($command)
-    {        
-        $process = Self::create('composer ' . $command);
-        try {
-            $process->mustRun();
-            $output = $process->getOutput();
-        } catch(\Exception $e) {
-            return "Errror:" . $e->getMessage();
-        }
-        return $output;
-    }
-
     public static function create($command, $cwd = null, array $env = null, $input = null, $timeout = 60, array $options = array())
     {
         return new Process($command,$cwd,$env,$input,$timeout,$options);

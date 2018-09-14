@@ -17,23 +17,16 @@ use Arikaim\Core\Utils\Utils;
 trait Find 
 {    
     public function findById($id)
-    {
-        if ($id == null || empty($id) == true) {
-            return false;
-        }
+    {        
         if (is_numeric($id) == true) {
-            $model = parent::where('id','=',$id)->first();
-        } elseif (is_string($id) == true) {
-            $model = parent::where('uuid','=',$id)->first();
+            return $this->findByColumn($id,'id');
         }
-        return (is_object($model) == false) ? false : $model;
+        return $this->findByColumn($id,'uuid'); 
     }
     
     public function findByColumn($value, $column = "title")
     {
-        if ($value == null || empty($value) == true) {
-            return false;
-        }
+        $value = trim($value);       
         $model = parent::where($column,'=',$value)->first();
         return (is_object($model) == false) ? false : $model;
     }

@@ -65,6 +65,7 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFunction('dbQueryPage', [$template_function, 'dbQueryPage']),
             new \Twig_SimpleFunction('dbQueryRow', [$template_function, 'dbQueryRow']),
             new \Twig_SimpleFunction('createModel', [$template_function, 'createModel']),
+            new \Twig_SimpleFunction('getConstant', ["\\Arikaim\\Core\\Db\\Model", 'getConstant']),
             new \Twig_SimpleFunction('createExtensionModel', [$template_function, 'createExtensionModel']),
             new \Twig_SimpleFunction('hasExtension', [$template_function, 'hasExtension']),
             new \Twig_SimpleFunction('condition', ["\\Arikaim\\Core\\Db\\Model", 'createCondition']),

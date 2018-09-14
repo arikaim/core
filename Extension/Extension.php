@@ -22,6 +22,8 @@ use Arikaim\Core\Models\Routes;
 abstract class Extension implements ExtensionInterface
 {
 
+    private $console_classes = [];
+
     abstract public function install();
  
     /**
@@ -36,6 +38,33 @@ abstract class Extension implements ExtensionInterface
         $namespace = $refl->getNamespaceName();
         $name = last(explode("\\",$namespace));
         return strtolower($name);
+    }
+
+    /**
+     * Return console commands classes
+     *
+     * @return array
+     */
+    public function getConsoleCommands()
+    {
+        return $this->console_classes;
+    }
+
+    /**
+     * Register console command class
+     *
+     * @param string $class_name
+     * @return bool
+     */
+    public function registerConsoleCommand($class_name)
+    {
+        $class_name = Factory::getExtensionConsoleClassName($this->getName(),getClassBaseName($class_name));
+        if (class_exists($class_name) == false) {
+            return false;
+        }
+        array_push($this->console_classes,$class_name);
+        $console_classes = array_unique($this->console_classes);
+        return true;
     }
 
     /**

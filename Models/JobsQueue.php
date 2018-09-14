@@ -12,6 +12,8 @@ namespace Arikaim\Core\Models;
 use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\DateTimeAttribute;
 use Arikaim\Core\Db\Uuid;
+use Arikaim\Core\Db\Find;
+use Arikaim\Core\Db\Status;
 
 /**
  * JobsQueue database model
@@ -19,9 +21,12 @@ use Arikaim\Core\Db\Uuid;
 class JobsQueue extends Model  
 {
     use Uuid,
+        Find,
+        Status,
         DateTimeAttribute;
 
     protected $table = "jobs_queue";
+    
     protected $fillable = [
         'name',
         'priority',

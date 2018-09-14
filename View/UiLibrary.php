@@ -60,14 +60,6 @@ class UiLibrary
         return ARIKAIM_VIEW_URL . '/library';
     }
 
-    public function install($library_name)
-    {
-    }
-
-    public function download($library_name)
-    {
-    }
-
     public function scan()
     {
         $path = Self::getLibraryRootPath();

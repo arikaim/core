@@ -11,13 +11,15 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\Uuid;
+use Arikaim\Core\Db\DateTimeAttribute;
 
 /**
  * User groups details database model
  */
 class UserGroupsDetails extends Model  
 {
-    use Uuid;
+    use Uuid,
+        DateTimeAttribute;
 
     protected $fillable = [        
         'user_id',

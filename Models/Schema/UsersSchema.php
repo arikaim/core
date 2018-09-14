@@ -10,6 +10,7 @@
 namespace Arikaim\Core\Models\Schema;
 
 use Arikaim\Core\Db\Schema;
+use Arikaim\Core\Db\Status;
 
 /**
  * Users database table schema definition.
@@ -34,7 +35,7 @@ class UsersSchema extends Schema
             $table->string('password')->nullable(false);           
             $table->string('api_key')->nullable(true);
             $table->string('api_secret')->nullable(true);
-            $table->integer('status')->nullable(false)->default(1);
+            $table->integer('status')->nullable(false)->default(Status::ACTIVE());
             $table->string('uuid')->nullable(false);
             $table->string('access_key')->nullable(true);
             $table->integer('access_key_expire')->nullable(true);

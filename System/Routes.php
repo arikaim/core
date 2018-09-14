@@ -13,6 +13,7 @@ use Arikaim\Core\Middleware\SessionAuthentication;
 use Arikaim\Core\Middleware\JwtAuthentication;
 use Arikaim\Core\Controlers\Controler;
 use Arikaim\Core\Db\Model;
+use Arikaim\Core\Db\Status;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Arikaim;
 
@@ -23,19 +24,17 @@ class Routes
         if (Arikaim::errors()->hasError() == true) {
             return $app;
         }
-        $routes = Model::Routes()->getRoutes(Model::getConstant('Routes','ACTIVE'));      
-        if (is_array($routes) == true) {
-            foreach($routes as $item) {
-                $methods = explode(',',$item['method']);
-                $handler = $item['handler_class'] . ":" . $item['handler_method'];
-                $middleware = Factory::createAuthMiddleware($item['auth']);                
-                $route = $app->map($methods,$item['pattern'],$handler);
-            
-                if ($middleware != null) {
-                    $route->add($middleware);
-                }
+        $routes = Model::Routes()->getRoutes(Status::ACTIVE());           
+        foreach($routes as $item) {
+            $methods = explode(',',$item['method']);
+            $handler = $item['handler_class'] . ":" . $item['handler_method'];
+            $middleware = Factory::createAuthMiddleware($item['auth']);                
+            $route = $app->map($methods,$item['pattern'],$handler);
+        
+            if ($middleware != null) {
+                $route->add($middleware);
             }
-        }
+        }       
         return $app;
     }
 

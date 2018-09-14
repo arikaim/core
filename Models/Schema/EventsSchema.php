@@ -10,6 +10,7 @@
 namespace Arikaim\Core\Models\Schema;
 
 use Arikaim\Core\Db\Schema;
+use Arikaim\Core\Db\Status;
 
 /**
  * Events database table schema definition.
@@ -33,7 +34,7 @@ class EventsSchema extends Schema
             $table->string('title')->nullable(true);
             $table->text('description')->nullable(true);
             $table->string('extension_name')->nullable(true);
-            $table->integer('status')->nullable(false)->default(1);
+            $table->integer('status')->nullable(false)->default(Status::ACTIVE());
             $table->string('uuid')->nullable(false);
             // indexes
             $table->unique('uuid');

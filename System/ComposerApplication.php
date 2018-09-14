@@ -10,107 +10,71 @@
 namespace Arikaim\Core\System;
 
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Utils\Curl;
+use Arikaim\Core\System\SystemProcess;
 
-use Composer\Composer;
-use Composer\Factory;
-use Composer\Console\Application;
-use Composer\IO\NullIO;
-use Composer\Repository\ComposerRepository;
-use Composer\Repository\PlatformRepository;
-use Composer\Repository\CompositeRepository;
-use Composer\Repository\RepositoryInterface;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
-
-class ComposerApplication extends Application
+class ComposerApplication
 {   
     public function __construct() 
     {
-        parent::__construct();
-        $base_path = $this->getComposerBinPath();
-        putenv('COMPOSER_HOME=' . $base_path);
-        $config_file = $this->getComposerRootPath() . DIRECTORY_SEPARATOR . "composer.json";
-        putenv('COMPOSER=' . $config_file);
-       
-        $composer = Factory::create(new NullIO(),$config_file,$this->getComposerRootPath());
-        $this->setComposer($composer);
+
     }
 
-    public function setComposer($composer)
+    public static function require($package_name,$async = false, $real_time_output = false)
     {
-        $this->composer = $composer;
+        return Self::runCommand("require $package_name",$async,$real_time_output); 
     }
-
-    public function updatePackage($name, $options = [])
+    
+    public static function hasPackage($package_name)
     {
-        return $this->runCommand('update', [$name] + $options);
+    
     }
 
-    public function updateAllPackages($options = []){
-        return $this->runCommand('update', $options);
-    }
-
-    public function searchPackage($search)
+    public static function show($package_name,$async = false, $real_time_output = false)
     {
-        $composer = $this->getComposer(true, false);
-        $platform_repo = new PlatformRepository();
-        $local_repo = $composer->getRepositoryManager()->getLocalRepository();
-        $installed_repo = new CompositeRepository(array($local_repo, $platform_repo));
-
-        $repos = new CompositeRepository(array_merge(array($installed_repo), $composer->getRepositoryManager()->getRepositories()));
-        $flags = RepositoryInterface::SEARCH_FULLTEXT;
-        $results = $repos->search($search, $flags);
-        return $results;
+        return Self::runCommand("show $package_name",$async,$real_time_output); 
     }
 
-    public function findPackage($name, $version = null)
+    public static function remove($package_name,$async = false, $real_time_output = false)
     {
-        $repositoryManager = $this->getComposer()->getRepositoryManager();
-        $package = $repositoryManager->findPackage($name, $version);
-        return $package;
+        return Self::runCommand("remove $package_name --no-dev",$async,$real_time_output); 
     }
 
-    public function executeCommand($cmd = 'update')
+    public static function updatePackage($package_name, $async = false, $real_time_output = false)
     {
-        $base_path = $this->getComposerBinPath();
-        putenv('COMPOSER_HOME=' . $base_path);
+        return Self::runCommand("update $package_name --no-dev",$async,$real_time_output);
+    }
 
-        // call `composer install` command programmatically
-        $input = new ArrayInput(array('command' => $cmd));
-        $application = new Application();
-        $application->setAutoExit(false); 
-        $output = new BufferedOutput();
-        $application->run($input,$output);
+    public static function update($async = false, $real_time_output = false)
+    {
+        return Self::runCommand('update --no-dev',$real_time_output);
+    }
+
+    public static function runCommand($command, $async = false, $real_time_output = false)
+    {
+        $command = "php " . Self::getComposerPath() . 'composer.phar ' . $command;
+        $env = ['COMPOSER_HOME' => Self::getComposerPath(),
+                'COMPOSER_CACHE_DIR' => '/dev/null'];
+        $process = SystemProcess::create($command,null,$env);
+        try {
+            if ($async == true) {
+                $process->start();
+            } else {
+                if ($real_time_output == true) {
+                    $process->run(function ($type, $buffer) {                       
+                        echo $buffer;                        
+                    });
+                }
+                $process->run();
+            }
+            $output = $process->getOutput();
+        } catch(\Exception $e) {
+            return false;
+        }
         return $output;
     }
 
-    public function runCommand($command, $params = [])
+    public static function getComposerPath()
     {
-        $parameters = array_merge(['command' => $command],$params);            
-
-        $input = new ArrayInput($parameters);
-        $output = new BufferedOutput();
-        try {
-            $this->run($input, $output);
-        }catch (\Exception $c){
-            $output->write($c->getMessage());
-        }
-        return $output->fetch();
-    }
-
-    public function getComposerRootPath()
-    {
-        return ARIKAIM_ROOT_PATH . ARIKAIM_BASE_PATH;
-    }
-
-    public function getComposerBinPath()
-    {
-        return $this->getComposerRootPath() . '/vendor/bin/composer';
-    }
-
-    public function getLocalPackages()
-    {
-        return $this->getComposer()->getRepositoryManager()->getLocalRepository()->getCanonicalPackages();
+        return Arikaim::getBinPath() . DIRECTORY_SEPARATOR;
     }
 }

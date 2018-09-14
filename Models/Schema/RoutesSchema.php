@@ -10,6 +10,7 @@
 namespace Arikaim\Core\Models\Schema;
 
 use Arikaim\Core\Db\Schema;
+use Arikaim\Core\Db\Status;
 
 /**
  * Routes database table schema definition.
@@ -37,7 +38,7 @@ class RoutesSchema extends Schema
             $table->string('extension_name')->nullable(false);
             $table->string('template_name')->nullable(false)->default('');
             $table->string('template_page')->nullable(false)->default('');
-            $table->integer('status')->nullable(false)->default(1);
+            $table->integer('status')->nullable(false)->default(Status::ACTIVE());
             $table->integer('auth')->nullable(false)->default(0);
             $table->string('permission')->nullable(true);
             $table->string('permission_type')->nullable(true);

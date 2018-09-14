@@ -11,9 +11,10 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Db\Model as DbModel;
+use Arikaim\Core\Models\Permissions;
 use Arikaim\Core\Db\Uuid;
 use Arikaim\Core\Db\Find;
+use Arikaim\Core\Db\Status;
 use Arikaim\Core\Db\DateTimeAttribute;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Db\Schema;
@@ -27,9 +28,8 @@ class Users extends Model
 {
     use Uuid,
         Find,
+        Status,
         DateTimeAttribute;
-
-    const ACTIVE_STATUS = 1;
 
     protected $fillable = [
         'user_name',
@@ -56,7 +56,7 @@ class Users extends Model
     {
         $user = $this->where('api_key','=',$api_key);
         $user = $user->where('api_secret','=',$api_secret);
-        $user = $user->where('status','=',Self::ACTIVE_STATUS)->first();
+        $user = $user->where('status','=',Self::ACTIVE())->first();
         if (is_object($user) == false) {
             return false;
         }
@@ -94,7 +94,7 @@ class Users extends Model
     {
         $user = $this->where('user_name','=',$user_name);
         $user = $user->orWhere('email','=',$user_name);
-        $user = $user->where('status','=',Self::ACTIVE_STATUS)->first();
+        $user = $user->where('status','=',Self::ACTIVE())->first();
 
         if (is_object($user) == false) {
             return false;
@@ -126,7 +126,7 @@ class Users extends Model
         if (Schema::hasTable($this) == false) {
             return false;
         }
-        $permissions = DbModel::Permissions();
+        $permissions = new Permissions();
         if (Schema::hasTable($permissions) == false) {
             return false;
         }

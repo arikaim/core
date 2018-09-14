@@ -274,11 +274,6 @@ class System
         return realpath(dirname(__FILE__));
     }
     
-    public static function getStoreUrl()
-    {
-        return "http://store.arikaim.com/";
-    }
-
     public static function getConfig($variable_name)
     {
         $allowed = ['cors','debug','debugTrace'];
@@ -286,5 +281,10 @@ class System
             return Arikaim::config("settings/$variable_name");
         }
         return null;
+    }
+
+    public static function getCorePackageName()
+    {
+        return "arikaim/core";
     }
 }

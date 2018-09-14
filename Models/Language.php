@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\Uuid;
 use Arikaim\Core\Db\ToggleValue;
 use Arikaim\Core\Db\Position;
+use Arikaim\Core\Db\Find;
+use Arikaim\Core\Db\Status;
 
 /**
  * Language database model
@@ -20,6 +22,8 @@ use Arikaim\Core\Db\Position;
 class Language extends Model  
 {
     use Uuid,
+        Find,
+        Status,
         ToggleValue,
         Position;
 
@@ -43,7 +47,7 @@ class Language extends Model
     {
         $language = $this->where('code','=',$code);
         if ($active == true) {
-            $language = $language->where('status','=',1);
+            $language = $language->where('status','=',Self::ACTIVE());
         }
         $language = $language->first();
         return (is_object($language) == true) ? true : false;           

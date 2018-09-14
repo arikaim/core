@@ -13,13 +13,15 @@ use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Utils\Arrays;
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Db\Model as DbModel;
+use Arikaim\Core\Db\Find;
 
 /**
  * Options database model
  */
 class Options extends Model  
 {    
+    use Find;
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -34,7 +36,9 @@ class Options extends Model
     {
         try {
             $model = $this->where('key','=',$key)->first();
-            if (is_object($model) == false) return null;
+            if (is_object($model) == false) {
+                return null;
+            }
             return $model->value;                        
         } catch(\Exception $e) {
             return null;
@@ -58,8 +62,7 @@ class Options extends Model
         $option = $this->hasOption($key);
 
         if ($option == false) {
-            $option = DbModel::Options()->fill($data);
-            $result = $option->save();
+            $result = $this->create($data);
         } else {
             $result = $option->update($data);
         }
@@ -70,8 +73,7 @@ class Options extends Model
     public function hasOption($key)
     {
         try {
-            $model = $this->where('key','=',$key)->first();
-            return (empty($model) == false) ? $model : false;               
+            return $this->findByColumn($key,'key');          
         } catch(\Exception $e) {
             return false;
         }

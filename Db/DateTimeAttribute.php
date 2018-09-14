@@ -39,8 +39,5 @@ trait DateTimeAttribute
         if (isset($model->attributes[$name]) == false) {
             $model->attributes[$name] = DateTime::getCurrentTime();
         }
-        if (empty($model->attributes[$name]) == true) {
-            $model->attributes[$name] = DateTime::getCurrentTime();   
-        }
     }
 }

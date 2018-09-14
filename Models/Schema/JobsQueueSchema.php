@@ -10,6 +10,7 @@
 namespace Arikaim\Core\Models\Schema;
 
 use Arikaim\Core\Db\Schema;
+use Arikaim\Core\Db\Status;
 
 /**
  * JobsQueue database table schema definition.
@@ -34,10 +35,10 @@ class JobsQueueSchema extends Schema
             $table->biginteger('execution_time')->nullable(true);
             $table->string('recuring_interval',50)->nullable(true);
             $table->biginteger('schedule_time')->nullable(true);
-            $table->string('extension_name')->nullable(false)->default('');
+            $table->string('extension_name')->nullable(true);
             $table->string('job_command')->nullable(true);
             $table->integer('priority')->nullable(false)->default(0);
-            $table->integer('status')->nullable(false)->default(1);
+            $table->integer('status')->nullable(false)->default(Status::ACTIVE());
             // date time
             $table->bigInteger('date_created')->nullable(true);
             $table->biginteger('date_executed')->nullable(true);

@@ -26,6 +26,23 @@ class ExtensionsManager
     {
     }
 
+    public function getConsoleCommands($extension_name)
+    {
+        $extension = Model::Extensions()->where('name','=',$extension_name)->first();
+        if (is_object($extension) == false) {
+            return [];
+        }
+        $result = [];
+        foreach ($extension->console_commands as $class) {
+            $command = Factory::createInstance($class);
+            $item['name'] = $command->getName();
+            $item['title'] = $command->getDescription();      
+            $item['help'] = "php cli " . $command->getName();         
+            array_push($result,$item);
+        }      
+        return $result;      
+    }
+
     public function getExtensions($status = null, $type = null)
     {       
         $status = ($status != 1) ? 0 : 1;
@@ -36,7 +53,7 @@ class ExtensionsManager
         if ($type !== null) {          
             $extensions = $extensions->where('type','=',$type);
         }
-        $extensions = $extensions->orderBy('admin_link_position'); 
+        $extensions = $extensions->orderBy('position'); 
         $extensions = $extensions->get();
         if (is_object($extensions) == false) {
             return [];
@@ -97,22 +114,23 @@ class ExtensionsManager
         Model::EventSubscribers()->deleteSubscribers($extension_name);
 
         // run install extension
-        $ext_obj->install();
+        $ext_obj->install(); 
+        // get console commands classes
+        $details['console_commands'] = $ext_obj->getConsoleCommands();
+
         // register events subscribers        
         $this->registerEventsSubscribers($extension_name);
 
         // add to extensions db table
-        $extension = Model::Extensions();       
-       
+        $extension = Model::Extensions();              
         $details['status'] = 1;
-        if ($extension->isInstalled($extension_name) == false) {
-            $extension->fill($details);
-            $extension->save();
+        if ($extension->isInstalled($extension_name) == false) {            
+            $extension->create($details);
         } else {
             $extension = $extension->where('name','=',$extension_name)->first();
-            $info['uuid'] = $extension->uuid;
             $extension->update($details);
         }
+
         // after install handler
         if ($update != true) {
             // trigger core.extension.after.install event
@@ -253,13 +271,8 @@ class ExtensionsManager
         $info['version'] = $properties->get('version','1.0');
         $info['title'] = $properties->get('title');  
         $info['icon'] = $properties->get('icon');         
-        // admin link info     
-        $info['admin_link_title'] = $properties->getByPath('admin/link/content');   
-        $info['admin_link_icon'] = $properties->getByPath('admin/link/icon');   
-        $info['admin_link_sub_title'] = $properties->getByPath('admin/link/sub_title');   
-        $info['admin_link_component'] = $properties->getByPath('admin/link/component');   
-        $info['admin_link_position'] = $properties->getByPath('admin/link/position');   
-
+        // admin menu info
+        $info['admin_menu'] = $properties->getByPath('menu');           
         return $info;
     }
 
@@ -291,7 +304,8 @@ class ExtensionsManager
         $details['components'] = $this->getExtensionTemplateComponents($extension_name); 
         $details['pages'] = $this->getExtensionTemplatePages($extension_name); 
         $details['macros'] = $this->getExtensionTemplateMacros($extension_name); 
-        
+        $details['console_commands'] = $this->getConsoleCommands($extension_name);
+
         $condition = Model::createCondition('extension_name','=',$extension_name);
         $details['jobs'] = Arikaim::jobs()->getStorage()->getRecuringJobs($condition,true);
 

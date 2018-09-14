@@ -11,8 +11,9 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Db\Uuid;
+use Arikaim\Core\Db\Find;
+use Arikaim\Core\Db\Tree;
 
 
 /**
@@ -20,7 +21,9 @@ use Arikaim\Core\Db\Uuid;
  */
 class PermissionsList extends Model  
 {
-    use Uuid;
+    use Uuid,
+        Find,
+        Tree;
 
     protected $fillable = [
         'parent_id',
@@ -30,6 +33,7 @@ class PermissionsList extends Model
         'extension_name'];
         
     public $timestamps = false;
+
     protected $table = 'permissions_list';
 
     public function add($name, $extension_name = null, $title = null, $description = null, $parent_id = 0)

@@ -282,6 +282,16 @@ class Arikaim
         return ARIKAIM_PATH . DIRECTORY_SEPARATOR . 'view';       
     }
 
+     /**
+     *  Return bin path.
+     *
+     * @return string
+    */
+    public static function getBinPath() 
+    {
+        return ARIKAIM_PATH . DIRECTORY_SEPARATOR . 'bin';       
+    }
+
     /**
      * Return view url.
      *
