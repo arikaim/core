@@ -81,7 +81,7 @@ class Db
      * @param string $database_name
      * @return boolean
      */
-    public function createDb($database_name) 
+    public function createDb($database_name, $charset = null, $collation = null) 
     {    
         if (Self::has($database_name) == true) {
             return true;
@@ -89,7 +89,10 @@ class Db
 
         $schema = $this->capsule->getConnection('schema');
         try {
-            $result = $schema->statement("CREATE DATABASE $database_name");
+            $charset = ($charset != null) ? "CHARACTER SET $charset" : "";
+            $collation = ($charset != null) ? "COLLATE $collation" : "";
+
+            $result = $schema->statement("CREATE DATABASE $database_name $charset $collation");
         } catch(\Exception $e) {
             Arikaim::errors()->addError('DB_DATABASE_ERROR');
             return false;
@@ -140,7 +143,7 @@ class Db
 
     private function initSchemaConnection($db_config)
     {
-        $db_config['database'] = 'information_schema';               
+        $db_config['database'] = 'information_schema';             
         $this->capsule->addConnection($db_config,"schema");
     }
 }

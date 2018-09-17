@@ -39,7 +39,7 @@ class Install
         Arikaim::errors()->clear();
     
         // create database if not exists  
-        $result = Arikaim::db()->createDb(Arikaim::config('db/database'));  
+        $result = Arikaim::db()->createDb(Arikaim::config('db/database'),Arikaim::config('db/charset'),Arikaim::config('db/collation'));  
         if ($result == false) {
             return false;
         }          
@@ -70,11 +70,11 @@ class Install
         // add date, time, number format items
         $this->initDefaultOptions();
 
-        //Install extensions      
-        $this->installExtensions();
-
         // install current template 
         $this->installTemplates();
+
+        //Install extensions      
+        $this->installExtensions();
 
         // trigger event core.install
         Arikaim::event()->trigger('core.install',Arikaim::errors()->getErrors());
@@ -119,8 +119,8 @@ class Install
                 $templates->install($template);
                 return true;
             }
-        }
-        return $templates->install("default");
+        }     
+        return false;
     }
 
     private function installExtensions()
