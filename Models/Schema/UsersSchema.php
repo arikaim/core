@@ -45,6 +45,8 @@ class UsersSchema extends Schema
             $table->bigInteger('date_login')->nullable(true);
             $table->dateTime('deleted_at')->nullable(true); 
             // indexes
+            $table->index('date_created');
+            $table->index('date_login');
             $table->unique('email');
             $table->unique('user_name');
             $table->unique('uuid'); 

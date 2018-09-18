@@ -192,11 +192,11 @@ class Users extends Model
         $info['api_key'] = Utils::getUUID();
         $info['api_secret'] = Utils::getRandomKey();
    
-        try {
+     //   try {
             return $this->create($info);
-        } catch(\Exception $e) {
-            return false;
-        }     
+      //  } catch(\Exception $e) {
+        //    return false;
+       // }     
     }
 
     public function changePassword($id, $password)

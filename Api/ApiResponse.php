@@ -82,11 +82,8 @@ class ApiResponse
      */
     public function setErrors(array $errors)
     {
-        if (is_array($errors) == true) {
-            $this->errors = $errors;
-            return true;
-        }
-        return false;
+        $this->errors = $errors;
+        return true;
     }
 
     /**

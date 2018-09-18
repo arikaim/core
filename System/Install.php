@@ -41,6 +41,7 @@ class Install
         // create database if not exists  
         $result = Arikaim::db()->createDb(Arikaim::config('db/database'),Arikaim::config('db/charset'),Arikaim::config('db/collation'));  
         if ($result == false) {
+            Arikaim::errors()->addError('Error create database  "' . Arikaim::config('db/database') . '"');
             return false;
         }          
         Arikaim::db()->initConnection(Arikaim::config('db'));     
@@ -142,6 +143,7 @@ class Install
     {
         $user = Model::Users();
         $admin_user = $user->getControlPanelUser();
+      
         if ($admin_user == false) {
             $admin_user = $user->createUser("admin","admin");       
             if (empty($admin_user->id) == true) {
@@ -217,11 +219,12 @@ class Install
     private function createDbTables()
     {                 
         $classes = $this->getSystemSchemaClasses();
-        $errors = 0;
+        $errors = 0;      
         foreach ($classes as $class_name) {            
             $installed = Schema::install($class_name);
             if ($installed == false) {
-                $errors++;
+                $errors++; 
+                Arikaim::errors()->addError('Error create database table "' . Schema::getTable($class_name) . '"');
             }
         }
         return ($errors == 0) ? true : false;         
@@ -237,7 +240,7 @@ class Install
         $errors = 0;      
         try {
             // check db
-            $errors += Arikaim::db()->has(Arikaim::config('db/database')) ? 0:1;
+            $errors += Arikaim::db()->has(Arikaim::config('db/database')) ? 0 : 1;
             if ($errors > 0) {
                 return false;
             }

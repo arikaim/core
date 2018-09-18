@@ -38,6 +38,7 @@ class PermissionsSchema extends Schema
             $table->integer('execute')->nullable(false)->default(0);
             $table->string('uuid')->nullable(false);
             // unique indexes
+            $table->index('name');
             $table->unique('uuid');
             $table->unique(array('name','user_id'));           
             $table->unique(array('name','group_id'));

@@ -46,6 +46,15 @@ abstract class Schema
         return $this->table_name;
     }
     
+    public static function getTable($class_name)
+    {
+        $instance = Self::createInstance($class_name);
+        if (is_object($instance) == false) {
+            return false;
+        }
+        return $instance->getTableName();
+    }
+
     /**
      * Create table
      *

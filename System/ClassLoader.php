@@ -107,10 +107,7 @@ class ClassLoader
     public function loadAlliases(array $items)
     {
         $errors = 0;
-        print_r($items);
         foreach ($items as $alias => $class_name) {   
-            echo "al:$alias cl:$class_name";
-
             if (class_exists($class_name) == true) {        
                 $errors += (class_alias($class_name,$alias) == true) ? 0 : 1;
             }

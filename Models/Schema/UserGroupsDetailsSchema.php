@@ -35,6 +35,8 @@ class UserGroupsDetailsSchema extends Schema
             $table->bigInteger('date_created')->nullable(true);
             $table->bigInteger('date_updated')->nullable(true);
             $table->bigInteger('date_expired')->nullable(true);
+            // indexes
+            $table->index('date_created');
             // unique indexes
             $table->unique(['user_id','group_id']);   
             // foreign keys

@@ -13,7 +13,7 @@ namespace Arikaim\Core\System\Store;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Api\ApiClient;
 
-abstract class ArikaimStoreClient 
+class ArikaimStoreClient 
 {
 
     protected $client;
@@ -23,25 +23,24 @@ abstract class ArikaimStoreClient
         $this->client = new ApiClient(Self::getStoreUrl());
     }
 
-    public function getResourceList($search, $page = 1)
+    
+    public static function getResourceListUrl($search, $page = 1)
     {
+        return "http://store.arikaim.com/api/files/list/$search/$page";
     }
 
-    public function downloadResource($uuid)
+    public static function downloadResourceUrl($file_uuid, $license_key = "")
     {
+        return "http://store.arikaim.com/api/file/dowload/$file_uuid/$license_key";
     }
 
-    public function getResourceVersion($uuid)
+    public static function getResourceVersionUrl($file_uuid, $license_key = "")
     {
+        return "http://store.arikaim.com/api/file/version/$file_uuid/$license_key";
     }
 
     public static function getStoreUrl()
     {
         return "http://store.arikaim.com/";
     }
-
-    public abstract function getResourceListUrl(); 
-    public abstract function getDownlaodResourceUrl(); 
-    public abstract function getResourceVersionUrl(); 
-    public abstract function getresourceDownloadTargetPath(); 
 }

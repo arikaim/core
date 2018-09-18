@@ -27,11 +27,11 @@ class Errors extends Collection
     public function addError($error_code,$params = [])
     {       
         $message = $this->getError($error_code,$params);  
-        if ($message != false) {
-            array_push($this->errors,$message);
-            return true;
-        }
-        return false;
+        if (empty($message) == false || $message == null) {
+           $message = $error_code;
+        } 
+        array_push($this->errors,$message);
+        return true;
     }
     
     public function count()
@@ -53,7 +53,7 @@ class Errors extends Collection
     {
         $error = $this->get($error_code,false);
         if ($error == false) {
-            return false;
+            return "";
         }
         $error_text = $this->prefix . $error['message'];
         return Utils::parseProperties($error_text,$params);
@@ -114,8 +114,8 @@ class Errors extends Collection
 
     private function loadErrorsConfig() 
     {
-        $list = File::readConfigFile('errors.json');  
+        $list = File::readConfigFile('errors.json');         
         $this->data = $list['errors'];
-        $this->prefix = $list['prefix'];       
+        $this->prefix = $list['prefix'];   
     }
 }

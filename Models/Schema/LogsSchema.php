@@ -45,7 +45,7 @@ class LogsSchema extends Schema
             $table->index('method');
             $table->index('level');
             $table->index('ip_address');    
-            $table->index('created');             
+            $table->index('date_created');             
             // storage engine
             $table->engine = 'InnoDB';   
 

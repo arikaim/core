@@ -130,7 +130,6 @@ class Arikaim
             define('ARIKAIM_ROOT_PATH',Self::getRootPath());
         }
         define('ARIKAIM_BASE_PATH',Self::getBasePath());
-       
         define('ARIKAIM_PATH',Self::getArikaimPath());      
         define('ARIKAIM_BASE_URL',Self::getBaseUrl());
         define('ARIKAIM_VIEW_PATH',Self::getViewPath());
