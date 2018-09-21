@@ -43,6 +43,11 @@ class Users extends Model
 
     public $timestamps = false;
 
+    public function permissions()
+    {
+        return $this->belongsTo(Permissions::class,'user_id');
+    }
+
     public function userNameExist($user_name) 
     {
         $model = $this->where("user_name","=",$user_name)->first();

@@ -41,12 +41,12 @@ class PermissionsList extends Model
         if ($this->has($name) == true) {
             return false;
         }
-        $this->name = $name;
-        $this->extension_name = $extension_name;
-        $this->title = $title;
-        $this->parent_id = $parent_id;
-        $this->description = $description;        
-        return $this->create();
+        $info['name'] = $name;
+        $info['extension_name'] = $extension_name;
+        $info['title'] = $title;
+        $info['parent_id'] = $parent_id;
+        $info['description'] = $description;        
+        return $this->create($info);
     }
 
     public function has($name)
