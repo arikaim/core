@@ -173,9 +173,9 @@ class TemplateFunction
         $model = $model->get();
 
         if (is_object($model) == true) {
-            return $model->toArray(); 
+            return $model;
         }
-        return [];
+        return false;
     }
 
     public function dbQueryPage($model_class_name, $query_builder = null, $extension_name = null, $debug = false)
@@ -186,10 +186,11 @@ class TemplateFunction
     public function dbQueryRow($model_class_name, $query_builder = null, $extension_name = null, $debug = false)
     {
         $result = $this->dbQuery($model_class_name,$query_builder,$extension_name,false,$debug);
-        if (isset($result[0]) == true) {
-            return $result[0];
-        }
-        return [];
+        return result;
+        //if (isset($result[0]) == true) {
+        //    return $result[0];
+       // }
+        //return [];
     }
 
     public function createModel($class_name, $method_name = null, $args = null)

@@ -127,11 +127,15 @@ class ServiceContainer
         $this->container['view'] = function () {   
             $paths = [ExtensionsManager::getExtensionsPath(),Template::getTemplatesPath()];    
             $cache = false;
+            $debug = false;
             if (isset($this->container->get('config')['settings']['cache']) == true) {
                 $cache = $this->container->get('config')['settings']['cache'];
             }
+            if (isset($this->container->get('config')['settings']['debug']) == true) {
+                $debug = $this->container->get('config')['settings']['debug'];
+            }
 
-            $view = new \Arikaim\Core\View\View($paths,['cache' => $cache]);
+            $view = new \Arikaim\Core\View\View($paths,['cache' => $cache,'debug' => $debug]);
             // add template extensions
             $view->addExtension(new \Arikaim\Core\View\TemplateExtension());
             return $view;

@@ -45,7 +45,7 @@ class Users extends Model
 
     public function permissions()
     {
-        return $this->belongsTo(Permissions::class,'user_id');
+        return $this->hasMany(Permissions::class,'user_id','id');     
     }
 
     public function userNameExist($user_name) 

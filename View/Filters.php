@@ -67,6 +67,11 @@ class Filters
         return (is_string($array) == true) ? "$array" : print_r((array) $array,true);          
     }
 
+    public function dump($var)
+    {
+        return var_dump($var);
+    }
+    
     public function is($value, $equal, $return_value)
     {
         if (is_array($equal) == true) {

@@ -118,6 +118,7 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFilter('startTag', [$filters, 'htmlStartTag'],['is_safe' => ['html']]),
             new \Twig_SimpleFilter('getAttr', [$filters, 'getAttributes'],['is_safe' => ['html']]),
             new \Twig_SimpleFilter('showArray', [$filters, 'showArray'],['is_safe' => ['html']]),
+            new \Twig_SimpleFilter('dump', [$filters, 'dump'],['is_safe' => ['html']]),
             new \Twig_SimpleFilter('ifthen', [$filters, 'is']),
             new \Twig_SimpleFilter('defaultValue', [$filters, 'getDefaultValue']),
             new \Twig_SimpleFilter('jsonDecode', ["\\Arikaim\\Core\\Utils\\Utils", 'jsonDecode']),

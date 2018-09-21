@@ -24,7 +24,7 @@ class View
 
     public function __construct($path, $settings = [])
     {
-        $this->loader = $this->createLoader($path);
+        $this->loader = $this->createLoader($path);       
         $this->environment = new \Twig_Environment($this->loader,$settings);
         $this->components = new Collection();
         $this->component = new HtmlComponent();

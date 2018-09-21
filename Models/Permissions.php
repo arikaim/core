@@ -14,6 +14,8 @@ use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Uuid;
 use Arikaim\Core\Db\Find;
 use Arikaim\Core\Db\Model as DbModel;
+use Arikaim\Core\Models\Users;
+use Arikaim\Core\Models\UserGroups;
 
 /**
  * Permissions database model
@@ -37,6 +39,16 @@ class Permissions extends Model
         
     public $timestamps = false;
     
+    public function user()
+    {
+        return $this->belongsTo(Users::class);
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(UserGroups::class);
+    }
+
     public function setUserPermission($id, $name, $permissions) 
     {
         return $this->setPermission($id,$name,$permissions,Self::USER);
