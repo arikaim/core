@@ -40,13 +40,15 @@ class ModulesManager
             if ($file->isDot() == true) continue;
             if ($file->isDir() == true) {
                 $path = $file->getFilename();
-                $module = $this->getModuleDetails($path,false);
-                array_push($modules,$module);
+                $module = $this->getModuleDetails($path,true);
+                if (is_array($module) == true) {
+                    array_push($modules,$module);
+                }
             }
         }   
         // save to options
         Arikaim::options()->set('core.modules',$modules,true);
-        return count($modules);
+        return $modules;
     }
 
     public function getModuleDetails($path, $full_details = true)
@@ -61,12 +63,15 @@ class ModulesManager
         if (is_object($service) == true) {
             $module['service_name'] = $properties->get('service_name',$service->getServiceName());
             $module['bootable'] = $properties->get('bootable',$service->isBootable());
-            $module['status'] = 1;
+            // test funciton
+            $module['status'] = $service->test();
             if ($full_details == true) {
                 $module['version'] = $properties->get('version',$service->getVersion());
                 $module['title'] = $properties->get('title',$service->getTitle());
                 $module['description'] = $properties->get('description',$service->getDescription());
                 $module['requires'] = $properties->get('requires');
+                $module['help'] = $properties->get('help',null);
+                $module['facade'] = $properties->get('facade',null);
             }
             return $module;
         }

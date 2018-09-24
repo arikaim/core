@@ -17,4 +17,6 @@ interface ModuleInterface
     public function getVersion();
     public function isBootable();
     public function boot();
+    public function test();
+    public function getTestError();
 }

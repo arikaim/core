@@ -14,11 +14,11 @@ use Arikaim\Core\Arikaim;
 
 abstract class StaticFacade 
 {
-    static private $instance = null;
+    static protected $instance = null;
 
     public static function getInstanceClass()
     {
-        return null;
+        throw new \Exception('Child class sould return class name.');
     }
 
     public static function getContainerItemName()
@@ -44,15 +44,15 @@ abstract class StaticFacade
 
     public static function getInstance()
     {
-        if (is_object(static::$instance) == false) {
-            static::$instance = static::createInstance();
+        if (is_object(Self::$instance) == false) {
+            static::$instance = Self::createInstance();
         }
         return static::$instance;
     }
 
     public static function __callStatic($method, $args)
     {
-        $instance = static::getInstance();
+        $instance = Self::getInstance();
         if (is_object($instance) == false) {        
             throw new RuntimeException('Facade instance not set.');
         }

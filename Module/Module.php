@@ -18,6 +18,7 @@ class Module implements ModuleInterface
     protected $description;
     protected $version;
     protected $bootable;
+    protected $error;
 
     public function __construct()
     {
@@ -75,5 +76,20 @@ class Module implements ModuleInterface
     public function setBootable($bootable = true)
     {
         $this->bootable = $bootable;
+    }
+
+    /**
+     * Test module function
+     * 
+     * @return bool
+     */
+    public function test()
+    {        
+        return true;
+    }
+
+    public function getTestError()
+    {
+        return $this->error;
     }
 }

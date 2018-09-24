@@ -89,6 +89,10 @@ class ServiceContainer
             if ($module['bootable'] == true) {
                 $this->container->get($service_name)->boot();
             }
+            // load facade class alias
+            if (isset($module['facade']['alias']) == true) {
+                $this->container->get('classLoader')->loadClassAlias($module['facade']['class'],$module['facade']['alias']);
+            }
         }
     }
  
