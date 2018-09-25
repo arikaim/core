@@ -38,6 +38,28 @@ class Routes
         return $app;
     }
 
+    /**
+     * Load core modules middleware
+     *
+     * @param object $app
+     * @return void
+     */
+    public static function loadCoreMiddleware($app)
+    {
+        $modules = Arikaim::options('core.modules');
+        $modules = json_decode($modules,true);
+        if (is_array($modules) == false) {
+            return false;
+        }
+        foreach ($modules as $module) {
+            if ($module['type'] != 'middleware') continue;
+            if ($module['disabled'] == true) continue;
+            $instance = Factory::createModule($module['path'],$module['class']);
+            $app->add($instance);  
+        }
+        return $app;
+    }
+
     public static function mapSystemRoutes($app)
     {
         // site stats middleware
@@ -47,10 +69,9 @@ class Routes
         // Middleware for sanitize request body and client ip
         $app->add(new \Arikaim\Core\Middleware\CoreMiddleware());  
 
-        // Cors
-        if (Arikaim::config('settings/cors') == true) {
-            $app->add(new \Arikaim\Core\Middleware\CorsMiddleware());  
-        }
+        // Load middleware modules
+        $app = Self::loadCoreMiddleware($app);
+       
 
         $session_auth = new SessionAuthentication();
         $jwt_auth = new JwtAuthentication();

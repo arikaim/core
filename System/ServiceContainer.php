@@ -80,7 +80,11 @@ class ServiceContainer
         if (is_array($modules) == false) {
             return false;
         }
-        foreach ($modules as $module) {  
+        foreach ($modules as $module) {
+            // not load other module types  
+            if ((isset($module['type']) == true) && ($module['type'] != 'module')) continue;
+            if ((isset($module['disabled']) == true) && ($module['disabled'] == true)) continue;
+
             $service_name = $module['service_name'];
             $this->container[$service_name] = function() use($module) {
                 $instance = Factory::createModule($module['path'],$module['class']);

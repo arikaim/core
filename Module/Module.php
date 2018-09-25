@@ -24,6 +24,10 @@ class Module implements ModuleInterface
     {
     }
 
+    public function install()
+    {        
+    }
+
     public function boot()
     {        
     }

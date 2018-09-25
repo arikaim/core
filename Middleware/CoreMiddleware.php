@@ -16,13 +16,8 @@ use Arikaim\Core\Db\Model;
 
 class CoreMiddleware
 {
-    public function __construct()
-    {        
-    }
-
     public function __invoke($request, $response, $next)
     {
-
         // set current path 
         Arikaim::session()->set('current.path',$request->getUri()->getPath());
         

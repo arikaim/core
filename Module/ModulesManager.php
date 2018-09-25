@@ -24,7 +24,7 @@ class ModulesManager
     }
 
     /**
-     * Install core medules
+     * Install core modules
      *
      * @return int
      */
@@ -72,6 +72,8 @@ class ModulesManager
                 $module['requires'] = $properties->get('requires');
                 $module['help'] = $properties->get('help',null);
                 $module['facade'] = $properties->get('facade',null);
+                $module['type'] = $properties->get('type','module');
+                $module['disabled'] = $properties->get('disabled',false);
             }
             return $module;
         }

@@ -13,10 +13,6 @@ use Arikaim\Core\Arikaim;
 
 class SiteStats 
 {
-    public function __construct() 
-    {        
-    }
-
     public function __invoke($request, $response, $next) 
     {   
         $uri = $request->getUri();
