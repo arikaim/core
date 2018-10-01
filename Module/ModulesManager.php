@@ -42,6 +42,8 @@ class ModulesManager
                 $path = $file->getFilename();
                 $module = $this->getModuleDetails($path,true);
                 if (is_array($module) == true) {
+                    $service = Factory::createModule($path,$module['class']);   
+                    $service->install();                 
                     array_push($modules,$module);
                 }
             }
@@ -53,7 +55,7 @@ class ModulesManager
 
     public function getModuleDetails($path, $full_details = true)
     {
-        $properties_file = $this->getModulePropertiesFileName($path);
+        $properties_file = Self::getModulePropertiesFileName($path);
         $properties = new Properties($properties_file);
         $default_class = ucfirst($path);
         $module['class'] = $properties->get('class',$default_class);
@@ -74,6 +76,7 @@ class ModulesManager
                 $module['facade'] = $properties->get('facade',null);
                 $module['type'] = $properties->get('type','module');
                 $module['disabled'] = $properties->get('disabled',false);
+                $module['error'] = $service->getTestError();
             }
             return $module;
         }
@@ -96,8 +99,36 @@ class ModulesManager
         return $result;
     }
 
-    public function getModulePropertiesFileName($path)
+    public function setStatus($name, $disabled = false)
+    {
+        $modules = Arikaim::options()->get('core.modules');
+        $modules = json_decode($modules,true);
+        if (is_array($modules) == false) {
+            return false;
+        }
+        if (isset($modules[$name]) == false) {
+            return false;
+        }
+        $modules[$name]['disabled'] = $disabled;
+    }
+
+    public function enable($name)
+    {
+        return $this->setStatus($name,false);
+    }
+
+    public function disable($name)
+    {
+        return $this->setStatus($name,true);
+    }
+
+    public static function getModulePropertiesFileName($path)
     {
         return Arikaim::getModulesPath() . DIRECTORY_SEPARATOR . $path . DIRECTORY_SEPARATOR . "module.json";
+    }
+
+    public static function getModuleConfigFileName($path)
+    {
+        return Arikaim::getModulesPath() . DIRECTORY_SEPARATOR . $path . DIRECTORY_SEPARATOR . "config.json";
     }
 }

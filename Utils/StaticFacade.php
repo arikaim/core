@@ -11,10 +11,11 @@ namespace Arikaim\Core\Utils;
 
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\Utils\Utils;
 
 abstract class StaticFacade 
 {
-    static protected $instance = null;
+    static protected $instance = [];
 
     public static function getInstanceClass()
     {
@@ -23,7 +24,7 @@ abstract class StaticFacade
 
     public static function getContainerItemName()
     {
-        return null;
+        return new \Exception('Child class sould return container item name.');
     }
 
     private static function createInstance()
@@ -42,20 +43,21 @@ abstract class StaticFacade
         return null;
     }
 
-    public static function getInstance()
+    public static function getInstance($name)
     {
-        if (is_object(Self::$instance) == false) {
-            static::$instance = Self::createInstance();
-        }
-        return static::$instance;
+        if (isset(static::$instance[$name]) == false) {
+            static::$instance[$name] = static::createInstance();
+        }       
+        return static::$instance[$name];
     }
 
     public static function __callStatic($method, $args)
     {
-        $instance = Self::getInstance();
+        $name = static::getContainerItemName();
+        $instance = static::getInstance($name);
         if (is_object($instance) == false) {        
-            throw new RuntimeException('Facade instance not set.');
+            throw new \RuntimeException('Facade instance not set.');
         }
-        return $instance->$method(...$args);
+        return Utils::call($instance,$method,$args);
     }
 }

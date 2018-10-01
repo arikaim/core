@@ -19,7 +19,7 @@ class ComposerApplication
 
     }
 
-    public static function require($package_name,$async = false, $real_time_output = false)
+    public static function requireCommand($package_name, $async = false, $real_time_output = false)
     {
         return Self::runCommand("require $package_name",$async,$real_time_output); 
     }
