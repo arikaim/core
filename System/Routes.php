@@ -105,7 +105,6 @@ class Routes
         // Control Panel
         $app->get('/admin/[{language:[a-z]{2}}/]',"$controller_namespace\Pages\PageLoader:loadControlPanel");      
         
-       
         // Control Panel user
         $app->group('/core/api/user',function($app) use($api_namespace) {  
             $app->post('/login/',"$api_namespace\Users:adminLogin");
