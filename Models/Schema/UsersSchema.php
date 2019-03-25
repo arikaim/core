@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Models\Schema;
 
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Db\Status;
+use Arikaim\Core\Traits\Db\Status;;
 
 /**
  * Users database table schema definition.

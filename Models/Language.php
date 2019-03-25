@@ -10,11 +10,11 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Arikaim\Core\Db\Uuid;
-use Arikaim\Core\Db\ToggleValue;
-use Arikaim\Core\Db\Position;
-use Arikaim\Core\Db\Find;
-use Arikaim\Core\Db\Status;
+use Arikaim\Core\Traits\Db\Uuid;;
+use Arikaim\Core\Traits\Db\ToggleValue;;
+use Arikaim\Core\Traits\Db\Position;;
+use Arikaim\Core\Traits\Db\Find;;
+use Arikaim\Core\Traits\Db\Status;;
 
 /**
  * Language database model
@@ -67,10 +67,10 @@ class Language extends Model
             $model = $this->where('default','=','1')->first();
             if (is_object($model) == true) {
                 return $model->code;
-            } 
+            }            
         } catch(\Exception $e) {
-            return "en";
+            return 'en';
         }
-        return "en";
+        return 'en';
     }
 }

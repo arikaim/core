@@ -12,6 +12,7 @@ namespace Arikaim\Core\System;
 use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Utils\Collection;
+use Arikaim\Core\System\Config;
 
 class Errors extends Collection
 {
@@ -27,9 +28,8 @@ class Errors extends Collection
     public function addError($error_code,$params = [])
     {       
         $message = $this->getError($error_code,$params);  
-        if (empty($message) == false || $message == null) {
-           $message = $error_code;
-        } 
+        $message = (empty($message) == true) ? $error_code : $message;
+         
         array_push($this->errors,$message);
         return true;
     }
@@ -84,8 +84,6 @@ class Errors extends Collection
     
     public static function getJsonError()
     {
-        $error = null;
-   
         switch (json_last_error()) {
             case JSON_ERROR_NONE:
                 $error = null;
@@ -114,7 +112,7 @@ class Errors extends Collection
 
     private function loadErrorsConfig() 
     {
-        $list = File::readConfigFile('errors.json');         
+        $list = Config::loadJsonConfigFile('errors.json');         
         $this->data = $list['errors'];
         $this->prefix = $list['prefix'];   
     }

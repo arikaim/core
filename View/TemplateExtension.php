@@ -9,6 +9,9 @@
 */
 namespace Arikaim\Core\View;
 
+use Twig\Extension\GlobalsInterface;
+use Twig\Extension\AbstractExtension;
+
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Filters;
 use Arikaim\Core\View\TemplateFunction;
@@ -19,7 +22,7 @@ use Arikaim\Core\FileSystem\File;
 /**
  *  Template engine functions, filters and tests.
  */
-class TemplateExtension extends \Twig_Extension implements \Twig_Extension_GlobalsInterface
+class TemplateExtension extends AbstractExtension implements GlobalsInterface
 {
     public function __construct() 
     {       
@@ -42,12 +45,16 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
      */
     public function getFunctions() 
     {
+        $items = Arikaim::cache()->fetch('twig.functions');
+        if (is_array($items) == true) {
+            return $items;
+        }
+
         $template_function = new TemplateFunction();
         $date = new DateTime();
         $errors = Arikaim::errors();
         $mobile = new Mobile();
-        
-        return array(
+        $items = [
             // html components
             new \Twig_SimpleFunction('component', [Arikaim::view()->component(), 'load'], ['needs_environment' => false,'is_safe' => ['html']]),
             new \Twig_SimpleFunction('componentProperties', [$template_function, 'getComponentProperties']),
@@ -75,7 +82,7 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFunction('orderBy', ["\\Arikaim\\Core\\Db\\Model", 'createOrderBy']),
             // other
             new \Twig_SimpleFunction('getFileType', [$template_function, 'getFileType']),
-            new \Twig_SimpleFunction('executeMethod', [$template_function, 'executeMethod']),
+            new \Twig_SimpleFunction('execute', [$template_function, 'executeMethod']),
             new \Twig_SimpleFunction('extension', [$template_function, 'extensionMethod']),
             new \Twig_SimpleFunction('service', [$template_function, 'service']),
             new \Twig_SimpleFunction('callStatic', [$template_function, 'callStatic']),           
@@ -98,9 +105,12 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFunction('currentYear', [$template_function, 'currentYear']),
             // macros
             new \Twig_SimpleFunction('macro', ["\\Arikaim\\Core\\View\\Template","getMacroPath"]),
-            new \Twig_SimpleFunction('extensionMacro', ["\\Arikaim\\Core\\View\\Template","getExtensionMacroPath"]),
+            new \Twig_SimpleFunction('extensionMacro', ["\\Arikaim\\Core\\System\\Path","getExtensionMacroPath"]),
             new \Twig_SimpleFunction('systemMacro', ["\\Arikaim\\Core\\View\\Template","getSystemMacroPath"])
-        );
+        ];
+
+        Arikaim::cache()->save('twig.functions',$items,10);
+        return $items;
     }
 
     /**
@@ -109,9 +119,14 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
      * @return array
      */
     public function getFilters() 
-    {
+    {       
+        $items = Arikaim::cache()->fetch('twig.filters');
+        if (is_array($items) == true) {
+            return $items;
+        }
+
         $filters = new Filters();
-        return array(
+        $items = [
             new \Twig_SimpleFilter('attr', [$filters, 'attr'],['is_safe' => ['html']]),
             new \Twig_SimpleFilter('tag', [$filters, 'htmlTag'],['is_safe' => ['html']]),
             new \Twig_SimpleFilter('singleTag', [$filters, 'htmlSingleTag'],['is_safe' => ['html']]),
@@ -129,7 +144,9 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
             new \Twig_SimpleFilter('numberFormat', ["\\Arikaim\\Core\\Utils\\Number", 'format']),
             // files
             new \Twig_SimpleFilter('fileSize', ["\\Arikaim\\Core\\FileSystem\\File", 'getSizeText']),
-        );
+        ];
+        Arikaim::cache()->save('twig.filters',$items,10);
+        return $items;
     }
 
     /**
@@ -137,10 +154,18 @@ class TemplateExtension extends \Twig_Extension implements \Twig_Extension_Globa
      *
      * @return array
      */
-    public function getTests() {
+    public function getTests() 
+    {
+        $items = Arikaim::cache()->fetch('twig.tests');
+        if (is_array($items) == true) {
+            return $items;
+        }
+
         $template_function = new TemplateFunction();
-        return array(
+        $items = [
             new \Twig_SimpleTest('haveSubItems', [$template_function, 'haveSubItems'])
-        );
+        ];
+        Arikaim::cache()->save('twig.tests',$items,10);
+        return $items;
     }
 }

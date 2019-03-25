@@ -1,19 +1,11 @@
-# README #
-
-Arikaim CMS Core Component
-
-* Version 1.0
-
-### Features ###
+#Arikaim CMS Core Component
 
 
 ### Requirements ###
-* PHP 5.6 or above
+* PHP 7.1 or above
 * PDO php extension
 * Curl php extension
 * Zip php extension
 * Apache 2 
 
-### Documentation ###
 
-### License ###

@@ -23,7 +23,6 @@ class ApiResponse
     protected $errors; 
     protected $debug;
     protected $trace;
-    protected $enableCors;
     protected $pretty_format;
 
     /**
@@ -31,12 +30,10 @@ class ApiResponse
      *
      * @param boolean $debug
      * @param boolean $trace
-     * @param boolean $cors
      */
-    public function __construct($debug = false, $trace = false, $cors = true) 
+    public function __construct($debug = false, $trace = false) 
     {                    
         $this->init($debug,$trace);
-        $this->enableCors = $cors;
     }
 
     /**
@@ -165,10 +162,7 @@ class ApiResponse
         } else {
             $code = json_encode($this->result,true);
         }
-        // enable cors
-        if ($this->enableCors == true) {
-            $response = $response->withHeader('Access-Control-Allow-Origin:','*');
-        }
+        
         return $response->withStatus($this->result['code'])
             ->withHeader('Content-Type','application/json')
             ->write($code);

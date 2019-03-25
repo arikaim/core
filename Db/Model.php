@@ -26,10 +26,14 @@ class Model
 {    
     public static function create($class_name, $extension_name = null) 
     {  
-        $full_class_name = Self::getFullClassName($class_name,$extension_name); 
-        $instance = Factory::createInstance($full_class_name);
-        if (Self::isValidModel($instance) == true) {
-            return $instance;
+        try {
+            $full_class_name = Self::getFullClassName($class_name,$extension_name); 
+            $instance = Factory::createInstance($full_class_name);
+            if (Self::isValidModel($instance) == true) {
+                return $instance;
+            }
+        } catch(\Exception $e) {
+            return null;
         }
         return null;
     }

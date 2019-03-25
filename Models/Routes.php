@@ -13,9 +13,9 @@ use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Access\Access;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Db\Find;
-use Arikaim\Core\Db\Status;
-use Arikaim\Core\Db\Uuid;
+use Arikaim\Core\Traits\Db\Find;;
+use Arikaim\Core\Traits\Db\Status;;
+use Arikaim\Core\Traits\Db\Uuid;;
 
 /**
  * Routes database model
@@ -56,7 +56,7 @@ class Routes extends Model
         foreach ($routes as $route) {
             $route->status = Self::DISABLED();
             // fire event        
-            Arikaim::event()->trigger('core.route.disable',$route->toArrray());
+            Arikaim::event()->trigger('core.route.disable',$route->toArray());
             $route->update();
         }
     }
@@ -81,26 +81,33 @@ class Routes extends Model
             $model = $model->where('extension_name','=',$extension_name);
         }
         $model = $model->get();
-        if (is_object($model) == true) {
-            return $model->toArray();
-        }
-        return [];
+
+        return (is_object($model) == true) ? $model->toArray() : [];
     }
 
     public function deleteExtensionRoutes($extension_name)
     {
         $model = $this->where('extension_name','=',$extension_name);
-        if (is_object($model) == true) {
-            return $model->delete();
-        }
-        return true;
+        return (is_object($model) == true) ? $model->delete() : true;        
     }
 
+    /**
+     * Remove template routes
+     *
+     * @param string $template_name Use * for all templates
+     * @return bool
+     */
     public function deleteTemplateRoutes($template_name)
     {
-        $model = $this->where('template_name','=',$template_name);
+        if ($template_name == '*') {
+            $model = $this->whereNotNull('template_name')->where('type','=',Self::TYPE_PAGE);
+        } else {
+            $model = $this->where('template_name','=',$template_name);
+        }
+      
         if (is_object($model) == true) {
-            return $model->delete();
+            $result = $model->delete();
+            return ($result == null) ? true : $result;
         }
         return true;
     }
@@ -109,7 +116,8 @@ class Routes extends Model
     {       
         $model = $this->where('method','=',$method)->where('pattern','=',$pattern);
         if (is_object($model) == true) {
-            return $model->delete();
+            $result = $model->delete();
+            return ($result == null) ? true : $result;
         }
         return true;
     }
@@ -127,6 +135,9 @@ class Routes extends Model
     {
         $pattern .= $this->getLanguagePattern($pattern);       
         $model = $this->where('pattern','=',$pattern);
+        if (is_object($model) == false) {
+            return false;
+        }
         $model = $model->where('template_name','=',$template_name)->first();
         return (is_object($model) == false) ? false : $model;           
     }
@@ -162,7 +173,7 @@ class Routes extends Model
     public function addTemplateRoute($pattern, $handler_class, $handler_method, $template_name, $template_page)
     {
         $route['method'] = "GET";
-        $route['pattern'] = $pattern . Self::getLanguagePattern($pattern);
+        $route['pattern'] = $pattern . $this->getLanguagePattern($pattern);
         $route['handler_class'] = $handler_class;
         $route['handler_method'] = $handler_method;
         $route['auth'] = Access::AUTH_NONE;
@@ -177,7 +188,7 @@ class Routes extends Model
     public function addPageRoute($pattern, $handler_class, $handler_method, $extension_name, $auth = Access::AUTH_NONE)
     {
         $route['method'] = "GET";
-        $route['pattern'] = $pattern . Self::getLanguagePattern($pattern);
+        $route['pattern'] = $pattern . $this->getLanguagePattern($pattern);
         $route['handler_class'] = $handler_class;
         $route['handler_method'] = $handler_method;
         $route['auth'] = $auth;
@@ -186,9 +197,9 @@ class Routes extends Model
         return $this->addRoute($route);
     }
 
-    public function getLanguagePattern($pattern)
+    public function getLanguagePattern($path)
     {        
-        return (substr($pattern,-1) == "/") ?  "[{language:[a-z]{2}}/]" : "[/{language:[a-z]{2}}/]";
+        return (substr($path,-1) == "/") ? "[{language:[a-z]{2}}/]" : "[/{language:[a-z]{2}}/]";
     }
 
     public function addApiRoute($method, $pattern, $handler_class, $handler_method, $extension_name, $auth = Access::AUTH_JWT)

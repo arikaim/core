@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\Db\Query;
 
-use Arikaim\Core\Utils\Collection;
 
 /**
  * Database order by

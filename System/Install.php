@@ -16,11 +16,11 @@ use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\Extension\ExtensionsManager;
 use Arikaim\Core\View\Template;
-use Arikaim\Core\View\TemplatesManager;
 use Arikaim\Core\Access\Access;
-use Arikaim\Core\Module\ModulesManager;
+use Arikaim\Core\Packages\Extension\ExtensionsManager;
+use Arikaim\Core\Packages\Template\TemplatesManager;
+use Arikaim\Core\Packages\Module\ModulesManager;
 
 class Install 
 {
@@ -57,7 +57,7 @@ class Install
 
         // install core modules
         $modules_manager = new ModulesManager();       
-        $modules_manager->install();
+        $modules_manager->installAllPackages();
 
         // reload seystem options
         Arikaim::options()->loadOptions();
@@ -72,11 +72,17 @@ class Install
         $this->initDefaultOptions();
 
         // install current template 
-        $this->installTemplates();
+        $template_manager = new TemplatesManager();
+        $current_template = $template_manager->findPackage('current',true);
+        $result = $current_template->install();
 
         //Install extensions      
-        $this->installExtensions();
-
+        $extension_manager = new ExtensionsManager();
+        $result = $extension_manager->installAllPackages();
+        if ($result == false) {           
+            Arikaim::errors()->addError('EXTENSION_INSTALL_ERROR');
+        }
+       
         // trigger event core.install
         Arikaim::event()->trigger('core.install',Arikaim::errors()->getErrors());
         return true;
@@ -107,36 +113,6 @@ class Install
         Arikaim::event()->registerEvent('core.jobs.before.execute','Before run job.');
         Arikaim::event()->registerEvent('core.jobs.after.execute','After run job.');
         Arikaim::event()->registerEvent('core.jobs.queue.run','After run jobs queue.');
-    } 
-
-    private function installTemplates()
-    {
-        // install default template routes      
-        $templates = new TemplatesManager();
-        $items = $templates->scan();
-        foreach ($items as $template) {
-            $details = $templates->getTemlateDetails($template);
-            if ($details['current'] == true) {
-                $templates->install($template);
-                return true;
-            }
-        }     
-        return false;
-    }
-
-    private function installExtensions()
-    {
-        $extension_manager = new ExtensionsManager();
-        $extensins = $extension_manager->scan();
-        $errors = 0;
-        foreach ($extensins as $name) {
-            $result = $extension_manager->install($name);
-            if ($result == false) {
-                $errors++;
-                Arikaim::errors()->addError('EXTENSION_INSTALL_ERROR');
-            }
-        }
-        return $errors;
     } 
 
     private function createDefaultAdminUser()
@@ -197,7 +173,7 @@ class Install
         Arikaim::options()->set('logger',true,true);
         Arikaim::options()->set('logger.stats',true,true);
         // session
-        Arikaim::options()->set('session.recreation.interval',10,false);
+        Arikaim::options()->set('session.recreation.interval',0,false);
     }
 
     private function initDefaultValues() 
@@ -247,6 +223,7 @@ class Install
             // check db tables
             $errors += Schema::schema()->hasTable('options') ? 0:1;
             $errors += Schema::schema()->hasTable('extensions') ? 0:1;
+            $errors += Schema::schema()->hasTable('modules') ? 0:1;
             $errors += Schema::schema()->hasTable('permissions') ? 0:1;
             $errors += Schema::schema()->hasTable('permissions_list') ? 0:1;
             $errors += Schema::schema()->hasTable('users') ? 0:1;
@@ -255,8 +232,8 @@ class Install
             $errors += Schema::schema()->hasTable('events') ? 0:1;
             $errors += Schema::schema()->hasTable('language') ? 0:1;
             $errors += Schema::schema()->hasTable('logs') ? 0:1;
-            $errors += Schema::schema()->hasTable('jobs_queue') ? 0:1;
-
+            $errors += Schema::schema()->hasTable('jobs') ? 0:1;
+        
             $user = Model::Users();            
             $result = $user->hasControlPanelUser();           
             if ($result == false) {
@@ -280,17 +257,13 @@ class Install
         'EventsSchema',
         'EventSubscribersSchema',
         'ExtensionsSchema',
-        'JobsQueueSchema',
+        'ModulesSchema',
+        'JobsSchema',
         'LanguageSchema',
         'LogsSchema',
         'OptionsSchema',
         'PermissionsSchema',
         'PermissionsListSchema',
         'RoutesSchema'];
-    }
-
-    public function getConfigDetails()
-    {
-        return (Self::isInstalled() == true) ? false : Arikaim::config();
     }
 }

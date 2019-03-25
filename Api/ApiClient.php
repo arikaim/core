@@ -48,7 +48,7 @@ class ApiClient
      */
     public function connect($api_key, $api_secret, $host = null)
     {
-        if ($host != null) {
+        if (empty($host) == false) {
             $this->setHost($host);
         }
         $params['api_secret'] = $api_secret; 
@@ -61,7 +61,7 @@ class ApiClient
 
         $api_response = new ApiClientResponse($response);
         $this->token = $api_response->getResult();
-        if ($this->token == null) {
+        if (empty($this->token) == true) {
             return false;
         }
         $this->setHeader("Authorization: ","Bearer " . $this->token);

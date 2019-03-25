@@ -38,25 +38,6 @@ class File
         return $data;
     }
 
-    public static function readConfigFile($file_name) 
-    {
-        return File::readJSONFile(Arikaim::config()->getConfigPath() . DIRECTORY_SEPARATOR . $file_name);
-    }
-
-    public static function scanDir($path,\Closure $callback) 
-    {    
-        if (File::exists($path) == false) return false;   
-        if (is_callable($callback) == false) return false;    
-
-        $dir = dir($path);
-        while (false !== ($file_name = $dir->read())) {
-            if ($file_name == "." || $file_name == "..") continue;
-            $callback($file_name,$path);
-        }
-        $dir->close();
-        return true;
-    }
-
     public static function getClassesInFile($file_name) 
     {
         if (File::exists($file_name) == false) {
@@ -169,9 +150,33 @@ class File
     public static function delete($file_name)
     {
         if (Self::exists($file_name) == true) {
-            return (is_dir($file_name) == true) ? rmdir($file_name) : unlink($file_name);          
+            return (is_dir($file_name) == true) ? Self::deleteDirectory($file_name) : unlink($file_name);          
         }
         return false;
+    }
+
+    public static function isEmpty($path)
+    {
+        return (count(glob("$path/*")) === 0) ? true : false;
+    }
+    
+    public static function deleteDirectory($path)
+    {
+        if (is_dir($path) === false) {
+            return false;
+        }
+    
+        $dir = new \RecursiveDirectoryIterator($path,\RecursiveDirectoryIterator::SKIP_DOTS);
+        $iterator = new \RecursiveIteratorIterator($dir,\RecursiveIteratorIterator::CHILD_FIRST);
+
+        foreach ($iterator as $file) {
+            if ($file->isDir() == true) {
+                rmdir($file->getRealPath());
+            } else {
+                $result = unlink($file->getRealPath());
+            }
+        }
+        return true;
     }
 
     public static function read($file_name)

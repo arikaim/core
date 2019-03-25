@@ -24,15 +24,13 @@ class System
     const CR = "\r";
     const HTMLLF = "</br>";
 
-    const VERSION = "1.0";  
-    
     public function __construct() 
     {       
     }
 
     public static function getVersion() 
     {
-        return Self::VERSION;
+        return ARIKAIM_VERSION;
     }
 
     public static function getSystemInfo() 
@@ -65,6 +63,12 @@ class System
         return $version;
     }
 
+    /**
+     * Set script execution tile limit (0 - unlimited)
+     *
+     * @param number $time
+     * @return boolean
+     */
     public static function setTimeLimit($time)
     {
         if (is_numeric($time) == true) {

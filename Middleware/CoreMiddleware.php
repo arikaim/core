@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Middleware;
 
-use Arikaim\Core\Form\Form;
+use Arikaim\Core\Validator\Validator;
 use Arikaim\Core\Middleware\ClientIp;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model;
@@ -47,9 +47,11 @@ class CoreMiddleware
 
     private function sanitizeRequest($request)
     {
-        $form = new Form($request->getParsedBody());
-        $form->addFilter('*',Form::Filter()->text());
-        $form->sanitize();
-        return $request->withParsedBody($form->toArray());
+        $data = $request->getParsedBody();
+        $data = (is_array($data) == true) ? $data : []; 
+        $validator = new Validator($data);
+        $validator->addFilter('*',$validator->filter()->text());
+        $validator->doFilter();
+        return $request->withParsedBody($validator->toArray());
     }
 }

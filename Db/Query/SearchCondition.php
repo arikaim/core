@@ -103,7 +103,7 @@ class SearchCondition extends QueryBuilder
     public function apply($model)
     {
         $search_value = $this->getSearchValue();
-        if ($search_value == null || empty($search_value) == true) {
+        if (empty($search_value) == true) {
             return $model;
         }
         $fields = $this->createSearchFields($model);

@@ -14,12 +14,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputArgument;
+
 use Arikaim\Core\System\System;
 
-class ConsoleCommand extends Command
+abstract class ConsoleCommand extends Command
 {       
     protected $style;
-
+    protected $default;
+   
     public function __construct($name = null) 
     {
         parent::__construct($name);
@@ -41,13 +43,43 @@ class ConsoleCommand extends Command
         $this->addArgument($name,InputArgument::OPTIONAL,$description,$default);
     }
 
-    protected function executeCommand($input,$output)
-    {
-    }
-
+    abstract protected function executeCommand($input,$output);
+   
     protected function execute(InputInterface $input,OutputInterface $output)
     {
-        $this->style->section('Arikaim Cli ' . System::getVersion());       
         $this->executeCommand($input,$output);
+    }
+
+    public function setDefault($default = true)
+    {
+        $this->default = $default;
+    }
+
+    public function isDefault()
+    {
+        return $this->default;
+    }
+
+    public function showTitle($title)
+    {
+        $this->style->newLine();
+        $this->style->writeLn($title);
+        $this->style->newLine();
+    }
+
+    public function showError($message, $label = "Error:")
+    {
+        $this->style->newLine();
+        $this->style->writeLn("<error>$label $message</error>");
+        $this->style->newLine();
+    }
+
+    public function showCompleted($label = null)
+    {
+        if ($label == null) {
+            $label = 'done.';
+        }
+        $this->style->newLine();
+        $this->style->writeLn("<fg=green>$label</>");
     }
 }

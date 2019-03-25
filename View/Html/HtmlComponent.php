@@ -23,7 +23,7 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
     private $files;
 
     public function __construct() {
-        parent::__construct();      
+        parent::__construct();
         $this->files = new Collection();
     }
 
@@ -53,7 +53,6 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
         if ($component->hasError() == true) {
             return $component;
         }      
-       
         $this->includeFiles($component);
        
         $params = Arrays::merge($component->getProperties(),$vars);
@@ -67,17 +66,14 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
     public function includeFiles(ComponentInterface $component) 
     {
         // js file
-        $js_files = $component->getFiles('js');
-        foreach ($js_files as $file) {
-            Arikaim::page()->properties()->add('include.components.js',$file['url']);
-            Arikaim::view()->component()->files()->add("js_files",$file['url']);
-        }
+        $js_files = array_column($component->getFiles('js'),'url');
+        Arikaim::page()->properties()->merge('include.components.js',$js_files);
+        Arikaim::view()->component()->files()->merge("js_files",$js_files);
+       
         // css files
-        $css_files = $component->getFiles('css');
-        foreach ($css_files as $file) {
-            Arikaim::page()->properties()->add('include.components.css',$file['url']);
-            Arikaim::view()->component()->files()->add("css_files",$file['url']);
-        }     
+        $css_files = array_column($component->getFiles('css'),'url');
+        Arikaim::page()->properties()->merge('include.components.css',$css_files);
+        Arikaim::view()->component()->files()->merge("css_files",$css_files);          
     }
     
     public function getComponentProperties($name, $language = null)

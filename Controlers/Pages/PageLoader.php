@@ -26,7 +26,16 @@ class PageLoader extends Controler
         parent::__construct();
     }
 
-    public function loadTemplatePage($request, $response, $args)
+    /**
+     * Show template page
+     *
+     * @param object $request
+     * @param object $response
+     * @param Validator $data
+     * @param array $args route params
+     * @return void
+     */
+    public function loadTemplatePage($request, $response, $data, $args)
     {
         $route = $request->getAttribute('route');  
         if (is_object($route) == false) {
@@ -37,36 +46,36 @@ class PageLoader extends Controler
         $model = Model::Routes()->getRoute('GET',$pattern);
       
         if ($model == false) {
-            return $this->pageNotFound($request,$response,$args);
+            return $this->pageNotFound($request,$response,$data);
         }
         $params = ['page' => $model->template_page];
         return $this->loadPage($request,$response,Arrays::merge($params,$args));
     }
 
-    public function loadPage($request, $response, $args)
+    public function loadPage($request, $response, $data)
     {
-        if (isset($args['page']) == true) {
-            $page_name = $args['page'];           
+        if (isset($data['page']) == true) {
+            $page_name = $data['page'];           
         } else {
-            return $this->pageNotFound($request,$response,$args);
+            return $this->pageNotFound($request,$response,$data);
         }
        
-        $language = $this->getPageLanguage($args);
+        $language = $this->getPageLanguage($data);
         if ($language == false) {
-            return $this->pageNotFound($request,$response,$args);
+            return $this->pageNotFound($request,$response,$data);
         }
 
         if (Arikaim::page()->has($page_name) == true) {
-            Arikaim::page()->load($page_name,$args,$language);
+            Arikaim::page()->load($page_name,$data,$language);
             return $response;       
         } 
-        return $this->pageNotFound($request,$response,$args);
+        return $this->pageNotFound($request,$response,$data);
     }
 
-    public function getPageLanguage($args)
+    public function getPageLanguage($data)
     {
-        if (isset($args['language']) == true) {
-            $language = $args['language'];
+        if (isset($data['language']) == true) {
+            $language = $data['language'];
             if (Model::Language()->has($language,true) == false) {
                 return false;
             }
@@ -78,10 +87,11 @@ class PageLoader extends Controler
         return $language;
     }
 
-    public function loadControlPanel($request, $response, $args) 
+    public function loadControlPanel($request, $response, $data = []) 
     {   
+        $language = $this->getPageLanguage($data);
         if (Install::isInstalled() == false) { 
-            return $this->loadInstallPage($request,$response,$args);
+            return $this->loadInstallPage($request,$response,$data);
         }
         $user = Model::Users()->getLogedUser();    
         if ($user != false) {
@@ -90,37 +100,37 @@ class PageLoader extends Controler
             $loged_in = false;
         }        
         $params = ['page' => 'system:admin','loged_in' => $loged_in];
-        return $this->loadPage($request,$response,Arrays::merge($params,$args));    
+        return $this->loadPage($request,$response,Arrays::merge($params,$data->toArray()));    
     }
 
-    public function loadChangePassword($request, $response, $args)
+    public function loadChangePassword($request, $response, $data = [])
     {
-        if (isset($args['code']) == true) {
-            $code = $args['code'];
+        if (isset($data['code']) == true) {
+            $code = $data['code'];
             $params = ['page' => 'system:admin/change-password'];
-            return $this->loadPage($request,$response,Arrays::merge($params,$args));
+            return $this->loadPage($request,$response,Arrays::merge($params,$data));
         } 
-        Arikaim::page()->load("system-error",$args);
+        Arikaim::page()->load("system-error",$data->toArray());
         return $response;
     }
 
-    public function pageNotFound($request, $response, $args = []) 
+    public function pageNotFound($request, $response, $data = []) 
     {                  
         if (Install::isInstalled() == false) { 
-            return $this->loadInstallPage($request,$response,$args);
+            return $this->loadInstallPage($request,$response,$data);
         }
-        Arikaim::page()->load('page-not-found',$args); 
+        Arikaim::page()->load('page-not-found',$data); 
         return $response->withStatus(404);
     }
 
-    public function loadInstallPage($request, $response, $args = [])
+    public function loadInstallPage($request, $response, $data = [])
     {
         if (Install::isInstalled() == false) {        
             $params = ['page' => 'system:install'];                     
-            return $this->loadPage($request,$response,Arrays::merge($params,$args));
+            return $this->loadPage($request,$response,Arrays::merge($params,$data->toArray()));
         }
         Arikaim::errors()->addError('INSTALLED_ERROR');
         $params = ['page' => 'system-error'];     
-        return $this->loadPage($request,$response,Arrays::merge($params,$args));
+        return $this->loadPage($request,$response,Arrays::merge($params,$data->toArray()));
     }
 }

@@ -41,9 +41,7 @@ class Jwt
     private function init($expire_time = null) 
     {
         $this->key = Arikaim::config('settings/jwt_key');
-        if ($expire_time == null) {
-            $expire_time = strtotime("+1 month");
-        }
+        $expire_time = ($expire_time == null) ? strtotime("+1 month") : $expire_time;
         $token_id = base64_encode(random_bytes(32));
        
         $this->token = new Builder();

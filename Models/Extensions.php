@@ -10,11 +10,11 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Arikaim\Core\Db\Uuid;
-use Arikaim\Core\Db\ToggleValue;
-use Arikaim\Core\Db\Position;
-use Arikaim\Core\Db\Status;
-use Arikaim\Core\Db\Find;
+use Arikaim\Core\Traits\Db\Uuid;
+use Arikaim\Core\Traits\Db\ToggleValue;
+use Arikaim\Core\Traits\Db\Position;
+use Arikaim\Core\Traits\Db\Status;
+use Arikaim\Core\Traits\Db\Find;
 
 
 /**
@@ -22,10 +22,6 @@ use Arikaim\Core\Db\Find;
  */
 class Extensions extends Model  
 {
-    const USER = 0;
-    const SYSTEM = 1;
-    const TYPE_NAME = ['user','system'];
-
     use Uuid,
         Find,
         ToggleValue,
@@ -39,6 +35,7 @@ class Extensions extends Model
         'short_description',
         'class',
         'type',
+        'position',
         'version',       
         'admin_menu',
         'console_commands',
@@ -80,9 +77,15 @@ class Extensions extends Model
         return (is_object($model) == false) ? 0 : $model->status;            
     }
 
-    public function getTypeId($type_name)
+    public function disable($name)
+    {        
+        $model = $this->findByColumn($name,'name');
+        return (is_object($model) == true) ? $model->setStatus(Self::DISABLED()) : false;     
+    }
+
+    public function enable($name)
     {
-        $key = array_search($type_name,Self::TYPE_NAME);
-        return $key;
+        $model = $this->findByColumn($name,'name');
+        return (is_object($model) == true) ? $model->setStatus(Self::ACTIVE()) : false;     
     }
 }

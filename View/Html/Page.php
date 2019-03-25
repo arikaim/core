@@ -16,6 +16,7 @@ use Arikaim\Core\Utils\Collection;
 use Arikaim\Core\Interfaces\View\ComponentViewInterface;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Interfaces\View\ComponentInterface;
+use Arikaim\Core\System\Url;
 
 /**
  * Load html page templates
@@ -82,7 +83,7 @@ class Page extends BaseComponent implements ComponentViewInterface
         $this->includeFiles($component);
         $this->processPageOptions($component);
 
-        $this->setCurrent($component->getpath());
+        $this->setCurrent($component->getPath());
         Template::includeFiles($component->getType());
 
         $properties = $component->getProperties();
@@ -105,16 +106,11 @@ class Page extends BaseComponent implements ComponentViewInterface
 
     public function includeFiles(ComponentInterface $component)
     {
-        // js file
-        $js_files = $component->getFiles('js');
-        foreach ($js_files as $file) {
-            Arikaim::page()->properties()->add('include.components.js',$file['url']);
-        }
-        // css files
-        $css_files = $component->getFiles('css');
-        foreach ($css_files as $file) {
-            Arikaim::page()->properties()->add('include.page.css',$file['url']);
-        }   
+        $js_files = $component->getFiles('js'); 
+        Arikaim::page()->properties()->merge('include.components.js',array_column($js_files,'url'));
+      
+        $css_files = $component->getFiles('css');     
+        Arikaim::page()->properties()->merge('include.page.css',array_column($css_files,'url'));     
     }
 
     public function setHeadAttribute($name,$value)
@@ -171,7 +167,7 @@ class Page extends BaseComponent implements ComponentViewInterface
 
     public static function getCurrentUrl($full = true)
     {       
-        $url = ($full == true) ? ARIKAIM_BASE_URL : "";     
+        $url = ($full == true) ? Url::ARIKAIM_BASE_URL : "";     
         $path = Arikaim::session()->get('current.path');
         return $url . $path;
     }
@@ -185,11 +181,8 @@ class Page extends BaseComponent implements ComponentViewInterface
      */
     public static function getUrl($path = null, $full = false)
     {       
-        $url = ($full == true) ? ARIKAIM_BASE_URL : ARIKAIM_BASE_PATH;
-        
-        if ($url == "/") {
-            $url = "";
-        }
+        $url = ($full == true) ? Url::ARIKAIM_BASE_URL : ARIKAIM_BASE_PATH;        
+        $url = ($url == "/") ? "" : $url;            
         return $url . "/" . Self::getLanguagePath($path);
     }
 

@@ -13,7 +13,8 @@ use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Utils\Arrays;
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Db\Find;
+use Arikaim\Core\Traits\Db\Find;
+use Arikaim\Core\Arikaim;
 
 /**
  * Options database model
@@ -47,7 +48,9 @@ class Options extends Model
 
     public function set($key, $value, $auto_load = true, $extension_name = null) 
     {
-        if (trim($key) == "") return false;
+        if (trim($key) == "") {
+            return false;
+        }
         $key = str_replace('_','.',$key);
         
         if (is_array($value) == true) {            
@@ -81,20 +84,24 @@ class Options extends Model
 
     public function loadOptions()
     {
-        try {
-            $model = $this->where('auto_load','=','1')->get();
-            if (is_object($model) == true) {
-                $items = $model->toArray();
-            } else {
-                return [];
-            }
-            foreach ($items as $item) {
-                $this->setOption($item['key'],$item['value']);
-            }
+        $ooptions = Arikaim::cache()->fetch('options');
+        if (is_array($ooptions) == true) {
+            $this->options = $ooptions;
             return true;
-        } catch(\Exception $e) {
-            return false;
         }
+        try {
+            $model = $this->where('auto_load','=','1')->select('key','value')->get();
+            if (is_object($model) == true) {
+                $this->options = $model->mapWithKeys(function ($item) {
+                    return [$item['key'] => $item['value']];
+                })->toArray();
+                Arikaim::cache()->save('options',$this->options,2);
+                return true;
+            }               
+        } catch(\Exception $e) {
+
+        }
+        return false;
     }
 
     private function setOption($key,$value)

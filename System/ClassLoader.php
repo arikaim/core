@@ -18,6 +18,7 @@ class ClassLoader
     private $base_path;
     private $core_path;
     private $extensions_path;
+    private $namespaces = ['Extensions','Modules'];
 
     public function __construct($base_path, $root_path = null, $core_path = null, $extensions_path = null) 
     {   
@@ -97,7 +98,7 @@ class ClassLoader
     {
         $parts = explode(DIRECTORY_SEPARATOR,$namespace);       
         if (isset($parts[1]) == true) {
-            if (($parts[0] == "Arikaim") && (($parts[1] == "Extensions") || ($parts[1] == "Modules"))) {
+            if (($parts[0] == "Arikaim") && (in_array($parts[1],$this->namespaces) == true)) {
                 return true;
             }
         }        
@@ -106,18 +107,20 @@ class ClassLoader
 
     public function loadClassAlias($class_name,$alias)
     {
-        if (class_exists($class_name) == true) {        
-           return class_alias($class_name,$alias);
-        }
-        return false;
+        return (class_exists($class_name) == true) ? class_alias($class_name,$alias) : false;                
     }
 
-    public function loadAlliases(array $items)
-    {
-        $errors = 0;
-        foreach ($items as $alias => $class_name) {   
-            $errors += ($this->loadClassAlias($class_name,$alias) == true) ? 0 : 1;
+    public function loadAlliases($items)
+    {      
+        if (is_array($items) == false) {
+            return false;
+        }        
+        foreach ($items as $class_name => $alias) {      
+            if ($this->loadClassAlias($class_name,$alias) == false) { 
+                throw new Exception("Error load class alias for class ($class_name) alias ($alias)", 1);      
+                return false;
+            }
         }
-        return ($errors > 0) ? false : true;
+        return true;
     }
 }

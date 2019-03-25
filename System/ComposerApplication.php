@@ -51,8 +51,8 @@ class ComposerApplication
 
     public static function runCommand($command, $async = false, $real_time_output = false)
     {
-        $command = "php " . Self::getComposerPath() . 'composer.phar ' . $command;
-        $env = ['COMPOSER_HOME' => Self::getComposerPath(),
+        $command = "php " . Path::ARIKAIM_BIN_PATH . 'composer.phar ' . $command;
+        $env = ['COMPOSER_HOME' => Path::ARIKAIM_BIN_PATH,
                 'COMPOSER_CACHE_DIR' => '/dev/null'];
         $process = SystemProcess::create($command,null,$env);
         try {
@@ -71,10 +71,5 @@ class ComposerApplication
             return false;
         }
         return $output;
-    }
-
-    public static function getComposerPath()
-    {
-        return Arikaim::getBinPath() . DIRECTORY_SEPARATOR;
     }
 }

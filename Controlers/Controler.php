@@ -55,26 +55,11 @@ class Controler
                 Arikaim::end();       
             }   
             default: {
-                $response = Arikaim::page()->load("system:system-error",$args);
+                $response = Arikaim::page()->load("system:system-error");
                 Arikaim::getApp()->respond($response); 
                 Arikaim::end(); 
             }         
         }
         return false;
-    }
-
-    public static function getControlersNamespace()
-    {
-        return "Arikaim\\Core\\Controlers";
-    }
-
-    public static function getApiControlersNamespace()
-    {
-        return Self::getControlersNamespace() . "\\Api";
-    }
-
-    public static function getControlerClass($class_name)
-    {
-        return Self::getControlersNamespace() . "\\" . $class_name;
     }
 }

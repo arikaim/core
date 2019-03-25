@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Arikaim\Core\Db\DateTimeAttribute;
+use Arikaim\Core\Traits\Db\DateTimeAttribute;
 
 /**
  * Options database model

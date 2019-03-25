@@ -11,7 +11,6 @@ namespace Arikaim\Core\Events;
 
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Factory;
-use Arikaim\Core\Events\AbstractEvent;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Events\Event;
 use Arikaim\Core\Interfaces\Events\EventInterface;
@@ -60,7 +59,7 @@ class EventsManager
 
     public function registerSubscriber($base_class_name,$extension_name)
     {
-        $subscriber = EventsManager::createEventSubscriber($base_class_name,$extension_name);
+        $subscriber = Factory::createEventSubscriber($base_class_name,$extension_name);
         if ($subscriber != false) {
             $events = $subscriber->getEvents();
             foreach ($events as $event) {
@@ -76,7 +75,7 @@ class EventsManager
         $subscriber['name'] = $event_name;
         $subscriber['priority'] = $priority;
         $subscriber['extension_name'] = $extension_name;
-        $subscriber['handler_class'] = Self::getEventSubscriberClass($base_class_name,$extension_name);
+        $subscriber['handler_class'] = Factory::getEventSubscriberClass($base_class_name,$extension_name);
         return Model::EventSubscribers()->add($subscriber);
     }
 
@@ -125,41 +124,5 @@ class EventsManager
             }
         }
         return $result;
-    }
-
-    public static function createEventSubscriber($base_class_name, $extension_name = null)
-    {        
-        $class_name = Self::getEventSubscriberClass($base_class_name,$extension_name);         
-        $instance = Factory::createInstance($class_name);
-        if ($instance instanceof EventSubscriberInterface) {  
-            return $instance;
-        }
-        return false;
-    }
-    
-    public static function getEventSubscriberClass($base_class_name, $extension_name = null)
-    {
-        if (empty($extension_name) == true) {
-            $class_name = EventsManager::getSystemEventsNamespace() . "\\" . $base_class_name;
-        } else {
-            $class_name = EventsManager::getExtensionEventSubscriberClass($base_class_name,$extension_name);
-        }   
-        return $class_name;
-    }
-
-    public static function getExtensionEventSubscriberClass($base_class_name, $extension_name)
-    {
-        return Self::getExtensionEventsNamespace($extension_name) . "\\" . $base_class_name;
-    }
-
-    public static function getExtensionEventsNamespace($extension_name)
-    {
-        $extension_name = ucfirst($extension_name); 
-        return "Arikaim\\Extensions\\$extension_name\\Events";
-    }
-
-    public static function getSystemEventsNamespace()
-    {
-        return "Arikaim\\Core\\Events";
     }
 }

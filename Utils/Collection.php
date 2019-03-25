@@ -15,14 +15,43 @@ use Arikaim\Core\Utils\Arrays;
 /**
  * Collection base class
  */
-class Collection implements \Iterator,CollectionInterface
+class Collection implements CollectionInterface, \Countable, \ArrayAccess, \IteratorAggregate
 {
     protected $data;
-    protected $position;
+  
+    public function __construct($data = []) 
+    {  
+        $this->data = $data;
+    }
 
-    public function __construct() 
+    public function getIterator()
     {
-        $this->clear();
+        return new \ArrayIterator($this->data);
+    }
+
+    public function offsetExists($key)
+    {
+        return array_key_exists($key,$this->data);
+    }
+
+    public function offsetGet($key) 
+    {
+        return $this->data[$key];
+    }
+
+    public function offsetSet($key, $value)
+    {
+        $this->data[$key] = $value;
+    }
+    
+    public function offsetUnset($key)
+    {
+        unset($this->data[$key]);
+    }
+
+    public function count()
+    {
+        return count($this->data);
     }
 
     public function setBooleanValue($path, $value)
@@ -39,6 +68,14 @@ class Collection implements \Iterator,CollectionInterface
     public function setValue($path,$value)
     {
         $this->data = Arrays::setValue($this->data,$path,$value);
+    }
+
+    public function merge($key, array $data)
+    {
+        if (isset($this->data[$key]) == false) {
+            $this->data[$key] = [];
+        }       
+        $this->data[$key] = array_merge($this->data[$key],$data);
     }
 
     /**
@@ -69,31 +106,6 @@ class Collection implements \Iterator,CollectionInterface
         $this->data[$key] = array_values(array_unique($this->data[$key]));
     }
     
-    public function current()
-    {
-        return $this->data[$this->position];
-    }
-    
-    public function key()
-    {
-        return $this->position;
-    }
-    
-    public function next()
-    {
-        $this->position++;
-    }
-    
-    public function rewind()
-    {
-        $this->position = 0;
-    }
-    
-    public function valid()
-    {
-        return isset($this->data[$this->position]);
-    }
-    
     /**
      * Return collection array 
      *
@@ -112,10 +124,7 @@ class Collection implements \Iterator,CollectionInterface
      */
     public function isEmpty($key)
     {
-        if (isset($this->data[$key]) == false) {
-            return true;
-        }
-        return empty($this->data[$key]);
+        return (isset($this->data[$key]) == false) ? true : empty($this->data[$key]);      
     }
 
     /**
@@ -128,12 +137,9 @@ class Collection implements \Iterator,CollectionInterface
     public function get($key, $default_value = null)
     {      
         if (isset($this->data[$key]) == false) {
-            return ($default_value !== null) ? $default_value : null;
+            return $default_value;
         }
-        if ($this->data[$key] == null) {
-            return ($default_value !== null) ? $default_value : null;
-        }    
-        return $this->data[$key];            
+        return ($this->data[$key] == null) ? $default_value : $this->data[$key];         
     }
 
     public function getArray($key, $default_value = null)
@@ -150,7 +156,6 @@ class Collection implements \Iterator,CollectionInterface
     public function clear() 
     {
         $this->data = [];
-        $this->position = 0;
     }
 
     /**
@@ -161,5 +166,34 @@ class Collection implements \Iterator,CollectionInterface
     public function copy()     
     {
         return clone $this;
+    }
+
+    public function __get($key)
+    {
+        return $this->get($key);
+    }
+
+    public function __set($key,$value)
+    {
+        return $this->set($key,$value);
+    }
+
+    public function getByPath($path, $default_value = null)
+    {
+        $value = Arrays::getValue($this->data,$path);
+        return (empty($value) == true) ? $default_value : $value;
+    }
+    
+    public function addField($path, $value)
+    {
+        foreach ($this->data as $key => $item) {
+            if (is_array($item) == true) {
+                $current_value = Arrays::getValue($item,$path);
+                if ($current_value === null) {
+                    $this->data[$key] = Arrays::setValue($item,$path,$value);
+                }
+            }
+        }
+        return true;
     }
 }

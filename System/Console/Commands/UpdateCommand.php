@@ -23,9 +23,8 @@ class UpdateCommand extends ConsoleCommand
 
     protected function executeCommand($input, $output)
     {
-        $this->style->text('Update');
-        $this->style->newLine();
-
+        $this->style->writeLn('Update');
+    
         $result = ComposerApplication::updatePackage(System::getCorePackageName(),false,true);
         return $result;
     }

@@ -15,6 +15,13 @@ interface ComponentInterface
     public function hasContent();
     public function hasProperties();
     public function hasFiles($file_type = null);
+    
+    /**
+     * Return component files 
+     *
+     * @param string $file_type
+     * @return array
+     */
     public function getFiles($file_type = null);
     public function getProperties();
     public function getOptions();

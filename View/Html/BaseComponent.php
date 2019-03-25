@@ -13,11 +13,12 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Utils\Arrays;
 use Arikaim\Core\View\Template;
-use Arikaim\Core\Form\Properties;
+use Arikaim\Core\Utils\Properties;
 use Arikaim\Core\Access\Access;
 use Arikaim\Core\Utils\Mobile;
 use Arikaim\Core\View\Html\Component;
 use Arikaim\Core\Interfaces\View\ComponentInterface;
+use Arikaim\Core\System\Path;
 
 /**
  *  Base html component
@@ -74,7 +75,7 @@ class BaseComponent
     public function getPath(ComponentInterface $component, $full = true, $relative_path = null) 
     {
         if ($full == true) {
-            $template_name = Template::getTemplatePath($component->getTemplateName(),$component->getType());
+            $template_name = Path::getTemplatePath($component->getTemplateName(),$component->getType());
         } else {
             if ($component->getType() != Template::EXTENSION) {
                 $template_name = $component->getTemplateName();
@@ -142,6 +143,7 @@ class BaseComponent
         // check auth access 
         $auth = $component->getOption('access/auth');
         $access = Arikaim::access()->checkAccess($auth);   
+      
         if ($access == false) {
            $error = Arikaim::errors()->getError("ACCESS_DENIED");
         }
@@ -193,9 +195,8 @@ class BaseComponent
     public function create($name, $root_path, $language = null, $with_options = true)
     {
         $this->framework = Template::getCurrentFramework();
-        
+    
         $component = new Component($name,$root_path,$language);
-      
         $component->setFullPath($this->getPath($component,true));  
         $component->setFilePath($this->getPath($component,false)); 
         

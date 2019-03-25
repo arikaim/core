@@ -11,7 +11,7 @@ namespace Arikaim\Core\System;
 
 use Slim\Handlers\PhpError;
 
-class ApplicationError extends PhpError
+class ApplicationPHPError extends PhpError
 {
     
     /**
@@ -23,19 +23,14 @@ class ApplicationError extends PhpError
      */
     protected function renderHtmlErrorMessage(\Throwable $error)
     {
-        $title = 'Application Error';
+        $title = 'Application Error';       
+        $html = '<p>The application could not run because of the following error:</p>';
+        $html .= '<h2>Details</h2>';
+        $html .= $this->renderHtmlError($error);
 
-        if ($this->displayErrorDetails) {
-            $html = '<p>The application could not run because of the following error:</p>';
-            $html .= '<h2>Details</h2>';
+        while ($error = $error->getPrevious()) {
+            $html .= '<h2>Previous error</h2>';
             $html .= $this->renderHtmlError($error);
-
-            while ($error = $error->getPrevious()) {
-                $html .= '<h2>Previous error</h2>';
-                $html .= $this->renderHtmlError($error);
-            }
-        } else {
-            $html = '<p>A website error has occurred. Sorry for the temporary inconvenience.</p>';
         }
 
         $output = sprintf(

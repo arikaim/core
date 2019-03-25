@@ -95,16 +95,18 @@ class Component implements ComponentInterface
         return false;
     }
 
+    /**
+     * Return files 
+     *
+     * @param string $file_type
+     * @return array
+     */
     public function getFiles($file_type = null)
     {
         if ($file_type == null) {
             return $this->files;
         }
-
-        if (isset($this->files[$file_type]) == true) {
-            return $this->files[$file_type];
-        }
-        return [];
+        return (isset($this->files[$file_type]) == true) ? $this->files[$file_type] : [];          
     }
 
     public function getFullName()
@@ -114,7 +116,7 @@ class Component implements ComponentInterface
 
     public function getProperties()
     {
-        return $this->properties;
+        return (is_array($this->properties) == true) ? $this->properties : [];
     }
 
     public function setProperties(array $properties)

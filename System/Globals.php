@@ -28,10 +28,7 @@ function createEvent($params = [])
  */
 function defaultValue($variable, $default)
 {
-    if ($variable == null || empty($variable) == true) {
-        return $default;
-    } 
-    return $variable;
+    return (empty($variable) == true) ? $default : $variable; 
 }
 
 /**

@@ -10,9 +10,7 @@
 namespace Arikaim\Core\View;
 
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Form\Properties;
 use Arikaim\Core\View\Template;
-use Arikaim\Core\View\UiLibrary;
 
 class Theme 
 {
@@ -20,46 +18,6 @@ class Theme
 
     public function __construct() 
     {
-    }
-
-    public static function getLibraryThemeUrl($library_name, $theme_name = Self::DEFAULT_THEME_NAME)
-    {
-        return UiLibrary::getLibraryUrl($library_name) .  "/themes/$theme_name/";
-    }
-
-    public static function getLibraryThemesUrl($library_name)
-    {
-        return UiLibrary::getLibraryUrl($library_name) .  "/themes";
-    }
-
-    public static function getLibraryThemesPath($library_name)
-    {
-        return UiLibrary::getLibraryPath($library_name) . DIRECTORY_SEPARATOR . "themes";
-    }
-
-    public static function getLibraryThemePath($library_name, $theme_name = Self::DEFAULT_THEME_NAME)
-    {
-        return Self::getLibraryThemesPath($library_name) . DIRECTORY_SEPARATOR . $theme_name;
-    }
-
-    public static function getTemplateThemesUrl($template_name)
-    {
-        return Template::getTemplateUrl($template_name) . "/themes";
-    }
-
-    public static function getTemplateThemeUrl($template_name, $theme_name = Self::DEFAULT_THEME_NAME)
-    {
-        return Template::getTemplateUrl($template_name) . "/themes/$theme_name/";
-    }
-
-    public static function getTemplateThemesPath($template_name)
-    {
-        return Template::getTemplatePath($template_name) . DIRECTORY_SEPARATOR . "themes";
-    }
-
-    public static function getTemplateThemePath($template_name, $theme_name = Self::DEFAULT_THEME_NAME)
-    {
-        return Self::getTemplateThemesPath($template_name) . DIRECTORY_SEPARATOR . $theme_name;
     }
 
     public static function getCurrentTheme($template_name = null, $default_theme = null)

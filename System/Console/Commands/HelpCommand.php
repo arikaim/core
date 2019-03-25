@@ -9,6 +9,7 @@
  */
 namespace Arikaim\Core\System\Console\Commands;
 
+use Symfony\Component\Console\Input\InputOption;
 use Arikaim\Core\System\Console\ConsoleCommand;
 
 class HelpCommand extends ConsoleCommand
@@ -20,6 +21,9 @@ class HelpCommand extends ConsoleCommand
 
     protected function executeCommand($input, $output)
     {
-        $this->style->text('Help');
+        $this->showTitle('Help');
+
+        $command = $this->getApplication()->find('list');
+        $command->run($input, $output);
     }
 }

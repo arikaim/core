@@ -10,8 +10,8 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Arikaim\Core\Db\Uuid;
-use Arikaim\Core\Db\DateTimeAttribute;
+use Arikaim\Core\Traits\Db\Uuid;;
+use Arikaim\Core\Traits\Db\DateTimeAttribute;
 
 /**
  * User groups details database model

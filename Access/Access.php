@@ -27,11 +27,11 @@ class Access
     const AUTH_CUSTOM_TOKEN = 4;
 
     // permissions type
-    const FULL = ['read','write','delete','execute'];
-    const READ = ['read'];
-    const WRITE = ['write'];
-    const DELETE = ['delete'];
-    const EXECUTE = ['execute'];
+    const FULL      = ['read','write','delete','execute'];
+    const READ      = ['read'];
+    const WRITE     = ['write'];
+    const DELETE    = ['delete'];
+    const EXECUTE   = ['execute'];
 
     const CONTROL_PANEL = "ControlPanel";
     
@@ -39,16 +39,30 @@ class Access
     const JWT_TOKEN = 1;
     const CUSTOM_TOKEN = 2;
     
+    /**
+     * JWT token
+     *
+     * @var array
+     */
     private $token;
+    
+    /**
+     * Auth name
+     *
+     * @var array
+     */
     private $auth_names = ["None","Basic","Session","JWT","CWT"];
 
+    /**
+     * Constructor
+     */
     public function __construct() 
     {
         $this->initToken();
     }
     
     /**
-     * Return class constant value
+     * Return class constant value.
      *
      * @param string $constant_name Constant name.
      * @return mixed
@@ -237,8 +251,7 @@ class Access
      */
     public function getAuthType($auth_name)
     {
-        $key = array_search($auth_name,$this->auth_names);
-        return ($key === false) ? 0 : $key;           
+        return array_search($auth_name,$this->auth_names);       
     }
 
     /**
@@ -249,8 +262,7 @@ class Access
      */
     public function isValidAuthName($auth_name)
     {
-        $key = array_search($auth_name,$this->auth_names);
-        return ($key === false) ? false : true;           
+        return (array_search($auth_name,$this->auth_names) === false) ? false : true;     
     }
 
     /**
@@ -266,8 +278,7 @@ class Access
         $jwt = new Jwt();
         $jwt->set('uuid',$user_uuid);
         $jwt->set('user_id',$user_id);       
-        $token = $jwt->createToken();
-        return $token;
+        return $jwt->createToken();       
     }
 
     /**
@@ -277,22 +288,16 @@ class Access
      * @return string|false Base64 encoded JSON Web Token, Session ID or false if not found.
      */
     protected function readToken($request)
-    {
-        $header = "";       
-        if (empty($header) == true) {
-            $headers = $request->getHeader('Authorization');
-            $header = isset($headers[0]) ? $headers[0] : "";
-        }
-
+    {   
+        $headers = $request->getHeader('Authorization');
+        $header = isset($headers[0]) ? $headers[0] : "";
+    
         if (empty($header) && function_exists("apache_request_headers")) {
             $headers = apache_request_headers();
             $header = isset($headers['Authorization']) ? $headers['Authorization'] : "";
         }
 
-        if (preg_match('/Bearer\s+(.*)$/i', $header, $matches)) {
-            return $matches[1];
-        }
-        return false;
+        return (preg_match('/Bearer\s+(.*)$/i', $header, $matches) == true) ? $matches[1] : false;
     }
 
     /**
@@ -306,8 +311,6 @@ class Access
         if (is_numeric($auth) == false) {
             $auth = $this->getAuthType($auth);
         }
-     
-        $result = false;
         switch($auth) {
             case Self::AUTH_JWT: {
                 $result = $this->isJwtAuth();                
@@ -388,7 +391,7 @@ class Access
     }
 
     /**
-     * Remove token data.
+     * Remove token.
      *
      * @return void
      */

@@ -13,7 +13,7 @@ use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Arikaim;
 
 /**
- *Manage database connections
+ * Manage database connections
 */
 class Db  
 {

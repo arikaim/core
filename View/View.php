@@ -9,9 +9,14 @@
 */
 namespace Arikaim\Core\View;
 
+use Twig\Environment;
+use Twig\Extension\GlobalsInterface;
+use Twig\Loader\FilesystemLoader;
+
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Html\HtmlComponent;
 use Arikaim\Core\Utils\Collection;
+use Arikaim\Core\Cache\Cache;
 
 /**
  * View
@@ -25,12 +30,13 @@ class View
     public function __construct($path, $settings = [])
     {
         $this->loader = $this->createLoader($path);       
-        $this->environment = new \Twig_Environment($this->loader,$settings);
+        $this->environment = new Environment($this->loader,$settings);
+        
         $this->components = new Collection();
         $this->component = new HtmlComponent();
     }
 
-    public function addExtension(\Twig_ExtensionInterface $extension)
+    public function addExtension(GlobalsInterface $extension)
     {
         $this->getEnvironment()->addExtension($extension);
     }
@@ -75,7 +81,7 @@ class View
         if (is_string($paths) == true) {
             $paths = array($paths); 
         }
-        $loader = new \Twig_Loader_Filesystem($paths);
+        $loader = new FilesystemLoader($paths);
         return $loader;
     }
 

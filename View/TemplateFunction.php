@@ -18,6 +18,7 @@ use Arikaim\Core\Db\Paginator;
 use Arikaim\Core\Db\Search;
 use Arikaim\Core\View\Template;
 use Illuminate\Database\Capsule\Manager;
+use Arikaim\Core\System\Config;
 
 class TemplateFunction  
 {
@@ -26,27 +27,17 @@ class TemplateFunction
 
     public function __construct() 
     {
-        $this->allowed_classes = [];
+        $this->allowed_classes = Arikaim::config()->readConfig('allowed-classes.php');
         $this->deny_methods = [];
-        $this->allowClass(Factory::getCoreNamespace() . '\\Extension\\ExtensionsManager');     
-        $this->allowClass(Factory::getCoreNamespace() . '\\Db\\Paginator');
-        $this->allowClass(Factory::getCoreNamespace() . '\\Extension\\Routes');           
-        $this->allowClass(Factory::getCoreNamespace() . '\\View\\TemplatesManager');
-        $this->allowClass(Factory::getCoreNamespace() . '\\View\\UiLibrary');
-        $this->allowClass(Factory::getCoreNamespace() . '\\View\\Html\\HtmlComponent');
-        $this->allowClass(Factory::getCoreNamespace() . '\\System\\Install');
-        $this->allowClass(Factory::getCoreNamespace() . '\\System\\Update');
-        $this->allowClass(Factory::getCoreNamespace() . '\\Access\\Access');
-        $this->allowClass(Factory::getCoreNamespace() . '\\Utils\\Utils');
-        $this->allowClass(Factory::getCoreNamespace() . '\\Logger\\SystemLogger');
-        $this->allowClass(Factory::getCoreNamespace() . '\\System\\System');
-        $this->allowClass(Factory::getCoreNamespace() . '\\Module\\ModulesManager');
     }
 
-    public function service($service_name, $method_name, $params = null)
+    public function service($service_name, $method_name = null, $params = null)
     {
         $service = Arikaim::$service_name();
-        return $this->callMethod($service,$method_name,$params);       
+        if ($method_name != null) {
+            return $this->callMethod($service,$method_name,$params);  
+        }   
+        return $service;
     }
 
     public function callStatic($class_name, $method_name, $params = null)
@@ -187,10 +178,6 @@ class TemplateFunction
     {
         $result = $this->dbQuery($model_class_name,$query_builder,$extension_name,false,$debug);
         return result;
-        //if (isset($result[0]) == true) {
-        //    return $result[0];
-       // }
-        //return [];
     }
 
     public function createModel($class_name, $method_name = null, $args = null)
@@ -207,10 +194,7 @@ class TemplateFunction
     {
         $language = Template::getLanguage();
         $model = Model::Language()->where('code','=',$language)->first();
-        if (is_object($model) == true) {
-            return $model->toArray();
-        }
-        return null;
+        return (is_object($model) == true) ? $model->toArray() : null;
     }
 
     public function getOption($name,$default_value = null) 

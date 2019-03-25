@@ -13,7 +13,7 @@ class Utils
 {   
     public static function getClasses($php_code) 
     {
-        $classes = array();
+        $classes = [];
         $tokens = token_get_all($php_code);
         $count = count($tokens);
         for ($i = 2; $i < $count; $i++) {
@@ -44,8 +44,7 @@ class Utils
 
     public static function getRandomKey()
     {
-        $key = md5(uniqid(rand(), true));
-        return $key;
+        return md5(uniqid(rand(), true));
     }
 
     public static function getUUID() 
@@ -67,10 +66,7 @@ class Utils
     public static function isValidIp($ip_address)
     {
         $flags = FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6;
-        if (filter_var($ip_address, FILTER_VALIDATE_IP, $flags) === false) {
-            return false;
-        }
-        return true;
+        return (filter_var($ip_address, FILTER_VALIDATE_IP, $flags) === false) ? false : true;
     }
 
     public static function isImplemented($class_name,$interface_name)
@@ -80,19 +76,11 @@ class Utils
 
         foreach ($interfaces as $key => $interface_name) {
             $base_name = last( explode('\\',$interface_name));
-            if ( $base_name == $interface_name) return true;
+            if ($base_name == $interface_name) return true;
         }
         return false;
     }
 
-    public static function arrraySearch($array, $key, $value) 
-    {
-        foreach ($array as $item) {
-            if (isset($item[$key]) && $item[$key] == $value) return true;
-        }
-        return false;
-    }
-    
     public static function constant($name, $default_value = null)
     {
         return (defined($name) == true) ? constant($name) : $default_value; 
@@ -111,9 +99,9 @@ class Utils
         return false;
     }
     
-    public static function jsonEncode($text)
+    public static function jsonEncode(array $data)
     {
-        return json_encode($text, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     public static function cleanJson($text)
@@ -138,17 +126,13 @@ class Utils
 
     public static function getBaseClassName($full_class_name)
     {
-        $parts = explode('\\',$full_class_name);
-        return last($parts);
+        return last(explode('\\',$full_class_name));
     }
 
     public static function callStatic($class_name, $method, $args)
     {
         $callable = [$class_name,$method];
-        if (is_callable($callable) == false) {
-            return null;
-        }
-        return forward_static_call($callable,$args);
+        return (is_callable($callable) == false) ? null : forward_static_call($callable,$args);
     }
 
     public static function call($obj, $method, $args = null)
@@ -168,49 +152,31 @@ class Utils
             return Self::callStatic($class_name,$method,$args);  
         }
 
-        if (is_array($args) == true) {
-            return call_user_func_array($callable,$args);
-        }       
-        return call_user_func($callable,$args);
+        return (is_array($args) == true) ? call_user_func_array($callable,$args) : call_user_func($callable,$args);
     }
 
     public static function isUrl($text)
     {
-        if (filter_var($text, FILTER_VALIDATE_URL) == true) { 
-            return true;
-        }
-        return false;
+        return (filter_var($text, FILTER_VALIDATE_URL) == true) ? true : false; 
     }
 
     public static function isEmail($text)
     {
-        if (filter_var($text,FILTER_VALIDATE_EMAIL) == false) {
-            return false;
-        }
-        return true;
+        return (filter_var($text,FILTER_VALIDATE_EMAIL) == false) ? false : true;
     }
     
     public static function hasHtml($text)
     {
-        if($text != strip_tags($text)) {
-            return true;
-        }
-        return false;
+        return ($text != strip_tags($text)) ? true : false;
     }
 
     public static function removeBOM($text)
     {        
-        if (strpos(bin2hex($text), 'efbbbf') === 0) {
-            $text = substr($text, 3);
-        }
-        return $text;
+        return (strpos(bin2hex($text), 'efbbbf') === 0) ? substr($text, 3) : $text;
     }
 
     public static function isEmpty($value)
     {       
-        if (is_object($value) == true) {
-            return empty((array) $value);    
-        }
-        return empty($value);
+        return (is_object($value) == true) ? empty((array) $value) : empty($value);
     }
 }

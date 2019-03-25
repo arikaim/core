@@ -10,6 +10,8 @@
 namespace Arikaim\Core\Middleware;
 
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\System\Url;
+
 
 class SiteStats 
 {
@@ -21,7 +23,7 @@ class SiteStats
         $info['method'] = $request->getMethod();
         $info['path'] = $path;
         $info['domain'] = ARIKAIM_DOMAIN;
-        $info['base_url'] = ARIKAIM_BASE_URL;
+        $info['base_url'] = Url::ARIKAIM_BASE_URL;
         if (substr($info['base_url'],-1) == "/") {
             $info['base_url'] = substr($info['base_url'],0,-1);
         }
