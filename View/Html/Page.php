@@ -38,10 +38,17 @@ class Page extends BaseComponent implements ComponentViewInterface
         return $this->properties;
     }
 
+    public function loadPage($name, $response, $params = [], $language = null)
+    {
+        $html = $this->load($name,$params,$language);
+        return $response->getBody()->write($html);
+    }
+
     public function load($name, $params = [], $language = null)
     {     
         $component = $this->render($name,$params,$language);
-        return Arikaim::response()->getBody()->write($component->getHtmlCode());
+        return $component->getHtmlCode();
+      
     }
 
     public function render($name, $params = [], $language = null)

@@ -66,7 +66,7 @@ class PageLoader extends Controler
         }
 
         if (Arikaim::page()->has($page_name) == true) {
-            Arikaim::page()->load($page_name,$data,$language);
+            Arikaim::page()->loadPage($page_name,$response,$data,$language);
             return $response;       
         } 
         return $this->pageNotFound($request,$response,$data);
