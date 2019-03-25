@@ -36,7 +36,7 @@ class Collection implements CollectionInterface, \Countable, \ArrayAccess, \Iter
 
     public function offsetGet($key) 
     {
-        return $this->data[$key];
+        return (isset($this->data[$key]) == true) ? $this->data[$key] : null;
     }
 
     public function offsetSet($key, $value)
