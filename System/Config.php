@@ -26,7 +26,7 @@ class Config extends Collection
     {
         $data = [];
         if ($file_name != null) {
-            $data = Self::loadConfig($file_name);
+            $data = Self::loadConfig($file_name);           
             $this->file_name = $file_name;
         }
         parent::__construct($data);   
@@ -74,10 +74,7 @@ class Config extends Collection
 
     private function getKey($key_name)
     {
-        if ($key_name != "") {
-            return '[\'' . $key_name . '\']';
-        }
-        return "";
+        return ($key_name != "") ? '[\'' . $key_name . '\']' : "";          
     }
 
     private function getConfigArrayCode($config_key,$comment = "")
@@ -92,9 +89,8 @@ class Config extends Collection
 
     private function getValueAsText($value)
     {
-        if (gettype($value) == "boolean") {
-            if ($value == false) return "false"; 
-            if ($value == true)  return "true"; 
+        if (gettype($value) == "boolean") {           
+            return ($value == true) ? "true" : "false"; 
         }       
         return "\"$value\"";
     }
@@ -112,18 +108,18 @@ class Config extends Collection
 
     public function saveConfigFile($file_name = null)
     {
-        if ($file_name == null) {
-            $file_name = $this->file_name;
-        }
-        $file_name = Path::CONFIG_PATH . $file_name;
-        if (File::isWritable($file_name) == false) {
-            File::setWritable($file_name);
+        $file_name = (empty($file_name) == true) ? $this->file_name : $file_name;
+        
+        $full_file_name = Path::CONFIG_PATH . $file_name;
+        if (File::isWritable($full_file_name) == false) {
+            File::setWritable($full_file_name);
         }
         $content = $this->getFileContent();     
-        $result = File::write($file_name,$content);
+        $result = File::write($full_file_name,$content);
         if ($result == true) {
             $this->data = Self::loadConfig($file_name);
         }
+        
         return $result;
     }
 

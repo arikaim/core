@@ -37,7 +37,7 @@ class Install
     {    
         // clear errors before start
         Arikaim::errors()->clear();
-    
+
         // create database if not exists  
         $result = Arikaim::db()->createDb(Arikaim::config('db/database'),Arikaim::config('db/charset'),Arikaim::config('db/collation'));  
         if ($result == false) {

@@ -45,7 +45,7 @@ class Install extends ApiControler
             Arikaim::config()->setValue('db/database',$data->get('database'));
             // save and reload config file
             Arikaim::config()->saveConfigFile();
-  
+            
             $result = Arikaim::db()->testConnection(Arikaim::config('db'));
             if ($result == true) {          
                 // do install
