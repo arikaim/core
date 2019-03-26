@@ -114,9 +114,10 @@ class ServiceContainer
         $this->container['config'] = function() {                         
             return new \Arikaim\Core\System\Config("config.php");          
         };
+
         // Cache 
-        $this->container['cache'] = function() {   
-            $disabeld = $this->container->get('config')->getByPath('settings/cache_disabled',false);       
+        $this->container['cache'] = function($container) {   
+            $disabeld = $container->get('config')->getByPath('settings/cache_disabled',false);       
             return new \Arikaim\Core\Cache\Cache(null,$disabeld);
         };
         // route strategy (Validator strategy)
@@ -138,15 +139,15 @@ class ServiceContainer
             return new \Arikaim\Core\Access\Access();
         };
         // Cookie 
-        $this->container['cookies'] = function() {
-            $request = $this->container->get('request');
+        $this->container['cookies'] = function($container) {
+            $request = $container->get('request');
             return new \Slim\Http\Cookies($request->getCookieParams());
         };
         // Init template view. 
-        $this->container['view'] = function () {   
+        $this->container['view'] = function ($container) {   
             $paths = [Path::EXTENSIONS_PATH,Path::TEMPLATES_PATH];               
-            $cache = (isset($this->container->get('config')['settings']['cache']) == true) ? Path::VIEW_CACHE_PATH : false;
-            $debug = (isset($this->container->get('config')['settings']['debug']) == true) ? $this->container->get('config')['settings']['debug'] : false;
+            $cache = (isset($container->get('config')['settings']['cache']) == true) ? Path::VIEW_CACHE_PATH : false;
+            $debug = (isset($container->get('config')['settings']['debug']) == true) ? $container->get('config')['settings']['debug'] : false;
              
             $view = new \Arikaim\Core\View\View($paths,['cache' => $cache,'debug' => $debug]);
             // add template extensions
@@ -205,11 +206,11 @@ class ServiceContainer
             new \GuzzleHttp\Client();
         }; 
         // Application error handler
-        $this->container['errorHandler'] = function($container) {
+        $this->container['errorHandler'] = function() {
             return new \Arikaim\Core\System\ApplicationError();            
         };
         // Application Throwable error handler
-        $this->container['phpErrorHandler'] = function($container) {
+        $this->container['phpErrorHandler'] = function() {
             return new \Arikaim\Core\System\ApplicationPHPError();            
         };
     }
