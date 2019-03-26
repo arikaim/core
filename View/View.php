@@ -10,7 +10,7 @@
 namespace Arikaim\Core\View;
 
 use Twig\Environment;
-use Twig\Extension\GlobalsInterface;
+use Twig\Extension\ExtensionInterface;
 use Twig\Loader\FilesystemLoader;
 
 use Arikaim\Core\Arikaim;
@@ -27,33 +27,33 @@ class View
     private $environment;
     private $components;
 
-    public function __construct($path, $settings = [])
+    public function __construct($paths, $settings = [])
     {
-        $this->loader = $this->createLoader($path);       
+        $this->loader = $this->createLoader($paths);       
         $this->environment = new Environment($this->loader,$settings);
         
         $this->components = new Collection();
         $this->component = new HtmlComponent();
     }
 
-    public function addExtension(GlobalsInterface $extension)
+    public function addExtension(ExtensionInterface $extension)
     {
-        $this->getEnvironment()->addExtension($extension);
+        $this->environment->addExtension($extension);
     }
 
     public function fetch($template, $params = [])
     {       
-        return $this->getEnvironment()->render($template, $params);
+        return $this->environment->render($template, $params);
     }
 
     public function fetchBlock($template, $block, $params = [])
     {
-        return $this->getEnvironment()->loadTemplate($template)->renderBlock($block, $params);
+        return $this->environment->loadTemplate($template)->renderBlock($block, $params);
     }
 
     public function fetchFromString($string, $params = [])
     {
-        return $this->getEnvironment()->createTemplate($string)->render($params);
+        return $this->environment->createTemplate($string)->render($params);
     }
 
     public function render($template, $params = [])
@@ -73,16 +73,13 @@ class View
 
     public function addPath($path)
     {
-        return $this->getEnvironment()->getLoader()->addPath($path); 
+        return $this->environment->getLoader()->addPath($path); 
     }
 
     private function createLoader($paths)
     {
-        if (is_string($paths) == true) {
-            $paths = array($paths); 
-        }
-        $loader = new FilesystemLoader($paths);
-        return $loader;
+        $paths = (is_array($paths) == false) ? $paths = [$paths] : $paths;
+        return new FilesystemLoader($paths);
     }
 
     public function components()

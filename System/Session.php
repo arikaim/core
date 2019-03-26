@@ -105,14 +105,7 @@ class Session
     
     public function get($name,$default_value = null)
     {
-        if (isset($_SESSION[$name])) {
-            return $_SESSION[$name];
-        } 
-        if ($default_value != null) {
-            $this->set($name,$default_value);
-            return $default_value;
-        }
-        return null;
+        return (isset($_SESSION[$name]) == true) ? $_SESSION[$name] : $default_value;
     }
     
     public function getValue($path)
