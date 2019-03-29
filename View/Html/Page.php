@@ -84,11 +84,11 @@ class Page extends BaseComponent implements ComponentViewInterface
         
         // include template files
 
-        echo $component->getTemplateName();
+      //  echo $component->getTemplateName();
         //exit();
         Template::includeFiles($component->getTemplateName());
 
-        print_r(Template::getCssFiles());
+      //  print_r(Template::getCssFiles());
         //exit();
         $properties = $component->getProperties();
         if (isset($properties['head']) == true) {
