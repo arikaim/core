@@ -52,6 +52,8 @@ class ExtensionsManager extends PackageManager
         if ($status != null) {
             $extensions = $extensions->where('type','=',$type);
         }
+        $extensions = $extensions->orderBy('position')->orderBy('id');
+
         return $extensions->get()->keyBy('name');
     }
 }

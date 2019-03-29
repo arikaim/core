@@ -11,12 +11,17 @@ namespace Arikaim\Core\Logger;
 
 use Arikaim\Core\Utils\Utils;
 
-class SystemLogsProcessor
+/**
+ * Log processor class
+ */
+class LogsProcessor
 {    
-    public function __construct()
-    {
-    }
-
+    /**
+     * Add current time in log record
+     *
+     * @param array $record
+     * @return void
+     */
     public function __invoke(array $record)
     {
         $record['timestamp'] = time();

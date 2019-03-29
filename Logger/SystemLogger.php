@@ -9,81 +9,68 @@
  */
 namespace Arikaim\Core\Logger;
 
-use Monolog\Logger;
+use Monolog\Logger as MonologLogger;
 use Monolog\Handler\StreamHandler;
 use Psr\Log\LogLevel;
 
 use Arikaim\Core\Db\Paginator;
-use Arikaim\Core\Arikaim;
-use Arikaim\Core\Logger\DbHandler;
 use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Logger\JsonLogsFormatter;
-use Arikaim\Core\Logger\SystemLogsProcessor;
+use Arikaim\Core\Logger\LogsProcessor;
+use Arikaim\Core\System\Path;
+use Arikaim\Core\Logger\Logger;
 
-class SystemLogger
+/**
+ * Logger
+ */
+class SystemLogger extends Logger
 {
-    private $stats;
-    private $system_log;
+    /**
+     * Logs file name
+     *
+     * @var string
+     */
     private $logs_file_name;
 
-    public function __construct() 
-    {      
-        $this->logs_file_name = SystemLogger::getLogsPath() . "errors.log";        
-        // init site stats logger   
-        if (Arikaim::options('logger.stats') == true) {               
-            $handler = new DbHandler(Logger::DEBUG);
-            $this->stats = new Logger('stats');
-            $this->stats->pushHandler($handler);
-        }
+    /**
+     * Constructor
+     *
+     * @param boolean $enabled
+     * @param string $logs_file_name
+     */
+    public function __construct($enabled = false, $logs_file_name = null) 
+    {         
+        $logs_file_name = (empty($logs_file_name) == true) ? "errors.log" : $logs_file_name;
+        $this->logs_file_name = Path::LOGS_PATH . "errors.log"; 
+
         // init system logger
-        if (Arikaim::options('logger') == true) {
-            $this->system_log = new Logger('system');            
-            $handler = new StreamHandler($this->logs_file_name, Logger::DEBUG);
-            $json_format = new JsonLogsFormatter();            
-            $handler->setFormatter($json_format); 
+        $logger = new MonologLogger('system');            
+        $handler = new StreamHandler($this->logs_file_name, Logger::DEBUG);
+        $json_format = new JsonLogsFormatter();            
+        $handler->setFormatter($json_format); 
 
-            $proccesssor = new SystemLogsProcessor();
-            $this->system_log->pushHandler($handler);
-            $this->system_log->pushProcessor($proccesssor);
-        }
+        $proccesssor = new LogsProcessor();
+        $logger->pushHandler($handler);
+        $logger->pushProcessor($proccesssor);
+
+        parent::__construct($enabled,$logger);
     }
 
-    public static function getLogsPath() 
-    {
-        return ARIKAIM_ROOT_PATH . join(DIRECTORY_SEPARATOR, array(ARIKAIM_BASE_PATH,'arikaim','logs')) . DIRECTORY_SEPARATOR;
-    }
-
-    public function addStats($message, $context = [], $level = LogLevel::INFO) 
-    {        
-        if (is_object($this->stats) == false) {
-            return false;
-        }
-        $this->stats->log($level,$message,$context);
-    }
-
-    public function __call($name, $arguments)
-    {           
-        $message = $arguments[0];
-        $context = isset($arguments[1]) ? $arguments[1] : [];
-        if (is_object($this->system_log) == true) {
-            return $this->system_log->{$name}($message,$context);
-        }
-        return false;
-    }
-    
-    public function log($level, $message, array $context = [])
-    {   
-        if (is_object($this->system_log) == true) {
-            return $this->system_log->log($level,$message,$context);
-        }
-        return false;
-    }
-
+    /**
+     * Delete logs file
+     *
+     * @return bool
+     */
     public function deleteSystemLogs()
     {
         return File::delete($this->logs_file_name);
     }
 
+    /**
+     * Read logs file with paginator
+     *
+     * @return void
+     */
     public function readSystemLogs()
     {       
         $logs_text ="[";
@@ -98,11 +85,7 @@ class SystemLogger
         $result['rows'] = [];
         $total_rows = count($logs);
 
-        if ($page == 1) {
-            $start = 0;
-        } else {
-            $start = $page * $per_page;
-        }
+        $start = ($page == 1) ? 0 : ($page * $per_page);          
         $end = $start + $per_page;
        
         if ($total_rows < $end) {

@@ -29,18 +29,15 @@ class Model
         try {
             $full_class_name = Self::getFullClassName($class_name,$extension_name); 
             $instance = Factory::createInstance($full_class_name);
-            if (Self::isValidModel($instance) == true) {
-                return $instance;
-            }
-        } catch(\Exception $e) {
-            return null;
+            return (Self::isValidModel($instance) == true) ? $instance : null;              
+        } catch(\Exception $e) {           
         }
         return null;
     }
 
     public static function getFullClassName($class_name, $extension_name = null)
     {
-        if ($extension_name == null || empty($extension_name) == true) {
+        if (empty($extension_name) == true) {
             return Factory::getModelClass($class_name);
         }
         return Factory::getExtensionModelClass($extension_name,$class_name);
@@ -63,7 +60,9 @@ class Model
     {  
         $extension_name = FunctionArguments::getArgument($args,0,"string");
         $create_table = FunctionArguments::getArgument($args,0,"boolean");        
-        $instance = Self::create($name,$extension_name);
+        return Self::create($name,$extension_name);
+        ////   For remove
+        /* 
         if ($instance == null) {
             return null;
         }   
@@ -74,6 +73,7 @@ class Model
             }
         }
         return $instance;     
+        */
     }
     
     public static function isValidModel($instance)

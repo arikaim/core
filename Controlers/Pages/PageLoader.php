@@ -80,11 +80,9 @@ class PageLoader extends Controler
                 return false;
             }
             Template::setLanguage($language);
-        } else {            
-            $language = Model::Language()->getDefaultLanguage();
-            Template::setLanguage($language);
-        }
-        return $language;
+        }     
+
+        return Template::getLanguage();
     }
 
     public function loadControlPanel($request, $response, $data = []) 

@@ -7,9 +7,8 @@
  * @license     http://www.arikaim.com/license.html
  * 
  */
-namespace Arikaim\Core\System;
+namespace Arikaim\Core\System\Error;
 
-use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Utils\Collection;
 use Arikaim\Core\System\Config;

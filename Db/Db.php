@@ -17,28 +17,33 @@ use Arikaim\Core\Arikaim;
 */
 class Db  
 {
+    /**
+     * Capsule manager object
+     *
+     * @var Illuminate\Database\Capsule\Manager
+     */
     private $capsule;
 
-    public function __construct($db_config) 
+    public function __construct($config) 
     {
-        $this->init($db_config);
+        $this->init($config);
     }
 
     /**
      * Create db connection and boot Eloquent
      *
-     * @param array $db_config
+     * @param array $config
      * @return boolean
      */
-    public function init($db_config)
+    public function init($config)
     {
         try {                  
             $this->capsule = new Manager();
-            $this->capsule->addConnection($db_config);
+            $this->capsule->addConnection($config);
             $this->capsule->setEventDispatcher(new \Illuminate\Events\Dispatcher());
             $this->capsule->setAsGlobal();
             // schema db             
-            $this->initSchemaConnection($db_config);
+            $this->initSchemaConnection($config);
             $this->capsule->bootEloquent();
 
         } catch(\PDOException $e) {
@@ -116,10 +121,16 @@ class Db
         return true;
     }
 
-    public function testConnection($db_config)
+    /**
+     * Test db connection
+     *
+     * @param array $config
+     * @return bool
+     */
+    public function testConnection($config)
     {                
         try {
-            $this->initSchemaConnection($db_config);     
+            $this->initSchemaConnection($config);     
             $this->capsule->getConnection('schema')->reconnect();
             $result = $this->checkConnection($this->capsule->getConnection('schema'));      
         } catch(\Exception $e) {   
@@ -129,21 +140,33 @@ class Db
         return $result;
     }
 
-    public function initConnection($db_config)
+    /**
+     * Init db connection
+     *
+     * @param array $config
+     * @return void
+     */
+    public function initConnection($config)
     {
-        $this->capsule->addConnection($db_config,'new');
+        $this->capsule->addConnection($config,'new');
         $this->capsule->getDatabaseManager()->setDefaultConnection('new');
         $this->capsule->setAsGlobal();
     
-        $this->initSchemaConnection($db_config);
+        $this->initSchemaConnection($config);
         $this->capsule->getConnection('schema')->reconnect();
 
         $this->capsule->bootEloquent();
     }
 
-    private function initSchemaConnection($db_config)
+    /**
+     * Add db schema conneciton
+     *
+     * @param array $config
+     * @return void
+     */
+    private function initSchemaConnection($config)
     {
-        $db_config['database'] = 'information_schema';             
-        $this->capsule->addConnection($db_config,"schema");
+        $config['database'] = 'information_schema';             
+        $this->capsule->addConnection($config,"schema");
     }
 }

@@ -33,16 +33,13 @@ class Options extends Model
         
     private $options = [];
   
-    public function read($key) 
+    public function read($key, $default_value = null) 
     {
         try {
             $model = $this->where('key','=',$key)->first();
-            if (is_object($model) == false) {
-                return null;
-            }
-            return $model->value;                        
+            return (is_object($model) == false) ? $default_value : $model->value;                      
         } catch(\Exception $e) {
-            return null;
+            return $default_value;
         }
     }
 
@@ -84,10 +81,10 @@ class Options extends Model
 
     public function loadOptions()
     {
-        $ooptions = Arikaim::cache()->fetch('options');
-        if (is_array($ooptions) == true) {
-            $this->options = $ooptions;
-            return true;
+        $options = Arikaim::cache()->fetch('options');
+        if (is_array($options) == true) {
+            $this->options = $options;
+            return $this;
         }
         try {
             $model = $this->where('auto_load','=','1')->select('key','value')->get();
@@ -96,12 +93,12 @@ class Options extends Model
                     return [$item['key'] => $item['value']];
                 })->toArray();
                 Arikaim::cache()->save('options',$this->options,2);
-                return true;
+                return $this;
             }               
         } catch(\Exception $e) {
 
         }
-        return false;
+        return $this;
     }
 
     private function setOption($key,$value)
@@ -111,20 +108,8 @@ class Options extends Model
 
     public function get($key, $default_value = null)
     {
-        if (isset($this->options[$key]) == true) {
-            return $this->options[$key];
-        }
-        $value = $this->read($key);
-        if ($value == null) {
-            if ($default_value != null) {
-                return $default_value;
-            }
-            return null;
-        }       
-        if (Utils::isJSON($value) == true) {            
-            $value = json_decode($value,true);           
-        }
-        return $value;
+        $value = (isset($this->options[$key]) == true) ? $this->options[$key] : $this->read($key,$default_value);
+        return (Utils::isJSON($value) == true) ? json_decode($value,true) : $value;                      
     }   
     
     public function getLoaded()

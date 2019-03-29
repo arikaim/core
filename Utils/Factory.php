@@ -31,6 +31,18 @@ class Factory
         return ((is_object($instance) == true) ? $instance : null);                
     }
 
+    public static function createSchema($class_name, $extension_name = null)
+    {
+        $schema_class_name = Self::getSchemaClass($class_name,$extension_name);
+        $instance = Self::createInstance($schema_class_name);
+
+        if (is_subclass_of($instance,Path::CORE_NAMESPACE . "\\Db\\Schema") == false) {
+            throw new \Exception("Not valid schema class '$schema_class_name'");
+            return null;           
+        } 
+        return $instance;
+    }
+
     public static function getConstant($class_name,$name)
     {
         return constant($class_name . "::" . $name);
@@ -208,5 +220,19 @@ class Factory
     public static function getExtensionEventsNamespace($extension_name)
     {
         return Self::getExtensionNamespace($extension_name) . "\\Events";
+    }
+
+    public static function getSchemaNamespace($extension_name = null)
+    {
+        if ($extension_name != null) {
+            $extension_name = ucfirst($extension_name);
+            return Path::EXTENSIONS_NAMESPACE . "\\$extension_name\\Models\\Schema\\";
+        }
+        return Path::CORE_NAMESPACE . "\\Models\\Schema\\";
+    }
+
+    public static function getSchemaClass($base_class, $extension_name)
+    {
+        return Self::getSchemaNamespace($extension_name) . $base_class;
     }
 }

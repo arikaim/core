@@ -12,6 +12,7 @@ namespace Arikaim\Core\View;
 use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Theme;
+use Arikaim\Core\View\Html\Component;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\System\Path;
 use Arikaim\Core\System\Url;
@@ -23,12 +24,9 @@ use Arikaim\Core\Packages\Library\LibraryManager;
 */
 class Template
 {
-    const USER      = 1;
-    const SYSTEM    = 2;
-    const EXTENSION = 3;
+    const SYSTEM_TEMPLATE_NAME  = 'system';
+    const DEFAULT_TEMPLATE_NAME = 'default';
 
-    const SYSTEM_TEMPLATE_NAME = 'system';
-    
     public function __construct() 
     {
     }
@@ -54,14 +52,13 @@ class Template
                 array_push($frameworks,$library_name);
             }
         }
-        
         Arikaim::page()->properties()->set('ui.library.files',$include_lib);       
         Arikaim::session()->set("ui.included.libraries",json_encode($library_list));
         Arikaim::session()->set("ui.included.frameworks",json_encode($frameworks));
         return true;
     }
 
-    public static function includeThemeFiles($template_name, $type)
+    public static function includeThemeFiles($template_name)
     {  
         // cehck cache
         $file_url = Arikaim::cache()->fetch('template.theme.file');
@@ -85,14 +82,14 @@ class Template
            
         if (empty($library) == false) {
             // load theme from library           
-            $theme_file_name = $library_package->getThemeFile();
-            $file_url = Url::getLibraryThemeFileUrl($library,$theme_file_name,$current_theme);
+            $file = $library_package->getThemeFile($current_theme);
+            $file_url = Url::getLibraryThemeFileUrl($library,$file,$current_theme);
         } else {
             // load from template
             $file = Theme::getThemeFile($properties,$current_theme);
-            $file_url = Self::getThemeFileUrl($template_name,$current_theme,$file);
+            $file_url = Url::getThemeFileUrl($template_name,$current_theme,$file);
         }
-        if ($file_url != false) {
+        if ($file_url !== false) {
             $theme['name'] = $current_theme;
             $theme['file'] = $file;
             Arikaim::page()->properties()->add('template.theme',$file_url);
@@ -103,18 +100,14 @@ class Template
         return false;
     }
 
-    public static function getThemeFileUrl($template_name, $theme_name, $theme_file)
+    public static function includeFiles($template_name) 
     {
-        return Self::getTemplateThemeUrl($template_name,$theme_name) . $theme_file;       
-    }
-
-    public static function includeFiles($type) 
-    {
-        $url = Self::getTemplateUrl($type);  
-        $template_name = Self::getTemplateName($type);
-
+        $url = Url::getTemplateUrl($template_name);  
+     
         $files = Arikaim::cache()->fetch('template.files');
         if (is_array($files) == false) {
+            echo "fetch";
+            //exit();
             $manager = new TemplatesManager();
             $properties = $manager->createPackage($template_name)->getProperties();
             
@@ -133,13 +126,13 @@ class Template
             Arikaim::cache()->save('template.files',$files,3);
         }
       
-        Arikaim::page()->properties()->merge('template.js.files',$files['js']);
-        Arikaim::page()->properties()->merge('template.css.files',$files['css']);
+        Arikaim::page()->properties()->set('template.js.files',$files['js']);
+        Arikaim::page()->properties()->set('template.css.files',$files['css']);
 
         // include ui lib files                
         Self::includeLibraryFiles($files['library']);  
         // include theme files 
-        Self::includeThemeFiles($template_name,$type);  
+        Self::includeThemeFiles($template_name);  
         // set loader component
         Arikaim::session()->set("template.loader",$files['loader']);
 
@@ -179,9 +172,9 @@ class Template
 
     public static function getVars()
     {
-        $template_url = Self::getTemplateUrl();
         $template_name = Self::getTemplateName();
-        $system_template_name = Self::getTemplateUrl(Self::SYSTEM_TEMPLATE_NAME);
+        $template_url = Url::getTemplateUrl($template_name);
+        $system_template_name = Url::getTemplateUrl(Self::SYSTEM_TEMPLATE_NAME);
 
         return [
             'base_path'             => ARIKAIM_BASE_PATH,
@@ -191,8 +184,8 @@ class Template
             'ui_path'               => ARIKAIM_BASE_PATH . Path::ARIKAIM_VIEW_PATH,
             'system_template_url'   => $system_template_name,
             'system_template_name'  => Self::SYSTEM_TEMPLATE_NAME,
-            'ui_library_path'       => ARIKAIM_BASE_PATH . DIRECTORY_SEPARATOR . Path::ARIKAIM_VIEW_PATH . DIRECTORY_SEPARATOR . 'library' . DIRECTORY_SEPARATOR,
-            'ui_library_url'        => Url::ARIKAIM_VIEW_URL . "/library/"            
+            'ui_library_path'       => Path::LIBRARY_PATH,
+            'ui_library_url'        => Url::LIBRARY_URL      
         ];
     }
 
@@ -203,9 +196,7 @@ class Template
 
     public static function getMacroPath($macro_name, $template_name = null)
     {
-        if (empty($template_name) == true) {
-            $template_name = Self::getTemplateName();
-        }
+        $template_name = (empty($template_name) == true) ? Self::getTemplateName() : $template_name;          
         return DIRECTORY_SEPARATOR . $template_name . DIRECTORY_SEPARATOR . "macros" . DIRECTORY_SEPARATOR . $macro_name;
     }
 
@@ -214,58 +205,28 @@ class Template
         return Self::getMacroPath($macro_name,Self::SYSTEM_TEMPLATE_NAME);
     }
 
-    public static function getTemplateName($type = null)     
-    {    
-        if ($type == Self::SYSTEM) {
-            return Self::SYSTEM_TEMPLATE_NAME;
-        }
+    public static function getTemplateName()     
+    {           
         try {            
-            if (is_object(Arikaim::options()) == false) {
-                return "default";
-            } 
+            return Arikaim::options()->get('current.template',Self::DEFAULT_TEMPLATE_NAME);               
         } catch(\Exception $e) {
-            return "default";
+            return Self::DEFAULT_TEMPLATE_NAME;
         }
-        return Arikaim::options()->get('current.template',"default");     
     }
     
-    public static function getTemplateThemeUrl($template_name, $theme_name = Self::DEFAULT_THEME_NAME)
-    {
-        return Self::getTemplateUrl($template_name) . "/themes/$theme_name/";
-    }
-
-    public static function getTemplateUrl($template_name = null, $type = null) 
-    {       
-        if ($type == Self::EXTENSION) {
-            return Url::getExtensionViewUrl($template_name);
-        }
-        if ($type == Self::SYSTEM) {
-            $template_name = Self::SYSTEM_TEMPLATE_NAME;
-        }
-        if ($template_name == Self::SYSTEM) {
-            $template_name = Self::SYSTEM_TEMPLATE_NAME;              
-        }
-        if (($template_name == null) || (is_numeric($template_name) == true))  {           
-            $template_name = Template::getTemplateName();
-        } 
-        return Url::ARIKAIM_VIEW_URL . "/templates/$template_name";       
-    }
-
     public static function getLanguage() 
     {  
         $language = Arikaim::session()->get('language');
-        if ($language == null) {
-            $language = Arikaim::cookies()->get('language');     
-        }
+        if (empty($language) == true) {
+            $language = Arikaim::cookies()->get('language');
+        }   
         if (empty($language) == true) { 
             try {
                 $language = Model::Language()->getDefaultLanguage();
             } catch(\Exception $e) {
                 $language = Arikaim::config('settings/defaultLanguage');
-                if (empty($language) == true ) {
-                    $language = "en";
-                }   
-            }           
+                $language = (empty($language) == true) ? "en" : $language;
+            }                 
         }            
         return $language;
     }
@@ -357,9 +318,10 @@ class Template
         }
         $items = [];
         foreach (new \DirectoryIterator($path) as $file) {
-            if (($file->isDot() == true) || ($file->isDir() == true)) continue;
+            if ($file->isDot() == true || $file->isDir() == true) continue;
+            
             $file_ext = $file->getExtension();
-            if (($file_ext != "html") && ($file_ext != "htm")) continue;           
+            if ($file_ext != "html" && $file_ext != "htm") continue;           
             
             $item['name'] = str_replace(".$file_ext",'',$file->getFilename());
             array_push($items,$item);            

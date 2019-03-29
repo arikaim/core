@@ -28,4 +28,6 @@ interface ComponentInterface
     public function getName();
     public function getType();
     public function isValid();
+
+    public function getUrl();
 }

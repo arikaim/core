@@ -19,7 +19,18 @@ use Lcobucci\JWT\Signer\Hmac\Sha256;
 */
 class Jwt
 {
+    /**
+     * JWT object
+     *
+     * @var object
+     */
     private $token;
+    
+    /**
+     * JWT key
+     *
+     * @var strin
+     */
     private $key;
 
     /**

@@ -12,27 +12,38 @@ namespace Arikaim\Core\Middleware;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\System\Url;
 
-
+/**
+ * Site stats middleware class
+ */
 class SiteStats 
 {
+    /**
+     * Add record to site stats 
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $next
+     * @return object
+     */
     public function __invoke($request, $response, $next) 
     {   
         $uri = $request->getUri();
         $path = $uri->getPath();
-          
-        $info['method'] = $request->getMethod();
-        $info['path'] = $path;
-        $info['domain'] = ARIKAIM_DOMAIN;
-        $info['base_url'] = Url::ARIKAIM_BASE_URL;
-        if (substr($info['base_url'],-1) == "/") {
-            $info['base_url'] = substr($info['base_url'],0,-1);
-        }
-        $info['url'] = $info['base_url'] . "/" . $path;
-        $info['http_user_agent'] = $request->getheader('HTTP_USER_AGENT');
-        $info['client_ip'] = $request->getAttribute('client_ip');
-    
+        
+        $base_url = (substr(Url::ARIKAIM_BASE_URL,-1) == "/") ? substr(Url::ARIKAIM_BASE_URL,0,-1) : Url::ARIKAIM_BASE_URL;
+
+        $log = [
+            'method'    => $request->getMethod(),
+            'path'      => $path,
+            'domain'    => ARIKAIM_DOMAIN,
+            'base_url'  => $base_url,
+            'http_user_agent' => $request->getheader('HTTP_USER_AGENT'),
+            'client_ip' => $request->getAttribute('client_ip'),
+            'url'       => $base_url. "/" . $path
+        ];
+ 
         if (Arikaim::errors()->hasError() == false) {            
-            Arikaim::logger()->addStats('Request',$info);
+            Arikaim::stats()->addStats('Request',$log);
         }
         $response = $next($request, $response);
         return $response;        

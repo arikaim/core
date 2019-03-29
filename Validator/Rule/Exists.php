@@ -32,8 +32,9 @@ class Exists extends Rule
     public function __construct($model_class_name, $field_name, $extension_name = null, $error = "VALUE_NOT_EXIST_ERROR") 
     {
         parent::__construct(null,null,$error);
+
         $this->field_name = $field_name;
-        $this->model = Model::create($model_class_name,$extension_name);        
+        $this->model = Model::create($model_class_name,$extension_name);      
     }
 
     /**
@@ -44,8 +45,7 @@ class Exists extends Rule
      */
     public function customFilter($value) 
     {           
-        $data = $this->model->where($this->field_name,'=',$value)->first();
-        return (is_object($data) == false) ? false : true;                   
+        return (bool)$this->model->where($this->field_name,'=',$value)->exists();
     } 
 
     /**

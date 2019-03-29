@@ -11,6 +11,7 @@ namespace Arikaim\Core\View\Html;
 
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Html\BaseComponent;
+use Arikaim\Core\View\Html\Component;
 use Arikaim\Core\View\Template;
 use Arikaim\Core\Utils\Collection;
 use Arikaim\Core\Interfaces\View\ComponentViewInterface;
@@ -48,19 +49,13 @@ class Page extends BaseComponent implements ComponentViewInterface
     {     
         $component = $this->render($name,$params,$language);
         return $component->getHtmlCode();
-      
     }
 
     public function render($name, $params = [], $language = null)
     {
         $component = $this->create($name,'pages',$language);
+        $params['component_url'] = $component->getUrl();
 
-        if ($component->hasContent() == false) {
-            if ($component->getType() != Template::SYSTEM) {
-                $component = $this->create("system:" . $component->getPath(),'pages',$language);                
-            }
-        }
-        
         if ($component->hasContent() == false) {
             $component = $this->render('page-not-found',$params);
         }
@@ -70,41 +65,39 @@ class Page extends BaseComponent implements ComponentViewInterface
         }
 
         $page_body = $this->getCode($component,$params);
-        $index_page = $this->getIndexPath($component->getType());
+        $index_page = $this->getIndexFile($component->getTemplateName());
 
         $params = array_merge($params,['body' => $page_body, 'head' => $this->head]);
         $component->setHtmlCode(Arikaim::view()->fetch($index_page,$params));
         return $component;
     }
 
-    private function getIndexPath($page_type)
+    private function getIndexFile($template_name)
     {
-        if ($page_type == Template::SYSTEM) {
-            return Template::SYSTEM_TEMPLATE_NAME . DIRECTORY_SEPARATOR . "index.html";
-        }
-        return Template::getTemplateName() . DIRECTORY_SEPARATOR . "index.html";
+        return $template_name . DIRECTORY_SEPARATOR . "index.html";
     }
 
     public function getCode(ComponentInterface $component, $params = [])
     {
         $this->includeFiles($component);
-        $this->processPageOptions($component);
-
         $this->setCurrent($component->getPath());
-        Template::includeFiles($component->getType());
+        
+        // include template files
 
+        echo $component->getTemplateName();
+        //exit();
+        Template::includeFiles($component->getTemplateName());
+
+        print_r(Template::getCssFiles());
+        //exit();
         $properties = $component->getProperties();
         if (isset($properties['head']) == true) {
             $this->head = array_merge($this->head,$properties['head']);
         }
-        $params = array_merge_recursive($params,$properties);
+        $params = array_merge_recursive($params,(array)$properties);
         return Arikaim::view()->fetch($component->getTemplateFile(),$params);
     }
     
-    public function processPageOptions(ComponentInterface $component)
-    {
-    }
-
     public function has($page_name) 
     {
         $page = $this->create($page_name,'pages');

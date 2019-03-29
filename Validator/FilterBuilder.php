@@ -34,6 +34,4 @@ class FilterBuilder
     {  
         return Self::createFilter(ucfirst($name),$args);       
     }
-
-    
 }

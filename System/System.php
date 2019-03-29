@@ -24,10 +24,6 @@ class System
     const CR = "\r";
     const HTMLLF = "</br>";
 
-    public function __construct() 
-    {       
-    }
-
     public static function getVersion() 
     {
         return ARIKAIM_VERSION;

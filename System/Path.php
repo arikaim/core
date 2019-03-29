@@ -9,6 +9,7 @@
  */
 namespace Arikaim\Core\System;
 
+use Arikaim\Core\View\Html\Component;
 
 class Path 
 {
@@ -20,7 +21,8 @@ class Path
     const TEMPLATES_PATH    = Self::ARIKAIM_VIEW_PATH . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR;
     const CONFIG_PATH       = ARIKAIM_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR;
     const VIEW_CACHE_PATH   = ARIKAIM_CACHE_PATH . 'views' . DIRECTORY_SEPARATOR;
-
+    const LOGS_PATH         = ARIKAIM_PATH . DIRECTORY_SEPARATOR . 'logs' . DIRECTORY_SEPARATOR;
+    
     const CORE_NAMESPACE           = "Arikaim\\Core";
     const MODULES_NAMESAPCE        = "Arikaim\\Modules";
     const MIDDLEWARE_NAMESPACE     = Self::CORE_NAMESPACE . "\\Middleware";
@@ -71,10 +73,7 @@ class Path
 
     public static function getTemplatePath($template_name = null, $type = null) 
     {   
-        if ($type == 3) { // EXTENSION
-            return Self::getExtensionViewPath($template_name);
-        }
-        return Self::TEMPLATES_PATH . $template_name;       
+        return ($type == Component::EXTENSION) ? Self::getExtensionViewPath($template_name) : Self::TEMPLATES_PATH . $template_name . DIRECTORY_SEPARATOR;               
     }
 
     public static function getLibraryFilePath($library_name, $file_name) {
@@ -88,7 +87,7 @@ class Path
 
     public static function getExtensionViewPath($extension_name)
     {
-        return Path::EXTENSIONS_PATH . $extension_name . DIRECTORY_SEPARATOR . "view";
+        return Path::EXTENSIONS_PATH . $extension_name . DIRECTORY_SEPARATOR . "view" . DIRECTORY_SEPARATOR;
     }
 
     public static function getExtensionJobsPath($extension_name)   
@@ -113,7 +112,7 @@ class Path
 
     public static function getExtensionPagesPath($extension_name)  
     {
-        return Self::getExtensionViewPath($extension_name)  . DIRECTORY_SEPARATOR . 'pages' . DIRECTORY_SEPARATOR;
+        return Self::getExtensionViewPath($extension_name) . DIRECTORY_SEPARATOR . 'pages' . DIRECTORY_SEPARATOR;
     }
 
     public static function getExtensionMacrosPath($extension_name)

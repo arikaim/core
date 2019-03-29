@@ -121,7 +121,7 @@ class ExtensionPackage extends Package
 
             $file_name = $file->getFilename();
             $base_class = str_replace(".php","",$file_name);
-            $model_obj = Schema::createExtensionModelSchema($this->getName(),$base_class);
+            $model_obj = Factory::createSchema($base_class,$this->getName());
 
             if (is_subclass_of($model_obj,'Arikaim\Core\Db\Schema') == true) {               
                 $item['name'] = $model_obj->getTableName();               

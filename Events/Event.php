@@ -14,18 +14,22 @@ use Arikaim\Core\Utils\Number;
 use Arikaim\Core\Interfaces\Events\EventInterface;
 
 /**
- * Base event
+ * Base event class
 */
 class Event implements EventInterface
 {
+    /**
+     * Event parameters
+     *
+     * @var array
+     */
     protected $parameters = [];
+
     protected $propagation = false;
 
     public function __construct($params = []) 
     {
-        if (is_array($params) == true) {
-            $this->parameters = $params;
-        }
+        $this->parameters = (is_array($params) == true) ? $params : [$params];          
     }
 
     public function stopPropagation()

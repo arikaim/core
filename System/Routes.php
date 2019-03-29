@@ -146,6 +146,7 @@ class Routes
             $app->put('/install/{name}',"$api_namespace\Extensions:install");
             $app->put('/status/{name}/{status}',"$api_namespace\Extensions:changeStatus");
             $app->put('/uninstall/{name}',"$api_namespace\Extensions:unInstall");
+            $app->put('/update/{name}',"$api_namespace\Extensions:update");
         })->add($jwt_auth);
         // Modules
         $app->group('/core/api/module',function($app) use($api_namespace) {

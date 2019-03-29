@@ -7,17 +7,24 @@
  * @license     http://www.arikaim.com/license.html
  * 
  */
-namespace Arikaim\Core\System;
+namespace Arikaim\Core\System\Error;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Handlers\Error;
 
 use Arikaim\Core\Arikaim;
 use Slim\Http\Body;
 
-class ApplicationError extends Error
+class ApplicationError 
 {
+
+    protected $knownContentTypes = [
+        'application/json',
+        'application/xml',
+        'text/xml',
+        'text/html',
+    ];
+
     public static function show($exception)
     {
         $self = new Self();
@@ -37,9 +44,10 @@ class ApplicationError extends Error
                 break;
         }
         echo $output;
+        exit();
     }
 
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response,\Exception $exception)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, $exception)
     {
         return $this->handle($request,$response,$exception);
     }
@@ -51,7 +59,7 @@ class ApplicationError extends Error
      *
      * @return string
      */
-    protected function renderHtmlErrorMessage(\Exception $exception)
+    protected function renderHtmlErrorMessage($exception)
     {
         $title = 'Application Error';
         $html = '<h3>Details</h3>';
@@ -71,7 +79,8 @@ class ApplicationError extends Error
             $html
         );
 
-        return $output;
+        echo $output;
+        exit();
     }
 
     /**
@@ -83,7 +92,7 @@ class ApplicationError extends Error
      *
      * @return string
      */
-    protected function renderHtmlException(\Exception $exception)
+    protected function renderHtmlException($exception)
     {
         return $this->renderHtmlExceptionOrError($exception);
     }
@@ -98,19 +107,19 @@ class ApplicationError extends Error
     protected function renderHtmlExceptionOrError($exception)
     {
         $html = sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
-        if (($code = $exception->getCode())) {
+        if ($code = $exception->getCode()) {
             $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
         }
-        if (($message = $exception->getMessage())) {
+        if ($message = $exception->getMessage()) {
             $html .= sprintf('<div><strong>Message:</strong> %s</div>', htmlentities($message));
         }
-        if (($file = $exception->getFile())) {
+        if ($file = $exception->getFile()) {
             $html .= sprintf('<div><strong>File:</strong> %s</div>', $file);
         }
-        if (($line = $exception->getLine())) {
+        if ($line = $exception->getLine()) {
             $html .= sprintf('<div><strong>Line:</strong> %s</div>', $line);
         }
-        if (($trace = $exception->getTraceAsString())) {
+        if ($trace = $exception->getTraceAsString()) {
             $html .= '<h4>Trace</h4>';
             $html .= sprintf('<pre>%s</pre>', htmlentities($trace));
         }
@@ -126,9 +135,7 @@ class ApplicationError extends Error
      */
     protected function renderJsonErrorMessage(\Exception $exception)
     {
-        $error = [
-            'message' => 'Application Error',
-        ];
+        $error = ['message' => 'Application Error'];
 
         if ($this->displayErrorDetails) {
             $error['exception'] = [];
@@ -144,5 +151,25 @@ class ApplicationError extends Error
             } while ($exception = $exception->getPrevious());
         }
         return json_encode($error, JSON_PRETTY_PRINT);
+    }
+
+    protected function determineContentType(ServerRequestInterface $request)
+    {
+        $acceptHeader = $request->getHeaderLine('Accept');
+        $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
+
+        if (count($selectedContentTypes)) {
+            return current($selectedContentTypes);
+        }
+
+        // handle +json and +xml specially
+        if (preg_match('/\+(json|xml)/', $acceptHeader, $matches)) {
+            $mediaType = 'application/' . $matches[1];
+            if (in_array($mediaType, $this->knownContentTypes)) {
+                return $mediaType;
+            }
+        }
+
+        return 'text/html';
     }
 }

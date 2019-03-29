@@ -47,15 +47,16 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
         return $component->getHtmlCode();
     }
 
-    public function render($name, $vars = [], $language = null, $with_options = true) 
+    public function render($name, $params = [], $language = null, $with_options = true) 
     {    
         $component = $this->create($name,'components',$language,$with_options);
         if ($component->hasError() == true) {
             return $component;
         }      
+        $params['component_url'] = $component->getUrl();
         $this->includeFiles($component);
-       
-        $params = Arrays::merge($component->getProperties(),$vars);
+        
+        $params = Arrays::merge($component->getProperties(),$params);
         $component->setHtmlCode("");  
         if ($component->getOption('render') !== false) {                 
             $component = $this->fetch($component,$params);

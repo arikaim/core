@@ -126,7 +126,7 @@ class ServiceContainer
         };
         // Errors  
         $this->container['errors'] = function() {
-            $errors = new \Arikaim\Core\System\Errors();
+            $errors = new \Arikaim\Core\System\Error\Errors();
             return $errors;
         };
         // Session 
@@ -173,9 +173,7 @@ class ServiceContainer
 
         // Options
         $this->container['options'] = function() { 
-            $options = Model::Options(); 
-            $options->loadOptions();          
-            return $options;
+            return Model::Options()->loadOptions();         
         };
         // Events manager 
         $this->container['event'] = function() {
@@ -193,9 +191,15 @@ class ServiceContainer
             };
         };
         // Logger
-        $this->container['logger'] = function() {
-            return new \Arikaim\Core\Logger\SystemLogger();
+        $this->container['logger'] = function($container) {           
+            $enabled = $container->get('options')->get('logger',true);
+            return new \Arikaim\Core\Logger\SystemLogger($enabled);
         };       
+        // Stats logger
+        $this->container['stats'] = function($container) {           
+            $enabled = $container->get('options')->get('logger.stats',true);          
+            return new \Arikaim\Core\Logger\StatsLogger($enabled);
+        };  
         // Jobs queue
         $this->container['jobs'] = function() {
             //$queue = new \Arikaim\Core\Jobs\JobsQueueManager();
@@ -207,11 +211,11 @@ class ServiceContainer
         }; 
         // Application error handler
         $this->container['errorHandler'] = function() {
-            return new \Arikaim\Core\System\ApplicationError();            
+            return new \Arikaim\Core\System\Error\ApplicationError();            
         };
         // Application Throwable error handler
         $this->container['phpErrorHandler'] = function() {
-            return new \Arikaim\Core\System\ApplicationPHPError();            
+            return new \Arikaim\Core\System\Error\ApplicationPHPError();            
         };
     }
 }

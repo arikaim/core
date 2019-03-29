@@ -21,11 +21,8 @@ use Arikaim\Core\Interfaces\Events\EventSubscriberInterface;
 */
 class EventsManager 
 {
-    private $events;
-
     public function __construct() 
     {   
-        $this->events = [];
     }
     
     public function unregisterEvents($extension_name)
@@ -84,17 +81,9 @@ class EventsManager
         return Model::EventSubscribers()->deleteSubscriber($event_name,$extension_name);
     }
 
-    public function trigger($event_name,$event = null)
-    {
-        if ($event == null) {
-            $event = new Event();       
-        }
-        if (is_array($event) == true) {
-            $event = new Event($event);           
-        }        
-        if ($event instanceof EventInterface == false) {            
-            throw new \Exception("Not valid event object");
-        }
+    public function trigger($event_name,$params = [])
+    {       
+        $event = new Event($params);           
         $event->setParameter('event_name',$event_name);          
 
         // load event handlers from database

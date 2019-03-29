@@ -7,13 +7,12 @@
  * @license     http://www.arikaim.com/license.html
  * 
  */
-namespace Arikaim\Core\System;
+namespace Arikaim\Core\System\Error;
 
 use Slim\Handlers\PhpError;
 
 class ApplicationPHPError extends PhpError
 {
-    
     /**
      * Render HTML error page
      *
@@ -24,8 +23,7 @@ class ApplicationPHPError extends PhpError
     protected function renderHtmlErrorMessage(\Throwable $error)
     {
         $title = 'Application Error';       
-        $html = '<p>The application could not run because of the following error:</p>';
-        $html .= '<h2>Details</h2>';
+        $html = '<h2>Details</h2>';
         $html .= $this->renderHtmlError($error);
 
         while ($error = $error->getPrevious()) {
@@ -43,6 +41,7 @@ class ApplicationPHPError extends PhpError
             $html
         );
 
-        return $output;
+        echo $output;
+        exit();
     }
 }

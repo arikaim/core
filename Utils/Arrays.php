@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Utils;
 
-use  Arikaim\Core\System\System;
+use Arikaim\Core\System\System;
 
 class Arrays 
 {
@@ -87,7 +87,7 @@ class Arrays
         $path = "";
         if (count($array) > 1) {          
             for ($i = 0; $i < count($array); $i++) { 
-                $path .=  $array[$i] . DIRECTORY_SEPARATOR;
+                $path .= $array[$i] . DIRECTORY_SEPARATOR;
             }
             $result = rtrim($path,DIRECTORY_SEPARATOR);
         } else {
@@ -98,9 +98,8 @@ class Arrays
 
     public static function toArray($text, $separator = null) 
     {
-        if ($separator == null) {
-            $separator = System::getEof();
-        }
+        $separator = (empty($separator) == true) ? System::getEof() : $separator;   
+
         $array = explode($separator,trim($text));
         foreach ($array as $key => $item) {
             if ($item == '') {
@@ -114,11 +113,8 @@ class Arrays
         if (count($array) == 0) {
             return "";
         }
-        if ($separator == null) {
-            $separator = System::getEof();
-        }
-        $string = implode($separator, $array);
-        return $string;
+        $separator = (empty($separator) == true) ? System::getEof() : $separator;          
+        return implode($separator, $array);
     }
 
     public static function convertToArray($object) 

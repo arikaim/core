@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Traits\Db;
 
 /**
- * Update position field
+ * Update position field  // TODO changes
 */
 trait Position 
 {    
@@ -27,8 +27,9 @@ trait Position
     
     private static function setPosition($model)
     {   
-        $position = $model->max('position');       
-        $model->position = $position + 1;        
+        if (empty($model->position) == true) {          
+            $model->position = $model->max('position') + 1;
+        }        
         return $model->position;
     }
 

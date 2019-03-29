@@ -66,7 +66,7 @@ class Component extends ApiControler
         // get header params
         $header_params = $this->getHeaderParams($request);
         $params = array_merge($params,$header_params);
-        
+    
         return $this->load($data['name'],$params);
     }
 

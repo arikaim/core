@@ -143,8 +143,8 @@ class Arikaim
         $loader->register();
         
         // error handlers
-        //set_exception_handler("\Arikaim\Core\System\ApplicationError::show"); 
-        set_error_handler('\Arikaim\Core\System\PhpError::show',E_ALL);
+        //set_exception_handler("\Arikaim\Core\System\Error\ApplicationError::show"); 
+       // set_error_handler('\Arikaim\Core\System\Error\PhpError::show',E_ALL);
         
         // load global functions
         $loader->LoadClassFile('\\Arikaim\\Core\\System\\Globals');

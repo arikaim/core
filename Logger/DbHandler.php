@@ -21,11 +21,23 @@ use Arikaim\Core\Utils\DateTime;
  */
 class DbHandler extends AbstractProcessingHandler
 {
+    /**
+     * Model obj
+     *
+     * @var object
+     */
     private $model;
 
+    /**
+     * Constructor
+     *
+     * @param number $level
+     * @param boolean $bubble
+     */
     public function __construct($level = Logger::DEBUG, $bubble = true) 
     {
         parent::__construct($level,$bubble);
+
         try {
             $this->model = Model::Logs();
             if (Schema::hasTable($this->model) == false) {
@@ -36,6 +48,12 @@ class DbHandler extends AbstractProcessingHandler
         }
     }
 
+    /**
+     * Write log record to db
+     *
+     * @param array $record
+     * @return void
+     */
     protected function write(array $record)
     {
         $info['channel'] =  $record['channel'];      
@@ -46,10 +64,6 @@ class DbHandler extends AbstractProcessingHandler
         $info['message'] = $record['message'];
         $info['ip_address'] = $record['context']['client_ip'];
        
-        
-        if (is_object($this->model) == true) {           
-            return $this->model->create($info);
-        }
-        return false;
+        return (is_object($this->model) == true) ? $this->model->create($info) : false;          
     }  
 }

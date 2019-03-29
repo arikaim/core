@@ -7,7 +7,7 @@
  * @license     http://www.arikaim.com/license.html
  * 
  */
-namespace Arikaim\Core\System;
+namespace Arikaim\Core\System\Error;
 
 use Arikaim\Core\System\System;
 
@@ -19,6 +19,7 @@ class PhpError
         $output = (System::isConsole() == true) ? Self::getConsoleOutput($type,$errstr, $errfile, $errline) :  Self::getHtmlOutput($type,$errstr, $errfile, $errline);
         
         echo $output;
+        exit();
     }
 
     public static function getConsoleOutput($type,$errstr, $errfile, $errline)

@@ -19,6 +19,7 @@ use Arikaim\Core\Utils\Mobile;
 use Arikaim\Core\View\Html\Component;
 use Arikaim\Core\Interfaces\View\ComponentInterface;
 use Arikaim\Core\System\Path;
+use Arikaim\Core\System\Url;
 
 /**
  *  Base html component
@@ -27,8 +28,7 @@ class BaseComponent
 {
     protected $options;
     protected $options_file_name;
-    protected $framework;
-
+   
     public function __construct() 
     {
         $this->setOptionsFileName("component.json");    
@@ -54,10 +54,10 @@ class BaseComponent
         $language = $component->getLanguage();
         $language_code = ($language != "en") ? "-". $language : "";
 
-        $file_name = $this->getComponentFile($component,"json",$language_code);
+        $file_name = $component->getComponentFile("json",$language_code);
 
         if ($file_name === false) {
-            $file_name = $this->getComponentFile($component,"json");
+            $file_name = $component->getComponentFile("json");
             if ($file_name === false) {
                 return false;
             }
@@ -77,18 +77,11 @@ class BaseComponent
         if ($full == true) {
             $template_name = Path::getTemplatePath($component->getTemplateName(),$component->getType());
         } else {
-            if ($component->getType() != Template::EXTENSION) {
-                $template_name = $component->getTemplateName();
-            } else {
-                $template_name = "";
-            }
+            $template_name = ($component->getType() != Component::EXTENSION) ? $component->getTemplateName() : "";
         }
-        if (empty($relative_path) == true) {
-            $path = $component->getPath();
-        } else {
-            $path = $relative_path;
-        }
-        $path = $template_name . DIRECTORY_SEPARATOR . $component->getRootPath() . DIRECTORY_SEPARATOR . $path . DIRECTORY_SEPARATOR;
+        $path = (empty($relative_path) == true) ? $component->getPath() : $relative_path;
+        $path = $template_name . DIRECTORY_SEPARATOR . $component->getBasePath() . DIRECTORY_SEPARATOR . $path . DIRECTORY_SEPARATOR;
+        
         return $path;   
     }
   
@@ -103,10 +96,7 @@ class BaseComponent
             return false;
         }
         $parent_path = dirname($path);
-        if ($parent_path == "." || empty($path) == true) {
-            return false;
-        }
-        return $parent_path; 
+        return ($parent_path == "." || empty($path) == true) ? false : $parent_path;          
     }
 
     public function getOptionsFileName(ComponentInterface $component, $parent_path = null)
@@ -188,33 +178,24 @@ class BaseComponent
     public function getComponentFiles($component_name, $file_type = "js")
     {
         $component = $this->create($component_name,'components');
-        $files = $component->getFiles($file_type);      
-        return $files;
+        return $component->getFiles($file_type);      
     }
 
-    public function create($name, $root_path, $language = null, $with_options = true)
+    public function create($name, $base_path, $language = null, $with_options = true)
     {
-        $this->framework = Template::getCurrentFramework();
-    
-        $component = new Component($name,$root_path,$language);
-        $component->setFullPath($this->getPath($component,true));  
-        $component->setFilePath($this->getPath($component,false)); 
+        $language = (empty($language) == true) ? Template::getLanguage() : $language;
+        $component = new Component($name,$base_path,$language);
         
         $file_name = $this->getOptionsFileName($component);
         $component->setOptionsFileName($file_name);
 
         // js file
-        $file = $this->addComponentFile($component,'js');
-        $component->addFile($file,'js');
-
+        $component->addComponentFile('js');
         // css file
-        $file = $this->addComponentFile($component,'css');
-        $component->addFile($file,'css');
-
+        $component->addComponentFile('css');
         // html file
-        $file = $this->addComponentFile($component,'html');
-        $component->addFile($file,'html');
-
+        $component->addComponentFile('html');
+    
         // properties
         $file_name = $this->getPropertiesFileName($component);   
         $component->setPropertiesFileName($file_name);
@@ -232,45 +213,5 @@ class BaseComponent
             $component = $this->processOptions($component);
         }            
         return $component;
-    }
-
-    public function getFileUrl(ComponentInterface $component,$file_name)
-    {
-        $template_url = Template::getTemplateUrl($component->getTemplateName(),$component->getType());
-        return $template_url . '/' . str_replace(DIRECTORY_SEPARATOR,'/',$component->getRootPath() . '/'. $component->getPath()) . '/' . $file_name;
-    }
-
-    public function addComponentFile(ComponentInterface $component,$file_ext)
-    {
-        $file_name = $this->getComponentFile($component,$file_ext);
-        if ($file_name === false) {
-            return false;
-        }
-        $file['file_name'] = $file_name;
-        $file['path'] = $this->getPath($component,false); 
-        $file['full_path'] = $this->getPath($component,true);   
-        $file['url'] = $this->getFileUrl($component,$file_name);
-        return $file;
-    }
-
-    public function getComponentFile(ComponentInterface $component, $file_ext = "html", $language_code = "") 
-    {         
-        $file_name = $component->getName() . $language_code . "." . $file_ext;
-        // try framework path
-        $full_file_name = $component->getFullPath() . $this->getFrameworkPath() . $file_name;
-        if (File::exists($full_file_name) == true) {
-            return $this->getFrameworkPath() . $file_name;
-        }
-        // try default path 
-        $full_file_name = $component->getFullPath() . DIRECTORY_SEPARATOR . $file_name;
-        return File::exists($full_file_name) ? $file_name : false;
-    }
-
-    public function getFrameworkPath()
-    {
-        if (empty($this->framework) == false) {
-            return "." . $this->framework . DIRECTORY_SEPARATOR;
-        }
-        return "";
     }
 }

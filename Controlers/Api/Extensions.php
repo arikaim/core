@@ -21,7 +21,7 @@ class Extensions extends ApiControler
 {
     
     /**
-     * Update extension
+     * Update (reinstall) extension
      *
      * @param object $request
      * @param object $response
@@ -32,7 +32,10 @@ class Extensions extends ApiControler
     {
         $this->requireControlPanelPermission();
 
-        return $this->install($request, $response, $data);
+        $manager = new ExtensionsManager();
+        $result = $manager->reInstallPackage($data['name']);
+
+        return $this->getApiResponse();
     }
 
     /**
@@ -89,7 +92,7 @@ class Extensions extends ApiControler
         $this->requireControlPanelPermission();
 
         $data->addRule('name',$data->rule()->exists('Extensions','name'));
-   
+        
         if ($data->validate() == true) {
             $manager = new ExtensionsManager();
             $result = $manager->unInstallPackage($data['name']);
@@ -115,8 +118,8 @@ class Extensions extends ApiControler
         $this->requireControlPanelPermission();
 
         $data->addRule('name',$data->rule()->extensionPath($data['name']));
-    
-        if ($data->validate() == true) {
+        
+        if ($data->validate() == true) {  
             $manager = new ExtensionsManager();
             $result = $manager->installPackage($data['name']);
             if ($result == false) {

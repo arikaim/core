@@ -70,8 +70,8 @@ abstract class Extension implements ExtensionInterface
     /**
      * Create job
      *
-     * @param [type] $class_name
-     * @param [type] $args
+     * @param string $class_name
+     * @param array $args
      * @return object
      */
     public function createJob($class_name, $args = null)
@@ -131,7 +131,7 @@ abstract class Extension implements ExtensionInterface
     }
 
     /**
-     * Creaete extensin db table
+     * Creaete extensin db table 
      *
      * @param string $schema_class
      * @return boolean

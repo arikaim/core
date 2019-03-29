@@ -118,10 +118,7 @@ class Utils
 
     public static function jsonDecode($text, $clean = true, $to_array = true)
     {        
-        if ($clean == true) {
-            $text = Self::cleanJson($text);
-        }
-        return json_decode($text,$to_array);
+        return ($clean == true) ? Self::cleanJson($text) : json_decode($text,$to_array);
     }
 
     public static function getBaseClassName($full_class_name)

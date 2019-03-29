@@ -10,59 +10,64 @@
 namespace Arikaim\Core\View\Html;
 
 use Arikaim\Core\Utils\Arrays;
+use Arikaim\Core\Filesystem\File;
 use Arikaim\Core\View\Template;
+use Arikaim\Core\System\Url;
+use Arikaim\Core\System\Path;
 use Arikaim\Core\Interfaces\View\ComponentInterface;
 
 class Component implements ComponentInterface
 {
+    const TEMPLATE  = 1; // component in template (theme) 
+    const EXTENSION = 2; // component in extensions
+
     protected $name;
     protected $template_name;
     protected $full_name;
     protected $path;
-    protected $type;
-    protected $extension_name;
+    protected $type;  
     protected $full_path;
     protected $file_path;
     protected $language;
     protected $html_code;
     protected $error;
-    protected $root_path;
+    protected $base_path;
+    protected $framework;
 
     protected $files;
     protected $options;
     protected $properties;
 
-    public function __construct($name, $root_path, $language = null) 
+    public function __construct($name, $base_path, $language) 
     {
-        if ($language == null) {
-            $this->language = Template::getLanguage();
-        } else {
-            $this->language = $language;
-        }
-
+        $this->language = $language;
+           
         $this->parseName($name);
+        $this->base_path = $base_path;
+        $this->resolvePath();
+        $this->resolveDefault();
+
         $this->error = "";
-        $this->root_path = $root_path;
         $this->files = [];
         $this->options = [];
         $this->properties = [];
+
+        $this->framework = Template::getCurrentFramework();
     }
 
     public function getTemplateFile()
     {
-        $path = "";
-        if (empty($this->getExtensionName()) == false) {
-            $path = $this->getExtensionName() . DIRECTORY_SEPARATOR . 'view';
-        }
+        $path = ($this->type == Self::EXTENSION) ? $this->template_name . DIRECTORY_SEPARATOR . 'view' : "";
+      
         if (isset($this->files['html'][0]['file_name']) == true) {
             return $path . $this->getFilePath() . $this->files['html'][0]['file_name'];
         }
         return false;
     }
 
-    public function getRootPath()
+    public function getBasePath()
     {
-        return $this->root_path;
+        return $this->base_path;
     }
 
     public function hasError()
@@ -106,7 +111,7 @@ class Component implements ComponentInterface
         if ($file_type == null) {
             return $this->files;
         }
-        return (isset($this->files[$file_type]) == true) ? $this->files[$file_type] : [];          
+        return (isset($this->files[$file_type]) == true) ? (array)$this->files[$file_type] : [];          
     }
 
     public function getFullName()
@@ -169,11 +174,6 @@ class Component implements ComponentInterface
         return $this->template_name;
     }
 
-    public function getExtensionName() 
-    {
-        return $this->extension_name;
-    }
-
     public function getLanguage() 
     {
         return $this->language;
@@ -192,10 +192,7 @@ class Component implements ComponentInterface
     public function getOption($option_name, $default = null)
     {
         $option = Arrays::getValue($this->options,$option_name);
-        if (empty($option) && $default !== null) {
-            $option = $default;
-        }
-        return $option;
+        return (empty($option) == true) ? $default : $option;          
     }
 
     public function setFilePath($path) 
@@ -244,6 +241,21 @@ class Component implements ComponentInterface
         return true;            
     }
 
+    public function addComponentFile($file_ext)
+    {
+        $file_name = $this->getComponentFile($file_ext);
+        if ($file_name === false) {
+            return false;
+        }
+        $file = [
+            'file_name' => $file_name,
+            'path'      => $this->getFilePath(),
+            'full_path' => $this->getFullPath(),
+            'url'       => $this->getFileUrl($file_name) 
+        ];
+        return $this->addFile($file,$file_ext);       
+    }
+
     public function addFile($file, $file_type)
     {
         if (is_array($file) == false) {
@@ -256,39 +268,43 @@ class Component implements ComponentInterface
         array_push($this->files[$file_type],$file);
     }
 
+    /**
+     * Parse compoentn name 
+     *  [extesnon name | template name]:[name path]
+     *  for current template  [name path]
+     *  [extenstion name] :: [name path]
+     * 
+     * @param string $name
+     * @return void
+     */
     protected function parseName($name)
     {
-        $name_parts = explode(':',$name);
-        $this->template_name = Template::getTemplateName();
         $this->full_name = $name;
-
-        if (isset($name_parts[1]) == false) {                                
-            $this->path = str_replace('.','/',$name_parts[0]);            
-            $this->type = Template::USER;
-            $this->extension_name = ""; 
+        if (stripos($name,'::') !== false) {
+            // extension component
+            $tokens = explode('::',$name);     
+            $type = Self::EXTENSION;
         } else {
-            $this->extension_name = $name_parts[0];
-            $this->template_name = $name_parts[0];
-            $this->path = str_replace('.','/',$name_parts[1]);
-            $this->type = Template::EXTENSION;
+            // template component
+            $tokens = explode(':',$name);  
+            $type = Self::TEMPLATE;    
+        }
+
+        if (isset($tokens[1]) == false) {    
+            // current template                         
+            $this->path = str_replace('.','/',$tokens[0]);            
+            $this->template_name = Template::getTemplateName(); 
+            $this->type = $type;
+        } else {
+            // 
+            $this->path = str_replace('.','/',$tokens[1]);
+            $this->template_name = $tokens[0];          
+            $this->type = $type;
         }
 
         $parts = explode('/',$this->path);
         $this->name = end($parts);
-
-        // parse path
-        $path_parts = explode('#',$this->path);
-        if (isset($path_parts[1]) == true) {
-            $this->template_name = $path_parts[0];
-            $this->path  = $path_parts[1];
-            $this->type = Template::USER;
-        } 
-
-        if ($this->extension_name == Template::SYSTEM_TEMPLATE_NAME) {
-            $this->template_name = Template::SYSTEM_TEMPLATE_NAME;
-            $this->extension_name = "";
-            $this->type = Template::SYSTEM;            
-        }       
+    
         return true;
     }   
 
@@ -321,6 +337,64 @@ class Component implements ComponentInterface
 
     public function toArray()
     {
-        return (array) $this;
+        return (array)$this;
+    }
+
+    public function getUrl()
+    {
+        switch ($this->type) {
+            case Self::TEMPLATE:
+                $url = Url::getTemplateUrl($this->template_name);
+                break;
+            case Self::EXTENSION:
+                $url = Url::getExtensionViewUrl($this->template_name);
+                break;                    
+        }
+        return $url . "/" . $this->base_path . "/" . $this->path . "/";
+    }
+
+    // TODO
+    private function resolveDefault()
+    {
+        //echo "fp:" . $this->full_path;
+        //exit();
+    }
+
+    protected function resolvePath() 
+    {           
+        $template_full_path = Path::getTemplatePath($this->template_name,$this->type);
+        $template_path = ($this->type != Self::EXTENSION) ? $this->template_name . DIRECTORY_SEPARATOR : DIRECTORY_SEPARATOR;
+
+      // echo $template_full_path . "<br>";
+        //echo $this->getBasePath();
+
+        $path = $this->getBasePath() . DIRECTORY_SEPARATOR . $this->path . DIRECTORY_SEPARATOR;
+        
+        $this->full_path = $template_full_path . $path;
+        $this->file_path = $template_path . $path;   
+    }
+
+    public function getFrameworkPath()
+    {
+        return (empty($this->framework) == false) ? "." . $this->framework . DIRECTORY_SEPARATOR : "";          
+    }
+
+    public function getComponentFile($file_ext = "html", $language_code = "") 
+    {         
+        $file_name = $this->getName() . $language_code . "." . $file_ext;
+        // try framework path
+        $full_file_name = $this->getFullPath() . $this->getFrameworkPath() . $file_name;
+        if (File::exists($full_file_name) == true) {
+            return $this->getFrameworkPath() . $file_name;
+        }
+        // try default path 
+        $full_file_name = $this->getFullPath() . DIRECTORY_SEPARATOR . $file_name;
+        return File::exists($full_file_name) ? $file_name : false;
+    }
+
+    public function getFileUrl($file_name)
+    {
+        $template_url = Url::getTemplateUrl($this->template_name);
+        return $template_url . '/' . str_replace(DIRECTORY_SEPARATOR,'/',$this->base_path . '/'. $this->path) . '/' . $file_name;
     }
 }

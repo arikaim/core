@@ -141,10 +141,8 @@ class Mobile
     }
 
     private function prepareUserAgent($user_agent) 
-    {
-        $user_agent = trim($user_agent);
-        $user_agent = substr($user_agent,0,500);
-        return $user_agent;
+    {       
+        return substr(trim($user_agent),0,500);  
     }
 
     public function initUserAgent()
@@ -245,7 +243,6 @@ class Mobile
 
     protected function match($regex)
     {
-        $match = (bool)preg_match(sprintf('#%s#is', $regex),$this->user_agent,$matches);
-        return $match;
+       return (bool)preg_match(sprintf('#%s#is', $regex),$this->user_agent,$matches);
     }
 }

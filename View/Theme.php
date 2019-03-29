@@ -22,10 +22,8 @@ class Theme
 
     public static function getCurrentTheme($template_name = null, $default_theme = null)
     {
-        if (empty($default_theme) == true) {
-            $default_theme = Self::DEFAULT_THEME_NAME;
-        }
-       
+        $default_theme = (empty($default_theme) == true) ?  Self::DEFAULT_THEME_NAME : $default_theme;
+          
         try {            
             if (is_object(Arikaim::options()) == false) {
                 return $default_theme;

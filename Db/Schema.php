@@ -19,9 +19,25 @@ use Arikaim\Core\System\Install;
 */
 abstract class Schema  
 {
+    /**
+     * Table name
+     *
+     * @var string
+     */
     protected $table_name;
 
+    /**
+     * Create table
+     *
+     * @return void
+     */
     abstract public function create();
+
+    /**
+     * Udate existing table
+     *
+     * @return void
+     */
     abstract public function update();
 
     /**
@@ -31,9 +47,7 @@ abstract class Schema
      */
     public function __construct($table_name = null) 
     {
-        if ($table_name != null) {
-            $this->table_name = $table_name;
-        }
+        $this->table_name = $table_name;
     }
 
     /**
@@ -46,13 +60,16 @@ abstract class Schema
         return $this->table_name;
     }
     
+    /**
+     * Return model table name
+     *
+     * @param string $class_name Model class name
+     * @return boo|string
+     */
     public static function getTable($class_name)
     {
         $instance = Self::createInstance($class_name);
-        if (is_object($instance) == false) {
-            return false;
-        }
-        return $instance->getTableName();
+        return (is_object($instance) == false) ? false : $instance->getTableName();         
     }
 
     /**
@@ -81,14 +98,17 @@ abstract class Schema
         if (Arikaim::db()->has(Arikaim::config('db/database')) == false) {
             return false;
         }
-        if (is_object($model) == true) {
-            $table_name = $model->getTable();
-        } else {
-            $table_name = $model;
-        }     
+        $table_name = (is_object($model) == true) ? $model->getTable() : $model;
+        
         return Manager::schema()->hasTable($table_name);      
     }
 
+    /**
+     * Update table 
+     *
+     * @param \Closure $callback
+     * @return void
+     */
     public function updateTable(\Closure $callback) 
     {
         Manager::schema()->table($this->table_name,$callback);
@@ -104,6 +124,11 @@ abstract class Schema
         Manager::schema()->dropIfExists($this->table_name);
     } 
 
+    /**
+     * Checkif table exist
+     *
+     * @return bool
+     */
     public function tableExists() 
     {
         return Manager::schema()->hasTable($this->table_name);
@@ -120,31 +145,23 @@ abstract class Schema
         return Manager::schema()->hasColumn($this->table_name,$column_name); 
     }
     
+    /**
+     * Return shema object
+     *
+     * @return object
+     */
     public static function schema() 
     {
         return Manager::schema();
     }
 
-    public static function createInstance($class_name, $extension_name = null)
-    {
-        if ($extension_name == null) {
-            $schema_class_name = Self::getSchemaClass($class_name);
-        } else {
-            $schema_class_name = Self::getExtensionModelSchemaClass($extension_name,$class_name);  
-        }
-        $instance = Factory::createInstance($schema_class_name);
-        if (Self::isValidSchema($instance) == false) {
-            throw new \Exception("Not valid schema class '$schema_class_name'");
-            return null;           
-        } 
-        return $instance;
-    }
-    
-    public static function isValidSchema($instance)
-    {
-        return is_subclass_of($instance,"Arikaim\\Core\\Db\\Schema");
-    }
-
+    /**
+     * Run Create and Update migration
+     *
+     * @param string $class_name
+     * @param string $extension_name
+     * @return bool
+     */
     public static function install($class_name, $extension_name = null) 
     {                   
         $instance = Self::createInstance($class_name,$extension_name);
@@ -154,39 +171,9 @@ abstract class Schema
                 $instance->update();
                 return $instance->tableExists();
             } catch(\Exception $e) {
-                return false;
+        
             }
         }
         return false;
-    }
-
-    public static function getModelSchemaClass($model_class_name)
-    {
-        return $model_class_name . "Schema";
-    }
-
-    public static function getSchemaNamespace($extension_name = null)
-    {
-        if ($extension_name != null) {
-            $extension_name = ucfirst($extension_name);
-            return "Arikaim\\Extensions\\$extension_name\\Models\\Schema\\";
-        }
-        return "Arikaim\\Core\\Models\\Schema\\";
-    }
-
-    public static function getSchemaClass($base_class)
-    {
-        return Self::getSchemaNamespace() . $base_class;
-    }
-
-    public static function createExtensionModelSchema($extension_name, $base_class_name)
-    {
-        $full_class_name = Schema::getExtensionModelSchemaClass($extension_name, $base_class_name);            
-        return Factory::createInstance($full_class_name);
-    }
-
-    public static function getExtensionModelSchemaClass($extension_name, $base_class_name)
-    {
-        return Self::getSchemaNamespace($extension_name) . $base_class_name;
     }
 }   
