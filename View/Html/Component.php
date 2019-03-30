@@ -18,9 +18,20 @@ use Arikaim\Core\Interfaces\View\ComponentInterface;
 
 class Component implements ComponentInterface
 {
-    const TEMPLATE_LOCATION  = 1; // component located in template (theme) 
-    const EXTENSION_LOCATION = 2; // component located in extension
-    const RESOLVE_LOCATION   = 3; // resolve component location
+    /**
+     *  Component located in template (theme) 
+     */
+    const TEMPLATE_LOCATION = 1; 
+    
+    /**
+     * Component located in extension
+     */
+    const EXTENSION_LOCATION = 2;
+    
+    /**
+     * Resolve component location
+     */ 
+    const RESOLVE_LOCATION = 3; 
 
     protected $name;
     protected $template_name;
@@ -359,23 +370,24 @@ class Component implements ComponentInterface
 
     private function resolveComponentLocation()
     {      
-        if (strpos($this->full_path,Path::TEMPLATES_PATH,0) !== false) {
-          //  echo "template";
+        if (strpos($this->full_path,Path::TEMPLATES_PATH,0) !== false) {        
             $this->type = Self::TEMPLATE_LOCATION;
-            $this->resolveTemplateName();
-
-        
         } else {
             $this->type = Self::EXTENSION_LOCATION;
         }
-     
+
+        $this->resolveTemplateName();
     }
 
     private function resolveTemplateName()
     {
-        $path = str_replace(Path::TEMPLATES_PATH,"",$this->full_path);
+        if ($this->type == Self::TEMPLATE_LOCATION) {
+            $path = str_replace(Path::TEMPLATES_PATH,"",$this->full_path);
+        } else {
+            $path = str_replace(Path::EXTENSIONS_PATH,"",$this->full_path);
+        }
+     
         $parts = explode('/',$path);
-
         $this->template_name = (isset($parts[0]) == true) ? $parts[0] : Template::getTemplateName();
     }
 
@@ -383,9 +395,6 @@ class Component implements ComponentInterface
     {           
         $template_full_path = Path::getTemplatePath($this->template_name,$this->type);
         $template_path = ($this->type != Self::EXTENSION_LOCATION) ? $this->template_name . DIRECTORY_SEPARATOR : DIRECTORY_SEPARATOR;
-
-      // echo $template_full_path . "<br>";
-        //echo $this->getBasePath();
 
         $path = $this->getBasePath() . DIRECTORY_SEPARATOR . $this->path . DIRECTORY_SEPARATOR;
         

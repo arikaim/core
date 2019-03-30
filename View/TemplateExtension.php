@@ -13,7 +13,7 @@ use Twig\Extension\GlobalsInterface;
 use Twig\Extension\AbstractExtension;
 
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\View\Filters;
+use Arikaim\Core\View\TemplateFilters;
 use Arikaim\Core\View\TemplateFunction;
 use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Utils\Mobile;
@@ -124,7 +124,7 @@ class TemplateExtension extends AbstractExtension implements GlobalsInterface
             return $items;
         }
 
-        $filters = new Filters();
+        $filters = new TemplateFilters();
         $items = [
             new \Twig_SimpleFilter('attr', [$filters, 'attr'],['is_safe' => ['html']]),
             new \Twig_SimpleFilter('tag', [$filters, 'htmlTag'],['is_safe' => ['html']]),
