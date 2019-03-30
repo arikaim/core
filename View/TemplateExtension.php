@@ -56,7 +56,7 @@ class TemplateExtension extends AbstractExtension implements GlobalsInterface
         $mobile = new Mobile();
         $items = [
             // html components
-            new \Twig_SimpleFunction('component', [Arikaim::view()->component(), 'load'], ['needs_environment' => false,'is_safe' => ['html']]),
+            new \Twig_SimpleFunction('component', [Arikaim::view()->component(), 'load'], ['needs_environment' => true,'is_safe' => ['html']]),
             new \Twig_SimpleFunction('componentProperties', [$template_function, 'getComponentProperties']),
             // page
             new \Twig_SimpleFunction('getPageJsFiles', ["\\Arikaim\\Core\\View\\Html\\Page", 'getPageJsFiles']),
@@ -94,8 +94,7 @@ class TemplateExtension extends AbstractExtension implements GlobalsInterface
             new \Twig_SimpleFunction('getErrors', [$errors, 'getErrors']),
             new \Twig_SimpleFunction('getConfig', ["\\Arikaim\\Core\\System\\System","getConfig"]),
             // template
-            new \Twig_SimpleFunction('getTemplateJsFiles', ["\\Arikaim\\Core\\View\\Template", 'getJsFiles']),
-            new \Twig_SimpleFunction('getTemplateCssFiles', ["\\Arikaim\\Core\\View\\Template", 'getCssFiles']),
+            new \Twig_SimpleFunction('getTemplateFiles', ["\\Arikaim\\Core\\View\\Template", 'getTemplateFiles']),
             new \Twig_SimpleFunction('getThemeFiles', ["\\Arikaim\\Core\\View\\Template", 'getThemeFiles']),
             new \Twig_SimpleFunction('getCurrentTheme', ["\\Arikaim\\Core\\View\\Theme", 'getCurrentTheme']),
             new \Twig_SimpleFunction('getLibraryFiles', ["\\Arikaim\\Core\\View\\Template", 'getLibraryFiles']),

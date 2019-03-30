@@ -83,7 +83,18 @@ class Cache
     {
         return ($this->disabled == true) ? null : $this->driver->fetch($id);
     }
-   
+    
+    /**
+     * Fetch template files cache item
+     *
+     * @param string $template_name
+     * @return mixed|null
+     */
+    public function fetchTemplateFiles($template_name)
+    {
+        return ($this->disabled == true) ? null : $this->driver->fetch("template.files.$template_name");
+    }
+
     /**
      * Check if cache contains item
      *

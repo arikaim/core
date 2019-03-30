@@ -39,8 +39,7 @@ class PageLoader extends Controler
     {
         $route = $request->getAttribute('route');  
         if (is_object($route) == false) {
-            Arikaim::page()->load("system-error",$args);
-            return $response;
+            return Arikaim::page()->loadPage("system:system-error",$args);
         }    
         $pattern = $route->getPattern();
         $model = Model::Routes()->getRoute('GET',$pattern);
@@ -66,8 +65,7 @@ class PageLoader extends Controler
         }
 
         if (Arikaim::page()->has($page_name) == true) {
-            Arikaim::page()->loadPage($page_name,$response,$data,$language);
-            return $response;       
+            return Arikaim::page()->loadPage($page_name,$data,$language);             
         } 
         return $this->pageNotFound($request,$response,$data);
     }
@@ -108,16 +106,15 @@ class PageLoader extends Controler
             $params = ['page' => 'system:admin/change-password'];
             return $this->loadPage($request,$response,Arrays::merge($params,$data));
         } 
-        Arikaim::page()->load("system-error",$data->toArray());
-        return $response;
+        return Arikaim::page()->loadPage("system:system-error",$data->toArray());
     }
 
     public function pageNotFound($request, $response, $data = []) 
     {                  
         if (Install::isInstalled() == false) { 
             return $this->loadInstallPage($request,$response,$data);
-        }
-        Arikaim::page()->load('page-not-found',$data); 
+        }       
+        $response = Arikaim::page()->loadPage('system:page-not-found',$data); 
         return $response->withStatus(404);
     }
 
@@ -128,7 +125,7 @@ class PageLoader extends Controler
             return $this->loadPage($request,$response,Arrays::merge($params,$data->toArray()));
         }
         Arikaim::errors()->addError('INSTALLED_ERROR');
-        $params = ['page' => 'system-error'];     
+        $params = ['page' => 'system:system-error'];     
         return $this->loadPage($request,$response,Arrays::merge($params,$data->toArray()));
     }
 }

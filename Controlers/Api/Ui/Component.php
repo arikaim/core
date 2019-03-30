@@ -32,7 +32,7 @@ class Component extends ApiControler
         // control panel only
         $this->requireControlPanelPermission();
 
-        $component = Arikaim::view()->component()->render($data['name']);
+        $component = Arikaim::view()->component()->createComponent($data['name']);
         if ($component->hasError() == true) {
             $this->setApiError($component->getError());
             return $this->getApiResponse();
@@ -77,7 +77,7 @@ class Component extends ApiControler
 
     public function load($component_name,$params = [])
     {   
-        $component = Arikaim::view()->component()->render($component_name,$params);
+        $component = Arikaim::view()->component()->renderComponent($component_name,$params);
         if ($component->hasError() == true) {
             $this->setApiError($component->getError());
             return $this->getApiResponse();

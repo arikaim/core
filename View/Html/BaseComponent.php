@@ -9,6 +9,8 @@
 */
 namespace Arikaim\Core\View\Html;
 
+use Twig\Environment;
+
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Utils\Arrays;
@@ -34,13 +36,16 @@ class BaseComponent
         $this->setOptionsFileName("component.json");    
     }
 
-    public function fetch(ComponentInterface $component, $params = [])
+    public function fetch(Environment $env, ComponentInterface $component, $params = [])
     {
         if (empty($component->getTemplateFile()) == true) {
             return $component;
         }
-       
-        $code = Arikaim::view()->fetch($component->getTemplateFile(),$params);
+        
+        $template = $env->loadTemplate($component->getTemplateFile());
+       // var_dump($template);
+       // exit();
+        $code = $env->render($component->getTemplateFile(),$params);
         if ($component->getOption('add-comments') == true) {
             $code = $this->addComments($component->getPath(),$component->getHtmlCode());
         }  
@@ -77,7 +82,7 @@ class BaseComponent
         if ($full == true) {
             $template_name = Path::getTemplatePath($component->getTemplateName(),$component->getType());
         } else {
-            $template_name = ($component->getType() != Component::EXTENSION) ? $component->getTemplateName() : "";
+            $template_name = ($component->getType() != Component::EXTENSION_LOCATION) ? $component->getTemplateName() : "";
         }
         $path = (empty($relative_path) == true) ? $component->getPath() : $relative_path;
         $path = $template_name . DIRECTORY_SEPARATOR . $component->getBasePath() . DIRECTORY_SEPARATOR . $path . DIRECTORY_SEPARATOR;
@@ -196,6 +201,8 @@ class BaseComponent
         // html file
         $component->addComponentFile('html');
     
+       // print_r($component->getFiles());
+       // exit();
         // properties
         $file_name = $this->getPropertiesFileName($component);   
         $component->setPropertiesFileName($file_name);
@@ -208,6 +215,9 @@ class BaseComponent
         $component->setOptions($this->loadOptions($component)->toArray());
         $component->setProperties($this->loadComponentProperties($component)->toArray());
         $component->setHtmlCode("");
+
+       // var_dump($component);
+       // exit();
 
         if ($with_options == true) {
             $component = $this->processOptions($component);

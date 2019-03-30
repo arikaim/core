@@ -22,7 +22,7 @@ use Arikaim\Core\System\Url;
 /**
  * Load html page templates
  */
-class Page extends BaseComponent implements ComponentViewInterface
+class Page extends BaseComponent  
 {   
     protected $head;
     protected $properties;
@@ -39,10 +39,11 @@ class Page extends BaseComponent implements ComponentViewInterface
         return $this->properties;
     }
 
-    public function loadPage($name, $response, $params = [], $language = null)
+    public function loadPage($name, $params = [], $language = null)
     {
         $html = $this->load($name,$params,$language);
-        return $response->getBody()->write($html);
+        Arikaim::response()->getBody()->write($html);
+        return Arikaim::response();
     }
 
     public function load($name, $params = [], $language = null)
@@ -56,8 +57,8 @@ class Page extends BaseComponent implements ComponentViewInterface
         $component = $this->create($name,'pages',$language);
         $params['component_url'] = $component->getUrl();
 
-        if ($component->hasContent() == false) {
-            $component = $this->render('page-not-found',$params);
+        if ($component->hasContent() == false) {          
+            $component = $this->render('system:page-not-found',$params);
         }
         $loader = $component->getOption('loader');
         if (empty($loader) == false) {
@@ -68,6 +69,7 @@ class Page extends BaseComponent implements ComponentViewInterface
         $index_page = $this->getIndexFile($component->getTemplateName());
 
         $params = array_merge($params,['body' => $page_body, 'head' => $this->head]);
+
         $component->setHtmlCode(Arikaim::view()->fetch($index_page,$params));
         return $component;
     }
@@ -81,15 +83,11 @@ class Page extends BaseComponent implements ComponentViewInterface
     {
         $this->includeFiles($component);
         $this->setCurrent($component->getPath());
-        
-        // include template files
+              
+      //  echo "t:" . $component->getTemplateName();
 
-      //  echo $component->getTemplateName();
-        //exit();
         Template::includeFiles($component->getTemplateName());
-
-      //  print_r(Template::getCssFiles());
-        //exit();
+    
         $properties = $component->getProperties();
         if (isset($properties['head']) == true) {
             $this->head = array_merge($this->head,$properties['head']);

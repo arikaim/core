@@ -9,8 +9,10 @@
 */
 namespace Arikaim\Core\Interfaces\View;
 
+use Twig\Environment;
+
 interface ComponentViewInterface 
 {  
-    public function render($name, $params = []);
-    public function load($name, $params = []);
+    public function render(Environment $env, $name, $params = []);
+    public function load(Environment $env, $name, $params = []);
 }

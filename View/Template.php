@@ -102,12 +102,10 @@ class Template
 
     public static function includeFiles($template_name) 
     {
-        $url = Url::getTemplateUrl($template_name);  
-     
-        $files = Arikaim::cache()->fetch('template.files');
+        $url = Url::getTemplateUrl($template_name);               
+        $files = Arikaim::cache()->fetchTemplateFiles($template_name);
+
         if (is_array($files) == false) {
-            echo "fetch";
-            //exit();
             $manager = new TemplatesManager();
             $properties = $manager->createPackage($template_name)->getProperties();
             
@@ -125,10 +123,7 @@ class Template
             $files['loader'] = $properties->get('loader',false);
             Arikaim::cache()->save('template.files',$files,3);
         }
-      
-        Arikaim::page()->properties()->set('template.js.files',$files['js']);
-        Arikaim::page()->properties()->set('template.css.files',$files['css']);
-
+        Arikaim::page()->properties()->set('template.files',$files);
         // include ui lib files                
         Self::includeLibraryFiles($files['library']);  
         // include theme files 
@@ -139,16 +134,11 @@ class Template
         return true;
     }
 
-    public static function getJsFiles()
+    public static function getTemplateFiles()
     {
-        return Arikaim::page()->properties()->get('template.js.files');
+        return  Arikaim::page()->properties()->get('template.files');
     }
-
-    public static function getCssFiles()
-    {
-        return Arikaim::page()->properties()->get('template.css.files');
-    }
-
+    
     public static function getThemeFiles()
     {
         return Arikaim::page()->properties()->get('template.theme');

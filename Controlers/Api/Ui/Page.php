@@ -64,11 +64,8 @@ class Page extends ApiControler
         $result['properties']['framework'] = Template::getFrameworks();
 
         $loader = Arikaim::session()->get("template.loader");
-        if (empty($loader) == false) {
-            $loader_code = Arikaim::view()->component()->load($loader);
-        } else {
-            $loader_code = "";
-        }
+        $loader_code = (empty($loader) == false) ? Arikaim::view()->component()->loadComponent($loader) : "";
+        
         $result['properties']['loader'] = $loader_code;
         $result['properties']['default_language'] = Model::Language()->getDefaultLanguage();
         $result['properties']['language'] = Template::getLanguage();

@@ -73,7 +73,7 @@ class Path
 
     public static function getTemplatePath($template_name = null, $type = null) 
     {   
-        return ($type == Component::EXTENSION) ? Self::getExtensionViewPath($template_name) : Self::TEMPLATES_PATH . $template_name . DIRECTORY_SEPARATOR;               
+        return ($type == Component::EXTENSION_LOCATION) ? Self::getExtensionViewPath($template_name) : Self::TEMPLATES_PATH . $template_name . DIRECTORY_SEPARATOR;               
     }
 
     public static function getLibraryFilePath($library_name, $file_name) {

@@ -9,6 +9,8 @@
 */
 namespace Arikaim\Core\View\Html;
 
+use Twig\Environment;
+
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Arrays;
 use Arikaim\Core\Utils\Collection;
@@ -38,18 +40,34 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
         return $this->load('system:message.error',$params);
     }
 
-    public function load($name, $params = [], $language = null)
+    public function loadComponent($name, $params = [], $language = null)
+    {
+        return $this->load(Arikaim::view()->getEnvironment(),$name,$params,$language);
+    }
+
+    public function load(Environment $env, $name, $params = [], $language = null)
     {       
-        $component = $this->render($name,$params,$language);
+        $component = $this->render($env,$name,$params,$language);
         if ($component->hasError() == true) {
             return $this->getErrorMessage($component);
         }
         return $component->getHtmlCode();
     }
 
-    public function render($name, $params = [], $language = null, $with_options = true) 
+    public function createComponent($name, $language = null, $with_options = true)
+    {
+        return $this->create($name,'components',$language,$with_options);
+    }
+
+    public function renderComponent($name, $params = [], $language = null, $with_options = true) 
+    { 
+        return $this->render(Arikaim::view()->getEnvironment(),$name,$params,$language,$with_options);
+    }
+
+    public function render(Environment $env, $name, $params = [], $language = null, $with_options = true) 
     {    
         $component = $this->create($name,'components',$language,$with_options);
+
         if ($component->hasError() == true) {
             return $component;
         }      
@@ -59,7 +77,7 @@ class HtmlComponent extends BaseComponent implements ComponentViewInterface
         $params = Arrays::merge($component->getProperties(),$params);
         $component->setHtmlCode("");  
         if ($component->getOption('render') !== false) {                 
-            $component = $this->fetch($component,$params);
+            $component = $this->fetch($env,$component,$params);
         }
         return $component;
     }

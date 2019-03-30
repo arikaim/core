@@ -18,8 +18,9 @@ use Arikaim\Core\Interfaces\View\ComponentInterface;
 
 class Component implements ComponentInterface
 {
-    const TEMPLATE  = 1; // component in template (theme) 
-    const EXTENSION = 2; // component in extensions
+    const TEMPLATE_LOCATION  = 1; // component located in template (theme) 
+    const EXTENSION_LOCATION = 2; // component located in extension
+    const RESOLVE_LOCATION   = 3; // resolve component location
 
     protected $name;
     protected $template_name;
@@ -45,7 +46,10 @@ class Component implements ComponentInterface
         $this->parseName($name);
         $this->base_path = $base_path;
         $this->resolvePath();
-        $this->resolveDefault();
+        
+        if ($this->type == Self::RESOLVE_LOCATION) {
+            $this->resolveComponentLocation();
+        }
 
         $this->error = "";
         $this->files = [];
@@ -57,7 +61,7 @@ class Component implements ComponentInterface
 
     public function getTemplateFile()
     {
-        $path = ($this->type == Self::EXTENSION) ? $this->template_name . DIRECTORY_SEPARATOR . 'view' : "";
+        $path = ($this->type == Self::EXTENSION_LOCATION) ? $this->template_name . DIRECTORY_SEPARATOR . 'view' : "";
       
         if (isset($this->files['html'][0]['file_name']) == true) {
             return $path . $this->getFilePath() . $this->files['html'][0]['file_name'];
@@ -283,29 +287,28 @@ class Component implements ComponentInterface
         if (stripos($name,'::') !== false) {
             // extension component
             $tokens = explode('::',$name);     
-            $type = Self::EXTENSION;
+            $type = Self::EXTENSION_LOCATION;
         } else {
             // template component
             $tokens = explode(':',$name);  
-            $type = Self::TEMPLATE;    
+            $type = Self::TEMPLATE_LOCATION;    
         }
 
         if (isset($tokens[1]) == false) {    
-            // current template                         
+            // component location not set                     
             $this->path = str_replace('.','/',$tokens[0]);            
             $this->template_name = Template::getTemplateName(); 
-            $this->type = $type;
+            $type = Self::RESOLVE_LOCATION;
         } else {
             // 
             $this->path = str_replace('.','/',$tokens[1]);
             $this->template_name = $tokens[0];          
-            $this->type = $type;
         }
 
+        $this->type = $type;
         $parts = explode('/',$this->path);
         $this->name = end($parts);
     
-        return true;
     }   
 
     public function getPropertiesFileName() 
@@ -318,6 +321,7 @@ class Component implements ComponentInterface
 
     public function setPropertiesFileName($file_name) 
     {
+       // echo $file_name;
         $this->files['properties']['file_name'] = $file_name;          
     }
 
@@ -343,27 +347,42 @@ class Component implements ComponentInterface
     public function getUrl()
     {
         switch ($this->type) {
-            case Self::TEMPLATE:
+            case Self::TEMPLATE_LOCATION:
                 $url = Url::getTemplateUrl($this->template_name);
                 break;
-            case Self::EXTENSION:
+            case Self::EXTENSION_LOCATION:
                 $url = Url::getExtensionViewUrl($this->template_name);
                 break;                    
         }
         return $url . "/" . $this->base_path . "/" . $this->path . "/";
     }
 
-    // TODO
-    private function resolveDefault()
+    private function resolveComponentLocation()
+    {      
+        if (strpos($this->full_path,Path::TEMPLATES_PATH,0) !== false) {
+          //  echo "template";
+            $this->type = Self::TEMPLATE_LOCATION;
+            $this->resolveTemplateName();
+
+        
+        } else {
+            $this->type = Self::EXTENSION_LOCATION;
+        }
+     
+    }
+
+    private function resolveTemplateName()
     {
-        //echo "fp:" . $this->full_path;
-        //exit();
+        $path = str_replace(Path::TEMPLATES_PATH,"",$this->full_path);
+        $parts = explode('/',$path);
+
+        $this->template_name = (isset($parts[0]) == true) ? $parts[0] : Template::getTemplateName();
     }
 
     protected function resolvePath() 
     {           
         $template_full_path = Path::getTemplatePath($this->template_name,$this->type);
-        $template_path = ($this->type != Self::EXTENSION) ? $this->template_name . DIRECTORY_SEPARATOR : DIRECTORY_SEPARATOR;
+        $template_path = ($this->type != Self::EXTENSION_LOCATION) ? $this->template_name . DIRECTORY_SEPARATOR : DIRECTORY_SEPARATOR;
 
       // echo $template_full_path . "<br>";
         //echo $this->getBasePath();
