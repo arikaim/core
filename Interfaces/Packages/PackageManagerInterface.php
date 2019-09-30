@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -11,6 +11,9 @@ namespace Arikaim\Core\Interfaces\Packages;
 
 use Arikaim\Core\Interfaces\Packages\PackageInterface;
 
+/**
+ * Package manager interface
+ */
 interface PackageManagerInterface 
 {  
     /**
@@ -46,8 +49,29 @@ interface PackageManagerInterface
      * @return bool
      */
     public function unInstallPackage($name);
+
+    /**
+     * Reinstall package
+     *
+     * @param string $name
+     * @return bool
+     */
     public function reInstallPackage($name);
+
+    /**
+     * Enable package
+     *
+     * @param string $name
+     * @return bool
+     */
     public function enablePackage($name);
+
+    /**
+     * Disable package
+     *
+     * @param string $name
+     * @return bool
+     */
     public function disablePackage($name);
     
     /**

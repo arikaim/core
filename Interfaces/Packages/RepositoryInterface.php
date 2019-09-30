@@ -3,22 +3,25 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
 namespace Arikaim\Core\Interfaces\Packages;
 
+/**
+ * Package repository interface
+ */
 interface RepositoryInterface 
 {  
     /**
-     * Undocumented function
+     * Download package
      *
      * @param string $name Package name
      * @param string $licese_key License key for not free packages
-     * @return void
+     * @return bool
      */
-    public function download($name, $licese_key);
+    public function download($name, $licese_key = null);
 
     /**
      * Get package version
@@ -40,7 +43,7 @@ interface RepositoryInterface
      *
      * @param string $user_name
      * @param string $password
-     * @return string ( access token )
+     * @return bool
      */
     public function login($user_name, $password);
     

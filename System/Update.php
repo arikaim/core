@@ -3,34 +3,32 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
 namespace Arikaim\Core\System;
 
-use Arikaim\Core\Utils\Curl;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\System\System;
 use Arikaim\Core\System\ComposerApplication;
+use Arikaim\Core\System\Url;
 
 /**
  * Update Arikaim core
  */
 class Update 
 {
-    public function __construct() 
-    {
-    }
-
-    // TODO
+    /**
+     * Update Arikaim core package
+     *
+     * @return bool
+     */
     public function update()
     {
         $errors = 0;
         $output = ComposerApplication::updatePackage(System::getCorePackageName(),true);
-        echo "out:" . $output;
-        exit();
-        
+      
         if ($errors == 0) {
             // trigger event core.update
             Arikaim::event()->trigger('core.update',[]);
@@ -83,9 +81,8 @@ class Update
      * @return array
      */
     public static function getPackageInfo($vendor,$package)
-    {
-        $url = "https://packagist.org/packages/$vendor/$package.json";
-        $info = Curl::get($url);
-        return json_decode($info,true);
+    {       
+        $info = Url::fetch("https://packagist.org/packages/$vendor/$package.json");
+        return (empty($info) == true) ? null : json_decode($info,true);
     }
 }

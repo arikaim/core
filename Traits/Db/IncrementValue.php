@@ -3,7 +3,7 @@
  *  Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -24,12 +24,8 @@ trait IncrementValue
      */
     public function incrementValue($uuid, $field_name, $increment = 1)
     {        
-        if (is_string($uuid) == true) {
-            $model = parent::where('uuid','=',$uuid)->first();
-        } else {
-            $model = parent::where('id','=',$uuid)->first();
-        }
-        
+        $model = (is_string($uuid) == true) ? parent::where('uuid','=',$uuid)->first() : parent::where('id','=',$uuid)->first();
+          
         if (is_object($model) == false) {
             return false;
         }

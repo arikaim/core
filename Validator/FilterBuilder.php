@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -16,20 +16,37 @@ use Arikaim\Core\Utils\Factory;
  */
 class FilterBuilder
 {
-    public function __construct() 
-    {
-    }
-
+    /**
+     * Create filter 
+     *
+     * @param string $class_name
+     * @param mixed $args
+     * @return \Arikaim\Core\Interfaces\FilterInterface
+     */
     public static function createFilter($class_name, $args = null)
     {              
         return Factory::createInstance(Factory::getValidatorFiltersClass($class_name),$args);             
     }
 
+    /**
+     * Create filter
+     *
+     * @param string $name
+     * @param mixed $args
+     * @return \Arikaim\Core\Interfaces\FilterInterface
+     */
     public static function __callStatic($name, $args)
     {  
         return Self::createFilter(ucfirst($name),$args);       
     }
 
+    /**
+     * Create filter 
+     *
+     * @param string $name
+     * @param mixed $args
+     * @return \Arikaim\Core\Interfaces\FilterInterface
+     */
     public function __call($name, $args)
     {  
         return Self::createFilter(ucfirst($name),$args);       

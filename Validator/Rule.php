@@ -3,19 +3,20 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
 namespace Arikaim\Core\Validator;
 
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Interfaces\FilterInterface;
+use Arikaim\Core\Interfaces\RuleInterface;
+use Arikaim\Core\Collection\Collection;
 
 /**
  * Base class for all form validation rules
  */
-abstract class Rule implements FilterInterface
+abstract class Rule implements RuleInterface
 {    
     const INTEGER_TYPE  = 1;
     const STRING_TYPE   = 2;
@@ -24,39 +25,67 @@ abstract class Rule implements FilterInterface
     const NUMBER_TYPE   = 5;
     const ITEMS_ARRAY   = 6;
 
-    protected $min;
-    protected $max;
-    protected $valid;
+    /**
+     * Rule error
+     *
+     * @var string
+     */
     protected $error;
+
+    /**
+     * Error params
+     *
+     * @var array
+     */
     protected $error_params;
-    protected $required;
+
+    /**
+     * Rule params
+     *
+     * @var Collection
+     */
+    protected $params;
+
+    /**
+     * Return rule type
+     *
+     * @return mixed
+     */
+    abstract public function getType();
+    
+    /**
+     * Validate rule value callback
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    public function validate($value)
+    {
+        return false;
+    }
 
     /**
      * Constructor
      *
-     * @param int|float $min_value
-     * @param int|float $max_value
-     * @param string $error_code
+     * @param string|null $error
+     * @param array $params 
      */
-    public function __construct($min_value = null, $max_value = null, $error = "NOT_VALID_VALUE_ERROR") 
+    public function __construct($params = [], $error = null) 
     {
-        $this->min = $min_value;
-        $this->max = $max_value;
-        $this->valid = true;
-        $this->required = true;
+        $error = (empty($error) == false) ? $error : "NOT_VALID_VALUE_ERROR";
+        $this->params = new Collection($params);  
         $this->error_params = [];
         $this->setError($error);
     }
 
     /**
-     * Set field as required
+     * Return rule params
      *
-     * @param bool $required
-     * @return void
+     * @return Collection
      */
-    public function setRequired($required)
+    public function getParams()
     {
-        $this->required = $required;
+        return $this->params;
     }
 
     /**
@@ -66,26 +95,18 @@ abstract class Rule implements FilterInterface
      */
     public function isRequired()
     {
-        return ($this->required === false) ? false : true;
+        return $this->params->get('required',false);
     }
 
     /**
-     * Validate form rule
+     * Set rule required
      *
-     * @param mixed $value Filed value
-     * @return bool
+     * @param boolean $value
+     * @return void
      */
-    public function validate($value)
+    public function required($value = true)
     {
-        if ((empty($value) == true) && ($this->required == false)) {
-            return true;
-        }
-
-        $filter = $this->getFilter();
-        $filter_options = $this->getFilterOptions();
-        $result = filter_var($value,$filter,$filter_options);
-        $this->setValid($result);       
-        return $result;
+        $this->params->set('required',$value);
     }
 
     /**
@@ -142,67 +163,6 @@ abstract class Rule implements FilterInterface
     }
 
     /**
-     * Minimum field value validation
-     *
-     * @param int|float $value
-     * @param boolean $text_field
-     * @return boolean
-     */
-    protected function validateMinValue($value, $text_field = false)
-    {
-        if ($this->error != "") {
-            return true;
-        }
-        $min = ($text_field == true) ? strlen($value) : $value;
-
-        if ($this->min != null) {                 
-            return ($min < $this->min) ? false : true; 
-        }
-        return true;
-    }
-
-    /**
-     * Maximum field value validation
-     *
-     * @param mixed $value
-     * @param boolean $text_field Set true if field is text field
-     * @return boolean
-     */
-    protected function validateMaxValue($value, $text_field = false)
-    {
-        if ($this->error != "") {
-            return true;
-        }
-        $max = ($text_field == true) ? strlen($value) : $value;
-
-        if ($this->max != null) {           
-            return ($max > $this->max) ? false : true;                
-        }
-        return true;
-    }
-
-    /**
-     * Return true if rule is valid
-     *
-     * @return boolean
-     */
-    public function isValid()
-    {
-        return $this->valid;
-    }
-
-    /**
-     * Set rule valid status
-     *
-     * @param boolean $valid
-     * @return void
-     */
-    public function setValid($valid)
-    {
-        $this->valid = $valid;
-    }
-
-    /**
      * Set validation error
      *
      * @param string $error
@@ -211,16 +171,6 @@ abstract class Rule implements FilterInterface
     public function setError($error)
     {
         $this->error = $error;
-    }
-
-    /**
-     * Return filter options
-     *
-     * @return array
-     */
-    protected function getCustomFilterOptions()
-    {
-        return array('options' => array($this, 'customFilter'));
     }
 
     /**
@@ -234,11 +184,10 @@ abstract class Rule implements FilterInterface
         if (empty($this->error) == true) {
             return "";
         }
-        $this->error_params = ['min' => $this->min,'max' => $this->max];
-        $this->error_params = array_merge($this->error_params,$params);  
+        $this->error_params = array_merge($this->error_params,$this->params->toArray());  
                     
-        $error_message = Arikaim::getError($this->error,$this->error_params);
-        return ($error_message === false) ? $this->error : $error_message;              
+        $error_message = Arikaim::getError($this->error,$this->error_params,null);
+        return (empty($error_message) == true) ? $this->error : $error_message;              
     }
     
     /**
@@ -260,5 +209,15 @@ abstract class Rule implements FilterInterface
     public function getError()
     {
         return $this->error;
+    }
+
+    /**
+     * Return rule fixed rule name
+     *
+     * @return string|null
+     */
+    public function getFieldName()
+    {
+        return null;
     }
 }

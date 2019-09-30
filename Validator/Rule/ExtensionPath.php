@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -18,18 +18,15 @@ use Arikaim\Core\System\Path;
  */
 class ExtensionPath extends Rule
 {  
-    protected $extension_name;
-
     /**
      * Constructor
      *
-     * @param string $extension_name
-     * @param string $error
      */
-    public function __construct($extension_name, $error = "EXTENSION_NOT_EXISTS") 
+    public function __construct() 
     {
-        parent::__construct(null,null,$error);
-        $this->extension_name = $extension_name; 
+        parent::__construct([]);
+
+        $this->setError("EXTENSION_NOT_EXISTS");
     }
 
     /**
@@ -38,7 +35,7 @@ class ExtensionPath extends Rule
      * @param mixed $value
      * @return boolean
      */
-    public function customFilter($value) 
+    public function validate($value) 
     {           
         return (File::exists(Path::EXTENSIONS_PATH . $value) == false) ? false : true;                    
     } 
@@ -48,18 +45,8 @@ class ExtensionPath extends Rule
      *
      * @return int
      */
-    public function getFilter()
+    public function getType()
     {       
         return FILTER_CALLBACK;
-    }
-
-    /**
-     * Return filter options
-     *
-     * @return array
-     */
-    public function getFilterOptions()
-    {
-        return $this->getCustomFilterOptions();
     }
 }

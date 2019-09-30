@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -19,11 +19,10 @@ class File extends Rule
     /**
      * Constructor
      *
-     * @param string $error
      */
-    public function __construct($error = "NOT_VALID_VALUE_ERROR") 
+    public function __construct() 
     {
-        parent::__construct(null,null,$error);
+        parent::__construct([]);
     }
 
     /**
@@ -32,7 +31,7 @@ class File extends Rule
      * @param array $value
      * @return boolean
      */
-    public function customFilter($value) 
+    public function validate($value) 
     { 
         if (is_array($value) == false) {
             return false;
@@ -53,18 +52,8 @@ class File extends Rule
      *
      * @return int
      */
-    public function getFilter()
+    public function getType()
     {       
         return FILTER_CALLBACK;
-    }
-
-    /**
-     * Return filter options
-     *
-     * @return array
-     */
-    public function getFilterOptions()
-    {
-        return $this->getCustomFilterOptions();
     }
 }

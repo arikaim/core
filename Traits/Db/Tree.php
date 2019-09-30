@@ -3,23 +3,32 @@
  *  Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
 namespace Arikaim\Core\Traits\Db;
 
 /**
- * Manage models with parent - child relations, parent_id field is required in model 
+ * Manage models with parent - child relations.
+ *  Change parrent id column name in model:
+ *       protected $parent_attribute = "column name";
 */
 trait Tree 
 {       
-    public function getModelPath($model, $parent_field_name = "parent_id")
+    /**
+     * Gte model tree
+     *
+     * @param Moldel $model
+     * @return void
+     */
+    public function getModelPath($model)
     {
         $result = [];
         array_unshift($result,$model->toArray());
+      
         while ($model != false) {
-            $parent_id = $model->{$parent_field_name};
+            $parent_id = $model->attributes[$this->getParentAttributeName()];
             $model = parent::where('id','=',$parent_id)->first();
             if (is_object($model) == true) {
                 array_unshift($result,$model->toArray());
@@ -28,12 +37,23 @@ trait Tree
         return $result;
     }
 
-    public function getTreePath($id, $parent_field_name = "parent_id")
+    /**
+     * Get parent id attribute name default: parent_id
+     *
+     * @return string
+     */
+    public function getParentAttributeName()
     {
-        $model = parent::where('id','=',$id)->first();
-        if (is_object($model) == false) {
-            return false;
-        }
-        return $this->getModelPath($model,$parent_field_name);
+        return (isset($this->parent_attribute) == true) ? $this->parent_attribute : 'parent_id';
+    }
+
+    /**
+     * Gte model tree for current model
+     *
+     * @return void
+     */
+    public function getTreePath()
+    {      
+        return $this->getModelPath($this);
     }
 }

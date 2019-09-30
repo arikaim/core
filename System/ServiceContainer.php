@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -14,16 +14,12 @@ use Illuminate\Database\Capsule\Manager;
 
 use Arikaim\Container\Container;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\View\Template;
 use Arikaim\Core\Events\EventsManager;
 use Arikaim\Core\System\Session;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Utils\Factory;
-use Arikaim\Core\Utils\Utils;
-use Arikaim\Core\Cache\Cache;
-use Arikaim\Core\Utils\Collection;
+use Arikaim\Core\Collection\Collection;
 use Arikaim\Core\System\Path;
-use Arikaim\Core\Packages\Module\ModulesManager;
 use Arikaim\Core\Packages\Module\ModulePackage;
 use \Arikaim\Core\System\Config;
 
@@ -32,8 +28,18 @@ use \Arikaim\Core\System\Config;
  */
 class ServiceContainer
 {
+    /**
+     * Container
+     *
+     * @var Arikaim\Container\Container
+     */
     private $container;
 
+    /**
+     * Constructor
+     *
+     * @param array|null $services
+     */
     public function __construct(array $services = null)
     {
         $this->container = new Container($services);
@@ -43,20 +49,31 @@ class ServiceContainer
         $this->registerCoreModules();     
     }
 
+    /**
+     * Return container
+     *
+     * @return Arikaim\Container\Container
+     */
     public function getContainer()
     {
         return $this->container;
     }
 
+    /**
+     * Register default services
+     *
+     * @return void
+     */
     public function registerSystemServices()
     {        
-        $config = Config::loadConfig('config.php');
+        $config = Config::read('config.php');
         $settings = isset($config['settings']) ? $config['settings'] : [];
 
         $default_settings = [
-            'httpVersion' => '1.1',
-            'responseChunkSize' => 4096,
-            'addContentLengthHeader' => true
+            'httpVersion'            => '1.1',
+            'responseChunkSize'      => 4096,
+            'addContentLengthHeader' => true,
+            'routerCacheFile'        => Path::CACHE_PATH . "/routes.cache.php"
         ];
         $settings = array_merge($default_settings,$settings);
         $this->container['settings'] = function () use ($settings) {
@@ -66,6 +83,11 @@ class ServiceContainer
         $defaultProvider->register($this->container);
     }
 
+    /**
+     * Boot some default services
+     *
+     * @return void
+     */
     public function boot()
     {
         $this->container->get('view');
@@ -74,6 +96,11 @@ class ServiceContainer
         }
     }
 
+    /**
+     * Add module services in container
+     *
+     * @return bool
+     */
     public function registerCoreModules()
     {
         if (Manager::schema()->hasTable('modules') == false) {
@@ -90,8 +117,7 @@ class ServiceContainer
             if (empty($service_name) == false) {
                 // add to container
                 $this->container[$service_name] = function() use($module) {
-                    $instance = Factory::createModule($module['name'],$module['class']);
-                    return $instance;
+                    return Factory::createModule($module['name'],$module['class']);
                 };
             }
             if ($module['bootable'] == true) {
@@ -102,41 +128,49 @@ class ServiceContainer
                 $this->container->get('classLoader')->loadClassAlias($module['facade_class'],$module['facade_alias']);
             }
         }
+        return true;
     }
- 
+    
+    /**
+     * Init default services
+     *
+     * @return void
+     */
     private function init()
     {
-        // init class loader    
+        // Init class loader    
         $this->container['classLoader'] = function() {
             return new \Arikaim\Core\System\ClassLoader(ARIKAIM_BASE_PATH,ARIKAIM_ROOT_PATH);
         };
-        // Config
-        $this->container['config'] = function() {                         
-            return new \Arikaim\Core\System\Config("config.php");          
-        };
-
         // Cache 
         $this->container['cache'] = function($container) {   
-            $disabeld = $container->get('config')->getByPath('settings/cache_disabled',false);       
-            return new \Arikaim\Core\Cache\Cache(null,$disabeld);
+            return new \Arikaim\Core\Cache\Cache(null,true,$container->get('settings'));
         };
-        // route strategy (Validator strategy)
+        // Config
+        $this->container['config'] = function($container) {    
+            $cache = $container->get('cache');                         
+            $config = new \Arikaim\Core\System\Config("config.php",$cache);         
+            return $config;
+        }; 
+        // Route strategy (Validator strategy)
         $this->container['foundHandler'] = function() {
             return new \Arikaim\Core\Validator\ValidatorStrategy();
         };
         // Errors  
         $this->container['errors'] = function() {
-            $errors = new \Arikaim\Core\System\Error\Errors();
-            return $errors;
+            return new \Arikaim\Core\System\Error\Errors();          
         };
         // Session 
         $this->container['session'] = function() {
-            $session = new Session();
-            return $session;
+            return new Session();
         };
         // Access
         $this->container['access'] = function() {
             return new \Arikaim\Core\Access\Access();
+        };
+        // Auth
+        $this->container['auth'] = function() {
+            return new \Arikaim\Core\Access\Authenticate();
         };
         // Cookie 
         $this->container['cookies'] = function($container) {
@@ -145,24 +179,21 @@ class ServiceContainer
         };
         // Init template view. 
         $this->container['view'] = function ($container) {   
-            $paths = [Path::EXTENSIONS_PATH,Path::TEMPLATES_PATH];               
+            $paths = [Path::EXTENSIONS_PATH,Path::TEMPLATES_PATH,Path::COMPONENTS_PATH];               
             $cache = (isset($container->get('config')['settings']['cache']) == true) ? Path::VIEW_CACHE_PATH : false;
-            $debug = (isset($container->get('config')['settings']['debug']) == true) ? $container->get('config')['settings']['debug'] : false;
+            $debug = (isset($container->get('config')['settings']['debug']) == true) ? $container->get('config')['settings']['debug'] : true;
              
-            $view = new \Arikaim\Core\View\View($paths,['cache' => $cache,'debug' => $debug]);
-            // add template extensions
-            $view->addExtension(new \Arikaim\Core\View\TemplateExtension());
-            return $view;
+            return new \Arikaim\Core\View\View($paths,['cache' => $cache,'debug' => $debug,'autoescape' => false]);           
         };    
         // Init page components.
         $this->container['page'] = function() {           
-            $page = new \Arikaim\Core\View\Html\Page();
-            return $page;
+            return new \Arikaim\Core\View\Html\Page();
         };        
         // Init Eloquent ORM
         $this->container['db'] = function() {  
             try {  
-              $db = new \Arikaim\Core\Db\Db($this->container->get('config')['db']);
+                $relations = $this->container->get('config')->load('relations.php');
+                $db = new \Arikaim\Core\Db\Db($this->container->get('config')['db'],$relations);
             } catch(\PDOException $e) {
                 $this->container->get('errors')->addError('DB_CONNECTION_ERROR');
             }      
@@ -183,39 +214,49 @@ class ServiceContainer
         $this->container['mailer'] = function() {
             return new \Arikaim\Core\Mail\Mailer();
         };
-        // Page not found handler
-        $this->container['notFoundHandler'] = function() {
-            return function ($request, $response) {
-                $page = new \Arikaim\Core\Controlers\Pages\PageLoader;
-                return $page->pageNotFound($request,$response);              
-            };
+        // Modules
+        $this->container['module'] = function() {   
+            return new \Arikaim\Core\Packages\Module\ModulesManager();  
         };
+        // Drivers
+        $this->container['driver'] = function() {   
+            return new \Arikaim\Core\Driver\DriverManager();  
+        };
+        // Page not found handler       
+      //  $this->container['notFoundHandler'] = function() {
+            // TODO
+           // return function ($request, $response) {
+            //    $page = new \Arikaim\Core\Controllers\PageLoader;              
+          //      return $page->pageNotFound($request,$response);              
+          //  };
+       // };
         // Logger
         $this->container['logger'] = function($container) {           
             $enabled = $container->get('options')->get('logger',true);
-            return new \Arikaim\Core\Logger\SystemLogger($enabled);
+            return new \Arikaim\Core\Logger\Logger($enabled);
         };       
-        // Stats logger
-        $this->container['stats'] = function($container) {           
-            $enabled = $container->get('options')->get('logger.stats',true);          
-            return new \Arikaim\Core\Logger\StatsLogger($enabled);
-        };  
         // Jobs queue
-        $this->container['jobs'] = function() {
-            //$queue = new \Arikaim\Core\Jobs\JobsQueueManager();
-            //return $queue;
+        $this->container['queue'] = function() {
+            return new \Arikaim\Core\Queue\QueueManager();          
         };   
         // http client  
         $this->container['http'] = function() {
-            new \GuzzleHttp\Client();
+            return new \GuzzleHttp\Client();
         }; 
         // Application error handler
-        $this->container['errorHandler'] = function() {
-            return new \Arikaim\Core\System\Error\ApplicationError();            
+        $this->container['errorHandler'] = function($container) {
+            $show_details = $container->get('config')['settings']['debug'];
+            $show_trace = $container->get('config')['settings']['debugTrace'];
+            return new \Arikaim\Core\System\Error\ApplicationError($show_details,$show_trace);            
         };
         // Application Throwable error handler
-        $this->container['phpErrorHandler'] = function() {
-            return new \Arikaim\Core\System\Error\ApplicationPHPError();            
+        $this->container['phpErrorHandler'] = function($container) {
+            $show_details = $container->get('config')['settings']['debug'];
+            $show_trace = $container->get('config')['settings']['debugTrace'];
+            return new \Arikaim\Core\System\Error\ApplicationPHPError($show_details,$show_trace);            
         };
+        // Set cache status
+        $cache = $this->container->get('config')->getByPath('settings/cache',false);     
+        $this->container->get('cache')->setStatus($cache);       
     }
 }

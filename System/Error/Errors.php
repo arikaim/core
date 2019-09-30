@@ -3,28 +3,53 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
 namespace Arikaim\Core\System\Error;
 
-use Arikaim\Core\Utils\Utils;
-use Arikaim\Core\Utils\Collection;
+use Arikaim\Core\Utils\Text;
+use Arikaim\Core\Collection\Collection;
 use Arikaim\Core\System\Config;
+use Arikaim\Core\Api\Response;
 
+/**
+ * Errors
+ */
 class Errors extends Collection
 {
+    /**
+     * Prefix
+     *
+     * @var string
+     */
     private $prefix;
+
+    /**
+     * Errors
+     *
+     * @var array
+     */
     private $errors;
 
+    /**
+     * Constructor
+     */
     public function __construct() 
     {
         $this->errors = [];
         $this->loadErrorsConfig();
     }
 
-    public function addError($error_code,$params = [])
+    /**
+     * Add error
+     *
+     * @param string $error_code
+     * @param array $params
+     * @return bool
+     */
+    public function addError($error_code, $params = [])
     {       
         $message = $this->getError($error_code,$params);  
         $message = (empty($message) == true) ? $error_code : $message;
@@ -33,31 +58,58 @@ class Errors extends Collection
         return true;
     }
     
+    /**
+     * Ger errors count
+     *
+     * @return integer
+     */
     public function count()
     {
         return count($this->errors);
     }
 
+    /**
+     * Return true if have error
+     *
+     * @return boolean
+     */
     public function hasError()
     {       
         return ($this->count() > 0) ? true : false;         
     }
 
+    /**
+     * Get errors list
+     *
+     * @return array
+     */
     public function getErrors()
     {
         return $this->errors;
     }
 
-    public function getError($error_code,$params = []) 
+    /**
+     * Get error code
+     *
+     * @param string $error_code
+     * @param string|null $default
+     * @param array $params
+     * @return string
+     */
+    public function getError($error_code, $params = [], $default = 'UNKNOWN_ERROR') 
     {
-        $error = $this->get($error_code,false);
-        if ($error == false) {
-            return "";
-        }
-        $error_text = $this->prefix . $error['message'];
-        return Utils::parseProperties($error_text,$params);
+        $error = $this->get($error_code,null);
+        $error = (empty($error) == true) ? $this->get($default,null) : $error;
+
+        return (empty($error) == true) ? null : Text::render($this->prefix . $error['message'], $params);      
     }
 
+    /**
+     * Get upload error message
+     *
+     * @param integer $error_code
+     * @return string
+     */
     public function getUplaodFileError($error_code)
     {
         switch ($error_code) {
@@ -81,38 +133,106 @@ class Errors extends Collection
         return "";
     }
     
+    /**
+     * Get posix error
+     *
+     * @return void
+     */
+    public static function getPosixError()
+    {
+        $err = posix_get_last_error();
+        return ($err > 0) ? posix_strerror($err) : '';
+    }
+
+    /**
+     * Get JSON error message
+     *
+     * @return string
+     */
     public static function getJsonError()
     {
         switch (json_last_error()) {
             case JSON_ERROR_NONE:
                 $error = null;
-            break;
+                break;
             case JSON_ERROR_DEPTH:
                 $error = 'Maximum stack depth exceeded';
-            break;
+                break;
             case JSON_ERROR_STATE_MISMATCH:
                 $error = 'Underflow or the modes mismatch';
-            break;
+                break;
             case JSON_ERROR_CTRL_CHAR:
                 $error = 'Unexpected control character found';
-            break;
+                break;
             case JSON_ERROR_SYNTAX:
                 $error = 'Syntax error, malformed JSON';
-            break;
+                break;
             case JSON_ERROR_UTF8:
                 $error = 'Malformed UTF-8 characters, possibly incorrectly encoded';
-            break;
+                break;
             default:
                 $error = 'Unknown error';
-            break;
+                break;
         }
         return $error;
     }
 
+    /**
+     * Load error messages file.
+     *
+     * @return void
+     */
     private function loadErrorsConfig() 
     {
         $list = Config::loadJsonConfigFile('errors.json');         
         $this->data = $list['errors'];
         $this->prefix = $list['prefix'];   
+    }
+
+    /**
+     * Get error type text
+     *
+     * @param integer $errno
+     * @return string
+     */
+    public static function getErrorTypeLabel($errno)
+    {
+        switch ($errno) {
+            case E_USER_ERROR:
+                return "USER ERROR";
+            case E_USER_WARNING:
+                return "WARNING";
+            case E_USER_NOTICE:
+                return "NOTICE";
+            default:
+                return "UNKNOW";
+        }
+    }
+
+    /**
+     * Show request error
+     *
+     * @param object $request
+     * @param object $response
+     * @param string $error
+     * @param boolean $end
+     * @return mixed
+     */
+    public function displayRequestError($request, $response, $error, $end = false)
+    {
+        Arikaim::logger()->alert($this->getError($error));   
+        $this->addError($error);
+
+        if (Request::acceptJson($request) == true) {
+            $response = new Response();
+            return $response->withError($error)->getResponse();           
+        }       
+        if ($end == true) {
+            $response = Arikaim::page()->load('system:system-error');
+            Arikaim::getApp()->respond($response); 
+            Arikaim::end();
+        }
+       
+        return Arikaim::page()->load('system:system-error'); 
     }
 }

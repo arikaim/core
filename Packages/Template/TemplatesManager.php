@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -20,11 +20,21 @@ use Arikaim\Core\Arikaim;
 */
 class TemplatesManager extends PackageManager
 {
+    /**
+     * Constructor
+     */
     public function __construct()
     {
        parent::__construct(Path::TEMPLATES_PATH,'template.json');
     }
 
+    /**
+     * Get template packages
+     *
+     * @param boolean $cached
+     * @param mixed $filter
+     * @return array
+     */
     public function getPackages($cached = false, $filter = null)
     {
         $result = ($cached == true) ? Arikaim::cache()->fetch('templates.list') : null;
@@ -36,6 +46,12 @@ class TemplatesManager extends PackageManager
         return $result;
     }
 
+    /**
+     * Create template package
+     *
+     * @param string $template_name
+     * @return TemplatePackage
+     */
     public function createPackage($template_name)
     {
         $propertes = $this->loadPackageProperties($template_name);
@@ -60,7 +76,7 @@ class TemplatesManager extends PackageManager
 
         foreach ($routes as $key => $item) {
             $routes[$key]['method'] = "GET";
-            $route = $model->getTemplateRoute($routes[$key]['path'],$template_name);
+            $route = $model->getPageRoute('GET',$routes[$key]['path']);
             if ($route != false) {
                 $routes[$key]['status'] = $route->status;
                 $routes[$key]['auth'] = $route->auth;

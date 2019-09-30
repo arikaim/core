@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -19,13 +19,13 @@ class Text extends Rule
     /**
      * Constructor
      *
-     * @param int $min_lenght
-     * @param int $max_lenght
-     * @param string $error Error text or error code
+     * @param array $params
      */
-    public function __construct($min_lenght = null, $max_lenght = null, $error = "TEXT_NOT_VALID_ERROR") 
+    public function __construct($params = []) 
     {
-        parent::__construct($min_lenght,$max_lenght,$error);
+        parent::__construct($params);
+
+        $this->setError("TEXT_NOT_VALID_ERROR");
     }
 
     /**
@@ -34,26 +34,26 @@ class Text extends Rule
      * @param string $value
      * @return boolean
      */
-    public function customFilter($value) 
+    public function validate($value) 
     {
         $errors = 0;
-        $result = $this->validateType($value,Rule::STRING_TYPE);
-        if ($result == false) {
-            $this->setError("TEXT_NOT_VALID_ERROR");
-            $errors++;
-        } 
-        $result = $this->validateMinValue($value,true);
-        if ($result == false) {
-            $this->setError("TEXT_MIN_LENGHT_ERROR");
-            $errors++;
-        }   
-        $result = $this->validateMaxValue($value,true);
-        if ($result == false) {
-            $this->setError("TEXT_MAX_LENGHT_ERROR");
-            $errors++;
+        $min = $this->params->get('min',null);
+        $max = $this->params->get('max',null);
+
+        if (empty($min) == false) {           
+            if (strlen((string)$value) < $min) {
+                $this->setError("TEXT_MIN_LENGHT_ERROR");
+                $errors++;
+            }
+        }
+
+        if (empty($max) == false) {   
+            if (strlen((string)$value) > $max) {
+                $this->setError("TEXT_MAX_LENGHT_ERROR");
+                $errors++;
+            }
         }
         return ($errors > 0) ? false : true;
-
     } 
 
     /**
@@ -61,18 +61,8 @@ class Text extends Rule
      *
      * @return int
      */
-    public function getFilter()
+    public function getType()
     {       
         return FILTER_CALLBACK;
-    }
-
-    /**
-     * Return filter options
-     *
-     * @return array
-     */
-    public function getFilterOptions()
-    {
-        return $this->getCustomFilterOptions();
     }
 }

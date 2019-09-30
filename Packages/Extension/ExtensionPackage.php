@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -11,16 +11,14 @@ namespace Arikaim\Core\Packages\Extension;
 
 use Arikaim\Core\Packages\Package;
 use Arikaim\Core\System\Path;
-use Arikaim\Core\System\Url;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\View\Template;
+use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Utils\Factory;
-use Arikaim\Core\Db\Schema;
 
 /**
- * Extension Package class
+ * Extension Package
 */
 class ExtensionPackage extends Package
 {
@@ -28,8 +26,11 @@ class ExtensionPackage extends Package
     const SYSTEM = 1;
     const TYPE_NAME = ['user','system'];
 
-    protected $porperties_list = ['path','name','title','description','version','requires','image','files','themes','params','framework'];
-    
+    /**
+     * Constructor
+     *
+     * @param \Arikaim\Core\Interfaces\Collection\CollectionInterface $properties
+     */
     public function __construct($properties) 
     {
         // set default
@@ -37,13 +38,16 @@ class ExtensionPackage extends Package
         parent::__construct($properties);
     }
 
+    /**
+     * Get extension package properties
+     *
+     * @param boolean $full
+     * @return Collection
+     */
     public function getProperties($full = false)
     {
-        $extension = Model::Extensions();
-
-        $default_class_name = ucfirst($this->properties['name']);
-        $base_class_name = $this->properties->get('class',$default_class_name);
-        
+        $extension = Model::Extensions();     
+        $this->properties['class'] = $this->properties->get('class',ucfirst($this->properties['name']));        
         $this->properties['installed'] = $extension->isInstalled($this->properties['name']);       
         $this->properties['status'] = $extension->getStatus($this->properties['name']);
 
@@ -61,14 +65,26 @@ class ExtensionPackage extends Package
         return $this->properties; 
     }
 
+    /**
+     * Get extension jobs
+     *
+     * @return array
+     */
     public function getExtensionJobs()
     {
         $path = Path::getExtensionJobsPath($this->getName());
         $result = [];
-        foreach (new \DirectoryIterator($path) as $file) {
-            if (($file->isDot() == true) || ($file->isDir() == true)) continue;
-            if ($file->getExtension() != 'php') continue;
+        if (File::exists($path) == false) {
+            return [];
+        }
 
+        foreach (new \DirectoryIterator($path) as $file) {
+            if (
+                $file->isDot() == true || 
+                $file->isDir() == true ||
+                $file->getExtension() != 'php'
+            ) continue;
+          
             $item['base_class'] = str_replace(".php","",$file->getFilename());
             $job = Factory::createJob($item['base_class'],$this->getName());
             if (is_object($job) == true) {
@@ -79,6 +95,11 @@ class ExtensionPackage extends Package
         return $result;
     }
 
+    /**
+     * Get extension console commands
+     *
+     * @return array
+     */
     public function getConsoleCommands()
     {
         $extension = Model::Extensions()->where('name','=',$this->getName())->first();
@@ -88,26 +109,43 @@ class ExtensionPackage extends Package
         $result = [];
         foreach ($extension->console_commands as $class) {
             $command = Factory::createInstance($class);
-            $item['name'] = $command->getName();
-            $item['title'] = $command->getDescription();      
-            $item['help'] = "php cli " . $command->getName();         
-            array_push($result,$item);
+            if (is_object($command) ==true) {
+                $item['name'] = $command->getName();
+                $item['title'] = $command->getDescription();      
+                $item['help'] = "php cli " . $command->getName();         
+                array_push($result,$item);
+            }          
         }      
         return $result;      
     }
 
+    /**
+     * Get temlate macros
+     *
+     * @return array
+     */
     public function getTemplateMacros()
     {
         $path = Path::getExtensionMacrosPath($this->getName());
         return Template::getMacros($path);
     }
 
+    /**
+     * Get template pages
+     *
+     * @return array
+     */
     public function getTemplatePages()
     {
         $path = Path::getExtensionPagesPath($this->getName());
         return Template::getPages($path);
     }
 
+    /**
+     * Get extension models.
+     *
+     * @return array
+     */
     public function getModels()
     {      
         $path = Path::getExtensionModelsSchemaPath($this->getName());
@@ -116,9 +154,12 @@ class ExtensionPackage extends Package
         }
         $result = [];
         foreach (new \DirectoryIterator($path) as $file) {
-            if (($file->isDot() == true) || ($file->isDir() == true)) continue;
-            if ($file->getExtension() != 'php') continue;
-
+            if (
+                $file->isDot() == true || 
+                $file->isDir() == true ||
+                $file->getExtension() != 'php'
+            ) continue;
+         
             $file_name = $file->getFilename();
             $base_class = str_replace(".php","",$file_name);
             $model_obj = Factory::createSchema($base_class,$this->getName());
@@ -131,12 +172,22 @@ class ExtensionPackage extends Package
         return $result;
     }
 
+    /**
+     * Return template html components
+     *
+     * @return array
+     */
     public function getHtmlComponents()
     {
         $path = Path::getExtensionComponentsPath($this->getName());
         return Template::getComponents($path);
     }
 
+    /**
+     * Install extension package
+     *
+     * @return bool
+     */
     public function install()
     {
         // clear extension cache
@@ -159,12 +210,12 @@ class ExtensionPackage extends Package
         Model::Routes()->deleteExtensionRoutes($extension_name);
 
         // delete jobs 
-        //Arikaim::jobs()->deleteExtensionJobs($extension_name);
+        Arikaim::queue()->deleteExtensionJobs($extension_name);
 
         // delete registered events
         Model::Events()->deleteEvents($extension_name);         
         // delete registered events subscribers
-        Model::EventSubscribers()->deleteSubscribers($extension_name);
+        Model::EventSubscribers()->deleteExtensionSubscribers($extension_name);
 
         // run install extension
         $ext_obj->install(); 
@@ -176,7 +227,8 @@ class ExtensionPackage extends Package
 
         // add to extensions db table
         $extension = Model::Extensions();              
-        $details->set('status',1);
+        $details->set('status',$extension->ACTIVE());
+
         if ($extension->isInstalled($extension_name) == false) {            
             $extension->create($details->toArray());
         } else {
@@ -191,11 +243,16 @@ class ExtensionPackage extends Package
         return true;
     }
 
+    /**
+     * Uninstall extension package
+     *
+     * @return bool
+     */
     public function unInstall() 
     {
         // clear extension cache
         Arikaim::cache()->deleteExtensionItems();
-
+        
         $details = $this->getProperties(true);
         $extension_name = $this->getName();
 
@@ -216,14 +273,14 @@ class ExtensionPackage extends Package
         // delete registered events
         Model::Events()->deleteEvents($extension_name);
         // delete registered events subscribers
-        Model::EventSubscribers()->deleteSubscribers($extension_name);
+        Model::EventSubscribers()->deleteExtensionSubscribers($extension_name);
 
         // delete extension options
         Arikaim::options()->removeExtensionOptions($extension_name);
         $result = $extension->where('name','=',$extension_name)->delete();
 
         // delete jobs 
-        //Arikaim::jobs()->deleteExtensionJobs($extension_name);
+        Arikaim::queue()->deleteExtensionJobs($extension_name);
     
         // on after unInstall event handler
         if (is_object($ext_obj) == true) {
@@ -234,12 +291,23 @@ class ExtensionPackage extends Package
         return $result;
     }
 
+    /**
+     * Set extension status
+     *
+     * @param integer $status
+     * @return bool
+     */
     protected function setStatus($status)
     {
         $extension = Model::Extensions()->where('name','=',$this->getName())->first();       
         return $extension->update(['status' => $status]);  
     }
 
+    /**
+     * Enable extension
+     *
+     * @return bool
+     */
     public function enable() 
     {
         // clear extension cache
@@ -254,6 +322,11 @@ class ExtensionPackage extends Package
         return (bool)$result;
     }
 
+    /**
+     * Disable extension
+     *
+     * @return bool
+     */
     public function disable() 
     {
         // clear extension cache
@@ -262,17 +335,23 @@ class ExtensionPackage extends Package
         $name = $this->getName();
         $result = Model::Extensions()->disable($name);
         // disable extension routes
-        Model::Routes()->disableExtensionRoutes($name);        
+        Model::Routes()->disableExtensionRoutes($name);           
         // disable extension events
         Model::Events()->disableExtensionEvents($name);
+        
         return (bool)$result; 
     }   
 
+    /**
+     * Register event subscribers
+     *
+     * @return integer
+     */
     public function registerEventsSubscribers()
     {
         $count = 0;
         $name = $this->getName();
-        $path = Path::getExtensionEventsPath($name);       
+        $path = Path::getExtensionSubscribersPath($name);       
         if (File::exists($path) == false) {
             return $count;
         }
@@ -289,6 +368,12 @@ class ExtensionPackage extends Package
         return $count;
     }
 
+    /**
+     * Return type id
+     *
+     * @param string $type_name
+     * @return integer
+     */
     public static function getTypeId($type_name)
     {
         return array_search($type_name,Self::TYPE_NAME);      

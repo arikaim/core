@@ -3,19 +3,18 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
+
 use Arikaim\Core\Traits\Db\Uuid;
-use Arikaim\Core\Traits\Db\ToggleValue;
-use Arikaim\Core\Traits\Db\Position;
 use Arikaim\Core\Traits\Db\Status;
 use Arikaim\Core\Traits\Db\Find;
-use Arikaim\Core\Db\Schema;
+use Arikaim\Core\Packages\Module\ModulePackage;
 
 /**
  * Modules database model
@@ -24,9 +23,13 @@ class Modules extends Model
 {
     use Uuid,
         Find,
-        ToggleValue,
         Status;
 
+    /**
+     * Fillable attributes
+     *
+     * @var array
+    */
     protected $fillable = [
         'name',
         'title',
@@ -40,59 +43,141 @@ class Modules extends Model
         'version',     
         'console_commands',
         'facade_class',
-        'facede_alias'];
+        'facede_alias',
+        'config',
+        'category'
+    ];
     
+    /**
+     * Disable timestamps
+     *
+     * @var boolean
+     */
     public $timestamps = false;
    
+    /**
+     * Mutator (set) for console_commands attribute.
+     *
+     * @param array|null $value
+     * @return void
+     */
     public function setConsoleCommandsAttribute($value)
     {
-        $value = (is_array($value) == true)  ? json_encode($value) : '';         
-        $this->attributes['console_commands'] = $value;
+        $value = (is_array($value) == true) ? $value : [];         
+        $this->attributes['console_commands'] = json_encode($value);
     }
 
+    /**
+     * Mutator (get) for console_commands attribute.
+     *
+     * @return array
+     */
     public function getConsoleCommandsAttribute()
     {
-        return json_decode($this->attributes['console_commands']);
+        return (empty($this->attributes['console_commands']) == true) ? [] : json_decode($this->attributes['console_commands'],true);
     }
 
+    /**
+     * Mutator (set) for config attribute.
+     *
+     * @param array $value
+     * @return void
+     */
+    public function setConfigAttribute($value)
+    {
+        $value = (is_array($value) == true) ? $value : [];    
+        $this->attributes['config'] = json_encode($value);
+    }
+
+    /**
+     * Mutator (get) for config attribute.
+     *
+     * @return array
+     */
+    public function getConfigAttribute()
+    {
+        return (empty($this->attributes['config']) == true) ? [] : json_decode($this->attributes['config'],true);
+    }
+
+    /**
+     * Return true if module record exist.
+     *
+     * @param string $name
+     * @return boolean
+     */
     public function isInstalled($name)
     {
-        $model = $this->where('name','=',$name)->first();       
-        return (is_object($model) == true) ? true : false;   
+        $model = $this->where('name','=',$name); 
+        return is_object($model->first());
     }
 
+    /**
+     * Get module status
+     *
+     * @param string $name
+     * @return integer
+     */
     public function getStatus($name)
     {
         $model = $this->where('name','=',$name)->first();       
         return (is_object($model) == false) ? 0 : $model->status;            
     }
 
-    public function setStatus($name,$status)
+    /**
+     * Set module status
+     *
+     * @param string $name
+     * @param integer $status
+     * @return bool
+     */
+    public function setStatus($name, $status)
     {
         $model = $this->findByColumn($name,'name');
-        if (is_object($model) == true) {
-            return $model->update(['status' => $status]);
-        }
-        return false;
+        return (is_object($model) == true) ? $model->update(['status' => $status]) : false;         
     }
 
-    public function getList($type,$status = null)
+    /**
+     * Return modules list
+     *
+     * @param integer|string $type
+     * @param integer $status
+     * @return array
+     */
+    public function getList($type = null, $status = null)
     {          
-        $items = $this->where('type','=',$type);  
-        if ($status !== null) {
-            $items = $items->where('status','=',$status);
+        if (is_string($type) == true) {
+            $type = ModulePackage::getTypeId($type);
         }
-        $items = $items->get();
-        return (is_object($items) == true) ? $items->toArray() : [];
+        $model = $this;
+        if ($type !== null) {
+            $model = $model->where('type','=',$type);
+        }  
+        if ($status !== null) {
+            $model = $model->where('status','=',$status);
+        }
+        $model = $model->get();
+        return (is_object($model) == true) ? $model->toArray() : [];
     }
 
+    /**
+     * Disable module
+     *
+     * @param string $name
+     * @return bool
+     */
     public function disable($name)
     {        
-        return $this->setStatus($name,Status::DISABLED());
+        return $this->setStatus($name,Status::$DISABLED);
     }
 
+    /**
+     * Enable module
+     *
+     * @param string $name
+     * @return bool
+     */
     public function enable($name)
     {
-        return $this->setStatus($name,Status::ACTIVE());
+        return $this->setStatus($name,Status::$ACTIVE);
     }
 }

@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -17,14 +17,29 @@ use Symfony\Component\Console\Input\InputOption;
 
 use Arikaim\Core\Arikaim;
 
+/**
+ * Console shell
+ */
 class ShellCommand extends ConsoleCommand
 {  
+    /**
+     * Config command
+     * run php cli or php cli shell
+     * @return void
+     */
     protected function configure()
     {
         $this->setName('shell')->setDescription('Arikaim Cli');
         $this->setDefault(true);
     }
 
+    /**
+     * Command code
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return void
+     */
     protected function executeCommand($input, $output)
     {
         $app = $this->getApplication();
@@ -36,16 +51,17 @@ class ShellCommand extends ConsoleCommand
         $app->setAutoExit(false);
       
         while(true) {
-            $command = $helper->ask($input, $output, $question);
+            $command = trim($helper->ask($input, $output, $question));
             if ($command == 'exit') { 
                 $this->style->newLine();
                 exit();
             }
-            $command_input = new StringInput($command);
-
-            $app->run($command_input,$output);
+            if (empty($command) == false) {
+                $command_input = new StringInput($command);
+                $app->run($command_input,$output);
+            }
+          
         }
-      
         return true;
     }
 }

@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -41,4 +41,17 @@ function getClassBaseName($class_name)
 {
     $class_name = is_object($class_name) ? get_class($class_name) : $class_name;
     return basename(str_replace('\\', '/', $class_name));
+}
+
+/**
+ * Call closure
+ *
+ * @param mixed $value
+ * @param \Closure $closure
+ * @return mixed
+ */
+function call($value, $closure)
+{
+    $closure($value);
+    return $value;
 }

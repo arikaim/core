@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -11,21 +11,52 @@ namespace Arikaim\Core\Utils;
 
 use Arikaim\Core\Arikaim;
 
+/**
+ * Detect browser type
+ */
 class Mobile
 {
-    protected $cache;
+    /**
+     * User agent
+     *
+     * @var string|null
+     */
     protected $user_agent;
+
+    /**
+     * Request headers
+     *
+     * @var array
+     */
     protected $headers;
+
+    /**
+     * Cloud front headers
+     *
+     * @var array
+     */
     protected $cloud_front_headers;
+    
+    /**
+     * Rules
+     *
+     * @var array
+     */
     protected $rules;
 
+    /**
+     * Mobile headers
+     *
+     * @var array
+     */
     protected $mobile_headers = [
             'HTTP_ACCEPT' => ['matches' => [
                                     'application/x-obml2d',
                                     'application/vnd.rim.html',
                                     'text/vnd.wap.wml',
                                     'application/vnd.wap.xhtml+xml'
-                                    ]],
+                                ]
+                            ],
             'HTTP_X_WAP_PROFILE'           => null,
             'HTTP_X_WAP_CLIENTID'          => null,
             'HTTP_WAP_CONNECTION'          => null,
@@ -41,6 +72,11 @@ class Mobile
             'HTTP_UA_CPU'                  => ['matches' => ['ARM']],
     ];
 
+    /**
+     * Os
+     *
+     * @var array
+     */
     protected $os = [
         'AndroidOS'         => 'Android',
         'BlackBerryOS'      => 'blackberry|\bBB10\b|rim tablet os',
@@ -57,6 +93,11 @@ class Mobile
         'BREWOS'            => 'BREW',
     ];
 
+    /**
+     * Browsers
+     *
+     * @var array
+     */
     protected $browsers = [
         'Chrome'          => '\bCrMo\b|CriOS|Android.*Chrome/[.0-9]* (Mobile)?',
         'Dolfin'          => '\bDolfin\b',
@@ -81,6 +122,11 @@ class Mobile
         'PaleMoon'        => 'Android.*PaleMoon|Mobile.*PaleMoon',
     ];
 
+    /**
+     * Utilities
+     *
+     * @var array
+     */
     protected $utilities = [
         'Bot'         => 'Googlebot|facebookexternalhit|AdsBot-Google|Google Keyword Suggestion|Facebot|YandexBot|YandexMobileBot|bingbot|ia_archiver|AhrefsBot|Ezooms|GSLFbot|WBSearchBot|Twitterbot|TweetmemeBot|Twikle|PaperLiBot|Wotbox|UnwindFetchor|Exabot|MJ12bot|YandexImages|TurnitinBot|Pingdom',
         'MobileBot'   => 'Googlebot-Mobile|AdsBot-Google-Mobile|YahooSeeker/M1A1-R2D2',
@@ -91,6 +137,11 @@ class Mobile
         'Watch'       => 'SM-V700',
     ];
 
+    /**
+     * User agent headers
+     *
+     * @var array
+     */
     protected $user_agent_headers = [
         'HTTP_USER_AGENT',
         'HTTP_X_OPERAMINI_PHONE_UA',
@@ -102,6 +153,9 @@ class Mobile
         'HTTP_X_UCBROWSER_DEVICE_UA'
     ];
 
+    /**
+     * Constructor
+     */
     public function __construct() 
     {
         $this->initHeaders();
@@ -114,6 +168,11 @@ class Mobile
         );
     }
 
+    /**
+     * Init headers
+     *
+     * @return void
+     */
     public function initHeaders()
     {
         $headers = $_SERVER;
@@ -127,6 +186,12 @@ class Mobile
         $this->initCloudFrontHeaders($headers);
     }
 
+    /**
+     * Init CloudFront headers
+     *
+     * @param array $headers
+     * @return bool
+     */
     public function initCloudFrontHeaders($headers) 
     {
         $this->cloud_front_headers = [];
@@ -140,14 +205,13 @@ class Mobile
         return false;
     }
 
-    private function prepareUserAgent($user_agent) 
-    {       
-        return substr(trim($user_agent),0,500);  
-    }
-
+    /**
+     * Init user agent
+     *
+     * @return void
+     */
     public function initUserAgent()
     {
-        $this->cache = [];
         $this->user_agent = null;
         foreach ($this->user_agent_headers as $altHeader) {
             if (empty($this->headers[$altHeader]) == false) {
@@ -156,15 +220,22 @@ class Mobile
         }
 
         if (empty($this->user_agent) == false) {
-            return $this->user_agent = $this->prepareUserAgent($this->user_agent);
+            $this->user_agent = substr(trim($this->user_agent),0,500);
+            return;
         }
         
         if (count($this->cloud_front_headers) > 0) {
-            return $this->user_agent = 'Amazon CloudFront';
+            $this->user_agent = 'Amazon CloudFront';
+            return;
         }
-        return $this->user_agent = null;
+        $this->user_agent = null;
     }
 
+    /**
+     * Check for mobile headers 
+     *
+     * @return bool
+     */
     public function checkHeadersForMobile()
     {
         foreach ($this->mobile_headers as $mobile_header => $match_type) {
@@ -184,6 +255,11 @@ class Mobile
         return false;
     }
 
+    /**
+     * Check user agent
+     *
+     * @return bool
+     */
     protected function matchUserAgent()
     {
         foreach ($this->rules as $regex) {
@@ -198,12 +274,22 @@ class Mobile
         return false;
     }
 
+    /**
+     * Return true if page is open from mobile browser
+     *
+     * @return bool
+     */
     public static function mobile()
     {
         $obj = new Mobile();
         return $obj->isMobile();
     }
 
+    /**
+     * Return true if page is open from mobile browser
+     *
+     * @return boolean
+     */
     public function isMobile()
     {
         $is_mobile = Arikaim::session()->get('mobile.mode');
@@ -221,16 +307,31 @@ class Mobile
         return $this->matchUserAgent();
     }
 
+    /**
+     * Set desktop mode
+     *
+     * @return void
+     */
     public function setDesktopMode()
     {
         Arikaim::session()->get('mobile.mode',false);
     }
 
+    /**
+     * Set mobile mode
+     *
+     * @return void
+     */
     public function setMobileMode()
     {
         Arikaim::session()->get('mobile.mode',true);
     }
 
+    /**
+     * Return true for Amazon CloudFront
+     *
+     * @return boolean
+     */
     public function isCloudFront()
     {
         if ($this->user_agent === 'Amazon CloudFront') {
@@ -241,6 +342,12 @@ class Mobile
         return false;
     }
 
+    /**
+     * Match helper
+     *
+     * @param string $regex
+     * @return bool
+     */
     protected function match($regex)
     {
        return (bool)preg_match(sprintf('#%s#is', $regex),$this->user_agent,$matches);

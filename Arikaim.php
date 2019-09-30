@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -11,14 +11,12 @@ namespace Arikaim\Core;
 
 use Slim\Http\Uri;
 use Slim\Http\Environment;
+use Slim\App;
 
-use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Utils\Arrays;
-use Arikaim\Core\ClassLoader;
 use Arikaim\Core\System\ServiceContainer;
 use Arikaim\Core\System\Routes;
-use Arikaim\Core\Interfaces\CollectionInterface;
-use Arikaim\Core\System\Config;
+use Arikaim\Core\Interfaces\Collection\CollectionInterface;
 
 /**
  * Arikaim core class
@@ -49,13 +47,18 @@ class Arikaim
     /**
      * Get Slim application object
      *
-     * @return [object]
+     * @return Slim\App
     */
     public static function getApp()
     {
         return Self::$app;
     }
 
+    /**
+     * Start time
+     *
+     * @var integer
+     */
     private static $start_time;
 
     /**
@@ -117,12 +120,16 @@ class Arikaim
     }
 
     /**
-     *  Create Arikaim system. Create container services, load system routes 
-     *  @param boolean load_routes - load routes 
-     *  @return void
+     * Create Arikaim system. Create container services, load system routes 
+     * 
+     * @param boolean $load_routes - load routes 
+     * @return void
     */
     public static function init($load_routes = true) 
     {        
+        // set start time
+        Self::$start_time = microtime(true);
+
         ini_set('display_errors',1);
         ini_set('display_startup_errors',1);
         error_reporting(E_ALL); 
@@ -137,20 +144,13 @@ class Arikaim
         }
         define('ARIKAIM_BASE_PATH',Self::getBasePath());
         define('ARIKAIM_PATH',ARIKAIM_ROOT_PATH . ARIKAIM_BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');  
-        define('ARIKAIM_CACHE_PATH',ARIKAIM_PATH . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR);
-
-        $loader = new \Arikaim\Core\System\ClassLoader(ARIKAIM_BASE_PATH,ARIKAIM_ROOT_PATH);
+     
+        $loader = new \Arikaim\Core\System\ClassLoader(ARIKAIM_BASE_PATH,ARIKAIM_ROOT_PATH,'Arikaim' . DIRECTORY_SEPARATOR . 'Core','Arikaim' . DIRECTORY_SEPARATOR . 'Extensions');
         $loader->register();
-        
-        // error handlers
-        //set_exception_handler("\Arikaim\Core\System\Error\ApplicationError::show"); 
-       // set_error_handler('\Arikaim\Core\System\Error\PhpError::show',E_ALL);
         
         // load global functions
         $loader->LoadClassFile('\\Arikaim\\Core\\System\\Globals');
-        
-        // set start time
-        Self::initStartTime();        
+         
         register_shutdown_function("\Arikaim\Core\Arikaim::end");
         
         // create service container
@@ -158,10 +158,10 @@ class Arikaim
         Self::$container = $service_container->getContainer(); 
         $service_container->boot();
         
-        Self::$app = new \Slim\App(Self::$container);
+        Self::$app = new App(Self::$container);
     
         // load class aliases
-        $aliases = Config::loadConfig('aliases.php');                   
+        $aliases = Arikaim::config()->load('aliases.php');                   
         $loader->loadAlliases($aliases);
     
         if ($load_routes == true) {
@@ -197,11 +197,12 @@ class Arikaim
      *
      * @param string $error_code Error code
      * @param array $params Erorr params
+     * @param string|null $default
      * @return string
     */
-    public static function getError($error_code,array $params = []) 
+    public static function getError($error_code,array $params = [], $default = 'UNKNOWN_ERROR') 
     {
-        return Self::errors()->getError($error_code,$params);
+        return Self::errors()->getError($error_code,$params, $default);
     }
 
     /**
@@ -214,6 +215,11 @@ class Arikaim
         return (defined('ARIKAIM_ROOT_PATH') == true) ? ARIKAIM_ROOT_PATH : dirname(dirname(__DIR__));         
     }
 
+    /**
+     * Get console base path
+     *
+     * @return string
+     */
     public static function getConsoleBasePath()
     {
         return (defined('ARIKAIM_BASE_PATH') == true) ? ARIKAIM_BASE_PATH : "";       
@@ -272,16 +278,11 @@ class Arikaim
         return (php_sapi_name() == "cli") ? true : false;         
     }   
     
-    public static function initStartTime()
-    {
-        Self::$start_time = microtime(true);
-    }
-    
-    public static function getStartTime() 
-    {
-        return Self::$start_time;
-    }
-
+    /**
+     * Get script execution time
+     *
+     * @return integer
+     */
     public static function getExecutionTime() 
     {
         return (microtime(true) - Self::$start_time);

@@ -3,19 +3,21 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
+
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Access\Access;
-use Arikaim\Core\Arikaim;
-use Arikaim\Core\Traits\Db\Find;;
-use Arikaim\Core\Traits\Db\Status;;
-use Arikaim\Core\Traits\Db\Uuid;;
+use Arikaim\Core\Access\Authenticate;
+use Arikaim\Core\System\Url;
+use Arikaim\Core\View\Html\HtmlComponent;
+use Arikaim\Core\Traits\Db\Find;
+use Arikaim\Core\Traits\Db\Status;
+use Arikaim\Core\Traits\Db\Uuid;
 
 /**
  * Routes database model
@@ -27,12 +29,19 @@ class Routes extends Model
         Status;
 
     /**
-     *  Route types
+     *  Route type constant
      */
-    const TYPE_UNKNOW   = 0;
-    const TYPE_PAGE     = 1;
-    const TYPE_API      = 2;
-  
+    const TYPE_UNKNOW          = 0;
+    const TYPE_PAGE            = 1;
+    const TYPE_API             = 2;
+    const TYPE_ERROR_PAGE      = 3;
+    const TYPE_AUTH_ERROR_PAGE = 4;
+
+    /**
+     * Fillable attributes
+     *
+     * @var array
+    */
     protected $fillable = [
         'name',
         'pattern',
@@ -43,31 +52,104 @@ class Routes extends Model
         'auth',
         'type',
         'status',
-        'template_name',
-        'required_permission',
-        'permission_type',
-        'template_page'];
-        
+        'template_name',      
+        'options',  
+        'redirect_url',
+        'page_name'
+    ];
+    
+    /**
+     * Disable timestamps
+     *
+     * @var boolean
+     */
     public $timestamps = false;
 
-    public function disableExtensionRoutes($extension_name) 
-    {  
-        $routes = $this->where('extension_name','=',$extension_name)->get();
-        foreach ($routes as $route) {
-            $route->status = Self::DISABLED();
-            // fire event        
-            Arikaim::event()->trigger('core.route.disable',$route->toArray());
-            $route->update();
-        }
+    /**
+     * Get full redirect url
+     *
+     * @return string
+     */
+    public function getRedirectUrl()
+    {
+        return (empty($this->redirect_url) == false) ? Url::ARIKAIM_BASE_URL . $this->redirect_url : null;
+    }
+    
+    /**
+     * Mutator (set) for options attribute.
+     *
+     * @param array:null $value
+     * @return void
+     */
+    public function setOptionsAttribute($value)
+    {
+        $value = (is_array($value) == true) ? $value : [];    
+        $this->attributes['options'] = json_encode($value);
     }
 
+    /**
+     * Mutator (get) for options attribute.
+     *
+     * @return array
+     */
+    public function getOptionsAttribute()
+    {
+        return json_decode($this->attributes['options'],true);
+    }
+
+    /**
+     * Get extension routes
+     *
+     * @param string $extension_name
+     * @param integer $status
+     * @param integer $type
+     * @return object|null
+     */
+    public function getExtensionRoutes($extension_name, $type = Self::TYPE_PAGE, $status = 1)
+    {
+        $routes = $this->where('extension_name','=',$extension_name);
+        if ($type != null) {
+            $routes = $routes->where('type','=', $type);
+        }
+        if ($status != null) {
+            $routes = $routes->where('status','=', $status);
+        }         
+        return $routes->get();
+    }
+
+    /**
+     * Disable extension routes
+     *
+     * @param string $extension_name
+     * @return bool
+     */
+    public function disableExtensionRoutes($extension_name) 
+    {  
+        $routes = $this->where('extension_name','=',$extension_name);
+        $result = $routes->update(['status' => Status::$DISABLED]);
+        return ($result == null) ? true : $result;
+    }
+
+    /**
+     * Enable extension routes
+     *
+     * @param string $extension_name
+     * @return bool
+     */
     public function enableExtensionRoutes($extension_name) 
     {  
         $routes = $this->where('extension_name','=',$extension_name);
-        $result = $routes->update(['status' => Self::ACTIVE()]);
-        return $result;
+        $result = $routes->update(['status' => Status::$ACTIVE]);
+        return ($result == null) ? true : $result;
     }
 
+    /**
+     * Get routes
+     *
+     * @param integer $status
+     * @param string|null $extension_name
+     * @return array
+     */
     public function getRoutes($status = 1, $extension_name = null)
     {
         if (Schema::hasTable($this) == false) {
@@ -85,10 +167,19 @@ class Routes extends Model
         return (is_object($model) == true) ? $model->toArray() : [];
     }
 
+    /**
+     * Delete extension routes
+     *
+     * @param string $extension_name
+     * @return bool
+     */
     public function deleteExtensionRoutes($extension_name)
     {
         $model = $this->where('extension_name','=',$extension_name);
-        return (is_object($model) == true) ? $model->delete() : true;        
+        if (is_object($model) == true) {
+            $result = $model->delete();
+        }
+        return ($result == null) ? true : $result;
     }
 
     /**
@@ -112,6 +203,13 @@ class Routes extends Model
         return true;
     }
 
+    /**
+     * Delete route
+     *
+     * @param string $method
+     * @param string $pattern
+     * @return bool
+     */
     public function deleteRoute($method, $pattern)
     {       
         $model = $this->where('method','=',$method)->where('pattern','=',$pattern);
@@ -122,123 +220,271 @@ class Routes extends Model
         return true;
     }
 
+    /**
+     * Get route
+     *
+     * @param string $method
+     * @param string $pattern
+     * @return Model|false
+     */
     public function getRoute($method, $pattern)
     {
         $model = $this->where('method','=',$method)->where('pattern','=',$pattern)->first();
-        if (is_object($model) == false) {
-            return false;
-        }
-        return $model;
+        return (is_object($model) == false) ? false : $model;          
     }
 
-    public function getTemplateRoute($pattern, $template_name)
-    {
-        $pattern .= $this->getLanguagePattern($pattern);       
-        $model = $this->where('pattern','=',$pattern);
-        if (is_object($model) == false) {
-            return false;
-        }
-        $model = $model->where('template_name','=',$template_name)->first();
-        return (is_object($model) == false) ? false : $model;           
-    }
-
+    /**
+     * Get route with language pattern
+     *
+     * @param string $method
+     * @param string $pattern
+     * @return Model|false
+     */
     public function getPageRoute($method, $pattern)
     {
-        $pattern .= $this->getLanguagePattern($pattern);
+        $pattern .= $this->getLanguagePattern($pattern);         
         return $this->getRoute($method,$pattern);       
     }
 
-    public function findRoute($condition)
-    {
-        $model = Model::buildQuery($this,$condition);
-        $model = $model->get();
-        return (is_object($nodel) == false) ? false : $model;          
-    }
-
+    /**
+     * Return true if reoute exists
+     *
+     * @param string $method
+     * @param string $pattern
+     * @return boolean
+     */
     public function hasRoute($method, $pattern)
     {
         $model = $this->getRoute($method, $pattern);
         return ($model == false) ? false : true; 
     }
 
+    /**
+     * Add route
+     *
+     * @param array $route
+     * @return bool
+     */
     public function addRoute(array $route)
     {
-        $result = false;
-        if ($this->hasRoute($route['method'],$route['pattern']) == false) {
-            $result = Routes::create($route); 
-        }       
-        return $result;
+        return ($this->hasRoute($route['method'],$route['pattern']) == false) ? $this->create($route) : $this->update($route);         
     }
 
-    public function addTemplateRoute($pattern, $handler_class, $handler_method, $template_name, $template_page)
+    /**
+     * Set redirect url for route
+     *
+     * @param string $pattern
+     * @param string $redirect_url
+     * @return boolean
+     */
+    public function setRedirectUrl($pattern, $redirect_url)
     {
-        $route['method'] = "GET";
-        $route['pattern'] = $pattern . $this->getLanguagePattern($pattern);
-        $route['handler_class'] = $handler_class;
-        $route['handler_method'] = $handler_method;
-        $route['auth'] = Access::AUTH_NONE;
-        $route['type'] = Self::TYPE_PAGE;
-        $route['template_page'] = $template_page;
-        $route['template_name'] = $template_name;
-        // fire event        
-        Arikaim::event()->trigger('core.route.register',$route);
-        return $this->addRoute($route);
+        $model = $this->getRoute('GET',$pattern);
+        if (is_object($model) == true) {
+            $model->redirect_url = $redirect_url;
+            return $model->save();
+        }
+        return false;
     }
 
-    public function addPageRoute($pattern, $handler_class, $handler_method, $extension_name, $auth = Access::AUTH_NONE)
+    /**
+     * Add template(theme) route
+     *
+     * @param string $pattern
+     * @param string $handler_class
+     * @param string $handler_method
+     * @param string $template_name
+     * @param string $page_name
+     * @param integer $auth
+     * @return bool
+     */
+    public function addTemplateRoute($pattern, $handler_class, $handler_method, $template_name, $page_name, $auth = null)
     {
-        $route['method'] = "GET";
-        $route['pattern'] = $pattern . $this->getLanguagePattern($pattern);
-        $route['handler_class'] = $handler_class;
-        $route['handler_method'] = $handler_method;
-        $route['auth'] = $auth;
-        $route['type'] = Self::TYPE_PAGE;
-        $route['extension_name'] = $extension_name;
-        return $this->addRoute($route);
+        $route = [
+            'method'         => "GET",
+            'pattern'        => $pattern . $this->getLanguagePattern($pattern),
+            'handler_class'  => $handler_class,
+            'handler_method' => $handler_method,
+            'auth'           => $auth,
+            'type'           => Self::TYPE_PAGE,
+            'page_name'  => $page_name,
+            'extension_name' => null,
+            'template_name'  => $template_name
+        ];
+        $model = $this->getPageRoute('GET',$pattern);
+       
+        return (is_object($model) == true) ? $model->update($route) : $this->create($route);      
     }
 
+    /**
+     * Add page route
+     *
+     * @param string $pattern
+     * @param string $handler_class
+     * @param string $handler_method
+     * @param string $extension_name
+     * @param string $page_name
+     * @param integer $auth  
+     * @param integer $type
+     * @param string|null $redirect_url
+     * @return bool
+     */
+    public function addPageRoute($pattern, $handler_class, $handler_method, $extension_name, $page_name, $auth = null, $redirect_url = null)
+    {
+        $route = [
+            'method'            => "GET",
+            'pattern'           => $pattern . $this->getLanguagePattern($pattern),
+            'handler_class'     => $handler_class,
+            'handler_method'    => $handler_method,
+            'auth'              => $auth,
+            'type'              => Self::TYPE_PAGE,
+            'extension_name'    => $extension_name,
+            'page_name'     => $page_name,
+            'template_name'     => null,
+            'redirect_url'      => $redirect_url
+        ];
+
+        $model = $this->getPageRoute('GET',$pattern);
+       
+        return (is_object($model) == true) ? $model->update($route) : $this->create($route);      
+    }
+
+    /**
+     * Add application error page route
+     *
+     * @param string $pattern
+     * @param string $handler_class
+     * @param string $handler_method
+     * @param string $extension_name
+     * @param string $page_name
+     *
+     * @return bool
+     */
+    public function addErrorRoute($pattern, $handler_class, $handler_method, $extension_name, $page_name)
+    {
+        return $this->addPageRoute($pattern,$handler_class,$handler_method,$extension_name,$page_name,null,Self::TYPE_ERROR_PAGE);
+    }
+
+    /**
+     * Add auth error page route
+     *
+     * @param string $pattern
+     * @param string $handler_class
+     * @param string $handler_method
+     * @param string $extension_name
+     * @param integer|null $auth
+     * @param string $page_name
+     *
+     * @return bool
+    */
+    public function addAuthErrorRoute($pattern, $extension_name, $page_name, $auth = null, $handler_class, $handler_method)
+    {
+        return $this->addPageRoute($pattern,$handler_class,$handler_method,$extension_name,$page_name,$auth,Self::TYPE_AUTH_ERROR_PAGE);
+    }
+
+    /**
+     * Get error route
+     *
+     * @param string $extension_name
+     * @return Model|false
+     */
+    public function getErrorRoute($extension_name)
+    {
+        $model = $this->where('method','=','GET')->where('type','=',Self::TYPE_ERROR_PAGE)->where('extension_name','=',$extension_name)->first();
+        return (is_object($model) == true) ? $model : false;
+    }
+
+    /**
+     * Get auth error route
+     *
+     * @param string $extension_name
+     * @param integer $auth
+     * @return void
+     */
+    public function getAuthErrorRoute($extension_name, $auth)
+    {
+        $model = $this->where('method','=','GET')
+            ->where('type','=',Self::TYPE_AUTH_ERROR_PAGE)
+            ->where('extension_name','=',$extension_name)
+            ->where('auth','=',$auth)
+            ->first();
+
+        return (is_object($model) == true) ? $model : false;
+    }
+
+    /**
+     * Get language route path  
+     *
+     * @param string $path
+     * @return string
+     */
     public function getLanguagePattern($path)
     {        
         return (substr($path,-1) == "/") ? "[{language:[a-z]{2}}/]" : "[/{language:[a-z]{2}}/]";
     }
 
-    public function addApiRoute($method, $pattern, $handler_class, $handler_method, $extension_name, $auth = Access::AUTH_JWT)
+    /**
+     * Add api route
+     *
+     * @param string $method
+     * @param string $pattern
+     * @param string $handler_class
+     * @param string $handler_method
+     * @param string $extension_name
+     * @param integer $auth
+     * @return bool
+     */
+    public function addApiRoute($method, $pattern, $handler_class, $handler_method, $extension_name, $auth = Authenticate::AUTH_JWT)
     {
-        $route['method'] = $method;
-        $route['pattern'] = $pattern;
-        $route['handler_class'] = $handler_class;
-        $route['handler_method'] = $handler_method;
-        $route['auth'] = $auth;
-        $route['type'] = Self::TYPE_API;
-        $route['extension_name'] = $extension_name;
+        $route = [
+            'method'         => $method,
+            'pattern'        => $pattern,
+            'handler_class'  => $handler_class,
+            'handler_method' => $handler_method,
+            'auth'           => $auth,
+            'type'           => Self::TYPE_API,
+            'extension_name' => $extension_name
+        ];
         return $this->addRoute($route);
     }
-
-    public function setPermission($id, $permission_name, array $permission)
-    {
-        $model = $this->findById($id);
-        if (is_object($model) == false) {
-            return false;
-        }
     
-        $model->permission = $permission_name;
-        $model->permission_type = json_encode($permission);
-        return $model->update();
-    }
-
+    /**
+     * Return true if auth id is valid
+     *
+     * @param integer $auth
+     * @return boolean
+     */
     public static function isValidAuth($auth)
     {
-        return (($auth < 0) || ($auth > 4)) ? false : true;           
+        return ($auth < 0 || $auth > 4) ? false : true;           
     }
 
+    /**
+     * Return true if route info is valid
+     *
+     * @param array $route
+     * @return boolean
+     */
     public function isValid(array $route) 
     {
-        if (isset($route['pattern']) == false) return false;
-        if (isset($route['handler_class']) == false) return false;
-        if (isset($route['handler_method']) == false) return false;
-        if (trim($route['type']) == "") return false;
-        if (trim($route['method']) == "") return false;
-        if (Self::isValidAuth($route['auth']) == false) return false;
-        return true;
+        return (
+            isset($route['pattern']) == false
+            || isset($route['handler_class']) == false
+            || isset($route['handler_method']) == false 
+            || empty(trim($route['type'])) == true
+            || empty(trim($route['method'])) == true
+            || Self::isValidAuth($route['auth']) == false
+        ) ? false : true;          
+    }
+
+    /**
+     * Get html full page name
+     *
+     * @return string
+     */
+    public function getPageName()
+    {
+        $page_name = trim($this->page_name);
+        return (HtmlComponent::isFullName($page_name) == true) ? $page_name : $this->extension_name . '::' . $page_name;       
     }
 }

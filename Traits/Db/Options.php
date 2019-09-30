@@ -1,0 +1,50 @@
+<?php
+/**
+ *  Arikaim
+ *
+ * @link        http://www.arikaim.com
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @license     http://www.arikaim.com/license.html
+ * 
+*/
+namespace Arikaim\Core\Traits\Db;
+
+/**
+ * Options column trait
+*/
+trait Options 
+{        
+    /**
+     * Mutator (set) for options attribute.
+     *
+     * @param array $value
+     * @return void
+     */
+    public function setOptionsAttribute($value)
+    {
+        $value = (is_array($value) == true) ? $value : [$value];    
+        $this->attributes['options'] = json_encode($value);
+    }
+
+    /**
+     * Mutator (get) for options attribute.
+     *
+     * @return array
+     */
+    public function getOptionsAttribute()
+    {
+        return (empty($this->attributes['options']) == true) ? [] : json_decode($this->attributes['options'],true);
+    }
+
+    /**
+     * Get option from options array
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    public function getOption($key, $default = null)
+    {
+        return (isset($this->options[$key]) == true) ? $this->options[$key] : $default;
+    }
+}

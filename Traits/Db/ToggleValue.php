@@ -3,7 +3,7 @@
  *  Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -14,22 +14,25 @@ namespace Arikaim\Core\Traits\Db;
 */
 trait ToggleValue 
 {       
-    public function toggleValue($uuid, $field_name)
-    {        
-        if (is_string($uuid) == true) {
-            $model = parent::where('uuid','=',$uuid)->first();
-        } else {
-            $model = parent::where('id','=',$uuid)->first();
-        }
-
+    /**
+     * Toggle model attribute value
+     *
+     * @param string $field_name
+     * @param string|integer|null $id
+     * @return boolean
+     */
+    public function toggle($field_name, $id = null)
+    {
+        $id = (empty($id) == true) ? $this->id : $id;
+    
+        $model = $this->findById($id);
         if (is_object($model) == false) {
             return false;
         }
         $value = $model->getAttribute($field_name);
         $value = ($value == 0) ? 1 : 0;
-         
-        $model->setAttribute($field_name,$value);
-        $model->update();        
-        return $value;
+        $result = $model->update([$field_name => $value]);  
+        
+        return ($result !== false) ? true : false;
     }
 }

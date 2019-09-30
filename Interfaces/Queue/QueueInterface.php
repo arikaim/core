@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -11,6 +11,9 @@ namespace Arikaim\Core\Interfaces\Queue;
 
 use Arikaim\Core\Interfaces\Queue\JobInterface;
 
+/**
+ * Queue interface
+ */
 interface QueueInterface
 {    
     /**
@@ -25,7 +28,6 @@ interface QueueInterface
      * Remove job from queue
      *
      * @param JobInterface $job
-     * 
      * @return boolean
     */
     public function remove(JobInterface $job);
@@ -37,12 +39,6 @@ interface QueueInterface
      * @return bool
     */
     public function execute(JobInterface $job);
-
-    /**
-     * Return jobs count
-     * @return number
-     */
-    public function getCount();
 
     /**
      * Get next job
@@ -60,7 +56,7 @@ interface QueueInterface
     public function clear($completed = true, $extension_name = null);
 
     /**
-     * Undocumented function
+     * Get jobs list
      *
      * @param bool $recurring
      * @param boolean $scheduled
@@ -68,4 +64,35 @@ interface QueueInterface
      * @return array
     */
     public function getJobs($recurring = false, $scheduled = false, $extenion_name = null);
+
+    /**
+     * Return true if job exist in queue
+     *
+     * @param JobInterface $job
+     * @return boolean
+     */
+    public function hasJob(JobInterface $job);
+
+    /**
+     * Get recurring jobs
+     *
+     * @param string|null $extenion_name
+     * @return array
+     */
+    public function getRecuringJobs($extenion_name = null);
+
+    /**
+    * Get scheduled jobs
+    *
+    * @param string|null $extenion_name
+    * @return array
+    */
+    public function getScheduledJobs($extenion_name = null);
+
+    /**
+     * Get all jobs due
+     * 
+     * @return array
+     */
+    public function getJobsDue();
 }

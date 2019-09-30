@@ -3,19 +3,30 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
 namespace Arikaim\Core\Middleware;
 
 use Arikaim\Core\Validator\Validator;
-use Arikaim\Core\Middleware\ClientIp;
+use Arikaim\Core\Utils\ClientIp;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Db\Model;
+use Arikaim\Core\Middleware\Middleware;
 
-class CoreMiddleware
+/**
+ * Core middleware
+ */
+class CoreMiddleware extends Middleware
 {
+    /**
+     * Invoke 
+     *
+     * @param object $request
+     * @param object $response
+     * @param object $next
+     * @return \Psr\Http\Message\ResponseInterface
+     */
     public function __invoke($request, $response, $next)
     {
         // set current path 
@@ -27,31 +38,23 @@ class CoreMiddleware
         // get client ip address
         $cleint_ip = new ClientIp();
         $request = $cleint_ip->getClientIpAddress($request);
-        
-        // auth token and session 
-        $result = Arikaim::access()->fetchToken($request);
-        if ($result == false) {
-            if (Model::Users()->isLoged() == true) {
-                // create token for current user
-                $user = Model::Users()->getLogedUser();
-                if ($user != false) {
-                    $token = Arikaim::access()->createToken($user->id,$user->uuid);  
-                    Arikaim::access()->applyToken($token);  
-                }
-            }
-        }
-
-        $response = $next($request, $response);
-        return $response;
+        return $next($request, $response);     
     }
 
+    /**
+     * Sanitize request 
+     *
+     * @param object $request
+     * @return object
+     */
     private function sanitizeRequest($request)
     {
         $data = $request->getParsedBody();
         $data = (is_array($data) == true) ? $data : []; 
         $validator = new Validator($data);
-        $validator->addFilter('*',$validator->filter()->text());
+        $validator->addFilter('*',$validator->filter()->sanitize());
         $validator->doFilter();
+        
         return $request->withParsedBody($validator->toArray());
     }
 }

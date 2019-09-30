@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -19,13 +19,13 @@ class Number extends Rule
     /**
      * Constructor
      *
-     * @param int|float $min_value
-     * @param int|float $max_value
-     * @param string $error
+     * @param array $params
      */
-    public function __construct($min_value = null, $max_value = null, $error = "NUMBER_NOT_VALID_ERROR") 
+    public function __construct($params = []) 
     {
-        parent::__construct($min_value,$max_value,$error);
+        parent::__construct($params);
+
+        $this->setError("NUMBER_NOT_VALID_ERROR");
     }
     
     /**
@@ -34,7 +34,7 @@ class Number extends Rule
      * @param mixed $value
      * @return boolean
      */
-    public function customFilter($value) 
+    public function validate($value) 
     {
         $errors = 0;
         $result = $this->validateType($value,Rule::NUMBER_TYPE);
@@ -60,18 +60,36 @@ class Number extends Rule
      *
      * @return int
      */
-    public function getFilter()
+    public function getType()
     {       
         return FILTER_CALLBACK;
     }
 
     /**
-     * Return filter options
+     * Minimum field value validation
      *
-     * @return array
+     * @param int|float $value
+     * @return boolean
      */
-    public function getFilterOptions()
+    protected function validateMinValue($value)
     {
-        return $this->getCustomFilterOptions();
+        if (empty($this->params->get('min')) == false) {                 
+            return ($value < $this->params['min']) ? false : true; 
+        }
+        return true;
+    }
+
+    /**
+     * Maximum field value validation
+     *
+     * @param int|float $value
+     * @return boolean
+     */
+    protected function validateMaxValue($value)
+    {
+        if (empty($this->params->get('max')) == false) {           
+            return ($value > $this->params['max']) ? false : true;                
+        }
+        return true;
     }
 }

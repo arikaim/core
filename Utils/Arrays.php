@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -11,26 +11,67 @@ namespace Arikaim\Core\Utils;
 
 use Arikaim\Core\System\System;
 
+/**
+ * Array helpers
+ */
 class Arrays 
 {
+    /**
+     * Return array with unique values 
+     *
+     * @param array $array
+     * @return array
+     */
     public static function unique($array) {
         return array_keys(array_flip($array));
     } 
 
+    /**
+     * Set array value
+     *
+     * @param array $array
+     * @param string $path
+     * @param mixed $value
+     * @param string $separator
+     * @return array
+     */
     public static function setValue($array, $path, $value, $separator = '/') 
     {
-        if (!$path) return null;   
+        if (!$path) {
+            return null;
+        }   
         $segments = is_array($path) ? $path : explode($separator,$path);
         $current = &$array;
         foreach ($segments as $segment) {
-            if (!isset($current[$segment]))
+            if (!isset($current[$segment])) {
                 $current[$segment] = array();
+            }
             $current = &$current[$segment];
         }
         $current = $value;
         return $array;
     }
-    
+
+    /**
+     * return true if array is associative
+     *
+     * @param array $array
+     * @return boolean
+     */
+    public static function isAssociative(array $array)
+    {
+        if (array() === $array) return false;
+        return (array_keys($array) !== range(0, count($array) - 1));
+    }
+
+    /**
+     * Get array value by key path
+     *
+     * @param array $array
+     * @param string $path
+     * @param string $separator
+     * @return mixed
+     */
     public static function getValue($array, $path, $separator = '/') 
     {    
         if (empty($path) == true) {
@@ -44,6 +85,13 @@ class Arrays
         return $reference;                
     }
 
+    /**
+     * Get array value
+     *
+     * @param array $array
+     * @param string $key_search
+     * @return mixed
+     */
     public static function getValues($array, $key_search)
     {
         if (is_array($array) == false) return null;
@@ -57,6 +105,15 @@ class Arrays
         return $result;
     }
 
+    /**
+     * Merge arrays
+     *
+     * @param array $array1
+     * @param array $array2
+     * @param string $prev_key
+     * @param string $full_key
+     * @return array
+     */
     public static function merge($array1, $array2, $prev_key = "", $full_key = "") 
     {
         $result = $array1;
@@ -79,11 +136,14 @@ class Arrays
         return $result;
     }
 
-    public static function toPath($array) 
+    /**
+     * Convert array to path
+     *
+     * @param array $array
+     * @return string
+     */
+    public static function toPath(array $array) 
     {    
-        if (is_array($array) == false) {
-            return false;
-        }
         $path = "";
         if (count($array) > 1) {          
             for ($i = 0; $i < count($array); $i++) { 
@@ -96,19 +156,29 @@ class Arrays
         return $result;
     }
 
+    /**
+     * Convert text to array
+     *
+     * @param string$text
+     * @param string $separator
+     * @return array
+     */
     public static function toArray($text, $separator = null) 
     {
-        $separator = (empty($separator) == true) ? System::getEof() : $separator;   
-
-        $array = explode($separator,trim($text));
-        foreach ($array as $key => $item) {
-            if ($item == '') {
-                unset($array[$key]);
-            }
+        if (is_array($text) == true) {
+            return $text;
         }
-        return $array;
+        $separator = (empty($separator) == true) ? System::getEof() : $separator;   
+        return explode($separator,trim($text));       
     }
 
+    /**
+     * Convert array values to string 
+     *
+     * @param array $array
+     * @param string $separator
+     * @return string
+     */
     public static function toString(array $array, $separator = null) {
         if (count($array) == 0) {
             return "";
@@ -117,6 +187,12 @@ class Arrays
         return implode($separator, $array);
     }
 
+    /**
+     * Convert object to array
+     *
+     * @param object $object
+     * @return array
+     */
     public static function convertToArray($object) 
     {
         $reflection = new \ReflectionClass(get_class($object));
@@ -128,5 +204,67 @@ class Arrays
             $property->setAccessible(false);
         }
         return $result;
+    }
+
+    /**
+     * Return true if array have sub items
+     *
+     * @param array $array
+     * @return bool
+     */
+    public static function haveSubItems($array)
+    {
+        if (is_array($array) == false) {
+            return false;
+        }
+        foreach ($array as $key => $value) {        
+            if (is_array($array[$key]) == true) {               
+                return true;
+            }
+        }
+        return false;
+    } 
+
+    /**
+     * Set default value if key not exist in array
+     *
+     * @param array $array
+     * @param string $key
+     * @param mixed $value
+     * @return array
+     */
+    public static function setDefault($array, $key, $value)
+    {   
+        if (isset($array[$key]) == false) {          
+            $array[$key] = $value;
+        }
+        return $array;
+    }
+
+    /**
+     * Slice array by keys
+     *
+     * @param array $array
+     * @param array|string $keys
+     * @return array
+     */
+    public static function sliceByKeys(array $array, $keys = null) {
+        $keys = (empty($keys) == true) ? array_keys($array) : $keys;
+        $keys = (is_array($keys) == false) ? [$keys] : $keys;
+    
+        return array_intersect_key($array, array_fill_keys($keys, '1'));    
+    }
+
+    /**
+     * Remove empty values from array
+     *
+     * @param array $array
+     * @return array
+     */
+    public static function removeEmpty(array $array)
+    {
+        return array_filter($array,function($value) {
+            return !empty($value) || $value === 0;
+        }); 
     }
 }

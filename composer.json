@@ -15,18 +15,18 @@
         "arikaim/installer": "*",
         "arikaim/container": "1.*",
         "illuminate/database": "5.8.4",
-        "illuminate/events": "5.8.4",
-        "illuminate/pagination": "5.8.4",
+        "illuminate/events": "5.8.4",      
         "slim/slim": "3.12.*",
-        "twig/twig": "2.6.*",
+        "twig/twig": "2.7.*",
         "monolog/monolog": "1.23.0",
         "lcobucci/jwt": "3.2.5",
         "swiftmailer/swiftmailer": "5.4.*",
         "symfony/console": "4.1",
         "symfony/process": "3.4.*",
-        "doctrine/cache": "1.8.0",
-        "cocur/slugify": "3.2.*",
-        "guzzlehttp/guzzle": "6.3.3"
+        "doctrine/cache": "1.8.0",      
+        "guzzlehttp/guzzle": "6.3.3",
+        "league/flysystem": "^1.0",
+        "dragonmantank/cron-expression": "2.3.*"
     },
     "autoload": {       
         "psr-4": {

@@ -3,14 +3,13 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
 namespace Arikaim\Core\Packages\Extension;
 
 use Arikaim\Core\System\Path;
-use Arikaim\Core\System\Url;
 use Arikaim\Core\Packages\PackageManager;
 use Arikaim\Core\Packages\Extension\ExtensionPackage;
 use Arikaim\Core\Arikaim;
@@ -21,21 +20,36 @@ use Arikaim\Core\Db\Model;
 */
 class ExtensionsManager extends PackageManager
 {
+    /**
+     * Constructor
+     */
     public function __construct()
     {
        parent::__construct(Path::EXTENSIONS_PATH,'extension.json');
     }
 
+    /**
+     * Create extension package
+     *
+     * @param string $name
+     * @return ExtensionPackage
+     */
     public function createPackage($name)
     {
         $propertes = $this->loadPackageProperties($name);
         return new ExtensionPackage($propertes);
     }
 
+    /**
+     * Get extension packages
+     *
+     * @param boolean $cached
+     * @param mixed $filter
+     * @return array
+     */
     public function getPackages($cached = false, $filter = null)
     {
         $result = ($cached == true) ? Arikaim::cache()->fetch('extensions.list') : null;
-        
         if (is_array($result) == false) {
             $result = $this->scan($filter);
             Arikaim::cache()->save('extensions.list',$result,5);
@@ -43,13 +57,21 @@ class ExtensionsManager extends PackageManager
         return $result;
     }
 
-    public function getInstalled($status = null, $type = ExtensionPackage::USER)
+    /**
+     * Get installed packages
+     *
+     * @param integer $status
+     * @param integer $type
+     * @return array
+     */
+    public function getInstalled($status = null, $type = null)
     {
         $extensions = Model::Extensions();
-        if ($status != null) {
+        if ($status !== null) {
             $extensions = $extensions->where('status','=',$status);
         }
-        if ($status != null) {
+      
+        if ($type !== null) {           
             $extensions = $extensions->where('type','=',$type);
         }
         $extensions = $extensions->orderBy('position')->orderBy('id');

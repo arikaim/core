@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -31,15 +31,16 @@ class DbHandler extends AbstractProcessingHandler
     /**
      * Constructor
      *
-     * @param number $level
+     * @param Model|null $model
+     * @param integer $level
      * @param boolean $bubble
      */
-    public function __construct($level = Logger::DEBUG, $bubble = true) 
+    public function __construct($model = null, $level = Logger::DEBUG, $bubble = true) 
     {
         parent::__construct($level,$bubble);
 
         try {
-            $this->model = Model::Logs();
+            $this->model = (is_object($model) == false) ? Model::Logs() : $model;
             if (Schema::hasTable($this->model) == false) {
                 $this->model = null;
             }
@@ -56,13 +57,10 @@ class DbHandler extends AbstractProcessingHandler
      */
     protected function write(array $record)
     {
-        $info['channel'] =  $record['channel'];      
-        $info['url'] = $record['context']['url'];
-        $info['method'] = $record['context']['method'];
-        $info['user_agent'] = $record['context']['http_user_agent'][0];
+        $info['channel'] = $record['channel'];      
         $info['level'] = $record['level'];
         $info['message'] = $record['message'];
-        $info['ip_address'] = $record['context']['client_ip'];
+        $info['context'] = $record['context'];
        
         return (is_object($this->model) == true) ? $this->model->create($info) : false;          
     }  

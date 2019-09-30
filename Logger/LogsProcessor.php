@@ -9,8 +9,6 @@
  */
 namespace Arikaim\Core\Logger;
 
-use Arikaim\Core\Utils\Utils;
-
 /**
  * Log processor class
  */

@@ -3,29 +3,41 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
 namespace Arikaim\Core\Queue\Jobs;
 
 use Arikaim\Core\Queue\Jobs\Job;
+use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Interfaces\Queue\ScheduledJobInterface;
+use Arikaim\Core\Interfaces\Queue\JobInterface;
 
-abstract class ScheduledJob extends Job implements ScheduledJobInterface
+/**
+ * Base class for all scheduled jobs
+ */
+abstract class ScheduledJob extends Job implements ScheduledJobInterface, JobInterface
 {
+    /**
+     * Scheduled date time (timestamp)
+     *
+     * @var integer
+     */
     protected $schedule_time;
-
-    abstract public function execute();
-    
-    public function runAt($date, $time = null)
+ 
+    /**
+     * Constructor
+     *  
+     * @param string $extension_name
+     * @param string|null $name
+     */
+    public function __construct($extension_name, $name = null)
     {
-        if (empty($time) == true) {
-            $time = "00:00:00";
-        }
-        $date = new \DateTime($date . "T" . $time);
-        $this->setScheduleTime($date->getTimestamp());
-    } 
+        parent::__construct($extension_name,$name);
+
+        $this->schedule_time = null;
+    }
 
     /**
      * ScheduledJobInterface implementation
@@ -40,11 +52,38 @@ abstract class ScheduledJob extends Job implements ScheduledJobInterface
     /**
      * Set scheduled time (timestamp)
      *
-     * @param ineteger $time
-     * @return void
+     * @param integer $date_time
+     * @return ScheduledJob
      */
-    public function setScheduleTime($time)
+    public function setScheduleTime($timestamp)
     {
-        $this->schedule_time = $time;
+        $this->schedule_time = $timestamp;
+
+        return $this;
+    }
+
+    /**
+     * Set scheduled time
+     *
+     * @param string $date
+     * @return ScheduledJob
+     */
+    public function runAt($date)
+    {
+        return $this->setScheduleTime(DateTime::toTimestamp($date));
+    }
+
+    /**
+     * Return true if job is due
+     *
+     * @return boolean
+     */
+    public function isDue()
+    {
+        if (empty($this->getScheduleTime()) == true) {
+            return false;
+        }
+
+        return ($this->schedule_time < DateTime::create()->getTimestamp()) ? true : false;
     }
 }

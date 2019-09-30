@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -16,39 +16,38 @@ use Arikaim\Core\Db\Schema;
 */
 class OptionsSchema extends Schema  
 {    
+    /**
+     * Db table name.
+     *
+     * @var string
+     */
     protected $table_name = "options";
 
     /**
      * Create table
      *
+     * @param \Arikaim\Core\Db\TableBlueprint $table
      * @return void
      */
-    public function create() 
-    {
-        $this->createTable(function($table) {
-            
-            // columns
-            $table->bigIncrements('id')->nullable(false);
-            $table->string('key')->nullable(false);
-            $table->text('value')->nullable(true);    
-            $table->string('extension')->nullable(true);       
-            $table->integer('auto_load')->nullable(false)->default(1);       
-            // indexes
-            $table->unique('key');
-            // storage engine
-            $table->engine = 'InnoDB';
-                    
-        });
+    public function create($table) 
+    {            
+        // columns
+        $table->id();
+        $table->string('key')->nullable(false);
+        $table->text('value')->nullable(true);    
+        $table->string('extension')->nullable(true);       
+        $table->integer('auto_load')->nullable(false)->default(1);       
+        // indexes
+        $table->unique('key');  
     }
 
     /**
-     * Modify table
+     * Update table
      *
+     * @param \Arikaim\Core\Db\TableBlueprint $table
      * @return void
      */
-    public function update() 
-    {
-        $this->updateTable(function($table) {  
-        });
+    public function update($table) 
+    {       
     } 
 }

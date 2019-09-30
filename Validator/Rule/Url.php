@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -19,34 +19,20 @@ class Url extends Rule
     /**
      * Constructor
      *
-     * @param string $error Error code or error message
      */
-    public function __construct($error = "URL_NOT_VALID_ERROR") 
+    public function __construct() 
     {
-        parent::__construct(null,null,$error);
+        parent::__construct();
+        $this->setError("URL_NOT_VALID_ERROR");  
     }
-
-    public function customFilter($value) 
-    {       
-    } 
 
     /**
      * Return filter type
      *
      * @return int
      */
-    public function getFilter()
+    public function getType()
     {       
         return FILTER_VALIDATE_URL;
-    }
-    
-    /**
-     * Return filter options
-     *
-     * @return array
-     */
-    public function getFilterOptions()
-    {
-        return [];
     }
 }

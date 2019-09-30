@@ -3,13 +3,15 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
 namespace Arikaim\Core\Db;
 
 use Illuminate\Database\Capsule\Manager;
+use Illuminate\Database\Eloquent\Relations\Relation;
+
 use Arikaim\Core\Arikaim;
 
 /**
@@ -24,9 +26,29 @@ class Db
      */
     private $capsule;
 
-    public function __construct($config) 
+    /**
+     * Constructor
+     *
+     * @param array $config
+     * @param array|null $relations
+     */
+    public function __construct($config, $relations = null) 
     {
         $this->init($config);
+        // init relations morph map
+        if (is_array($relations) == true) {            
+             Relation::morphMap($relations);              
+        }
+    }
+
+    /**
+     * Get relations morph map
+     *
+     * @return array
+     */
+    public function getRelationsMap()
+    {
+        return Relation::$morphMap;
     }
 
     /**
@@ -45,7 +67,7 @@ class Db
             // schema db             
             $this->initSchemaConnection($config);
             $this->capsule->bootEloquent();
-
+        
         } catch(\PDOException $e) {
             Arikaim::errors()->addError('DB_CONNECTION_ERROR');
             return false;

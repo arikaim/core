@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -11,7 +11,11 @@ namespace Arikaim\Core\System;
 
 use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\Utils\Utils;
 
+/**
+ *Core system helper class
+ */
 class System 
 {
     const UNKNOWN = 1;
@@ -24,45 +28,40 @@ class System
     const CR = "\r";
     const HTMLLF = "</br>";
 
+    /**
+     * Return Arikaim version
+     *
+     * @return string
+     */
     public static function getVersion() 
     {
         return ARIKAIM_VERSION;
     }
 
+    /**
+     * Get system info
+     *
+     * @return array
+     */
     public static function getSystemInfo() 
-    {     
-        $info['cms_version'] = Self::getVersion(); 
-        $info['php_version'] = Self::getPhpVersion();
-        $os = posix_uname();
-        $info['os_name'] = explode(' ',$os['sysname'])[0];
-        $info['os_version'] = $os['release'];
-        $info['os_machine'] = $os['machine'];
-        $info['os_node'] = $os['nodename'];
-        $info['database'] = Self::getDatabaseInfo();
+    {  
+        $os = posix_uname();   
+        $info = [
+            'cms_version' => Self::getVersion(), 
+            'php_version' => Self::getPhpVersion(),       
+            'os_name'     => explode(' ',$os['sysname'])[0],
+            'os_version'  => $os['release'],
+            'os_machine'  => $os['machine'],
+            'os_node'     => $os['nodename'],
+            'database'    => Self::getDatabaseInfo()
+        ];
         return $info;
-    }
-
-    public static function getVersionText($text)
-    {
-        $items = explode('.',$text);
-        if (isset($items[0]) == true) {
-            $version = $items[0];
-        } else {
-            return "";
-        }
-        if (isset($items[1]) == true) {
-            $version .= "." . $items[1];
-        }
-        if (isset($items[2]) == true) {
-            $version .= "." . substr($items[2],0,2);
-        }
-        return $version;
     }
 
     /**
      * Set script execution tile limit (0 - unlimited)
      *
-     * @param number $time
+     * @param integer $time
      * @return boolean
      */
     public static function setTimeLimit($time)
@@ -74,33 +73,60 @@ class System
         return false;
     }
 
+    /**
+     * Return php version
+     *
+     * @return string
+     */
     public static function getPhpVersion()
     {                   
-        return Self::getVersionText(phpversion());
+        return substr(phpversion(),0,6);
     }
    
+    /**
+     * Return php extensions list
+     *
+     * @return array
+     */
     public function getPhpExtensions()
     {
         $data = [];
         $items = get_loaded_extensions(false);
         foreach ($items as $item) {
-            $version = Self::getVersionText(Self::getPhpExtensionVersion($item));            
+            $version = Utils::formatVersion(Self::getPhpExtensionVersion($item));   
             array_push($data,['name' => $item,'version' => $version]);
         }
         return $data;
     }
 
+    /**
+     * Return php extension version
+     *
+     * @param string $php_extension_name
+     * @return string
+     */
     public static function getPhpExtensionVersion($php_extension_name)
     {
         $ext = new \ReflectionExtension($php_extension_name);
-        return $ext->getVersion();
+        return substr($ext->getVersion(),0,6);
     }
 
+    /**
+     * Return true if php extension is instaed
+     *
+     * @param string $php_extension_name
+     * @return boolean
+     */
     public static function hasPhpExtension($php_extension_name) 
     {
         return extension_loaded($php_extension_name);
     }
 
+    /**
+     * Get database info
+     *
+     * @return array
+     */
     public static function getDatabaseInfo() 
     {        
         if (Self::hasPhpExtension('PDO') == true) {
@@ -115,30 +141,43 @@ class System
             $name = "";
         }
         
-        $info['driver'] = $driver_name;
-        $info['server_info'] = $server_info;
-        $info['version'] = $version;
-        $info['name'] = Arikaim::config('db/database');
+        $info = [
+            'driver'      => $driver_name,
+            'server_info' => $server_info,
+            'version'     => $version,
+            'name'        => Arikaim::config('db/database')
+        ];
+
         return $info;
     }
     
+    /**
+     * Return true if PDO driver is installed
+     *
+     * @param string $driver_name
+     * @return boolean
+     */
     public static function hasPdoDriver($driver_name)
     {
         $drivers = Self::getPdoDrivers();
-        if (is_array($drivers) == true) {
-            return in_array($driver_name,$drivers);  
-        }         
-        return false;
+        return (is_array($drivers) == true) ? in_array($driver_name,$drivers) : false;        
     }
 
+    /**
+     * Return PDO drivers list
+     *
+     * @return array
+     */
     public static function getPdoDrivers()
     {
-        if (Self::hasPhpExtension('PDO') == false) {
-            return [];
-        }
-        return \PDO::getAvailableDrivers();
+        return (Self::hasPhpExtension('PDO') == false) ? [] : \PDO::getAvailableDrivers();
     }
 
+    /**
+     * Verify system requirements
+     *
+     * @return array
+     */
     public static function checkSystemRequirements()
     {
         $info['items'] = [];
@@ -149,7 +188,7 @@ class System
         $php_version = Self::getPhpVersion();
         $item['message'] = "PHP $php_version";
         $item['status'] = 0; // error   
-        if (version_compare($php_version,'5.6','>=') == true) {               
+        if (version_compare($php_version,'7.1','>=') == true) {               
             $item['status'] = 1; // ok                    
         } else {
             array_push($errors,Arikaim::errors()->getError("PHP_VERSION_ERROR"));
@@ -157,11 +196,9 @@ class System
         array_push($info['items'],$item);
 
         // PDO extension
-        $item['message'] = 'PDO php extension';
-        $item['status'] = 0; // error
-        if (Self::hasPhpExtension('PDO') == true) {
-            $item['status'] = 1; // ok 
-        }
+        $item['message'] = 'PDO php extension';     
+        $item['status'] = (Self::hasPhpExtension('PDO') == true) ? 1 : 0;
+         
         array_push($info['items'],$item);
 
         // PDO driver
@@ -177,61 +214,85 @@ class System
 
         // curl extension
         $item['message'] = 'Curl PHP extension';
-        $item['status'] = 2; // warning
-        if (Self::hasPhpExtension('curl') == true) {
-            $item['status'] = 1; // ok 
-        }
+        $item['status'] = (Self::hasPhpExtension('curl') == true) ? 1 : 2;
+           
         array_push($info['items'],$item);
 
         // zip extension
-        $item['message'] = 'Zip PHP extension';
-        $item['status'] = 2; // warning
-        if (Self::hasPhpExtension('zip') == true) {
-            $item['status'] = 1; // ok
-        }
+        $item['message'] = 'Zip PHP extension';    
+        $item['status'] = (Self::hasPhpExtension('zip') == true) ? 1 : 2;
+
         array_push($info['items'],$item);
         
         // GD extension 
-        $item['message'] = 'GD PHP extension';
-        $item['status'] = 2; // warning
-        if (Self::hasPhpExtension('gd') == true) {
-            $item['status'] = 1; // ok
-        }
+        $item['message'] = 'GD PHP extension';      
+        $item['status'] = (Self::hasPhpExtension('gd') == true) ? 1 : 2;
+          
         array_push($info['items'],$item);
 
         $info['errors'] = $errors;
         return $info;
     }  
 
+    /**
+     * Return Stream wrappers
+     *
+     * @return array
+     */
     public static function getStreamWrappers()
     {
         return stream_get_wrappers();
     }
 
+    /**
+     * Return true if stream wrapper are installed
+     *
+     * @param string $protocol
+     * @return boolean
+     */
     public static function hasStreamWrapper($protocol)
-    {
-        $items = Self::getStreamWrappers();
-        return in_array($protocol,$items);
+    {      
+        return in_array($protocol,Self::getStreamWrappers());
     }
 
+    /**
+     * Get debug backtrace
+     *
+     * @return array
+     */
     public static function getBacktrace()
     {
         return debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT);
     }
 
+    /**
+     * Return true if script is run in console
+     *
+     * @return boolean
+     */
     public static function isConsole()
     {
         return (php_sapi_name() == "cli") ? true : false;          
     }   
 
+    /**
+     * Output text
+     *
+     * @param string $text
+     * @param string $eof
+     * @return void
+     */
     public static function writeLine($text, $eof = null)
     {
-        if ($eof == null) {
-            $eof = Self::getEof();
-        }
+        $eof = ($eof == null) ? Self::getEof() : $eof;
         echo $text . $eof;
     }
 
+    /**
+     * Return EOF for current OS
+     *
+     * @return string
+     */
     public static function getEof() 
     { 
         $os = Self::getOS();
@@ -251,6 +312,11 @@ class System
         }
     }
 
+    /**
+     * Return OS
+     *
+     * @return integer
+     */
     public static function getOS() 
     {
         switch (true) {
@@ -268,23 +334,24 @@ class System
             }
         }
     }
-
-    public static function getScriptPath()
-    {
-        return realpath(dirname(__FILE__));
-    }
-    
-    public static function getConfig($variable_name)
-    {
-        $allowed = ['cors','debug','debugTrace'];
-        if (in_array($variable_name,$allowed) == true) {
-            return Arikaim::config("settings/$variable_name");
-        }
-        return null;
-    }
-
+ 
+    /**
+     * Return composer core package name
+     *
+     * @return string
+     */
     public static function getCorePackageName()
     {
         return "arikaim/core";
+    }
+
+    /**
+     * Get default output
+     *
+     * @return string
+     */
+    public static function getDefaultOutput()
+    {
+        return (DIRECTORY_SEPARATOR == '\\') ? 'NUL' : '/dev/null';
     }
 }

@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -16,43 +16,40 @@ use Arikaim\Core\Db\Schema;
 */
 class PermissionsListSchema extends Schema  
 {    
+    /**
+     * Db table name
+     *
+     * @var string
+     */ 
     protected $table_name = "permissions_list";
 
     /**
      * Create table
      *
+     * @param \Arikaim\Core\Db\TableBlueprint $table
      * @return void
      */
-    public function create() 
-    {
-        $this->createTable(function($table) {       
-            
-            // columns
-            $table->bigIncrements('id')->nullable(false);
-            $table->integer('parent_id')->nullable(true)->default(0);
-            $table->string('name')->nullable(false);
-            $table->string('extension_name')->nullable(true);
-            $table->string('title')->nullable(true);
-            $table->string('description')->nullable(true);
-            $table->string('uuid')->nullable(false);
-            // indexes
-            $table->unique('uuid');
-            $table->unique('name');
-            $table->index('extension_name');
-            // storage engine           
-            $table->engine = 'InnoDB';
-            
-        });
+    public function create($table) 
+    {            
+        // columns
+        $table->id();
+        $table->prototype('uuid');            
+        $table->string('name')->nullable(false);
+        $table->string('extension_name')->nullable(true);
+        $table->string('title')->nullable(true);
+        $table->string('description')->nullable(true);        
+        // indexes         
+        $table->unique('name');
+        $table->index('extension_name');
     }
 
     /**
-     * Modify table
+     * Update table
      *
+     * @param \Arikaim\Core\Db\TableBlueprint $table
      * @return void
      */
-    public function update() 
-    {
-        $this->updateTable(function($table) {            
-        });
+    public function update($table) 
+    {       
     }
 }

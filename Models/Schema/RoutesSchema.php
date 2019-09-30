@@ -3,66 +3,62 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
 namespace Arikaim\Core\Models\Schema;
 
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Traits\Db\Status;;
 
 /**
  * Routes database table schema definition.
 */
 class RoutesSchema extends Schema  
 {    
+    /**
+     * Db table name
+     *
+     * @var string
+     */ 
     protected $table_name = "routes";
 
     /**
-     * Ceate table
+     * Create table
      *
+     * @param \Arikaim\Core\Db\TableBlueprint $table
      * @return void
      */
-    public function create() 
-    {
-        $this->createTable(function($table) {
-       
-            // columns
-            $table->bigIncrements('id')->nullable(false);
-            $table->string('name')->nullable(true);
-            $table->string('pattern')->nullable(false);
-            $table->string('method')->nullable(false);
-            $table->string('handler_class')->nullable(false);
-            $table->string('handler_method')->nullable(true);
-            $table->string('extension_name')->nullable(true);
-            $table->string('template_name')->nullable(true);
-            $table->string('template_page')->nullable(true);
-            $table->integer('status')->nullable(false)->default(Status::ACTIVE());
-            $table->integer('auth')->nullable(false)->default(0);
-            $table->string('permission')->nullable(true);
-            $table->string('permission_type')->nullable(true);
-            $table->integer('type')->nullable(false)->default(0);
-            $table->string('uuid')->nullable(false);
-            // indexes           
-            $table->unique(['pattern','method']);
-            $table->unique('uuid');
-            $table->unique('name');
-            $table->index('status');
-            // storage engine
-            $table->engine = 'InnoDB';   
-
-        });
+    public function create($table) 
+    {       
+        // columns
+        $table->id();
+        $table->prototype('uuid');     
+        $table->status();           
+        $table->string('name')->nullable(true);      
+        $table->string('pattern')->nullable(false);
+        $table->string('method')->nullable(false);
+        $table->string('handler_class')->nullable(false);
+        $table->string('handler_method')->nullable(true);
+        $table->string('extension_name')->nullable(true);
+        $table->string('template_name')->nullable(true);
+        $table->string('page_name')->nullable(true);
+        $table->integer('auth')->nullable(true);
+        $table->integer('type')->nullable(false)->default(0);      
+        $table->text('options')->nullable(true);
+        $table->string('redirect_url')->nullable(true);     
+        // indexes           
+        $table->unique(['pattern','method']);          
+        $table->unique('name');
     }
 
     /**
-     * Modify table
+     * Update table
      *
+     * @param \Arikaim\Core\Db\TableBlueprint $table
      * @return void
      */
-    public function update()
-    {
-        $this->updateTable(function($table) {            
-        });
+    public function update($table)
+    {       
     }
 }

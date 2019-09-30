@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -20,11 +20,11 @@ class Uuid extends Rule
     /**
      * Constructor
      *
-     * @param string $error Default error code or error message.
      */
-    public function __construct($error = "UUID_NOT_VALID_ERROR") 
+    public function __construct() 
     {
-        parent::__construct(null,null,$error);
+        parent::__construct();
+        $this->setError("UUID_NOT_VALID_ERROR");  
     }
 
     /**
@@ -33,7 +33,7 @@ class Uuid extends Rule
      * @param string $value
      * @return boolean
      */
-    public function customFilter($value) 
+    public function validate($value) 
     {
         return (Utils::isValidUUID($value) == false) ? false : true;          
     } 
@@ -43,18 +43,8 @@ class Uuid extends Rule
      *
      * @return int
      */
-    public function getFilter()
+    public function getType()
     {       
         return FILTER_CALLBACK;
-    }
-
-    /**
-     * Return filter options
-     *
-     * @return array
-     */
-    public function getFilterOptions()
-    {
-        return $this->getCustomFilterOptions();
     }
 }

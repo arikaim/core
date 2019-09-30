@@ -3,31 +3,100 @@
  *  Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
 namespace Arikaim\Core\Traits\Db;
-
-use Arikaim\Core\Utils\Utils;
 
 /**
  * Find model
 */
 trait Find 
 {    
+    /**
+     * Find model by id or uuid
+     *
+     * @param integer|string $id
+     * @return object|false
+     */
     public function findById($id)
     {        
-        if (is_numeric($id) == true) {
-            return $this->findByColumn($id,'id');
-        }
-        return $this->findByColumn($id,'uuid'); 
+        return $this->findByColumn($id);
     }
     
-    public function findByColumn($value, $column = "title")
+    /**
+     * Find model by column name
+     *
+     * @param mxied $value
+     * @param string $column
+     * @return object|false
+     */
+    public function findByColumn($value, $column = null)
     {
-        $value = trim($value);       
-        $model = parent::where($column,'=',$value)->first();
-        return (is_object($model) == false) ? false : $model;
+        $model = $this->findQuery($value,$column);
+        return (is_object($model) == false) ? false : $model->first();
+    }
+
+    /**
+     * Return query builder
+     *
+     * @param mixed $value
+     * @param string|null|array $column
+     * @return object|null
+     */
+    public function findQuery($value, $column = null)
+    {      
+        if ($column == null) {
+            return $this->findByIdQuery($value);
+        }
+
+        if (is_string($column) == true) {
+            return parent::where($column,'=',$value);
+        }
+
+        if (is_array($column) == true) {
+            $model = $this;
+            foreach ($column as $item) {
+               $model = $model->orWhere($item,'=',$value);
+            }
+            return $model;
+        }
+
+        return null;
+    }
+
+    /**
+     *  Return query builder
+     *
+     * @param integer|string $id
+     * @return object
+     */
+    public function findByIdQuery($id)
+    {       
+        return parent::where($this->getIdAttributeName($id),'=',$id);
+    }
+
+    /**
+     * Return id column name dependiv of id value type for string return uuid
+     *
+     * @param integer|string $id
+     * @return void
+     */
+    public function getIdAttributeName($id)
+    {
+        $uuid_attribute = (method_exists($this,'getUuidAttributeName') == true) ? $this->getUuidAttributeName() : 'uuid';
+        return (is_numeric($id) == true) ? $this->getKeyName() : $uuid_attribute;
+    }
+
+    /**
+     * Find collection of models by id or uuid
+     *
+     * @param array $items
+     * @return object
+     */
+    public function findItems($items) 
+    {
+        return (empty($items) == true) ? false : parent::whereIn($this->getIdAttributeName($items[0]),$items);      
     }
 }

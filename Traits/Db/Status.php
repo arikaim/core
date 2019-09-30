@@ -3,7 +3,7 @@
  *  Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -11,46 +11,154 @@ namespace Arikaim\Core\Traits\Db;
 
 /**
  * Update Status field
+ * Change default status column name in model:
+ *      protected $status_attribute = 'column name';
 */
 trait Status 
 {        
-    protected $status_attribute = 'status';
-
+    /**
+     * Disabled
+     */
     static $DISABLED = 0;
-    static $ACTIVE = 1;  
+
+    /**
+     * Active
+     */
+    static $ACTIVE = 1;
+    
+    /**
+     * Completed
+     */
     static $COMPLETED = 2;  
 
-    public static function ACTIVE()
+    /**
+     * Deleted
+     */
+    static $DELETED = 3;  
+
+    /**
+     * Pending activation
+     */
+    static $PENDING = 4;
+
+    /**
+     *  Suspended
+     */
+    static $SUSPENDED = 5;
+
+    /**
+     * Return active value
+     *
+     * @return integer
+     */
+    public function ACTIVE()
     {
         return Self::$ACTIVE;
     }
 
-    public static function DISABLED()
+    /**
+     * Return disabled value
+     *
+     * @return integer
+     */
+    public function DISABLED()
     {
         return Self::$DISABLED;
     }
 
-    public static function COMPLETED()
+    /**
+     * Return deleted value
+     *
+     * @return integer
+     */
+    public function SOFTDELETED()
+    {
+        return Self::$DELETED;
+    }
+
+    /**
+     * Return completed value
+     *
+     * @return integer
+     */
+    public function COMPLETED()
     {
         return Self::$COMPLETED;
     }
 
-    public function getActive()
+    /**
+     * Pending activation
+     *
+     * @return integer
+     */
+    public function PENDING()
     {
-        return parent::where($this->status_attribute,'=',Self::ACTIVE());
-    }
-    
-    public function getDisabled()
-    {
-        return parent::where($this->status_attribute,'=',Self::DISABLED());
+        return Self::$PENDING;
     }
 
-    public function setStatus($status)
+    /**
+     * Suspended
+     *
+     * @return integer
+     */
+    public function SUSPENDED()
     {
-        if (isset($this->attributes[$this->status_attribute]) == true) {
-            $this->attributes[$this->status_attribute] = $status;           
-            return $this->save();
+        return Self::$SUSPENDED;
+    }
+
+    /**
+     * Get status attribute name
+     *
+     * @return string
+     */
+    public function getStatusAttributeName()
+    {
+        return (isset($this->status_attribute) == true) ? $this->status_attribute : 'status';
+    }
+
+    /**
+     * Return active model query builder
+     *
+     * @return void
+     */
+    public function getActive()
+    {
+        return parent::where($this->getStatusAttributeName(),'=',Self::$ACTIVE);
+    }
+    
+    /**
+     * Return disabled model query builder
+     *
+     * @return void
+     */
+    public function getDisabled()
+    {
+        return parent::where($this->getStatusAttributeName(),'=',Self::$DISABLED);
+    }
+
+    /**
+     * Return deleted model query builder
+     *
+     * @return void
+     */
+    public function getDeleted()
+    {
+        return parent::where($this->getStatusAttributeName(),'=',Self::$DELETED);
+    }
+
+    /**
+     * Set model status
+     *
+     * @param integer|string|null $status
+     * @return bool
+     */
+    public function setStatus($status = null)
+    {
+        $attribute = $this->getStatusAttributeName();
+        if ($status === "toggle") {     
+            $status = ($this->$attribute == 1) ? 0 : 1;
         }
-        return false;
+        $this->$attribute = $status;    
+        return $this->save();         
     }
 }

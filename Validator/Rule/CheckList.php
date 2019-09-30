@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -16,33 +16,27 @@ use Arikaim\Core\Validator\Rule;
  */
 class CheckList extends Rule
 {
-    private $allowed_values = null;
-
     /**
      * Constructor
-     *
-     * @param array $allowed_values
-     * @param string $error
+     * params items
+     * @param array $params
      */
-    public function __construct(array $allowed_values, $error = "NOT_VALID_VALUE_ERROR") 
+    public function __construct($params) 
     {
-        parent::__construct(null,null,$error);
-        $this->allowed_values = $allowed_values;
+        parent::__construct($params);
     }
 
     /**
      * Validate value
      *
      * @param mixed $value
-     * @return void
+     * @return bool
      */
-    public function customFilter($value) 
+    public function validate($value) 
     {
-        if ($this->allowed_values == null) {
-            return false;
-        }
-        if (in_array($value,$this->allowed_values,false) == false) {        
-            $this->setErrorParams($this->allowed_values);  
+        $items = $this->params->get('items',[]);
+        if (in_array($value,$items,false) == false) {        
+            $this->setErrorParams($items);  
             return false;         
         } 
         return true;
@@ -53,18 +47,8 @@ class CheckList extends Rule
      *
      * @return int
      */
-    public function getFilter()
+    public function getType()
     {       
         return FILTER_CALLBACK;
-    }
-
-    /**
-     * Return filter options
-     *
-     * @return array
-     */
-    public function getFilterOptions()
-    {
-        return $this->getCustomFilterOptions();
     }
 }

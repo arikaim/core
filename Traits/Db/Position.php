@@ -3,86 +3,178 @@
  *  Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
 namespace Arikaim\Core\Traits\Db;
 
+use Arikaim\Core\Db\Model;
+
 /**
- * Update position field  // TODO changes
+ * Update position field
+ * Change default position  attribute in model
+ *     protected $position_attribute_name = 'attribute name';
 */
 trait Position 
 {    
+    /**
+     * Init model events
+     *
+     * @return void
+     */
     public static function bootPosition()
     {
         static::creating(function($model) {   
-            self::setPosition($model);
-        });
-
-        static::deleting(function($model) {   
-            
+            $model = self::setLastPosition($model);
         });
     }
     
-    private static function setPosition($model)
+    /**
+     * Get position column name
+     *
+     * @return string
+     */
+    protected function getPositionAttributeName()
+    {
+        return (isset($this->position_attribute_name) == true) ? $this->position_attribute_name : 'position';
+    }
+
+    /**
+     * Set model position value
+     *
+     * @param Model $model
+     * @return Model
+     */
+    private static function setLastPosition($model)
     {   
-        if (empty($model->position) == true) {          
-            $model->position = $model->max('position') + 1;
+        $column = $model->getPositionAttributeName();
+       
+        if (empty($model->$column) == true) {      
+            $model->$column = $model->max($column) + 1;
         }        
-        return $model->position;
+        return $model;
     }
 
-    public function movePosition($model, $after_uuid)
-    {   
-        if (is_object($model) == false) {
-            return false;
+    /**
+     * Move to first position
+     *
+     * @return Model
+     */
+    public function moveFirst()
+    {
+        $column = $this->getPositionAttributeName();
+        $first = static::query()->limit(1)->ordered()->first();
+
+        if ($this->id == $first->id) {
+            return $this;
+        }
+        
+        $this->$column = $first->$column;
+        $this->save();
+
+        $this->where($this->getKeyName(), '!=', $this->id)->increment($column);
+        return $this;
+    }
+
+    /**
+     * Move to last position
+     *
+     * @return Model
+     */
+    public function moveLast()
+    {
+        $column = $this->getPositionAttributeName();
+        $max = $this->getMaxPosition();
+
+        if ($this->$column === $max) {
+            return $this;
         }
 
-        $current_position = $model->position;
-        // set current possition to null avoid unique index error
-        $model->position = null;
-        $model->update();
+        $position = $this->$column;
+        $this->$column = $max;
+
+        $this->save();
+        static::query()
+            ->where($this->getKeyName(), '!=', $this->id)
+            ->where($column, '>', $position)
+            ->decrement($column);
+
+        return $this;
+    }
+
+    /**
+     * Shift position up or down
+     *
+     * @param Model $target
+     * @return Model
+     */
+    public function shiftPosition($target)
+    {
+        $column = $this->getPositionAttributeName();
+        $position = $target->$column;
+        $current_position = $this->$column;
+
+        $this->$column = null;
+        $this->save();
+
+        if ($this->$column === $position) {
+            return $this;
+        }
+
+        if ($current_position < $position) {
+            // shift up
+            static::query()
+            ->where($this->getKeyName(), '!=', $this->id)
+            ->where($column, '<=', $position)
+            ->where($column, '>=', $current_position)
+            ->orderBy($column,'asc')->decrement($column);
+        } else {
+            // shift down
+            static::query()
+            ->where($this->getKeyName(), '!=', $this->id)
+            ->where($column, '>=', $position)
+            ->where($column, '<=', $current_position)
+            ->orderBy($column,'desc')->increment($column);
+        }
+
+        $this->$column = $position;
+        $this->save();
+
+        return $this;
+    }
     
-        if ($model->uuid == $after_uuid) {
-            return $this->moveFirst($model,$current_position);
-        }
-        $after_model = $model->where('uuid','=',$after_uuid)->first();
-        $after_position = $after_model->position;
-        if ($current_position == $after_position) {
-            return false;
-        }
-        // update right rows
-        if ($current_position < $after_position) {
-            $list = $model->where('position','>',$current_position)->where('position','<=',$after_position)->orderBy('position')->get();
-            foreach ($list as $item) {
-                $item->position = $item->position - 1;
-                $item->update();
-            }
-            $model->position = $after_position;
-            $model->update();
-        }
-        // update left rows
-        if ($current_position > $after_position) {
-            $this->updateLeftItems($model,$current_position,$after_position);
-        }
-        return true;
+    /**
+     * Swap positions
+     *
+     * @param Model $model
+     * @return object
+     */
+    public function swapPosition($model)
+    {
+        $column = $this->getPositionAttribute();
+        $position = $model->$column;
+
+        // set to null avoid unique key issue
+        $model->$column = null;
+        $model->save();
+
+        $model->$column = $this->$column;
+
+        $this->$column = $position;
+        $this->save();
+
+        $model->save();
+        return $this;
     }
 
-    private function moveFirst($model, $current_position)
+    /**
+     * Get model with max position 
+     *
+     * @return Model
+     */
+    public function getMaxPosition()
     {
-        $this->updateLeftItems($model,$current_position,0);
-    }
-
-    private function updateLeftItems($model, $current_position, $after_position)
-    {
-        $list = $model->where('position','>',$after_position)->where('position','<=',$current_position)->orderBy('position','desc')->get();
-        foreach ($list as $item) {
-            $item->position = $item->position + 1;
-            $item->update();
-        }
-        $model->position = $after_position + 1;
-        $model->update();
-        return true;
+        return (int)static::query()->max($this->getPositionAttribute());
     }
 }

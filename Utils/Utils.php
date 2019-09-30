@@ -3,14 +3,23 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
 namespace Arikaim\Core\Utils;
 
+/**
+ * Utility static functions
+ */
 class Utils 
 {   
+    /**
+     * Return classes from php code
+     *
+     * @param string $php_code
+     * @return array
+     */
     public static function getClasses($php_code) 
     {
         $classes = [];
@@ -19,78 +28,115 @@ class Utils
         for ($i = 2; $i < $count; $i++) {
             if ($tokens[$i - 2][0] == T_CLASS && $tokens[$i - 1][0] == T_WHITESPACE && $tokens[$i][0] == T_STRING && !($tokens[$i - 3] && $i - 4 >= 0 && $tokens[$i - 4][0] == T_ABSTRACT)) {
                 $class_name = $tokens[$i][1];
-                $classes[] = $class_name;
+                array_push($classes,$class_name);
             }
         }
         return $classes;
     }
 
-    public static function parseProperties($code_text,$vars) 
-    {    
-        if (is_array($vars) == false) $vars = [];
-        $result = preg_replace_callback("/\{\{(.*?)\}\}/",
-            function ($matches) use ($vars) {
-                $variable_name = trim(strtolower($matches[1]));
-                if ( array_key_exists($variable_name,$vars) == true ) {
-                    return $vars[$variable_name];
-                }
-                return "";
-            },$code_text);
-        if ($result == null) {
-            return $code_text;
-        } 
-        return $result;
-    }
-
-    public static function getRandomKey()
+    /**
+     * Create random key
+     *
+     * @return string
+     */
+    public static function createRandomKey()
     {
         return md5(uniqid(rand(), true));
     }
 
-    public static function getUUID() 
+    /**
+     * Create UUID
+     *
+     * @return string
+     */
+    public static function createUUID() 
     {
         return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-          mt_rand(0, 0xffff), mt_rand(0, 0xffff),
-          mt_rand(0, 0xffff),
-          mt_rand(0, 0x0fff) | 0x4000,
-          mt_rand(0, 0x3fff) | 0x8000,
-          mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0x0fff) | 0x4000,
+            mt_rand(0, 0x3fff) | 0x8000,
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
         );
     }
 
+    /**
+     * Check uuid is valid
+     *
+     * @param string $uuid
+     * @return boolean
+     */
     public static function isValidUUID($uuid) 
     {
         return preg_match('/^\{?[0-9a-f]{8}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{12}\}?$/i', $uuid) === 1;
     }
 
+    /**
+     * Return true if  ip is valid.
+     *
+     * @param string $ip_address
+     * @return boolean
+     */
     public static function isValidIp($ip_address)
-    {
-        $flags = FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6;
-        return (filter_var($ip_address, FILTER_VALIDATE_IP, $flags) === false) ? false : true;
+    {      
+        return (filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6) === false) ? false : true;
     }
 
-    public static function isImplemented($class_name,$interface_name)
+    /**
+     * Check if class implement interface 
+     *
+     * @param object $obj
+     * @param string $interface_name
+     * @return boolean
+     */
+    public static function isImplemented($obj, $interface_name)
     {       
-        $interfaces = class_implements($class_name,true);
-        if (is_array($interfaces) == false) return false;
-
-        foreach ($interfaces as $key => $interface_name) {
-            $base_name = last( explode('\\',$interface_name));
-            if ($base_name == $interface_name) return true;
+        $result = $obj instanceof $interface_name;
+        if ($result == true) {
+            return true;
         }
-        return false;
+        if (is_object($obj) == false && is_string($obj) == false) {
+            return false;
+        }
+
+        foreach (class_parents($obj) as $sub_class) {
+            if ($result == true) {
+                break;
+            }
+            $result = Self::isImplemented($sub_class, $interface_name);
+        } 
+        return $result;
     }
 
-    public static function constant($name, $default_value = null)
+    /**
+     * Return constant value or default if constant not defined.
+     *
+     * @param string $name
+     * @param mixed $default
+     * @return mixed
+     */
+    public static function constant($name, $default = null)
     {
-        return (defined($name) == true) ? constant($name) : $default_value; 
+        return (defined($name) == true) ? constant($name) : $default; 
     }
 
+    /**
+     * Convert path to url
+     *
+     * @param string $file_path
+     * @return void
+     */
     public static function convertPathToUrl($file_path) 
     {
         return str_replace('\\','/',$file_path);
     }
 
+    /**
+     * Return true if text is valid JSON 
+     *
+     * @param string $text
+     * @return boolean
+     */
     public static function isJSON($text)
     {
         if (is_string($text) == true) {
@@ -99,11 +145,23 @@ class Utils
         return false;
     }
     
+    /**
+     * Encode array to JSON 
+     *
+     * @param array $data
+     * @return string
+     */
     public static function jsonEncode(array $data)
     {
         return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
+    /**
+     * Clean JSON text
+     *
+     * @param string $text
+     * @return string
+     */
     public static function cleanJson($text)
     {
         for ($i = 0; $i <= 31; ++$i) {
@@ -116,22 +174,52 @@ class Utils
         return $text;
     }
 
+    /**
+     * Decode JSON text
+     *
+     * @param string $text
+     * @param boolean $clean
+     * @param boolean $to_array
+     * @return array
+     */
     public static function jsonDecode($text, $clean = true, $to_array = true)
     {        
-        return ($clean == true) ? Self::cleanJson($text) : json_decode($text,$to_array);
+        $text = ($clean == true) ? Self::cleanJson($text) : $text;
+        return json_decode($text,$to_array);
     }
 
+    /**
+     * Return base class name
+     *
+     * @param string $full_class_name
+     * @return string
+     */
     public static function getBaseClassName($full_class_name)
     {
         return last(explode('\\',$full_class_name));
     }
 
-    public static function callStatic($class_name, $method, $args)
-    {
-        $callable = [$class_name,$method];
-        return (is_callable($callable) == false) ? null : forward_static_call($callable,$args);
+    /**
+     * Call static method
+     *
+     * @param string $class_name
+     * @param string $method
+     * @param array|null $args
+     * @return mixed
+     */
+    public static function callStatic($class_name, $method, $args = null)
+    {     
+        return (is_callable([$class_name,$method]) == false) ? null : forward_static_call([$class_name,$method],$args);
     }
 
+    /**
+     * Call object method
+     *
+     * @param object $obj
+     * @param string $method
+     * @param array|null $args
+     * @return mixed
+     */
     public static function call($obj, $method, $args = null)
     {
         if (is_object($obj) == true) {
@@ -148,32 +236,162 @@ class Utils
             }
             return Self::callStatic($class_name,$method,$args);  
         }
-
         return (is_array($args) == true) ? call_user_func_array($callable,$args) : call_user_func($callable,$args);
     }
 
-    public static function isUrl($text)
+    /**
+     * Return true if url is valid
+     *
+     * @param string $url
+     * @return boolean
+     */
+    public static function isUrl($url)
     {
-        return (filter_var($text, FILTER_VALIDATE_URL) == true) ? true : false; 
+        return (filter_var($url, FILTER_VALIDATE_URL) == true) ? true : false; 
     }
 
-    public static function isEmail($text)
+    /**
+     * Return true if email is valid
+     *
+     * @param string $email
+     * @return boolean
+     */
+    public static function isEmail($email)
     {
-        return (filter_var($text,FILTER_VALIDATE_EMAIL) == false) ? false : true;
+        return (filter_var($email,FILTER_VALIDATE_EMAIL) == false) ? false : true;
     }
     
+    /**
+     * Check if text contains thml tags
+     *
+     * @param string $text
+     * @return boolean
+     */
     public static function hasHtml($text)
     {
         return ($text != strip_tags($text)) ? true : false;
     }
 
+    /**
+     * Remove BOM from text
+     *
+     * @param string $text
+     * @return void
+     */
     public static function removeBOM($text)
     {        
         return (strpos(bin2hex($text), 'efbbbf') === 0) ? substr($text, 3) : $text;
     }
 
-    public static function isEmpty($value)
+    /**
+     * Check if variable is empty
+     *
+     * @param mixed $var
+     * @return boolean
+     */
+    public static function isEmpty($var)
     {       
-        return (is_object($value) == true) ? empty((array) $value) : empty($value);
+        return (is_object($var) == true) ? empty((array) $var) : empty($var);
+    }
+
+    /**
+     * Format version text to full version format 0.0.0
+     *
+     * @param string $text
+     * @return string
+     */
+    public static function formatVersion($text)
+    {
+        $items = explode('.',trim($text));
+        $release = (isset($items[0]) == true) ? $items[0] : $text;
+        $major = (isset($items[1]) == true) ? $items[1] : "0";       
+        $minor = (isset($items[2]) == true) ? $items[2] : "0";
+           
+        return "$release.$major.$minor";
+    }
+
+    /**
+     * Create key 
+     *
+     * @param string $text
+     * @param string $path_item
+     * @param string $separator
+     * @return string
+     */
+    public static function createKey($text, $path_item = null, $separator = ".")
+    {
+        return (empty($path_item) == true) ? $text : $text . $separator . $path_item;     
+    }
+
+    /**
+     * Return default if variable is empty
+     *
+     * @param mixed $variable
+     * @param mixed $default
+     * @return mixed
+     */
+    public function getDefault($variable, $default)
+    {
+        return (Self::isEmpty($variable) == true) ? $default : $variable;      
+    }
+
+    /**
+     * Convert value to text
+     *
+     * @param mixed $value
+     * @return string
+     */
+    public static function getValueAsText($value)
+    {
+        if (gettype($value) == "boolean") {           
+            return ($value == true) ? "true" : "false"; 
+        }       
+        return "\"$value\"";
+    }
+
+    /**
+     * Return true if variable is Closure
+     *
+     * @param mixed $variable
+     * @return boolean
+     */
+    public static function isClosure($variable) 
+    {
+        return (is_object($variable) && ($variable instanceof \Closure));
+    }
+
+    /**
+     * Create slug
+     *
+     * @param string $text
+     * @param string $separator
+     * @return string
+     */
+    public static function slug($text, $separator = '-')
+    {
+        return strtolower(preg_replace(
+			['/[^\w\s]+/', '/\s+/'],
+			['', $separator],
+			$text
+		));
+    } 
+
+    /**
+     * Get memory size text.
+     *
+     * @param integer $size
+     * @param array $labels
+     * @param boolean $as_text
+     * @return string|array
+     */
+    public static function getMemorySizeText($size, $labels = null, $as_text = true)
+    {        
+        if (is_array($labels) == false) {
+            $labels = ['Bytes','KB','MB','GB','TB','PB','EB','ZB','YB'];
+        }
+        $power = $size > 0 ? floor(log($size, 1024)) : 0;
+        $result['size'] = round($size / pow(1024, $power),2);
+        $result['label'] = $labels[$power];
+        return ($as_text == true) ? $result['size'] . $result['label'] : $result; 
     }
 }

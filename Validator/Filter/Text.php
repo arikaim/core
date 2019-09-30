@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -22,11 +22,11 @@ class Text extends Filter
      * @param mixed $value
      * @return mixed
      */
-    public function customFilter($value) 
+    public function filterValue($value) 
     {      
         $value = trim($value);      
-        $value = filter_var($value,FILTER_SANITIZE_STRING);     
-        return $value;
+        $result = filter_var($value,FILTER_SANITIZE_STRING);     
+        return ($result == false) ? $value : $result;
     } 
 
     /**
@@ -34,18 +34,8 @@ class Text extends Filter
      *
      * @return int
      */
-    public function getFilter()
+    public function getType()
     {       
-        return FILTER_CALLBACK ;
-    }
-
-    /**
-     * Return filter options
-     *
-     * @return array
-     */
-    public function getFilterOptions()
-    {
-        return $this->getCustomFilterOptions();
+        return FILTER_CALLBACK;
     }
 }

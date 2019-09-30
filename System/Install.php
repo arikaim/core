@@ -3,31 +3,28 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
 namespace Arikaim\Core\System;
 
-use Arikaim\Core\FileSystem\File;
-use Arikaim\Core\System\Config;
-use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\View\Template;
+use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Access\Access;
 use Arikaim\Core\Packages\Extension\ExtensionsManager;
 use Arikaim\Core\Packages\Template\TemplatesManager;
 use Arikaim\Core\Packages\Module\ModulesManager;
+use Arikaim\Core\Queue\Cron;
 
+/**
+ * Arikaim install
+ */
 class Install 
 {
-    public function __construct() 
-    {
-    }
-
     /**
      * Install Arikaim
      *
@@ -47,10 +44,12 @@ class Install
         Arikaim::db()->initConnection(Arikaim::config('db'));     
 
         // Create Arikaim DB tables
-        $result = $this->createDbTables();
+        $result = $this->createDbTables();      
         if ($result == false) {
             return false;
         }
+        // add control panel permisison item 
+        Model::PermissionsList()->add(Access::CONTROL_PANEL,Access::CONTROL_PANEL,'Arikaim control panel access.');
 
         // register core events
         $this->registerCoreEvents();
@@ -62,14 +61,14 @@ class Install
         // reload seystem options
         Arikaim::options()->loadOptions();
 
-        // insert default values in db tables
-        $result = $this->initDefaultValues();
-
         // create admin user if not exists 
         $this->createDefaultAdminUser();
 
         // add date, time, number format items
         $this->initDefaultOptions();
+
+        // install drivers
+        $this->installDrivers();
 
         // install current template 
         $template_manager = new TemplatesManager();
@@ -82,12 +81,21 @@ class Install
         if ($result == false) {           
             Arikaim::errors()->addError('EXTENSION_INSTALL_ERROR');
         }
-       
+
+        // install cron scheduler 
+        $cron = new Cron();
+        $cron->install();
+        
         // trigger event core.install
         Arikaim::event()->trigger('core.install',Arikaim::errors()->getErrors());
         return true;
-    }   
+    } 
 
+    /**
+     * Register code events
+     *
+     * @return void
+     */
     private function registerCoreEvents()
     {
         // Extensions
@@ -115,83 +123,93 @@ class Install
         Arikaim::event()->registerEvent('core.jobs.queue.run','After run jobs queue.');
     } 
 
+    /**
+     * Create default control panel user
+     *
+     * @return void
+     */
     private function createDefaultAdminUser()
     {
-        $user = Model::Users();
-        $admin_user = $user->getControlPanelUser();
-      
-        if ($admin_user == false) {
-            $admin_user = $user->createUser("admin","admin");       
-            if (empty($admin_user->id) == true) {
+        $user = Model::Users()->getControlPanelUser();
+        if ($user == false) {
+            $user = Model::Users()->createUser("admin","admin");  
+            if (empty($user->id) == true) {
                 Arikaim::errors()->addError('CONTROL_PANEL_USER_ERROR',"Error create control panel user.");
+                return false;
             }                
         }
-      
-        $result = Model::Permissions()->setUserPermission($admin_user->id,Access::CONTROL_PANEL,Access::FULL);
-        return $result;
+        return Model::Permissions()->setUserPermission(Access::CONTROL_PANEL,Access::FULL,$user->id);
     }
 
+    /**
+     * Set default options
+     *
+     * @return void
+     */
     private function initDefaultOptions()
     {
         // add date formats options
-        $items = Arikaim::config()->loadJsonConfigFile("date_format.json");
-        Arikaim::options()->set('date.format.items',$items,false);
+        $items = Arikaim::config()->loadJsonConfigFile("date_format.json");      
+        Arikaim::options()->createOption('date.format.items',$items,false);
         // set default date format 
         $key = array_search(1,array_column($items, 'default'));
         if ($key !== false) {
-            Arikaim::options()->set('date.format',$items[$key]['value'],true);
+            Arikaim::options()->createOption('date.format',$items[$key]['value'],true);
         }
      
         // add time format options
         $items = Arikaim::config()->loadJsonConfigFile("time_format.json");
-        Arikaim::options()->set('time.format.items',$items,false);
+        Arikaim::options()->createOption('time.format.items',$items,false);
         // set default time format
         $key = array_search(1,array_column($items, 'default'));
         if ($key !== false) {
-            Arikaim::options()->set('time.format',$items[$key]['value'],true);
+            Arikaim::options()->createOption('time.format',$items[$key]['value'],true);
         }
 
         // add number format options
         $items = Arikaim::config()->loadJsonConfigFile("number_format.json");
-        Arikaim::options()->set('number.format.items',$items,false);
+        Arikaim::options()->createOption('number.format.items',$items,false);
         // set default number format
-        Arikaim::options()->set('number.format',"default",true);
+        Arikaim::options()->createOption('number.format',"default",true);
         
         // set default time zone 
-        Arikaim::options()->set('time.zone',DateTime::getDefaultTimeZoneName(),false);
+        Arikaim::options()->createOption('time.zone',DateTime::getDefaultTimeZoneName(),false);
         // set default template name
-        Arikaim::options()->set('current.template',Template::getTemplateName(),true);
+        Arikaim::options()->createOption('current.template',Template::getTemplateName(),true);
         // mailer
-        Arikaim::options()->set('mailer.use.sendmail',true,true);
-        Arikaim::options()->set('mailer.smpt.port','25',true);
-        Arikaim::options()->set('mailer.smpt.host','',true);
-        Arikaim::options()->set('mailer.username','',true);
-        Arikaim::options()->set('mailer.password','',true);
+        Arikaim::options()->createOption('mailer.use.sendmail',true,true);
+        Arikaim::options()->createOption('mailer.smpt.port','25',true);
+        Arikaim::options()->createOption('mailer.smpt.host','',true);
+        Arikaim::options()->createOption('mailer.username','',true);
+        Arikaim::options()->createOption('mailer.password','',true);
         // email settings
-        Arikaim::options()->set('mailer.from.email','',false);
+        Arikaim::options()->createOption('mailer.from.email','',false);
         // logger
-        Arikaim::options()->set('logger',true,true);
-        Arikaim::options()->set('logger.stats',true,true);
+        Arikaim::options()->createOption('logger',true,true);
+        Arikaim::options()->createOption('logger.stats',true,true);
+        Arikaim::options()->createOption('logger.driver',null,true);
         // session
-        Arikaim::options()->set('session.recreation.interval',0,false);
+        Arikaim::options()->createOption('session.recreation.interval',0,false);
+        // cachek drivers
+        Arikaim::options()->createOption('cache.driver',null,true);
     }
 
-    private function initDefaultValues() 
-    {    
-        $items = Arikaim::config()->loadJsonConfigFile("language.json");
-        foreach ($items as $key => $item) {    
-            if (isset($item['country_code']) == "") {
-                $item['country_code'] = $item['code'];
-            }       
-            try {                           
-                Model::Language()->add($item);     
-            } catch(\Exception $e) {
-                return false;
-            }
-        }
-        return true;
+    /**
+     * Install drivers
+     *
+     * @return void
+     */
+    public function installDrivers()
+    {
+        // cache
+        Arikaim::driver()->install('filesystem','Doctrine\\Common\\Cache\\FilesystemCache','cache','Filesystem cache','Filesystem cache driver','1.8.0',[]);
     }
 
+    /**
+     * Create core db tables
+     *
+     * @return bool
+     */
     private function createDbTables()
     {                 
         $classes = $this->getSystemSchemaClasses();
@@ -221,21 +239,12 @@ class Install
                 return false;
             }
             // check db tables
-            $errors += Schema::schema()->hasTable('options') ? 0:1;
-            $errors += Schema::schema()->hasTable('extensions') ? 0:1;
-            $errors += Schema::schema()->hasTable('modules') ? 0:1;
-            $errors += Schema::schema()->hasTable('permissions') ? 0:1;
-            $errors += Schema::schema()->hasTable('permissions_list') ? 0:1;
-            $errors += Schema::schema()->hasTable('users') ? 0:1;
-            $errors += Schema::schema()->hasTable('routes') ? 0:1;
-            $errors += Schema::schema()->hasTable('event_subscribers') ? 0:1;
-            $errors += Schema::schema()->hasTable('events') ? 0:1;
-            $errors += Schema::schema()->hasTable('language') ? 0:1;
-            $errors += Schema::schema()->hasTable('logs') ? 0:1;
-            $errors += Schema::schema()->hasTable('jobs') ? 0:1;
-        
-            $user = Model::Users();            
-            $result = $user->hasControlPanelUser();           
+            $tables = Self::getSystemDbTableNames();
+            foreach ($tables as $table_name) {
+                $errors += Schema::schema()->hasTable($table_name) ? 0:1;
+            }
+           
+            $result = Model::Users()->hasControlPanelUser();                          
             if ($result == false) {
                 $errors++;
             }
@@ -243,27 +252,60 @@ class Install
         } catch(\Exception $e) {
             $errors++;
         }
-        if ($errors > 0) {
-            return false;
-        }
-        return true;
+        return ($errors > 0) ? false : true;        
     }
 
-    public function getSystemSchemaClasses()
+    /**
+     * Return core migration classes
+     *
+     * @return array
+     */
+    private function getSystemSchemaClasses()
     {
-        return ['UsersSchema',
-        'UserGroupsSchema',
-        'UserGroupsDetailsSchema',
-        'EventsSchema',
-        'EventSubscribersSchema',
-        'ExtensionsSchema',
-        'ModulesSchema',
-        'JobsSchema',
-        'LanguageSchema',
-        'LogsSchema',
-        'OptionsSchema',
-        'PermissionsSchema',
-        'PermissionsListSchema',
-        'RoutesSchema'];
+        return [
+            'UsersSchema',
+            'PermissionsListSchema',
+            'UserGroupsSchema',
+            'UserGroupMembersSchema',
+            'EventsSchema',
+            'EventSubscribersSchema',
+            'ExtensionsSchema',
+            'ModulesSchema',
+            'JobsSchema',
+            'LanguageSchema',
+            'OptionsSchema',
+            'PermissionsSchema',
+            'RoutesSchema',
+            'AccessTokensSchema',
+            'ApiCredentialsSchema',
+            'DriversSchema'
+        ];
+    }
+
+    /**
+     * Get core db table names
+     *
+     * @return array
+     */
+    private static function getSystemDbTableNames()
+    {
+        return [
+            'options',
+            'permissions_list',
+            'extensions',
+            'modules',
+            'permissions',
+            'users',
+            'user_groups',
+            'user_group_members',
+            'routes',
+            'event_subscribers',
+            'events',
+            'language',
+            'jobs',
+            'access_tokens',
+            'api_credentials',
+            'drivers'
+        ];
     }
 }

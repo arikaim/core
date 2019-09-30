@@ -3,181 +3,167 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
-namespace Arikaim\Core\Jobs;
+namespace Arikaim\Core\Queue;
 
-use Arikaim\Core\Interfaces\Jobs\JobInterface;
+use Arikaim\Core\System\Process;
 use Arikaim\Core\Utils\Arrays;
-use Arikaim\Core\Utils\TimeInterval;
-use Arikaim\Core\Utils\DateTime;
+use Arikaim\Core\Utils\StaticFacade;
 
-class Cron 
+/**
+ * Cron jobs 
+ */
+class Cron extends StaticFacade
 {
-    private $execute_script;
-
-    public function __construct($execute_script = null)
+    /**
+     * Return facade class name
+     *
+     * @return string
+     */
+    public static function getInstanceClass()
     {
-        $this->execute_script = $execute_script;
-        if ($execute_script == null) {
-            $this->execute_script = $this->getDefaultScript();
-        } 
+        return 'Arikaim\Core\Queue\Cron';
     }
 
-    private function getDefaultScript()
+    /**
+     * Get cron command
+     *
+     * @return string
+     */
+    public static function getCronCommand()
     {
-        $path = ARIKAIM_PATH;
-        return "php $path/jobs.php >> /dev/null 2>&1";
+        $php = (Process::findPhp() === false) ? 'php' : Process::findPhp();
+        
+        return "* * * * * " . $php . " " . ARIKAIM_ROOT_PATH . ARIKAIM_BASE_PATH . "/cli scheduler >> /dev/null 2>&1";
+    }
+    
+    /**
+     * Add cron entry for scheduler
+     *
+     * @return mixed
+     */
+    public function install()
+    {    
+        return $this->addItem(Self::getCronCommand());
     }
 
+    /**
+     * Remove cron entry for scheduler
+     *
+     * @return mixed
+     */
+    public function unInstall()
+    {
+        return $this->removeItem(Self::getCronCommand());   
+    }
+
+    /**
+     * Return true if crontab entry is exists
+     *
+     * @return boolean
+     */
     public function isInstalled()
     {
+        $items = $this->getItems();
+        return $this->hasItems($items);
+    }
+
+    /**
+     * Return true if crontab have items
+     *
+     * @param array $items
+     * @return boolean
+     */
+    public function hasItems($items)
+    {
+        $msg = "no crontab for";
+        return (empty($items) == true || preg_match("/{$msg}/i", $items[0]) == true) ? false : true;
+    }
+    /**
+     * Get crontab items
+     *
+     * @return array
+     */
+    public function getItems() {
+        $output = Process::run('crontab -l');
+
+        $output = (empty($output) == true) ? [] : $output;
+        $items = Arrays::toArray($output);
+        
+        return  ($this->hasItems($items) == true) ? $items : [];
+    }
+
+    /**
+     * Return true if crontab have item
+     *
+     * @param string $command
+     * @return boolean
+     */
+    public function hasItem($command)
+    {
+        $commands = $this->getItems();
+        return in_array($command, $commands);         
+    }   
+
+    /**
+     * Add cron tab item
+     *
+     * @param string $command
+     * @return void
+     */
+    public function addItem($command)
+    {
+        if ($this->hasItem($command) == true) {
+            return true;
+        }
+    
+        $commands = $this->getItems();
+        array_push($commands,$command);
+        return $this->addItems($commands);
+    }
+
+    /**
+     * Add cron tab items
+     *
+     * @param array $commands
+     * @return mixed
+     */
+    public function addItems(array $commands) 
+    {
+        return Process::run('echo "'. Arrays::toString($commands).'" | crontab -');
+    }
+
+    /**
+     * Delete crontab item
+     *
+     * @param string $command
+     * @return bool
+     */
+    public function removeItem($command) 
+    {
+        if ($this->hasItem($command) == true) {
+            $commands = $this->getItems();
+            unset($commands[array_search($command,$commands)]);
+            return $this->addItems($commands);
+        }
         return true;
     }
 
-    private function getRecurriungTime($interval)
-    {
-        if (empty($interval) == true) {
-            $command_time = "* * * * *"; 
-            return $command_time;
-        }
-
-        if (TimeInterval::isDurationInverval($interval) == false) {
-            return $interval;
-        }
-
-        $time_interval = new TimeInterval($interval);
-        $minutes = $time_interval->getMinutes();
-        $hours = $time_interval->getHours();
-        $months = $time_interval->getMonths();  
-        $days = $time_interval->getDays();
-
-        if ($minutes > 0) {
-            return "*/$minutes * * * *";
-        }
-       
-        if ($hours > 0) {
-            return "* */$hours * * *";
-        }
-       
-        if ($days > 0) {
-            return "* * */$days * *";
-        }     
-        
-        if ($months > 0) {
-            return "* * * */$months *";
-        }  
-
- 
-
-        return "$minutes $hours $days $months *";
-    }
-
-    public function getScheduledTime($time)
-    {
-        $date = new DateTime();
-        $date->setTimestamp($time);
-        $command_time = $date->getMinutes() . " ";
-        $command_time .= $date->getHour() . " ";
-        $command_time .= $date->getDay() . " ";
-        $command_time .= $date->getMonth() . " ";
-        $command_time .= "*";
-      
-        return $command_time;
-    }
-
-    public function getCommandTime(JobInterface $job)
-    {
-        if ($job->isRecuring() == true) {
-            $interval = $job->getRecuringInterval();
-            return $this->getRecurriungTime($interval);
-        }
-
-        if ($job->isScheduled() == true) {
-            $time = $job->getScheduleTime();
-            return $this->getScheduledTime($time);
-        }
-        return "* * * * *"; 
-    }
-
-    public function resolveCommand(JobInterface $job)
-    {
-        $command_time = $this->getCommandTime($job);
-        return "$command_time " . $this->execute_script;
-    }
-
-    public function getCommands() {
-        $output = shell_exec('crontab -l');
-        return Arrays::toArray($output);
-    }
-
-    public function hasCommand($command)
-    {
-        $commands = $this->getCommands();
-        if (in_array($command, $commands) == true) {
-            return true;
-        } 
-        return false;
-    }   
-
-    public function removeAllJobs()
-    {
-        $output = shell_exec('crontab -r');
-        return $output;
-    }
-
-    public function removeJob(JobInterface $job)
-    {
-        $command = $job->getJobCommand($job);
-        return $this->removeCommand($command);
-    }
-
-    public function hasJob(JobInterface $job)
-    {
-        $command = $job->getJobCommand($job);
-        return $this->hasCommand($command);
-    }
-
-    public function addJob(JobInterface $job)
-    {
-        $command = $this->resolveCommand($job);       
-        $result = $this->addCommand($command);
-        return $command;
-    }
-
-    public function addCommand($command)
-    {
-        if ($this->hasCommand($command) == true) {
-            return false;
-        }
-        $commands = $this->getCommands();
-        array_push($commands,$command);
-        return $this->pushCommands($commands);
-    }
-
-    public function pushCommands(array $commands) 
-    {
-        return shell_exec('echo "'. Arrays::toString($commands).'" | crontab -');
-    }
-
-    public function removeCommand($command) 
-    {
-        if ($this->hasCommand($command) == true) {
-            $commands = $this->getCommands();
-            unset($commands[array_search($command,$commands)]);
-            return $this->pushCommands($commands);
-        }
-        return false;
-    }
-
+    /**
+     * get cron details.
+     *
+     * @return array
+     */
     public function getServiceDetails()
     {
-        $details['name'] = "Cron";
-        $details['installed'] =  $this->isInstalled();
-        $details['jobs'] = $this->getCommands();
-        $details['user'] = get_current_user();
-        return $details;
+        return [
+            'name'       => "Cron",
+            'installed'  => $this->isInstalled(),
+            'items'      => $this->getItems(),
+            'user'       => Process::getCurrentUser()['name']
+        ];
     }
 }

@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -11,14 +11,25 @@ namespace Arikaim\Core\Packages;
 
 use Arikaim\Core\Interfaces\Packages\PackageManagerInterface;
 use Arikaim\Core\FileSystem\File;
-use Arikaim\Core\Utils\Properties;
+use Arikaim\Core\Collection\Collection;
 
 /**
  * Package managers base class
 */
 abstract class PackageManager implements PackageManagerInterface
 {
+    /**
+     * Path to packages
+     *
+     * @var string
+     */
     protected $path;
+    
+    /**
+     * Package properites file name
+     *
+     * @var [type]
+     */
     protected $properties_file_name;
 
     /**
@@ -28,9 +39,22 @@ abstract class PackageManager implements PackageManagerInterface
      * @return PackageInterface
      */
     abstract public function createPackage($name);
-    
+
+    /**
+     * Return packages list
+     *
+     * @param boolean $cached
+     * @param mixed $filter
+     * @return array
+     */
     abstract public function getPackages($cached = false, $filter = null);
 
+    /**
+     * Constructor
+     *
+     * @param string $path
+     * @param string $properties_file_name
+     */
     public function __construct($path, $properties_file_name = 'package.json')
     {
         if (File::exists($path) == false) {
@@ -41,31 +65,58 @@ abstract class PackageManager implements PackageManagerInterface
         $this->properties_file_name = $properties_file_name;
     }
 
+    /**
+     * Return packages path
+     *
+     * @return string
+     */
     public function getPath()
     {
         return $this->path;
     }
 
+    /**
+     * Gte properties file name
+     *
+     * @return string
+     */
     public function getPropertiesFileName()
     {
         return $this->properties_file_name;
     }
 
+    /**
+     * Load package properties file 
+     *
+     * @param string $name
+     * @return Collection
+     */
     public function loadPackageProperties($name) 
     {         
         $full_file_name = $this->getPath() . $name . DIRECTORY_SEPARATOR . $this->getPropertiesFileName();
-        $properties = new Properties($full_file_name);    
+        $data = File::readJSONFile($full_file_name);
+        $data = (is_array($data) == true) ? $data : [];
+
+        $properties = new Collection($data);    
         if (empty($properties->name) == true) {
             $properties->set('name',$name);
         }             
         return $properties;
     }
 
+    /**
+     * Explore packages root directory
+     *
+     * @param mixed $filter
+     * @return array
+     */
     protected function scan($filter = null)
     {
         $items = [];
         foreach (new \DirectoryIterator($this->path) as $file) {
-            if ($file->isDot() == true || $file->isDir() == false) continue;
+            if ($file->isDot() == true || $file->isDir() == false || substr($file->getFilename(),0,1) == '.') {
+                continue;
+            }
             $name = $file->getFilename();
             if (is_array($filter) == true) {
                 $package = $this->createPackage($name);
@@ -82,12 +133,26 @@ abstract class PackageManager implements PackageManagerInterface
         return $items;
     }
 
+    /**
+     * Get package properties
+     *
+     * @param string $name
+     * @param boolean $full
+     * @return Collection
+     */
     public function getPackageProperties($name, $full = false)
     {
         $package = $this->createPackage($name);
         return $package->getProperties($full);
     }
 
+    /**
+     * Find package
+     *
+     * @param string $param
+     * @param mixed $value
+     * @return PackageInterface|false
+     */
     public function findPackage($param,$value)
     {
         $packages = $this->getPackages();
@@ -100,6 +165,11 @@ abstract class PackageManager implements PackageManagerInterface
         return false;
     }
 
+    /**
+     * Instaall all packages
+     *
+     * @return bool
+     */
     public function installAllPackages()
     {
         $errors = 0;
@@ -110,36 +180,75 @@ abstract class PackageManager implements PackageManagerInterface
         return ($errors == 0) ? true : false;
     }
 
+    /**
+     * Install package
+     *
+     * @param string $name
+     * @return bool
+     */
     public function installPackage($name)
     {
         $package = $this->createPackage($name);
         return $package->install();
     }
 
+    /**
+     * Uninstall package
+     *
+     * @param string $name
+     * @return bool
+     */
     public function unInstallPackage($name)
     {
         $package = $this->createPackage($name);
         return $package->unInstall();
     }
 
+    /**
+     * Enable package
+     *
+     * @param string $name
+     * @return bool
+     */
     public function enablePackage($name)
     {
+
         $package = $this->createPackage($name);
+
         return $package->enable();
     }
 
+    /**
+     * Disable package
+     *
+     * @param string $name
+     * @return bool
+     */
     public function disablePackage($name)
     {
         $package = $this->createPackage($name);
         return $package->disable();
     }
 
+    /**
+     * Reinstall package
+     *
+     * @param string $name
+     * @return bool
+     */
     public function reInstallPackage($name)
     {
         $package = $this->createPackage($name);
         return $package->reInstall();
     }
 
+    /**
+     * Get installed packages.
+     *
+     * @param integer|null $status
+     * @param string|integer $type
+     * @return array
+     */
     public function getInstalled($status = null, $type = null)
     {
         return [];

@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -52,7 +52,7 @@ class Jwt
     private function init($expire_time = null) 
     {
         $this->key = Arikaim::config('settings/jwt_key');
-        $expire_time = ($expire_time == null) ? strtotime("+1 month") : $expire_time;
+        $expire_time = ($expire_time == null) ? strtotime("+1 week") : $expire_time;
         $token_id = base64_encode(random_bytes(32));
        
         $this->token = new Builder();

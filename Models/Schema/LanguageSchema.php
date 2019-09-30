@@ -3,64 +3,80 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
 namespace Arikaim\Core\Models\Schema;
 
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Traits\Db\Status;;
 
 /**
  * Language database table schema definition.
  */
 class LanguageSchema extends Schema  
 {    
+    /**
+     * Db table name
+     *
+     * @var string
+     */ 
     protected $table_name = "language";
 
     /**
      * Create table
      *
+     * @param \Arikaim\Core\Db\TableBlueprint $table
      * @return void
      */
-    public function create() 
+    public function create($table) 
     {
-        $this->createTable(function($table) {
-            
-            // columns
-            $table->bigIncrements('id')->nullable(false);
-            $table->string('code',10)->nullable(false);
-            $table->string('code_3',3)->nullable(true);
-            $table->string('country_code',20)->nullable(false);
-            $table->string('title')->nullable(false);
-            $table->string('native_title')->nullable(true)->default('');
-            $table->integer('position')->nullable(true);
-            $table->integer('status')->nullable(false)->default(Status::ACTIVE());
-            $table->integer('default')->nullable(false)->default(0);
-            $table->string('uuid')->nullable(false);       
-            // indexes
-            $table->unique('code');
-            $table->unique('code_3');
-            $table->unique('uuid');
-            $table->unique('position');
-            $table->index('status');
-            $table->index('default');
-            $table->index('country_code');
-            // storage engine
-            $table->engine = 'InnoDB';
+        // columns
+        $table->id();
+        $table->prototype('uuid');
+        $table->status(); 
+        $table->position(); 
 
-        });
+        $table->string('code',10)->nullable(false);
+        $table->string('code_3',3)->nullable(true);
+        $table->string('country_code',20)->nullable(false);
+        $table->string('title')->nullable(false);
+        $table->string('native_title')->nullable(true);
+        $table->prototype('defaultColumn');       
+        // indexes
+        $table->unique('code');
+        $table->unique('code_3');      
+        $table->index('country_code');        
     }
 
     /**
-     * Modify table
+     * Update table
      *
+     * @param \Arikaim\Core\Db\TableBlueprint $table
      * @return void
      */
-    public function update() 
+    public function update($table) 
     {
-        $this->updateTable(function($table) {
-        });
+    }
+
+    /**
+     * Seeds
+     *
+     * @param Builder $query
+     * @return void
+     */
+    public function seeds($query) 
+    {
+        $result = $query->updateOrInsert(['code' => 'en'],
+        [
+            "title"        => "English",
+            "native_title" => "English",
+            "code"         => "en",
+            "code_3"       => "eng",
+            "default"      => "1",
+            "country_code" => "us"   
+        ]);
+
+        return $result;
     }
 }

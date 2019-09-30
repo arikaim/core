@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -16,18 +16,14 @@ use Arikaim\Core\Validator\Rule;
  */
 class Equal extends Rule
 {    
-    protected $value;
-
     /**
      * Constructor
-     *
-     * @param [type] $value
-     * @param string $error
+     * params - value
+     * @param array $params
      */
-    public function __construct($value, $error = "NOT_VALID_VALUE_ERROR") 
+    public function __construct($params) 
     {
-        parent::__construct(null,null,$error);
-        $this->value = $value;
+        parent::__construct($params);
     }
 
     /**
@@ -36,9 +32,9 @@ class Equal extends Rule
      * @param mixed $value
      * @return boolean
      */
-    public function customFilter($value) 
+    public function validate($value) 
     { 
-        return ($value != $this->value) ? false : true;
+        return ($value != $this->params->get('value')) ? false : true;
     } 
 
     /**
@@ -46,18 +42,8 @@ class Equal extends Rule
      *
      * @return int
      */
-    public function getFilter()
+    public function getType()
     {       
         return FILTER_CALLBACK;
-    }
-
-    /**
-     * Return filter options
-     *
-     * @return array
-     */
-    public function getFilterOptions()
-    {
-        return $this->getCustomFilterOptions();
     }
 }

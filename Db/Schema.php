@@ -3,16 +3,18 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
 namespace Arikaim\Core\Db;
 
 use Illuminate\Database\Capsule\Manager;
+use Illuminate\Database\Schema\Builder;
+
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\System\Install;
+use Arikaim\Core\Db\TableBlueprint;
 
 /**
  * Database schema base class
@@ -27,18 +29,37 @@ abstract class Schema
     protected $table_name;
 
     /**
-     * Create table
+     * Db storage engine
      *
-     * @return void
+     * @var string
      */
-    abstract public function create();
+    protected $storage_engine = 'InnoDB';
 
     /**
-     * Udate existing table
-     *
+     * Create table
+     * 
+     * @param  Arikaim\Core\Db\TableBlueprint $table
      * @return void
      */
-    abstract public function update();
+    abstract public function create($table);
+
+    /**
+     * Update existing table
+     *
+     * @param  Arikaim\Core\Db\TableBlueprint $table
+     * @return void
+     */
+    abstract public function update($table);
+
+    /**
+     * Insert or update rows in table
+     *
+     * @param Builder $query
+     * @return void
+     */
+    public function seeds($query)
+    {
+    }
 
     /**
      * Constructor
@@ -46,8 +67,10 @@ abstract class Schema
      * @param string|null $table_name
      */
     public function __construct($table_name = null) 
-    {
-        $this->table_name = $table_name;
+    {      
+        if (empty($table_name) == false) {
+            $this->table_name = $table_name;
+        }
     }
 
     /**
@@ -68,25 +91,78 @@ abstract class Schema
      */
     public static function getTable($class_name)
     {
-        $instance = Self::createInstance($class_name);
+        $instance = Factory::createSchema($class_name);
         return (is_object($instance) == false) ? false : $instance->getTableName();         
     }
 
     /**
      * Create table
-     *
-     * @param \Closure $callback
+     *    
      * @return void
      */
-    public function createTable(\Closure $callback) 
+    public function createTable()
     {
-        if ($this->tableExists() == true) {
-            $this->update();
-        } else {
-            Manager::schema()->create($this->table_name,$callback);
+        if ($this->tableExists() == false) {                                  
+            $blueprint = new TableBlueprint($this->table_name,null);
+            
+            $call = function() use($blueprint) {
+                $blueprint->create();
+
+                $this->create($blueprint);            
+                $blueprint->engine = $this->storage_engine;               
+            };
+            $call(); 
+            $this->build($blueprint, Manager::schema());           
         }
     } 
 
+    /**
+     * Update table 
+     *
+     * @return void
+     */
+    public function updateTable() 
+    {
+        if ($this->tableExists() == true) {                           
+            $blueprint = new TableBlueprint($this->table_name,null);
+            
+            $callback = function() use($blueprint) {
+                $this->update($blueprint);                                 
+            };
+            $callback(); 
+            $this->build($blueprint, Manager::schema());           
+        }       
+    } 
+    
+    /**
+     * Execute seeds
+     *
+     * @return mixed|false
+     */
+    public function runSeeds()
+    {
+        if ($this->tableExists() == true) {  
+            $query = Manager::table($this->table_name);          
+            return $this->seeds($query);
+        }
+
+        return false;
+    }
+
+    /**
+     * Execute blueprint.
+     *
+     * @param  \Arikaim\Core\Db\TableBlueprint  $blueprint
+     * @param  \Illuminate\Database\Schema\Builder  $builder
+     * @return void
+     */
+    public function build($blueprint, Builder $builder)
+    {
+        $connection = $builder->getConnection();
+        $grammar = $connection->getSchemaGrammar();
+        $blueprint->build($connection,$grammar);
+    }
+    
     /**
      * Check if database exist.
      *
@@ -103,17 +179,7 @@ abstract class Schema
         return Manager::schema()->hasTable($table_name);      
     }
 
-    /**
-     * Update table 
-     *
-     * @param \Closure $callback
-     * @return void
-     */
-    public function updateTable(\Closure $callback) 
-    {
-        Manager::schema()->table($this->table_name,$callback);
-    } 
-    
+   
     /**
      * Drop table
      *
@@ -164,14 +230,15 @@ abstract class Schema
      */
     public static function install($class_name, $extension_name = null) 
     {                   
-        $instance = Self::createInstance($class_name,$extension_name);
+        $instance = Factory::createSchema($class_name,$extension_name);
         if (is_object($instance) == true) {
             try {
-                $instance->create();
-                $instance->update();
+                $instance->createTable();
+                $instance->updateTable();
+                $instance->runSeeds();
+
                 return $instance->tableExists();
             } catch(\Exception $e) {
-        
             }
         }
         return false;

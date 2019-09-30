@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -11,30 +11,53 @@ namespace Arikaim\Core\Db;
 
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Utils\FunctionArguments;
-use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Interfaces\QueryBuilderInterface;
-use Arikaim\Core\Db\Query\Condition;
-use Arikaim\Core\Db\Query\SearchCondition;
-use Arikaim\Core\Db\Query\JoinCondition;
-use Arikaim\Core\Db\Query\OrderBy;
-use Arikaim\Core\Db\Query\Select;
 
 /**
  * Database Model Factory 
 */
 class Model 
-{    
-    public static function create($class_name, $extension_name = null) 
+{   
+    /**
+     * Create db model instance
+     *
+     * @param string $class_name Base model class name
+     * @param string $extension_name
+     * @param Closure|null $callback
+     * @return object|null
+     */ 
+    public static function create($class_name, $extension_name = null, $callback = null) 
     {  
         try {
             $full_class_name = Self::getFullClassName($class_name,$extension_name); 
             $instance = Factory::createInstance($full_class_name);
+            if (is_callable($callback) == true) {
+                return $callback($instance);
+            }
             return (Self::isValidModel($instance) == true) ? $instance : null;              
         } catch(\Exception $e) {           
         }
         return null;
     }
 
+    /**
+     * Return true if attribute exist
+     *
+     * @param string $name
+     * @param Model $model
+     * @return boolean
+     */
+    public static function hasAttribute($model, $name)
+    {
+        return array_key_exists($name, $model->attributes);
+    }
+
+    /**
+     * Get model full calss name
+     *
+     * @param string $class_name
+     * @param string|null $extension_name
+     * @return string
+     */
     public static function getFullClassName($class_name, $extension_name = null)
     {
         if (empty($extension_name) == true) {
@@ -43,84 +66,55 @@ class Model
         return Factory::getExtensionModelClass($extension_name,$class_name);
     }
 
+    /**
+     * Get sql 
+     *
+     * @param Builder|Model $builder
+     * @return string
+     */
     public static function getSql($builder)
     {
         $sql = str_replace(array('?'), array('\'%s\''),$builder->toSql());
-        $sql = vsprintf($sql,$builder->getBindings());
-        return $sql;
+        return vsprintf($sql,$builder->getBindings());     
     }
 
+    /**
+     * Get model constant
+     *
+     * @param string $class_name
+     * @param string $constant_name
+     * @param string $extension_name
+     * @return mixed
+     */
     public static function getConstant($class_name, $constant_name, $extension_name = null)
     {
         $class_name = Self::getFullClassName($class_name,$extension_name);
         return Factory::getConstant($class_name,$constant_name);
     }
 
+    /**
+     * Create model
+     *
+     * @param string $name
+     * @param array $args
+     * @return object|null
+     */
     public static function __callStatic($name, $args)
     {  
-        $extension_name = FunctionArguments::getArgument($args,0,"string");
-        $create_table = FunctionArguments::getArgument($args,0,"boolean");        
-        return Self::create($name,$extension_name);
-        ////   For remove
-        /* 
-        if ($instance == null) {
-            return null;
-        }   
-        if ($create_table == true) {      
-            if (Schema::hasTable($instance) == false) {
-                $schema_class = Schema::getModelSchemaClass($name);
-                Schema::install($schema_class,$extension_name);
-            }
-        }
-        return $instance;     
-        */
+        $extension_name = (isset($args[0]) == true) ? $args[0] : null;
+        $callback = (isset($args[1]) == true) ? $args[1] : null;
+
+        return Self::create($name,$extension_name,$callback);
     }
     
+    /**
+     * Return true if instance is valid model class
+     *
+     * @param object $instance
+     * @return boolean
+     */
     public static function isValidModel($instance)
     {
         return is_subclass_of($instance,"\\Illuminate\\Database\\Eloquent\\Model");
-    }
-
-    public static function buildQuery($model, $query_builder)
-    {
-        if ($query_builder instanceof QueryBuilderInterface) {
-            $model = $query_builder->build($model);
-        }
-        return $model;
-    }
-
-    public static function createCondition($field_name, $operator, $value, $query_builder = null)
-    {
-        $condition = new Condition($field_name, $operator, $value);
-        $condition->append($query_builder);
-        return $condition;
-    }
-    
-    public static function createJoinCondition($type = JoinCondition::LEFT_JOIN, $table_name, $field, $operator, $join_field, $query_builder = null)
-    {
-        $condition = new JoinCondition($type,$table_name,$field,$operator,$join_field);
-        $condition->append($query_builder);
-        return $condition;
-    }
-
-    public static function createSelect($fields, $query_builder = null)
-    {
-        $builder = new Select($fields);
-        $builder->append($query_builder);
-        return $builder;
-    }
-
-    public static function createSearchCondition(array $search_in_fields = ['all'], $query_builder = null, $search = null)
-    {
-        $condition = new SearchCondition($search,$search_in_fields);
-        $condition->append($query_builder);
-        return $condition;
-    }
-
-    public static function createOrderBy($field_name, $type = OrderBy::ASC, $query_builder = null)
-    {
-        $order = new OrderBy($field_name,$type);
-        $order->append($query_builder);
-        return $order;
     }
 }

@@ -3,45 +3,30 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
 namespace Arikaim\Core\System\Error;
 
-use Slim\Handlers\PhpError;
+use Arikaim\Core\System\Error\PhpError;
 
+/**
+ * Application php error handler
+ */
 class ApplicationPHPError extends PhpError
 {
     /**
-     * Render HTML error page
+     * Invoke error handler
      *
-     * @param \Throwable $error
+     * @param ServerRequestInterface $request   The most recent Request object
+     * @param ResponseInterface      $response  The most recent Response object
+     * @param \Throwable             $error     The caught Throwable object
      *
-     * @return string
+     * @return ResponseInterface    
      */
-    protected function renderHtmlErrorMessage(\Throwable $error)
+    public function __invoke($request, $response, $error)
     {
-        $title = 'Application Error';       
-        $html = '<h2>Details</h2>';
-        $html .= $this->renderHtmlError($error);
-
-        while ($error = $error->getPrevious()) {
-            $html .= '<h2>Previous error</h2>';
-            $html .= $this->renderHtmlError($error);
-        }
-
-        $output = sprintf(
-            "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'>" .
-            "<title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana," .
-            "sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{" .
-            "display:inline-block;width:65px;}</style></head><body><h1>%s</h1>%s</body></html>",
-            $title,
-            $title,
-            $html
-        );
-
-        echo $output;
-        exit();
+        return $this->renderError($request,$response,$error);
     }
 }

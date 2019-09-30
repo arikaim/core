@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -11,7 +11,7 @@ namespace Arikaim\Core\Cache;
 
 use Doctrine\Common\Cache\FilesystemCache;
 use Arikaim\Core\FileSystem\File;
-use Arikaim\Core\Arikaim;
+use Arikaim\Core\System\Path;
 
 /**
  * Cache 
@@ -30,22 +30,62 @@ class Cache
      *
      * @var bool
      */
-    private $disabled;
+    private $status;
+
+    /**
+     * Router cache file name
+     *
+     * @var string|null
+     */
+    private $router_cache_file;
 
     /**
      * Constructor
      *
      * @param Doctrine\Common\Cache\Cache $driver
-     * @param boolean $disabled
+     * @param boolean $status
      */
-    public function __construct($driver = null, $disabled = false)
+    public function __construct($driver = null, $status = false, $settings = [])
     {
-        $this->disabled = (bool)$disabled;
+        $this->setStatus($status);
+        $this->router_cache_file = (isset($settings['routerCacheFile']) == true) ? $settings['routerCacheFile'] : null;
+
         if (empty($driver) == false) {
             $this->setDriver($driver);
         } else {
-            $this->driver = new FilesystemCache(ARIKAIM_CACHE_PATH);
+            $this->driver = new FilesystemCache(Path::CACHE_PATH);
         }
+    }
+
+    /**
+     * Set status true - enabled
+     *
+     * @param boolean $status
+     * @return void
+     */
+    public function setStatus($status)
+    {      
+        $this->status = $status;
+    }
+
+    /**
+     * Get status
+     *
+     * @return boolean
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * Return true if cache is status
+     *
+     * @return boolean
+     */
+    public function isDiabled()
+    {
+        return (empty($this->status) == true) ? false : !$this->status;
     }
 
     /**
@@ -80,19 +120,19 @@ class Cache
      * @return mixed|null
      */
     public function fetch($id)
-    {
-        return ($this->disabled == true) ? null : $this->driver->fetch($id);
+    {      
+        return ($this->isDiabled() == true) ? null : $this->driver->fetch($id);
     }
     
     /**
      * Fetch template files cache item
      *
-     * @param string $template_name
+     * @param string $name
      * @return mixed|null
      */
-    public function fetchTemplateFiles($template_name)
+    public function fetchPageIncludeFiles($name)
     {
-        return ($this->disabled == true) ? null : $this->driver->fetch("template.files.$template_name");
+        return ($this->isDiabled() == true) ? null : $this->driver->fetch("page.include.files.$name");
     }
 
     /**
@@ -116,7 +156,7 @@ class Cache
      */
     public function save($id, $data, $life_time = 0)
     {
-        return ($this->disabled == true) ? false : $this->driver->save($id,$data,($life_time * 60));
+        return ($this->isDiabled() == true) ? false : $this->driver->save($id,$data,($life_time * 60));
     }
 
     /**
@@ -161,7 +201,7 @@ class Cache
     public function clear()
     {
         $this->driver->deleteAll();
-        return File::deleteDirectory(ARIKAIM_CACHE_PATH);
+        return File::deleteDirectory(Path::CACHE_PATH);
     }
 
     /**
@@ -171,7 +211,7 @@ class Cache
      */
     public function hasRouteCache()
     {
-        return File::exists(Arikaim::settings('routerCacheFile'));
+        return (empty($this->router_cache_file) == true) ? false : File::exists($this->router_cache_file);
     }
 
     /**
@@ -182,7 +222,7 @@ class Cache
     public function clearRouteCache()
     {
         $this->delete('routes.list');
-        return File::delete(Arikaim::settings('routerCacheFile'));
+        return (empty($this->router_cache_file) == true) ? true : File::delete($this->router_cache_file);
     }
     
     /**
@@ -208,6 +248,7 @@ class Cache
         $this->delete('templates.list');
         $this->delete('routes.list');
         $this->delete('template.theme.file');
+        $this->clearRouteCache();
     }
 
     /**
@@ -219,5 +260,6 @@ class Cache
     {
         $this->delete('routes.list');
         $this->delete('extensions.list');
+        $this->clearRouteCache();
     }
 }

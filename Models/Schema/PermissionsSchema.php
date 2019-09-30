@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -16,49 +16,43 @@ use Arikaim\Core\Db\Schema;
 */
 class PermissionsSchema extends Schema  
 {    
+    /**
+     * Db table name
+     *
+     * @var string
+     */ 
     protected $table_name = "permissions";
 
     /**
      * Create table
      *
+     * @param \Arikaim\Core\Db\TableBlueprint $table
      * @return void
      */
-    public function create() 
-    {
-        $this->createTable(function($table) {       
-            
-            // columns
-            $table->bigIncrements('id')->nullable(false);
-            $table->string('name')->nullable(false);
-            $table->bigInteger('user_id')->unsigned()->nullable(true);     
-            $table->bigInteger('group_id')->unsigned()->nullable(true);   
-            $table->integer('read')->nullable(false)->default(0);
-            $table->integer('write')->nullable(false)->default(0);
-            $table->integer('delete')->nullable(false)->default(0);
-            $table->integer('execute')->nullable(false)->default(0);
-            $table->string('uuid')->nullable(false);
-            // unique indexes
-            $table->index('name');
-            $table->unique('uuid');
-            $table->unique(array('name','user_id'));           
-            $table->unique(array('name','group_id'));
-            // foreign keys
-            $table->foreign('user_id')->references('id')->on('users'); 
-            $table->foreign('group_id')->references('id')->on('user_groups'); 
-            // storage engine           
-            $table->engine = 'InnoDB';
-            
-        });
+    public function create($table) 
+    {            
+        // columns
+        $table->id();
+        $table->prototype('uuid');            
+        $table->userId();
+        $table->relation('permission_id','permissions_list',false);
+        $table->relation('group_id','user_groups',true);
+        $table->integer('read')->nullable(false)->default(0);
+        $table->integer('write')->nullable(false)->default(0);
+        $table->integer('delete')->nullable(false)->default(0);
+        $table->integer('execute')->nullable(false)->default(0);
+        // unique indexes         
+        $table->unique(['permission_id','user_id']);           
+        $table->unique(['permission_id','group_id']);                     
     }
 
     /**
-     * Modify table
+     * Update table
      *
+     * @param \Arikaim\Core\Db\TableBlueprint $table
      * @return void
      */
-    public function update() 
-    {
-        $this->updateTable(function($table) {            
-        });
+    public function update($table) 
+    {        
     }
 }

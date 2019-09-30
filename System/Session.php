@@ -11,35 +11,78 @@ namespace Arikaim\Core\System;
 
 use Arikaim\Core\Utils\Arrays;
 
+/**
+ * Session wrapper
+ */
 class Session 
 {      
+    /**
+     * Default session lifetime value
+     *
+     * @var integer
+     */
     private $default_lifetime = 36000;
 
+    /**
+     * Constructor
+     *
+     * @param integer $lifetime
+     */
     public function __construct($lifetime = null) 
     {
         $this->start($lifetime);    
     }
 
+    /**
+     * Start session
+     *
+     * @param integer|null $lifetime
+     * @return void
+     */
     public function start($lifetime = null) 
     {
-        if ($lifetime == null) {
-           $lifetime = $this->default_lifetime;
-        }
+        $lifetime = ($lifetime == null) ? $this->default_lifetime : $lifetime;          
         $this->setLifetime($lifetime);
+
         if ($this->isStarted() == false) {
-            session_start();   
+            session_start();
+            $start_time = $this->getStartTime();
+            $start_time = (empty($start_time) == true) ? time() : $start_time;
+            $this->set('time_start',$start_time);  
+            $this->set('lifetime',$lifetime);          
         }
-         
-        session_cache_limiter(false);  
-        $this->set('time_start',time());      
-        $this->set('lifetime',$lifetime);      
+
+        if ($this->isActive() == false) {
+            session_cache_limiter(false);  
+        }      
     }
 
+    /**
+     * Return true if session is started
+     *
+     * @return boolean
+     */
     public function isStarted()
     {
-        return (empty(session_id()) == false) ? true : false;
+        return !(session_status() == PHP_SESSION_NONE);
     }
 
+    /**
+     * Return true if session is active
+     *
+     * @return boolean
+     */
+    public function isActive() 
+    {
+        return (session_status() == PHP_SESSION_ACTIVE);
+    }
+
+    /**
+     * Urecreate session
+     *
+     * @param integer $lifetime
+     * @return bool
+     */
     public function recrete($lifetime = null) 
     {
         $session = $this->toArray();
@@ -53,16 +96,32 @@ class Session
         return true;
     }
 
+    /**
+     * Get session start time
+     *
+     * @return integer
+     */
     public function getStartTime()
     {
         return $this->get('time_start');
     }
 
+    /**
+     * Get session end time.
+     *
+     * @return integer
+     */
     public function getEndTime()
     {   
         return $this->getStartTime() + $this->getLifetime();
     }
 
+    /**
+     * Set session lifetime
+     *
+     * @param integer $time
+     * @return void
+     */
     public function setLifetime($time)
     {
         ini_set("session.cookie_lifetime",$time);
@@ -70,69 +129,141 @@ class Session
         session_set_cookie_params($time);
     }
 
+    /**
+     * Return session lifetime
+     *
+     * @return integer
+     */
     public function getLifetime()
     {
         $info = session_get_cookie_params();
         return $info['lifetime'];
     }
 
+    /**
+     * Get session Id
+     *
+     * @return string
+     */
     public function getId() 
     {
         $id = session_id();
-        if (empty($id) == true) {
-            $id = $this->getCookie('PHPSESSID');
-        }
-        return $id;
+        return (empty($id) == true) ? $this->getCookie('PHPSESSID') : $id;      
     }
     
+    /**
+     * Get session params
+     *
+     * @return array
+     */
     public function getParams() 
     {
-        $session_info['time_start'] = $this->getStartTime();
-        $session_info['time_end']  = $this->getEndTime();
-        $session_info['lifetime']  = $this->getLifetime();
-        return $session_info;
+        return [
+            'time_start' => $this->getStartTime(),
+            'time_end'  => $this->getEndTime(),
+            'lifetime'  => $this->getLifetime()
+        ];
     }
 
+    /**
+     * Set value
+     *
+     * @param string $name
+     * @param mixed $value
+     * @return void
+     */
     public function set($name, $value) 
     {
         $_SESSION[$name] = $value;
     }
     
-    public function setMulti($base, $key, $value) 
-    {
-        $_SESSION[$base][$key] = $value;
-    }
-    
-    public function get($name,$default_value = null)
+    /**
+     * Return session value or default value if session variable missing
+     *
+     * @param string $name
+     * @param mixed $default_value
+     * @return mixed
+     */
+    public function get($name, $default_value = null)
     {
         return (isset($_SESSION[$name]) == true) ? $_SESSION[$name] : $default_value;
     }
     
+    /**
+     * Return sesion var by path
+     *
+     * @param string $path
+     * @return mixed
+     */
     public function getValue($path)
     {
         return Arrays::getValue($_SESSION,$path);        
     }
     
+    /**
+     * Remove session value
+     *
+     * @param string $name
+     * @return void
+     */
     public function remove($name) 
     {
         unset($_SESSION[$name]);
     }
     
-    public function destroy()
+    /**
+     * Destroy session
+     * 
+     * @param boolean $destory_cookie
+     * @return void
+     */
+    public function destroy($destory_cookie = true)
     {
+        if ($destory_cookie == true) {
+            setcookie(session_id(),"",time() - 3600);
+        }       
         session_destroy();
     }
 
+    /**
+     * Clear all session varibales and start new sesion
+     * 
+     * @param integer|null $lifetime
+     * @return void
+     */
+    public function restart($lifetime = null)
+    {
+        session_unset();      
+        $this->destroy();
+      
+        $this->start($lifetime);
+    }
+
+    /**
+     * Get session status
+     *
+     * @return integer
+     */
     public function getStatus()
     {
         return session_status();
     }
 
+    /**
+     * Get session array 
+     *
+     * @return array
+     */
     public function toArray()
     {
         return (is_array($_SESSION) == true) ? $_SESSION : [];          
     }
 
+    /**
+     * Return true if session is stored in cookies
+     *
+     * @return boolean
+     */
     public function isUseCookies() {
         return ini_get("session.use_cookies");
     }

@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -17,49 +17,122 @@ use Symfony\Component\Console\Input\InputArgument;
 
 use Arikaim\Core\System\System;
 
+/**
+ * Base class for all commands
+ */
 abstract class ConsoleCommand extends Command
 {       
+    /**
+     * Style obj reference
+     *
+     * @var SymfonyStyle
+     */
     protected $style;
+
+    /**
+     * Set to true for default command
+     *
+     * @var bool
+     */
     protected $default;
-   
+    
+    /**
+     * Constructor
+     *
+     * @param string $name
+     */
     public function __construct($name = null) 
     {
         parent::__construct($name);
     }
 
+    /**
+     * Abstract method.
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return mixed
+     */
+    abstract protected function executeCommand($input,$output);
+
+    /**
+     * Run method wrapper
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return void
+     */
     public function run(InputInterface $input,OutputInterface $output)
     {
         $this->style = new SymfonyStyle($input, $output);
         return parent::run($input, $output);
     }
 
+    /**
+     * Add required argument 
+     *
+     * @param string $name
+     * @param string $description
+     * @param bool $default
+     * @return void
+     */
     public function addRequiredArgument($name, $description = '', $default = null)
     {
         $this->addArgument($name,InputArgument::REQUIRED,$description,$default);
     }
 
+    /**
+     * Add optional argument
+     *
+     * @param string $name
+     * @param string $description
+     * @param bool $default
+     * @return void
+     */
     public function addOptionalArgument($name, $description = '', $default = null)
     {
         $this->addArgument($name,InputArgument::OPTIONAL,$description,$default);
     }
 
-    abstract protected function executeCommand($input,$output);
-   
+    /**
+     * Run console command
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return void
+     */
     protected function execute(InputInterface $input,OutputInterface $output)
     {
         $this->executeCommand($input,$output);
     }
 
+    /**
+     * Set command as default
+     *
+     * @param boolean $default
+     * @return void
+     */
     public function setDefault($default = true)
     {
         $this->default = $default;
     }
 
+    /**
+     * Return true if command is default.
+     *
+     * @return boolean
+     */
     public function isDefault()
     {
         return $this->default;
     }
 
+    /**
+     * Show command title
+     *
+     * @param string $title
+     * @return void
+     */
     public function showTitle($title)
     {
         $this->style->newLine();
@@ -67,6 +140,13 @@ abstract class ConsoleCommand extends Command
         $this->style->newLine();
     }
 
+    /**
+     * Show error message
+     *
+     * @param string $message
+     * @param string $label
+     * @return void
+     */
     public function showError($message, $label = "Error:")
     {
         $this->style->newLine();
@@ -74,11 +154,15 @@ abstract class ConsoleCommand extends Command
         $this->style->newLine();
     }
 
+    /**
+     * Show 'done' message
+     *
+     * @param string $label
+     * @return void
+     */
     public function showCompleted($label = null)
     {
-        if ($label == null) {
-            $label = 'done.';
-        }
+        $label = ($label == null) ? 'done.' : $label;           
         $this->style->newLine();
         $this->style->writeLn("<fg=green>$label</>");
     }

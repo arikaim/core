@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -15,40 +15,38 @@ use Arikaim\Core\Db\Schema;
  * User groups database table schema definition.
 */
 class UserGroupsSchema extends Schema  
-{    
+{   
+    /**
+     * Db table name
+     *
+     * @var string
+     */  
     protected $table_name = "user_groups";
 
     /**
      * Create table
      *
+     * @param \Arikaim\Core\Db\TableBlueprint $table
      * @return void
      */
-    public function create() 
+    public function create($table) 
     {
-        $this->createTable(function($table) {       
-            
-            // columns
-            $table->bigIncrements('id')->nullable(false);
-            $table->string('title')->nullable(false);
-            $table->string('description')->nullable(true);   
-            $table->string('uuid')->nullable(false);
-            // unique indexes
-            $table->unique('uuid');
-            $table->unique('title');           
-            // storage engine           
-            $table->engine = 'InnoDB';
-            
-        });
+        // columns
+        $table->id();
+        $table->prototype('uuid');     
+        $table->string('title')->nullable(false);
+        $table->string('description')->nullable(true);   
+        // unique indexes
+        $table->unique('title');                       
     }
 
     /**
-     * Modify table
+     * Update table
      *
+     * @param \Arikaim\Core\Db\TableBlueprint $table
      * @return void
      */
-    public function update() 
-    {
-        $this->updateTable(function($table) {            
-        });
+    public function update($table) 
+    {        
     }
 }

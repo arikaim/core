@@ -3,42 +3,77 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
 namespace Arikaim\Core\Validator;
 
-use Arikaim\Core\Utils\Collection;
+use Arikaim\Core\Collection\Collection;
 use Arikaim\Core\Validator\Rule;
 use Arikaim\Core\Validator\FilterBuilder;
 use Arikaim\Core\Validator\RuleBuilder;
-use Arikaim\Core\Utils\Factory;
+use Arikaim\Core\Arikaim;
 
 /**
  * Data validation
  */
 class Validator extends Collection 
 {
-    protected $builder;
-
-    private $rules;   
+    /**
+     * validation rules
+     *
+     * @var array
+     */
+    private $rules;
+    
+    /**
+     * Filters
+     *
+     * @var array
+     */
     private $filters;
+
+    /**
+     * Validation errors
+     *
+     * @var array
+     */
     private $errors;
 
     /**
-     * Constructor
+     * Callback for valid event
      *
+     * @var \Closure
+     */
+    private $on_valid = null;
+
+    /**
+     * Callback for validation fail event
+     *
+     * @var \Closure
+     */
+    private $on_fail = null;
+
+    /**
+     * Validate callback
+     *
+     * @var \Closure
+     */
+    private $validator_callback;
+
+    /**
+     * Constructor
+     * 
      * @param array $data
      */
-    public function __construct($data = [], $rules = []) 
+    public function __construct($data = []) 
     {
         parent::__construct($data);
-        $this->builder = new RuleBuilder();
-
+        
+        $this->rules = [];
         $this->errors = [];
         $this->filters = [];
-        $this->rules = [];
     }
 
     /**
@@ -47,10 +82,10 @@ class Validator extends Collection
      * @param array $data
      * @return object
      */
-    public static function create($data, $rules = [])
+    public static function create($data)
     {
         $data = (is_array($data) == false) ? [$data] : $data;
-        return new Self($data,$rules);
+        return new Self($data);
     }
 
     /**
@@ -58,17 +93,17 @@ class Validator extends Collection
      *
      * @param string $field_name
      * @param Rule|string $rule
-     * @param boolean $required
+     * @param string|null $error
+     * 
      * @return Validator
      */
-    public function addRule($field_name, $rule, $required = true) 
-    {             
+    public function addRule($rule, $field_name = null, $error = null) 
+    {                
         if (is_string($rule) == true) {
-            $rule = $this->builder->createRule($field_name,$rule);
+            $rule = $this->rule()->createRule($rule,$error);
         }
-        
-        if ($rule instanceof Rule) {       
-            $rule->setRequired($required);
+        if (is_object($rule) == true) {      
+            $field_name = (empty($field_name) == true) ? $rule->getFieldName() : $field_name;
             if (array_key_exists($field_name,$this->rules) == false) {
                 $this->rules[$field_name] = [];
             }
@@ -78,9 +113,14 @@ class Validator extends Collection
         return $this;
     }
 
+    /**
+     * Return rule builder
+     *
+     * @return RuleBuilder
+     */
     public function rule()
     {  
-        return $this->builder;
+        return new RuleBuilder();
     }
 
     /**
@@ -101,7 +141,11 @@ class Validator extends Collection
      * @return Validator
      */
     public function addFilter($field_name, Filter $filter) 
-    {                     
+    {                   
+        if (is_string($filter) == true) {
+            $filter = FilterBuilder::createFilter($field_name,$filter);
+        }
+
         if ($filter instanceof Filter) {
             if (array_key_exists($field_name,$this->filters) == false) {
                 $this->filters[$field_name] = [];
@@ -146,23 +190,44 @@ class Validator extends Collection
     }
 
     /**
-     * Validate single value
+     * Validate rules
      *
-     * @param string $key
-     * @param mixed $value
-     * @return void
+     * @param string $field_name
+     * @param array $rules
+     * @return bool
      */
-    public function validateValue($key, $value)
+    public function validateRules($field_name, $rules)
     {
-        $rules = $this->getRules($key);   
-        foreach ($rules as $rule) {
-            $valid = $rule->validate($value);
+        $value = $this->get($field_name,null);
+        $errors = 0;
+        foreach ($rules as $rule) {    
+            $valid = $this->validateRule($rule,$value);
             if ($valid == false) {
-                $error['field_name'] = $key;
-                $error['message'] = $rule->getErrorMessage(['field_name' => $key]);
-                $this->addError($error);
+                $this->setError($field_name,$rule->getErrorMessage(['field_name' => $field_name])); 
+                $errors++;              
             }
         }
+        return ($errors == 0);
+    }
+
+    /**
+     * Validate rule
+     *
+     * @param Rule $rule
+     * @param mxied $value
+     * @return bool
+     */
+    public function validateRule($rule, $value)
+    {
+        if (empty($value) == true && $rule->isRequired() == false) {
+            return true;
+        }
+
+        $type = $rule->getType();
+        $rule_options = ($type == FILTER_CALLBACK) ? ['options' => [$rule, 'validate']] : [];
+          
+        $result = filter_var($value,$type,$rule_options);     
+        return $result;
     }
 
     /**
@@ -178,11 +243,66 @@ class Validator extends Collection
         if (is_array($data) == true) {
             $this->data = $data;
         }
-
-        foreach ($this->data as $field_name => $value) {          
-            $this->validateValue($field_name,$value);
+        
+        if (is_callable($this->validator_callback) == true) {
+            $this->validator_callback($this->data);
         }
-        return $this->isValid();   
+          
+        foreach ($this->rules as $field_name => $rules) {  
+            $this->validateRules($field_name,$rules);
+        }
+
+        $valid = $this->isValid();
+        if ($valid == true) {
+            // run events callback
+            Arikaim::event()->trigger('validator.valid',$this->data,true);
+            if (empty($this->on_valid) == false) {
+                $this->on_valid->call($this,$this->data);
+            }          
+        } else {
+            // run events callback
+            Arikaim::event()->trigger('validator.error',$this->getErrors(),true);
+            if (empty($this->on_fail) == false) {               
+                $this->on_fail->call($this,$this->getErrors());
+            }           
+        }
+
+        return $valid;   
+    }
+
+    /**
+     * Set validator callback
+     *
+     * @param \Closure $callback
+     * @return void
+     */
+    public function validatorCallback(\Closure $callback)
+    {
+        $this->validator_callback = function() use($callback) {
+            $callback($this->data);
+        };
+    }
+
+    /**
+     * Callback for not valid data
+     *
+     * @param \Closure $callback
+     * @return void
+     */
+    public function onFail(\Closure $callback)
+    {
+        $this->on_fail = $callback;
+    }
+
+    /**
+     * Callback for valid data
+     *
+     * @param \Closure $callback
+     * @return void
+     */
+    public function onValid(\Closure $callback)
+    {
+        $this->on_valid = $callback;
     }
 
     /**
@@ -194,9 +314,11 @@ class Validator extends Collection
      */
     public function setError($field_name, $message)
     {
-        $error['field_name'] = $field_name;
-        $error['message'] = $message;
-        return $this->addError($error);
+        $error = [
+            'field_name' => $field_name,
+            'message'    => $message
+        ];
+        array_push($this->errors,$error);
     }
 
     /**
@@ -243,10 +365,6 @@ class Validator extends Collection
         return count($this->errors);
     }
 
-    private function addError($error) {
-        array_push($this->errors,$error);
-    }
-
     /**
      * Return validation rules
      *
@@ -266,13 +384,7 @@ class Validator extends Collection
      */
     public function getFilters($field_name)
     {   
-        $all = [];
-        if (isset($this->filters['*']) == true) {
-            $all = $this->filters['*'];
-        } 
-        if (isset($this->filters[$field_name]) == true) {
-            return array_merge($all,$this->filters[$field_name]);
-        }
-        return $all;
+        $all = (isset($this->filters['*']) == true) ? $this->filters['*'] : [];
+        return (isset($this->filters[$field_name]) == true) ? array_merge($all,$this->filters[$field_name]) : $all;          
     }
 }

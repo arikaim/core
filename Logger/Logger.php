@@ -10,10 +10,15 @@
 namespace Arikaim\Core\Logger;
 
 use Monolog\Logger as MonologLogger;
-use Psr\Log\LogLevel;
+use Monolog\Handler\StreamHandler;
+
+use Arikaim\Core\FileSystem\File;
+use Arikaim\Core\Logger\JsonLogsFormatter;
+use Arikaim\Core\Logger\LogsProcessor;
+use Arikaim\Core\System\Path;
 
 /**
- * Site stats logger
+ * Logger
  */
 class Logger
 {
@@ -25,22 +30,71 @@ class Logger
     protected $logger;
     
     /**
-     * Enable/Disable stats
+     * Enable/Disable logger
      *
      * @var bool
      */
     protected $enabled;
 
     /**
+     * Logs file name
+     *
+     * @var string
+     */
+    private $file_name;
+
+    /**
      * Constructor
      *
      * @param boolean $enabled
-     * @param Monolog\Logger $logger
+     * @param string $file_name
      */
-    public function __construct($enabled = true,\Monolog\Logger $logger) 
-    {      
+    public function __construct($enabled = false, $file_name = null) 
+    {         
+        $file_name = (empty($file_name) == true) ? "errors.log" : $file_name;
+        $this->file_name = Path::LOGS_PATH . "errors.log"; 
         $this->enabled = $enabled;
-        $this->logger = $logger;
+
+        $this->init();
+    }
+
+    protected function init()
+    {
+        // init
+        $this->logger = new MonologLogger('system');            
+        $handler = new StreamHandler($this->file_name, MonologLogger::DEBUG);
+        $json_format = new JsonLogsFormatter();            
+        $handler->setFormatter($json_format); 
+
+        $proccesssor = new LogsProcessor();
+        $this->logger->pushHandler($handler);
+        $this->logger->pushProcessor($proccesssor);   
+    }
+
+    /**
+     * Delete logs file
+     *
+     * @return bool
+     */
+    public function deleteSystemLogs()
+    {
+        return (File::exists($this->file_name) == false) ? true : File::delete($this->file_name);
+    }
+
+    /**
+     * Read logs file with paginator
+     *
+     * @return void
+     */
+    public function readSystemLogs()
+    {       
+        $logs_text ="[";
+        $logs_text .= File::read($this->file_name);
+        $logs_text = rtrim($logs_text,",\n");
+        $logs_text .="]\n";
+        $logs = json_decode($logs_text,true);
+      
+        return $logs;
     }
 
     /**
@@ -55,7 +109,7 @@ class Logger
         $message = $arguments[0];
         $context = isset($arguments[1]) ? $arguments[1] : [];
 
-        return ($this->enabled == false) ? $this->logger->{$name}($message,$context) : false;          
+        return ($this->enabled == true) ? $this->logger->{$name}($message,$context) : false;          
     }
     
     /**
@@ -68,8 +122,20 @@ class Logger
      */
     public function log($level, $message, array $context = [])
     {   
-        return ($this->enabled == false) ? $this->logger->log($level,$message,$context) : false;        
+        return ($this->enabled == true) ? $this->logger->log($level,$message,$context) : false;        
     } 
+
+    /**
+     * Add error log
+     *
+     * @param string $message
+     * @param array $context
+     * @return void
+     */
+    public function error($message,$context = [])
+    {      
+        return ($this->enabled == true) ? $this->logger->error($message,$context) : false;      
+    }
 
     /**
      * Return stats logger 
@@ -87,7 +153,7 @@ class Logger
      * @param Monolog\Logger $logger
      * @return void
      */
-    public function setLogger(Monolog\Logger $logger)
+    public function setLogger($logger)
     {
         return $this->logger = $logger;
     }

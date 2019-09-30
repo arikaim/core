@@ -3,29 +3,29 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
 namespace Arikaim\Core\Validator\Rule;
 
-use Arikaim\Core\Validator\Rule;
+use Arikaim\Core\Validator\Rule\Number;
 
 /**
  * Integer rule validation
  */
-class Integer extends Rule
+class Integer extends Number
 {
     /**
      * Constructor
      *
-     * @param int $min_value
-     * @param int $max_value
-     * @param string $error
+     * @param array $params
      */          
-    public function __construct($min_value = null, $max_value = null, $error = "INT_NOT_VALID_ERROR") 
+    public function __construct($params = []) 
     {
-        parent::__construct($min_value,$max_value,$error);
+        parent::__construct($params);
+
+        $this->setError("INT_NOT_VALID_ERROR");
     }
 
     /**
@@ -34,7 +34,7 @@ class Integer extends Rule
      * @param mixed $value
      * @return void
      */
-    public function customFilter($value) 
+    public function validate($value) 
     {       
         $errors = 0;
         $result = $this->validateType($value,Rule::INTEGER_TYPE);
@@ -60,18 +60,8 @@ class Integer extends Rule
      *
      * @return int
      */
-    public function getFilter()
+    public function getType()
     {
         return FILTER_CALLBACK; 
-    }
-    
-    /**
-     * Return filter options
-     *
-     * @return array
-     */
-    public function getFilterOptions()
-    {
-        return $this->getCustomFilterOptions();
     }
 }

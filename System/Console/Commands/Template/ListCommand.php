@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
@@ -14,13 +14,28 @@ use Arikaim\Core\System\Console\ConsoleCommand;
 use Arikaim\Core\System\Console\ConsoleHelper;
 use Arikaim\Core\Packages\Template\TemplatesManager;
 
+/**
+ * Templates list command
+ */
 class ListCommand extends ConsoleCommand
 {  
+    /**
+     * Configure command
+     *
+     * @return void
+     */
     protected function configure()
     {
         $this->setName('theme:list')->setDescription('Themes list');
     }
 
+    /**
+     * Run command
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return void
+     */
     protected function executeCommand($input, $output)
     {
         $this->showTitle('Themes');

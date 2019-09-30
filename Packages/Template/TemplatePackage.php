@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
@@ -14,21 +14,29 @@ use Arikaim\Core\Db\Model;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\System\Path;
-use Arikaim\Core\FileSystem\File;
-use Arikaim\Core\View\Template;
+use Arikaim\Core\View\Template\Template;
 
 /**
- * Template Package class
+ * Template package 
 */
 class TemplatePackage extends Package
 {
-    //protected $porperties_list = ['path','name','title','description','version','requires','image','properties','default-theme','themes','current','',''];
-    
+    /**
+     * Constructor
+     *
+     * @param \Arikaim\Core\Interfaces\Collection\CollectionInterface $properties
+     */
     public function __construct($properties) 
     {
         parent::__construct($properties);
     }
 
+    /**
+     * Get package properties
+     *
+     * @param boolean $full
+     * @return Collection
+     */
     public function getProperties($full = false)
     {
         if ($full == true) {
@@ -40,6 +48,11 @@ class TemplatePackage extends Package
         return $this->properties; 
     }
 
+    /**
+     * Install template package
+     *
+     * @return bool
+     */
     public function install()
     {
         // clear cached items
@@ -60,19 +73,12 @@ class TemplatePackage extends Package
         $routes_added = 0;
       
         foreach ($routes as $route) {
-            if (isset($route['path']) == false) {
-                // missing path
+            if (isset($route['path']) == false || isset($route['page']) == false) {             
                 continue;
             }
-            if (isset($route['page']) == false) {
-                // missing page
-                continue;
-            }
-            $template_page = $route['page'];
-            $handler_method = "loadTemplatePage";
-            $handler_class = Factory::getControlerClass("Pages\\PageLoader"); 
-            
-            $result = $model->addTemplateRoute($route['path'], $handler_class, $handler_method, $this->getName(), $template_page);
+          
+            $handler_class = Factory::getControllerClass("PageLoader"); 
+            $result = $model->addTemplateRoute($route['path'], $handler_class, 'loadPage', $this->getName(), $route['page']);
             if ($result != false) {
                 $routes_added++;
             }
@@ -84,7 +90,12 @@ class TemplatePackage extends Package
         Arikaim::event()->trigger('core.template.install',$this->getProperties()->toArray());
         return true;
     }
-
+    
+    /**
+     * Uninstall package
+     *
+     * @return bool
+     */
     public function unInstall() 
     {
         // clear cached items
@@ -97,39 +108,67 @@ class TemplatePackage extends Package
         return $result;
     }
 
+    /**
+     * Enable package
+     *
+     * @return bool
+     */
     public function enable() 
     {
         // clear cached items
         Arikaim::cache()->deleteTemplateItems();
-
         return true;
     }
 
+    /**
+     * Disable package
+     *
+     * @return bool
+     */
     public function disable() 
     {
         // clear cached items
         Arikaim::cache()->deleteTemplateItems();
-        
         return true;
     }   
 
+    /**
+     * Get template routes
+     *
+     * @return array
+     */
     public function getRoutes()
     {
         return $this->properties->getByPath('routes',[]);
     }
 
+    /**
+     * Get template pages
+     *
+     * @return array
+     */
     public function getPages()
     {
         $path = Path::getPagesPath($this->getName());    
         return Template::getPages($path);
     }
 
+    /**
+     * Get template macros
+     *
+     * @return array
+     */
     public function getMacros()
     {
         $path = Path::getMacrosPath($this->getName());
         return Template::getMacros($path);
     }
 
+    /**
+     * Get template components
+     *
+     * @return array
+     */
     public function getComponents()
     {       
         $path = Path::getComponentsPath($this->getName());

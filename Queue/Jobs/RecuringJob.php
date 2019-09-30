@@ -3,28 +3,64 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
 */
 namespace Arikaim\Core\Queue\Jobs;
 
+use Cron\CronExpression;
+
+use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Queue\Jobs\Job;
-use Arikaim\Core\Utils\TimeInterval;
 use Arikaim\Core\Interfaces\Queue\RecuringJobInterface;
 
+/**
+ * Base class for all Recurring jobs
+ */
 abstract class RecuringJob extends Job implements RecuringJobInterface
 {
+    /**
+     * Recuring interval
+     *
+     * @var string|null
+     */
     protected $interval;
-    protected $recuring_interval;
-
-    public function __construct($extension_name, $name = "", $priority = 0)
+    
+    /**
+     * Constructor
+     *
+     * @param string|null $extension_name
+     * @param string|null $name
+     */
+    public function __construct($extension_name = null, $name = null)
     {
-        parent::__construct($extension_name,$name,$priority);
-        $this->interval = new TimeInterval();
+        parent::__construct($extension_name,$name);
+
+        $this->interval = null;
     }
 
-    abstract public function execute();
+    /**
+     * Get next run date
+     *
+     * @param string $interval
+     * @return integer
+     */
+    public static function getNextRunDate($interval)
+    {
+        $date = DateTime::create();
+        return CronExpression::factory($interval)->getNextRunDate('now',0,false,$date->getTimeZoneName())->getTimestamp();
+    }
+    
+    /**
+     * Get next run date time timestamp
+     *
+     * @return integer
+     */
+    public function getDueDate()
+    {
+        return Self::getNextRunDate($this->interval);
+    }
 
     /**
      * RecuringJobInterface implementation function
@@ -33,55 +69,17 @@ abstract class RecuringJob extends Job implements RecuringJobInterface
      */
     public function getRecuringInterval()
     {
-        return $this->recuring_interval;
+        return $this->interval;
     }
 
-    public function runEveryMinute() 
+    /**
+     * Set recuring interval
+     *
+     * @param string $interval
+     * @return void
+     */
+    public function setRecuringInterval($interval)
     {
-        $this->runEveryMinutes(1);
-    }
-
-    public function runEveryMinutes($minutes = 1) 
-    {
-        $this->interval->setMinutes($minutes);
-        $this->recuring_interval = $this->time_interval->getInterval();
-    }
-    
-    public function runEveryHour() 
-    {
-        $this->runEveryHours(1);
-    }
-
-    public function runEveryHours($hours = 0) 
-    {
-        $this->interval->setHours($hours);
-        $this->recuring_interval = $this->time_interval->getInterval();
-    }
-
-    public function runEveryDay() 
-    {
-        $this->runEveryDays(1);
-    }
-
-    public function runEveryDays($days = 0) 
-    {
-        $this->interval->setDays($days);
-        $this->recuring_interval = $this->time_interval->getInterval();
-    }
-    
-    public function runEveryMonth() 
-    {
-        $this->runEveryMonths(1);
-    }
-
-    public function runEveryMonths($months = 0) 
-    {
-        $this->interval->setMonths($months);
-        $this->recuring_interval = $this->time_interval->getInterval();
-    }
-
-    public function custom($text)
-    {
-        $this->recuring_interval = $text;
+        $this->interval = $interval;
     }
 }

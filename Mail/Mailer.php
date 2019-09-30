@@ -3,91 +3,122 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2018 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license.html
  * 
  */
 namespace Arikaim\Core\Mail;
 
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Utils\Utils;
+use Arikaim\Core\Interfaces\Mail\MailInterface;
+use Arikaim\Core\Interfaces\Mail\MailerInterface;
 
 /**
  * Send emails
  */
-class Mailer 
+class Mailer implements MailerInterface
 {
+    /**
+     * Mailer object
+     *
+     * @var Swift_Mailer
+     */
     private $mailer;
 
-    public function __construct() 
-    {
-        $this->init();
-    }
+    /**
+     * Mailer error message
+     *
+     * @var string
+     */
+    private $error;
 
-    public function init()
+    /**
+     * Constructor
+     * 
+     * @param \Swift_Transport $transport_driver
+     */
+    public function __construct($transport_driver = null) 
     {
-        if (Arikaim::options('mailer.use.sendmail') == true) {
-            $transport = new \Swift_SendmailTransport('/usr/sbin/sendmail -bs');
-        } else {
-            $transport = new \Swift_SmtpTransport(Arikaim::options('mailer.smpt.host'),Arikaim::options('mailer.smpt.port'));
-            $transport->setUsername(Arikaim::options('mailer.username'));
-            $transport->setPassword(Arikaim::options('mailer.password'));            
+        $this->error = null;
+        if ($transport_driver == null) {
+            $transport = $this->createDefaultTransportDriver();
         }
         $this->mailer = new \Swift_Mailer($transport);
     }
 
-    public function send($message, $failed_recipients = null)
+    /**
+     * Create default transport driver
+     *
+     * @return \Swift_Transport
+     */
+    private function createDefaultTransportDriver()
     {
-        return $this->mailer->send($message,$failed_recipients);
+        if (Arikaim::options()->get('mailer.use.sendmail') === true) {
+            $transport = new \Swift_SendmailTransport('/usr/sbin/sendmail -bs');
+        } else {           
+            $transport = new \Swift_SmtpTransport(Arikaim::options()->get('mailer.smpt.host'),Arikaim::options()->get('mailer.smpt.port'));
+            $transport->setUsername(Arikaim::options()->get('mailer.username'));
+            $transport->setPassword(Arikaim::options()->get('mailer.password'));   
+           
+            if (Arikaim::options()->get('mailer.smpt.ssl') == true) {
+                $transport->setEncryption('ssl');    
+            }              
+        }
+
+        return $transport;
     }
 
+    /**
+     * Send email
+     *
+     * @param MailInterface $message
+     * @return bool
+     */
+    public function send(MailInterface $message)
+    {
+        $this->error = null;
+
+        $message->build();
+        $mail = $message->getMessage();
+
+        try {
+            $result = $this->mailer->send($mail);
+        } catch (\Exception $e) {
+            //throw $th;
+            $this->error = $e->getMessage();
+            $result = false;
+        }
+        return ($result > 0) ? true : false;
+    }
+
+    /**
+     * Get mailer transport
+     *
+     * @return \Swift_Transport
+     */
     public function getTransport()
     {
         return $this->mailer->getTransport();
     }
 
-    public function createMessage($to, $from = null, $from_name = null)
+    /**
+     * Set transport driver
+     *
+     * @param \Swift_Transport $driver
+     * @return void
+     */
+    public function setTransport($driver)
     {
-        $message = new \Swift_Message();
-        try {
-            if ($from == null) {
-                $from = Arikaim::options()->get('mailer.from.email',null);
-            }
-            $message->setContentType('text/plain');
-            if (empty($from) == false) {
-                $message->setFrom($from,$from_name);
-            } 
-            $message->setTo($to);
-            $message->setReplyTo($to);
-            if (empty($to) == true) {
-                Arikaim::errors()->addError("SYSTEM_ERROR",['details' => 'Missing email to']);
-            }
-        } catch(\Exception $e) {
-            Arikaim::errors()->addError("SYSTEM_ERROR",['details' => $e->getMessage()]);
-        }
-        return $message;
+        return $this->mailer = new \Swift_Mailer($driver);
     }
 
-    public function messageFromTemplate($to, $component_name, $params = [])
+    /**
+     * Get error message
+     *
+     * @return string|null
+     */
+    public function getErrorMessage()
     {
-        $message = $this->createMessage($to);
-      
-        $component = Arikaim::view()->component()->render($component_name,$params,null,false);
-        $properties = $component->getProperties();
-        $body = $component->getHtmlCode();
-
-        $message->setBody($body);
-        if (Utils::hasHtml($body) == true) {
-            $message->setContentType('text/html');
-        }
-        $subject = (isset($properties['subject']) == true) ? $properties['subject'] : "";
-        $message->setSubject($subject);
-        if (empty($subject) == true) {
-            Arikaim::errors()->addError("SYSTEM_ERROR",['details' => 'Missing email subject']);
-        }
-        if (empty($body) == true) {
-            Arikaim::errors()->addError("SYSTEM_ERROR",['details' => 'Missing email body']);
-        }
-        return $message;
-    }
+        return $this->error;
+    }    
 }
