@@ -39,10 +39,12 @@ class Application
         $this->application = new ConsoleApplication("\nArikaim Cli ",System::getVersion());    
         // add core commands 
         $this->addCommands($this->commands);
-        // add extensions commands
-        $this->loadExtensionsCommands();
-        // add modules commands
-        $this->loadModulesCommands();
+        if (Arikaim::db()->isValidConnection() == true) {
+            // add extensions commands
+            $this->loadExtensionsCommands();
+            // add modules commands
+            $this->loadModulesCommands();
+        }
     }
 
     /**

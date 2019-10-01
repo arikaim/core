@@ -152,22 +152,23 @@ class Arikaim
         $loader->LoadClassFile('\\Arikaim\\Core\\System\\Globals');
          
         register_shutdown_function("\Arikaim\Core\Arikaim::end");
-        
+       
         // create service container
         $service_container = new ServiceContainer();
+    
         Self::$container = $service_container->getContainer(); 
         $service_container->boot();
-        
-        Self::$app = new App(Self::$container);
     
+        Self::$app = new App(Self::$container);
+     
         // load class aliases
         $aliases = Arikaim::config()->load('aliases.php');                   
         $loader->loadAlliases($aliases);
     
         if ($load_routes == true) {
-            // map routes              
+            // map routes                       
             Self::$app = Routes::mapSystemRoutes(Self::$app);              
-        }
+        }       
     }
     
     /**
@@ -176,8 +177,8 @@ class Arikaim
      * @return void
     */
     public static function run() 
-    {
-        Self::init();
+    {       
+        Self::init();    
         Self::$app->run();  
     }
     

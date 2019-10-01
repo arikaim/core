@@ -44,9 +44,9 @@ class ServiceContainer
     {
         $this->container = new Container($services);
 
-        $this->registerSystemServices();
-        $this->init(); 
-        $this->registerCoreModules();     
+        $this->registerSystemServices();       
+        $this->init();       
+        $this->registerCoreModules();      
     }
 
     /**
@@ -89,7 +89,7 @@ class ServiceContainer
      * @return void
      */
     public function boot()
-    {
+    {        
         $this->container->get('view');
         if (Arikaim::isConsole() == false) {
             $this->container->get('session');
@@ -103,6 +103,10 @@ class ServiceContainer
      */
     public function registerCoreModules()
     {
+        if ($this->container->get('db')->isValidConnection() == false) {
+            return false;
+        }
+        
         if (Manager::schema()->hasTable('modules') == false) {
             return false;
         }
@@ -257,6 +261,6 @@ class ServiceContainer
         };
         // Set cache status
         $cache = $this->container->get('config')->getByPath('settings/cache',false);     
-        $this->container->get('cache')->setStatus($cache);       
+        $this->container->get('cache')->setStatus($cache);              
     }
 }

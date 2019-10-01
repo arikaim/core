@@ -34,10 +34,10 @@ class Db
      */
     public function __construct($config, $relations = null) 
     {
-        $this->init($config);
+        $this->init($config); 
         // init relations morph map
-        if (is_array($relations) == true) {            
-             Relation::morphMap($relations);              
+        if (is_array($relations) == true) {                   
+            Relation::morphMap($relations);                          
         }
     }
 
@@ -59,16 +59,15 @@ class Db
      */
     public function init($config)
     {
-        try {                  
+        try {              
             $this->capsule = new Manager();
             $this->capsule->addConnection($config);
             $this->capsule->setEventDispatcher(new \Illuminate\Events\Dispatcher());
             $this->capsule->setAsGlobal();
             // schema db             
-            $this->initSchemaConnection($config);
+            $this->initSchemaConnection($config);          
             $this->capsule->bootEloquent();
-        
-        } catch(\PDOException $e) {
+        } catch(\Exception $e) {
             Arikaim::errors()->addError('DB_CONNECTION_ERROR');
             return false;
         }      
@@ -100,6 +99,24 @@ class Db
             return false;
         }
         return (isset($result[0]->SCHEMA_NAME) == true) ? true : false;           
+    }
+
+    /**
+     * Return true if conneciton is valid
+     *
+     * @param string|null $name
+     * @return boolean
+     */
+    public function isValidConnection($name = null)
+    {
+        try {
+            $connection = $this->capsule->getDatabaseManager()->connection($name);
+            $pdo = $connection->getPdo();
+        } catch(\Exception $e) {
+            return false;
+        }
+      
+        return is_object($pdo);
     }
 
     /**
@@ -137,7 +154,7 @@ class Db
     {
         try {
             $result = $connection->statement('SELECT 1');
-        } catch(\PDOException $e) {
+        } catch(\Exception $e) {
             return false;
         }
         return true;

@@ -31,6 +31,10 @@ class Routes
      */
     public static function mapRoutes($app)
     {
+        if (Arikaim::db()->isValidConnection() == false) {
+            return $app;
+        }
+
         if (Arikaim::errors()->hasError() == true) {
             return $app;
         }
@@ -53,6 +57,10 @@ class Routes
                 }
             }                                
         }          
+
+        // Load middleware modules
+        $app = Self::loadModulesMiddleware($app);
+
         return $app;
     }
 
@@ -95,8 +103,6 @@ class Routes
 
         // Middleware for sanitize request body and client ip
         $app->add(new \Arikaim\Core\Middleware\CoreMiddleware());        
-        // Load middleware modules
-        $app = Self::loadModulesMiddleware($app);
       
         $session_auth = Arikaim::auth()->middleware('session');
         // Control Panel
@@ -244,7 +250,7 @@ class Routes
         $app->post('/core/api/install/',"$api_namespace\Install:install");
         // Install page
         $app->get('/install/',"$controller_namespace\\PageLoader:loadInstallPage");
-      
+            
         return Self::mapRoutes($app);     
     }
 }
