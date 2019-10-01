@@ -24,8 +24,7 @@
         "symfony/console": "4.1",
         "symfony/process": "3.4.*",
         "doctrine/cache": "1.8.0",      
-        "guzzlehttp/guzzle": "6.3.*",
-        "league/flysystem": "^1.0",
+        "guzzlehttp/guzzle": "6.3.*",      
         "dragonmantank/cron-expression": "2.3.*"
     },
     "autoload": {       
