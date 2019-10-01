@@ -46,6 +46,7 @@ class PageLoader extends Controller
     public function loadInstallPage($request, $response, $data)
     {
         if (Install::isInstalled() == false) { 
+            Arikaim::cache()->clear();
             $data['page_name'] = 'system:install';     
             return $this->loadPage($request,$response,$data);                   
         }
