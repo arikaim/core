@@ -10,6 +10,8 @@
 namespace Arikaim\Core\Packages\Library;
 
 use Arikaim\Core\Packages\Package;
+use Arikaim\Core\Utils\Text;
+use Arikaim\Core\System\Url;
 
 /**
  * UI Library Package class
@@ -54,7 +56,12 @@ class LibraryPackage extends Package
      */
     public function getParams()
     {
-        return $this->properties->get('params',[]);
+        $params = $this->properties->get('params',[]);
+        $vars = [
+            'domian'    => ARIKAIM_DOMAIN,
+            'base_url'  => Url::ARIKAIM_BASE_URL
+        ];
+        return Text::renderMultiple($params,$vars);    
     }
 
     /**
