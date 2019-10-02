@@ -9,6 +9,7 @@
 */
 namespace Arikaim\Core\Packages;
 
+use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Interfaces\Packages\PackageInterface;
 use Arikaim\Core\Interfaces\Collection\CollectionInterface;
 
@@ -31,6 +32,7 @@ class Package implements PackageInterface
      */
     public function __construct(CollectionInterface $properties) 
     {
+        $properties['version'] = Utils::formatversion($properties->get('version','1.0.0'));
         $this->properties = $properties;
     }
 

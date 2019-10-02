@@ -9,6 +9,8 @@
 */
 namespace Arikaim\Core\Middleware;
 
+use Arikaim\Core\Db\Model;
+
 /**
  *  Middleware base class
  */
