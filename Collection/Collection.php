@@ -74,6 +74,30 @@ class Collection implements CollectionInterface, \Countable, \ArrayAccess, \Iter
     }
 
     /**
+     * Union arrays
+     *
+     * @param array $data
+     * @return Collection
+     */
+    public function union(array $data)
+    {
+        $this->data = $this->data + $data;
+        return $this;
+    }
+
+    /**
+     * Replace array
+     *
+     * @param array $replacement
+     * @return Collection
+     */
+    public function replace(array $replacement)
+    {
+        $this->data = array_replace($this->data,$replacement);
+        return $this;
+    }
+
+    /**
      * Get item 
      *
      * @param string $key

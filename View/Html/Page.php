@@ -186,8 +186,8 @@ class Page extends BaseComponent
             $head = Text::renderMultiple($properties['head'],$this->head->getParams());       
             $this->head->resolveProperties('og');
             $this->head->resolveProperties('twitter');
-            $this->head->mergeItems($head,true);
-           
+         
+            $this->head->replace($head);
         }
         $params = array_merge_recursive($params,(array)$properties);
 
