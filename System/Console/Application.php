@@ -15,6 +15,7 @@ use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\System\System;
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\System\Install;
 
 /**
  * Console application
@@ -39,7 +40,7 @@ class Application
         $this->application = new ConsoleApplication("\nArikaim Cli ",System::getVersion());    
         // add core commands 
         $this->addCommands($this->commands);
-        if (Arikaim::db()->isValidConnection() == true) {
+        if (Arikaim::db()->isValidConnection() == true && Install::isInstalled() == true) {
             // add extensions commands
             $this->loadExtensionsCommands();
             // add modules commands

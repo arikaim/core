@@ -82,6 +82,7 @@ class Cron extends StaticFacade
         $msg = "no crontab for";
         return (empty($items) == true || preg_match("/{$msg}/i", $items[0]) == true) ? false : true;
     }
+    
     /**
      * Get crontab items
      *

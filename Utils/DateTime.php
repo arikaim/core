@@ -156,7 +156,7 @@ class DateTime
      */
     public static function dateFormat($timestamp, $format = null)
     {
-        if (is_integer($timestamp) == false) {
+        if (is_numeric($timestamp) == false) {
             return $timestamp;
         }
         $format = (empty($format) == true) ? Self::getDateFormat() : $format;   
