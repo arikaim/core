@@ -29,6 +29,9 @@ class Component extends ApiController
     public function componentProperties($request, $response, $data)
     {
         $component = HtmlComponent::create($data['name']);
+        if (is_object($component) == false) {
+            return $this->withError('Not valid component nane.')->getResponse();  
+        }
         if ($component->hasError() == true) {
             return $this->withError($component->getError())->getResponse();  
         }
@@ -53,6 +56,9 @@ class Component extends ApiController
         $this->requireControlPanelPermission();
 
         $component = HtmlComponent::create($data['name']);
+        if (is_object($component) == false) {
+            return $this->withError('Not valid component nane.')->getResponse();  
+        }
         if ($component->hasError() == true) {
             return $this->withError($component->getError())->getResponse();            
         }
@@ -85,7 +91,7 @@ class Component extends ApiController
     }
 
     /**
-     * Load html compoenent
+     * Load html component
      *
      * @param string $component_name
      * @param array $params
@@ -94,6 +100,10 @@ class Component extends ApiController
     public function load($component_name, $params = [])
     {   
         $component = HtmlComponent::renderComponent($component_name,$params);
+        if (is_object($component) == false) {
+            return $this->withError('Not valid component nane.')->getResponse();  
+        }
+        
         if ($component->hasError() == true) {
             return $this->withError($component->getError())->getResponse();          
         }

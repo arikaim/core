@@ -283,7 +283,7 @@ class DbQueue implements QueueInterface
     {
         $model = Model::Jobs(); 
         $model = $model
-            ->where('status','<>',$model->COMPLETED())
+            ->where('status','=',$model->ACTIVE())          
             ->where(function($query) {
                 $query->where('recuring_interval','<>','')->orWhere('schedule_time','<',DateTime::toTimestamp());
             })->orderBy('priority','desc')->get();

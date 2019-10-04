@@ -19,6 +19,13 @@ use Arikaim\Core\Utils\StaticFacade;
 class Cron extends StaticFacade
 {
     /**
+     * Cron command 
+     *
+     * @var string
+     */
+    private static $command = 'cli scheduler >> /dev/null 2>&1';
+
+    /**
      * Return facade class name
      *
      * @return string
@@ -30,16 +37,40 @@ class Cron extends StaticFacade
 
     /**
      * Get cron command
-     *
+     * 
+     * @param integer $minutes
      * @return string
      */
-    public static function getCronCommand()
+    public static function getCronCommand($minutes = 5)
     {
         $php = (Process::findPhp() === false) ? 'php' : Process::findPhp();
         
-        return "* * * * * " . $php . " " . ARIKAIM_ROOT_PATH . ARIKAIM_BASE_PATH . "/cli scheduler >> /dev/null 2>&1";
+        return "*/$minutes * * * * " . $php . " " . ARIKAIM_ROOT_PATH . ARIKAIM_BASE_PATH . "/". Self::$command;
     }
     
+    /**
+     * Retrun true if command is crontab command
+     *
+     * @param string $command
+     * @return boolean
+     */
+    public static function isCronCommand($command)
+    {
+        $len = strlen(Self::$command);
+        return (substr($command,-$len) == Self::$command);
+    }
+
+    /**
+     * Reinstall cron entry for scheduler
+     *
+     * @return mixed
+     */
+    public function reInstall()
+    {    
+        $this->unInstall();
+        return $this->install();
+    }
+
     /**
      * Add cron entry for scheduler
      *
@@ -47,7 +78,7 @@ class Cron extends StaticFacade
      */
     public function install()
     {    
-        return $this->addItem(Self::getCronCommand());
+        return $this->addJob(Self::getCronCommand());
     }
 
     /**
@@ -57,7 +88,13 @@ class Cron extends StaticFacade
      */
     public function unInstall()
     {
-        return $this->removeItem(Self::getCronCommand());   
+        $jobs = $this->getJobs();
+        foreach ($jobs as $command) {
+            if (Self::isCronCommand($command) == true) {
+                $this->removeJob($command);  
+            }
+        }
+        return !$this->isInstalled();
     }
 
     /**
@@ -67,88 +104,114 @@ class Cron extends StaticFacade
      */
     public function isInstalled()
     {
-        $items = $this->getItems();
-        return $this->hasItems($items);
+        $jobs = $this->getJobs();
+        foreach ($jobs as $command) {
+            if (Self::isCronCommand($command) == true) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
-     * Return true if crontab have items
+     * Return true if crontab have jobs
      *
-     * @param array $items
+     * @param array $jobs
      * @return boolean
      */
-    public function hasItems($items)
+    public function hasJobs($jobs)
     {
         $msg = "no crontab for";
-        return (empty($items) == true || preg_match("/{$msg}/i", $items[0]) == true) ? false : true;
+        return (empty($jobs) == true || preg_match("/{$msg}/i", $jobs[0]) == true) ? false : true;
     }
     
     /**
-     * Get crontab items
+     * Get crontab jobs
      *
      * @return array
      */
-    public function getItems() {
+    public function getJobs() {
         $output = Process::run('crontab -l');
 
         $output = (empty($output) == true) ? [] : $output;
-        $items = Arrays::toArray($output);
-        
-        return  ($this->hasItems($items) == true) ? $items : [];
+        $jobs = Arrays::toArray($output);
+    
+        return ($this->hasJobs($jobs) == true) ? $jobs : [];
     }
 
     /**
-     * Return true if crontab have item
+     * Return true if crontab have job
      *
      * @param string $command
      * @return boolean
      */
-    public function hasItem($command)
+    public function hasJob($command)
     {
-        $commands = $this->getItems();
-        return in_array($command, $commands);         
+        $commands = $this->getJobs();      
+        return in_array($command,$commands); 
     }   
 
     /**
-     * Add cron tab item
+     * Add cron tab job
      *
      * @param string $command
      * @return void
      */
-    public function addItem($command)
+    public function addJob($command)
     {
-        if ($this->hasItem($command) == true) {
+        if ($this->hasJob($command) == true) {
             return true;
         }
     
-        $commands = $this->getItems();
-        array_push($commands,$command);
-        return $this->addItems($commands);
+        $jobs = $this->getJobs();
+        array_push($jobs,$command);
+        return $this->addJobs($jobs);
     }
 
     /**
-     * Add cron tab items
+     * Add cron tab jobs
      *
      * @param array $commands
      * @return mixed
      */
-    public function addItems(array $commands) 
+    public function addJobs(array $commands) 
     {
-        return Process::run('echo "'. Arrays::toString($commands).'" | crontab -');
+        foreach ($commands as $key => $command) {
+            if (empty($command) == true) {
+                unset($commands[$key]);
+            }
+        }
+        $text = trim(Arrays::toString($commands));
+        
+        if (empty($text) == false) {
+            return Process::run('echo "'. $text .'" | crontab -');
+        } 
+
+        return $this->removeAll();       
     }
 
     /**
-     * Delete crontab item
+     * Remove all job from crontab
+     *
+     * @return mixed
+     */
+    public function removeAll()
+    {
+        return Process::run('crontab -r');
+    }
+
+    /**
+     * Delete crontab job
      *
      * @param string $command
      * @return bool
      */
-    public function removeItem($command) 
+    public function removeJob($command) 
     {
-        if ($this->hasItem($command) == true) {
-            $commands = $this->getItems();
-            unset($commands[array_search($command,$commands)]);
-            return $this->addItems($commands);
+        if ($this->hasJob($command) == true) {
+            $jobs = $this->getJobs();
+            unset($jobs[array_search($command,$jobs)]);
+            return $this->addJobs($jobs);
         }
         return true;
     }
@@ -163,7 +226,7 @@ class Cron extends StaticFacade
         return [
             'name'       => "Cron",
             'installed'  => $this->isInstalled(),
-            'items'      => $this->getItems(),
+            'jobs'       => $this->getJobs(),
             'user'       => Process::getCurrentUser()['name']
         ];
     }

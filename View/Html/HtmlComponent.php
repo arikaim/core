@@ -57,7 +57,10 @@ class HtmlComponent extends BaseComponent
     {              
         $component = Self::render($env,$name,$params,$language);
         if ($component == null) {
-            return Self::getErrorMessage('Not valid component name ' .  $name);
+            if (Arrays::getDefaultValue($params,'show_error') !== false) {              
+                return Self::getErrorMessage('Not valid component name ' .  $name);
+            }
+            return '';
         }
         if ($component->hasError() == true) {
             return Self::getErrorMessage($component->getError());
@@ -124,8 +127,7 @@ class HtmlComponent extends BaseComponent
     {    
         $component = Self::create($name,$language,$with_options);
         if (is_object($component) == false) {
-            $component = Self::create('components:message.error',$language,$with_options);
-            $params = ['title' => 'Alert','message' => 'Component with name "' . $name . '" not found!'];
+            return null;               
         }
       
         if ($component->hasError() == true) {
@@ -142,8 +144,8 @@ class HtmlComponent extends BaseComponent
             Self::includeComponentFiles($component->getFiles('js'),'js');
             Self::includeComponentFiles($component->getFiles('css'),'css');
         }
-
         $env->addGlobal('current_component_name',$name);
+        
         return $component;
     }
 

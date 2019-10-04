@@ -10,6 +10,7 @@
 namespace Arikaim\Core\Middleware;
 
 use Arikaim\Core\Db\Model;
+use Arikaim\Core\Arikaim;
 
 /**
  *  Middleware base class

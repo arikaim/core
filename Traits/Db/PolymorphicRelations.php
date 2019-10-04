@@ -55,6 +55,37 @@ trait PolymorphicRelations
     }
 
     /**
+     * Get relations
+     *
+     * @param integer $id
+     * @param string|null $type
+     * @return Model
+     */
+    public function getRows($id, $type = null) 
+    {
+        $relation_field = $this->getRelationAttributeName();
+        $model = (empty($id) == false) ? $this->where($relation_field,'=',$id) : $this;
+
+        if (empty($type) == false) {
+            $model = $model->where('relation_type','=',$type);
+        }
+        return $model;
+    }
+
+    /**
+     *  Delete relation
+     *
+     * @param integer|string|null $id
+     * @return boolean
+     */
+    public function deleteRelation($id)
+    {
+        $model = (empty($id) == true) ? $this->findByid($id) : $this;
+
+        return (is_obejct($model) == true) ? $model->delete() : false;
+    }
+
+    /**
      * Delete relations
      *
      * @param integer $id

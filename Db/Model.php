@@ -28,7 +28,7 @@ class Model
     public static function create($class_name, $extension_name = null, $callback = null) 
     {  
         try {
-            $full_class_name = Self::getFullClassName($class_name,$extension_name); 
+            $full_class_name = (class_exists($class_name) == false) ? Self::getFullClassName($class_name,$extension_name) : $class_name; 
             $instance = Factory::createInstance($full_class_name);
             if (is_callable($callback) == true) {
                 return $callback($instance);

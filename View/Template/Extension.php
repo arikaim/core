@@ -150,13 +150,14 @@ class Extension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('startTag', ["\\Arikaim\\Core\\Utils\\Html", 'htmlStartTag'],['is_safe' => ['html']]),
             new TwigFilter('getAttr', ["\\Arikaim\\Core\\Utils\\Html", 'getAttributes'],['is_safe' => ['html']]),
             new TwigFilter('decode', ["\\Arikaim\\Core\\Utils\\Html", 'specialcharsDecode'],['is_safe' => ['html']]),
-
+            // other
             new TwigFilter('ifthen', ["\\Arikaim\\Core\\View\\Template\\Filters", 'is']),
             new TwigFilter('dump', ["\\Arikaim\\Core\\View\\Template\\Filters", 'dump']),
             new TwigFilter('string', ["\\Arikaim\\Core\\View\\Template\\Filters", 'convertToString']),
             new TwigFilter('emptyLabel', ["\\Arikaim\\Core\\View\\Template\\Filters", 'emptyLabel']),
             new TwigFilter('sliceLabel', ["\\Arikaim\\Core\\View\\Template\\Filters", 'sliceLabel']),
             new TwigFilter('jsonDecode', ["\\Arikaim\\Core\\Utils\\Utils", 'jsonDecode']),
+            new TwigFilter('baseClass', ["\\Arikaim\\Core\\Utils\\Utils", 'getBaseClassName']),            
             // date time
             new TwigFilter('dateFormat', ["\\Arikaim\\Core\\Utils\\DateTime", 'dateFormat']),
             new TwigFilter('dateTimeFormat', ["\\Arikaim\\Core\\Utils\\DateTime", 'dateTimeFormat']),
@@ -168,6 +169,7 @@ class Extension extends AbstractExtension implements GlobalsInterface
             // text
             new TwigFilter('renderText', ["\\Arikaim\\Core\\Utils\\Text", 'render']),
             new TwigFilter('sliceText', ["\\Arikaim\\Core\\Utils\\Text", 'sliceText']),
+            new TwigFilter('titleCase', ["\\Arikaim\\Core\\Utils\\Text", 'convertToTitleCase']),
         ];
         Arikaim::cache()->save('twig.filters',$items,10);
         return $items;

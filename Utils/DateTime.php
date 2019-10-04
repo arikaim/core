@@ -117,7 +117,7 @@ class DateTime
      */
     public static function dateTimeFormat($timestamp, $format = null)
     {
-        if (is_integer($timestamp) == false) {
+        if (is_numeric($timestamp) == false) {
             return $timestamp;
         }
         

@@ -65,6 +65,19 @@ class Arrays
     }
 
     /**
+     * Get default value
+     *
+     * @param array $array
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    public static function getDefaultValue($array, $key, $default = null)
+    {
+        return (isset($array[$key]) == true) ? $array[$key] : $default;
+    }
+
+    /**
      * Get array value by key path
      *
      * @param array $array

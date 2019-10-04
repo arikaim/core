@@ -79,7 +79,7 @@ class Text
      */
     public static function transformWord($word, ...$options)
     {
-        $word = preg_replace('/[^a-zA-Z ]/i','',$word);
+        $word = Self::removeSpecialChars($word);
         $case = (isset($options[0]) == true) ? $options[0] : Text::LOWER_CASE;
 
         switch($case) {
@@ -95,6 +95,27 @@ class Text
         }
 
         return $word;
+    }
+
+    /**
+     * Remove special chars and numbers from text
+     *
+     * @param string $text
+     * @return string
+     */
+    public static function removeSpecialChars($text) {
+        return preg_replace('/[^a-zA-Z ]/i','',trim($text));
+    }
+
+    public static function convertToTitleCase($text)
+    {
+       // $text = Self::transformWord($text,Text::FIRST_LETTER_UPPER);
+        $tokens = explode('_',$text);
+        $result = '';
+        foreach ($tokens as $word) {
+            $result .= \ucfirst($word);
+        }
+        return $result;
     }
 
     /**
