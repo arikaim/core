@@ -36,6 +36,16 @@ abstract class Extension implements ExtensionInterface
     abstract public function install();
     
     /**
+     * UnInstall extension
+     *
+     * @return boolean
+     */
+    public function unInstall()
+    {
+        return true;
+    }
+
+    /**
      * Add relation map for Polymorphic Relations relations
      *
      * @param string $type
@@ -268,7 +278,7 @@ abstract class Extension implements ExtensionInterface
     }
 
     /**
-     * Creaete extensin db table 
+     * Creaete extension db table 
      *
      * @param string $schema_class
      * @return boolean
@@ -277,6 +287,18 @@ abstract class Extension implements ExtensionInterface
     {
         $extension_name = $this->getName();
         return Schema::install($schema_class,$extension_name);
+    }
+
+    /**
+     * Drop extension db table
+     *
+     * @param string $schema_class
+     * @return boolean
+     */
+    public function dropDbTable($schema_class)
+    {
+        $extension_name = $this->getName();
+        return Schema::unInstall($schema_class,$extension_name);
     }
 
     /**

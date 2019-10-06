@@ -10,6 +10,7 @@
 namespace Arikaim\Core\Traits\Db;
 
 use Arikaim\Core\View\Template\Template;
+use Arikaim\Core\Db\Model;
 
 /**
  *  Translations trait      
@@ -26,6 +27,11 @@ trait Translations
         return (isset($this->translation_reference_attribute) == true) ? $this->translation_reference_attribute : null;
     }
 
+    public function getTranslationModelClass()
+    {
+        return (isset($this->translation_model_class) == true) ? $this->translation_model_class : null;
+    }
+
     /**
      * HasMany relation
      *
@@ -33,7 +39,7 @@ trait Translations
      */
     public function translations()
     {
-        $translation_model_class = (isset($this->translation_model_class) == true) ? $this->translation_model_class : null;
+        $translation_model_class = $this->getTranslationModelClass();
         return $this->hasMany($translation_model_class);
     }
 
@@ -43,10 +49,11 @@ trait Translations
      * @param string $language
      * @return Model|false
      */
-    public function translation($language = null)
+    public function translation($language = null, $query = false)
     {
         $language = (empty($language) == true) ? Template::getLanguage() : $language;
-        $model = $this->translations()->getQuery()->where('language','=',$language)->first(); 
+        $model = $this->translations()->getQuery()->where('language','=',$language);
+        $model = ($query == false) ? $model->first() : $model;
 
         return (is_object($model) == false) ? false : $model;
     }
@@ -67,7 +74,13 @@ trait Translations
 
         $data['language'] = $language;
         $data[$reference] = $model->id;
+
+        print_r($data);
+        var_dump(Model::getSql($model->translations()->getQuery()));
+
         $translation = $model->translation($language);
+        var_dump($translation);
+        exit();
 
         return ($translation === false) ? $model->translations()->create($data) : $translation->update($data);        
     }
@@ -100,5 +113,22 @@ trait Translations
         $model = $model->translations();
 
         return (is_object($model) == true) ? $model->delete() : false;
+    }
+
+    /**
+     * Find Translation
+     *
+     * @param string $attribute_name
+     * @param mixed $value
+     * @return void
+     */
+    public function findTranslation($attribute_name, $value)
+    {     
+        $class = $this->getTranslationModelClass();
+
+        $model = new $class();
+
+        $model = $model->where($attribute_name,'=',$value);
+        return $model->first();
     }
 }

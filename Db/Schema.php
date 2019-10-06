@@ -150,6 +150,17 @@ abstract class Schema
     }
 
     /**
+     * Return true if table is empty
+     *
+     * @return boolean
+     */
+    public function isEmpty()
+    {
+        $query = Manager::table($this->table_name);     
+        return empty($query->count() == true);
+    }
+
+    /**
      * Execute blueprint.
      *
      * @param  \Arikaim\Core\Db\TableBlueprint  $blueprint
@@ -179,15 +190,20 @@ abstract class Schema
         return Manager::schema()->hasTable($table_name);      
     }
 
-   
     /**
      * Drop table
-     *
-     * @return void
+     * 
+     * @param boolean $empty_only
+     * @return boolean
      */
-    public function dropTable() 
+    public function dropTable($empty_only = true) 
     {
-        Manager::schema()->dropIfExists($this->table_name);
+        if ($empty_only == true && $this->isEmpty() == true) {          
+            Manager::schema()->dropIfExists($this->table_name);
+        } else {
+            Manager::schema()->dropIfExists($this->table_name);           
+        }
+        return !$this->tableExists();
     } 
 
     /**
@@ -238,6 +254,26 @@ abstract class Schema
                 $instance->runSeeds();
 
                 return $instance->tableExists();
+            } catch(\Exception $e) {
+            }
+        }
+        return false;
+    }
+
+    /**
+     * UnInstall migration
+     *
+     * @param string $class_name
+     * @param string $extension_name
+     * @param boolean $force Set to true will drop table if have rows.
+     * @return bool
+     */
+    public static function unInstall($class_name, $extension_name = null, $force = false) 
+    {                   
+        $instance = Factory::createSchema($class_name,$extension_name);
+        if (is_object($instance) == true) {
+            try {
+                return $instance->dropTable(!$force);
             } catch(\Exception $e) {
             }
         }

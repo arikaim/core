@@ -37,7 +37,7 @@ class Text
     }
 
     /**
-     * Tokenize text
+     * Tokenize text split to words
      *
      * @param string|array $text
      * @param mixed ...$options
@@ -78,9 +78,11 @@ class Text
      * @return void
      */
     public static function transformWord($word, ...$options)
-    {
-        $word = Self::removeSpecialChars($word);
+    {       
         $case = (isset($options[0]) == true) ? $options[0] : Text::LOWER_CASE;
+        $remove_numbers = (isset($options[1]) == true) ? $options[1] : false;
+
+        $word = Self::removeSpecialChars($word,$remove_numbers);
 
         switch($case) {
             case Text::LOWER_CASE: 
@@ -94,17 +96,19 @@ class Text
                 break;
         }
 
-        return $word;
+        return trim($word);
     }
 
     /**
      * Remove special chars and numbers from text
      *
      * @param string $text
+     * @param boolean $remove_numbers
      * @return string
      */
-    public static function removeSpecialChars($text) {
-        return preg_replace('/[^a-zA-Z ]/i','',trim($text));
+    public static function removeSpecialChars($text, $remove_numbers = false) 
+    {        
+        return ($remove_numbers == true) ? preg_replace('/[^a-zA-Z ]/i','',trim($text)) : preg_replace("/[^a-zA-Z0-9]/","",$text);
     }
 
     public static function convertToTitleCase($text)

@@ -219,6 +219,7 @@ class ExtensionPackage extends Package
 
         // run install extension
         $ext_obj->install(); 
+
         // get console commands classes
         $details->set('console_commands',$ext_obj->getConsoleCommands());
 
@@ -282,6 +283,9 @@ class ExtensionPackage extends Package
         // delete jobs 
         Arikaim::queue()->deleteExtensionJobs($extension_name);
     
+        // run extension unInstall
+        $ext_obj->unInstall();
+        
         // on after unInstall event handler
         if (is_object($ext_obj) == true) {
             $ext_obj->onAfterUnInstall();
