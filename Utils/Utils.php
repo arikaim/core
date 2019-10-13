@@ -72,7 +72,7 @@ class Utils
     }
 
     /**
-     * Return true if  ip is valid.
+     * Return true if ip is valid.
      *
      * @param string $ip_address
      * @return boolean

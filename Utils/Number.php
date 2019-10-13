@@ -32,14 +32,24 @@ class Number
      * Format number
      *
      * @param integer|float $number
-     * @param string $format_name
+     * @param string|null|array $format_name
      * @return integer|float
      */
     public static function format($number, $format_name = null)
     {
-        $format = Self::getFormat($format_name);
+        if (is_array($format_name) == true) {
+            $format = [
+                'decimals' => $format_name[0],
+                'decimals_separator' => (isset($format_name[1]) == true) ? $format_name[1] : null,
+                'thousands_separator' => (isset($format_name[2]) == true) ? $format_name[2] : null
+            ];
+        } else {
+            $format = Self::getFormat($format_name);
+        }
+      
         return number_format($number,$format['decimals'],$format['decimals_separator'],$format['thousands_separator']);
     }
+
 
     /**
      * Get format options

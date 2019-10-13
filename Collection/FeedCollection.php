@@ -83,6 +83,30 @@ class FeedCollection extends Collection implements CollectionInterface, FeedsInt
     }
 
     /**
+     * Find feed item
+     *
+     * @param integer $id;
+     * @param integer|null $page;
+     * @param integer|null $per_page;
+     * @return array|false
+     */
+    public function findItem($key, $value, $page = null, $per_page = null)
+    {
+        $this->fetch($page,$per_page);
+        $items = $this->getItems();
+       
+        foreach ($items as $item) {
+            if (isset($item[$key]) == true) {
+                if ($item[$key] == $value) {
+                    return $item;
+                }
+            }
+        }        
+
+        return null;
+    }
+
+    /**
      * Set page array key for params array 
      *
      * @param string $key

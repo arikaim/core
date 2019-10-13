@@ -35,9 +35,11 @@ class CoreMiddleware extends Middleware
         // sanitize requets body
         $request = $this->sanitizeRequest($request);
         
-        // get client ip address
-        $cleint_ip = new ClientIp();
-        $request = $cleint_ip->getClientIpAddress($request);
+        // get client ip address      
+        $client_id = ClientIp::getClientIpAddress($request);
+        $request->withAttribute('client_ip',$client_id);   
+        Arikaim::session()->set('client_ip',$client_id);
+
         return $next($request, $response);     
     }
 

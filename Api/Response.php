@@ -47,6 +47,13 @@ class Response
     protected $pretty_format;
 
     /**
+     * Raw json response
+     *
+     * @var boolean
+     */
+    protected $raw;
+
+    /**
      * Constructor
      *
      * @param boolean $debug
@@ -60,6 +67,18 @@ class Response
         $this->result['code'] = 200; 
         $this->result['errors'] = $this->errors;  
         $this->pretty_format = false; 
+        $this->raw = false; 
+    }
+
+    /**
+     * Set json pretty format to true
+     *
+     * @return Response
+     */
+    public function useJsonPrettyformat()
+    {
+        $this->pretty_format = true;
+        return $this;
     }
 
     /**
@@ -221,13 +240,14 @@ class Response
 
     /**
      * Return request response
-     *
-     * @param boolean $pretty_format JSON pretty format
+     *     
+     * @param boolean $raw
+     *  
      * @return Slim\Http\Response
      */
-    public function getResponse($pretty_format = false) 
+    public function getResponse($raw = false) 
     {           
-        $this->pretty_format = $pretty_format;
+        $this->raw = $raw;
 
         $json = $this->getResponseJson();
         return Arikaim::response()
@@ -253,8 +273,8 @@ class Response
             $this->result['execution_time'] = Arikaim::getExecutionTime();
             $this->result['memory_usage'] = Utils::getMemorySizeText(memory_get_usage(true));
         }
+        $result = ($this->raw == true) ? $this->result['result'] : $this->result;
     
-        $code = ($this->pretty_format == true) ? Utils::jsonEncode($this->result) : json_encode($this->result,true);
-        return $code;
+        return ($this->pretty_format == true) ? Utils::jsonEncode($result) : json_encode($result,true);      
     }    
 }

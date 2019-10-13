@@ -198,9 +198,10 @@ abstract class Schema
      */
     public function dropTable($empty_only = true) 
     {
-        if ($empty_only == true && $this->isEmpty() == true) {          
+        if ($empty_only == true && $this->isEmpty() == true) {                  
             Manager::schema()->dropIfExists($this->table_name);
-        } else {
+        } 
+        if ($empty_only == false) {
             Manager::schema()->dropIfExists($this->table_name);           
         }
         return !$this->tableExists();

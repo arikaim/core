@@ -59,12 +59,29 @@ trait PolymorphicRelations
      *
      * @param integer $id
      * @param string|null $type
-     * @return Model
+     * @return Builder
      */
     public function getRows($id, $type = null) 
     {
         $relation_field = $this->getRelationAttributeName();
         $model = (empty($id) == false) ? $this->where($relation_field,'=',$id) : $this;
+
+        if (empty($type) == false) {
+            $model = $model->where('relation_type','=',$type);
+        }
+        return $model;
+    }
+
+    /**
+     * Get relations query for model id
+     *
+     * @param integer $relation_id
+     * @param string|null $type
+     * @return Builder
+     */
+    public function getRelationsQuery($relation_id, $type = null) 
+    {      
+        $model = $this->where('relation_id','=',$relation_id);
 
         if (empty($type) == false) {
             $model = $model->where('relation_type','=',$type);

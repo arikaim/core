@@ -83,8 +83,7 @@ class TemplateFunction
      */
     public function hasExtension($extension_name)
     {
-        $extension = Model::Extensions();
-        $extension = $extension->where('name','=',$extension_name)->get();
+        $extension = Model::Extensions()->where('name','=',$extension_name)->first();     
         return is_object($extension);          
     }
 

@@ -20,13 +20,18 @@ trait Translations
     /**
      * Get translation refernce attribute name 
      *
-     * @return string
+     * @return string|null
      */
     public function getTranslationReferenceAttributeName()
     {
         return (isset($this->translation_reference_attribute) == true) ? $this->translation_reference_attribute : null;
     }
 
+    /**
+     * Get translation miodel class
+     *
+     * @return string|null
+     */
     public function getTranslationModelClass()
     {
         return (isset($this->translation_model_class) == true) ? $this->translation_model_class : null;
@@ -41,6 +46,21 @@ trait Translations
     {
         $translation_model_class = $this->getTranslationModelClass();
         return $this->hasMany($translation_model_class);
+    }
+
+    /**
+     * Get translations query
+     *
+     * @param string|mull $language
+     * @return Builder
+     */
+    public function getTranslationsQuery($language = null)
+    {
+        $class = $this->getTranslationModelClass();
+        $model = new $class();
+        $language = (empty($language) == true) ? Template::getLanguage() : $language;
+        
+        return $model->where('language','=',$language);
     }
 
     /**
@@ -75,13 +95,8 @@ trait Translations
         $data['language'] = $language;
         $data[$reference] = $model->id;
 
-        print_r($data);
-        var_dump(Model::getSql($model->translations()->getQuery()));
-
         $translation = $model->translation($language);
-        var_dump($translation);
-        exit();
-
+    
         return ($translation === false) ? $model->translations()->create($data) : $translation->update($data);        
     }
 
@@ -125,7 +140,6 @@ trait Translations
     public function findTranslation($attribute_name, $value)
     {     
         $class = $this->getTranslationModelClass();
-
         $model = new $class();
 
         $model = $model->where($attribute_name,'=',$value);

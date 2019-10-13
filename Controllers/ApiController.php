@@ -26,6 +26,20 @@ class ApiController extends Controller
     protected $response;
 
     /**
+     * Extension name
+     *
+     * @var string|null
+     */
+    protected $extension_name;
+
+    /**
+     * Model class name
+     *
+     * @var string
+     */
+    protected $model_class;
+
+    /**
      * Constructor
      */
     public function __construct() 
@@ -38,6 +52,51 @@ class ApiController extends Controller
         $this->onValidationError(function ($errors) {
             $this->setErrors($errors);
         });
+
+        $this->extension_name = null;
+        $this->model_class = null;
+    }
+
+    /**
+     * Get extension name
+     *
+     * @return string|null
+     */
+    public function getExtensionName()
+    {
+        return $this->extension_name;
+    }
+
+    /**
+     * Set extension name
+     *
+     * @param string $name
+     * @return void
+     */
+    public function setExtensionName($name)
+    {
+        $this->extension_name = $name;
+    }
+
+    /**
+     * Set model class name
+     *
+     * @param string $class
+     * @return void
+     */
+    public function setModelClass($class)
+    {
+        $this->model_class = $class;
+    }
+
+    /**
+     * Get model class name
+     *     
+     * @return string
+     */
+    public function getModelClass()
+    {
+        return $this->model_class;
     }
 
     /**
@@ -124,11 +183,13 @@ class ApiController extends Controller
 
     /**
      * Return response 
-     *
+     *  
+     * @param boolean $raw
+     * 
      * @return Response
      */
-    public function getResponse()
+    public function getResponse($raw = false)
     {
-        return $this->response->getResponse();
+        return $this->response->getResponse($raw);
     }
 }

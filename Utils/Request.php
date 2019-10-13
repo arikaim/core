@@ -117,4 +117,34 @@ class Request
         }
         return false;
     }
+
+    /**
+     * Get browser name
+     *
+     * @return string
+     */
+    public static function getBrowserName()
+    {      
+        $user_agent =  " " . strtolower($_SERVER['HTTP_USER_AGENT']);
+        switch ($user_agent) {
+            case (strpos($user_agent,'opera') != false):
+                return 'Opera';                
+            case (strpos($user_agent,'edge') != false):
+                return 'Edge';
+            case (strpos($user_agent,'firefox') != false):
+                return 'Firefox';    
+            case (strpos($user_agent,'chrome') != false):
+                return 'Chrome';  
+            case (strpos($user_agent,'safari') != false):
+                return 'Safari';    
+            case (strpos($user_agent,'msie') != false):
+                return 'Internet Explorer';  
+            case (strpos($user_agent,'mobile') != false):
+                return 'Mobile Browser'; 
+            case (strpos($user_agent,'android') != false):
+                return 'Mobile Browser';                
+            default: 
+                return null;
+        }       
+    }
 }
