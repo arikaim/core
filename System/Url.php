@@ -154,7 +154,7 @@ class Url
      */
     public static function fetch($url)
     {
-        if (Utils::isUrl($url) == false) {
+        if (Self::isValid($url) == false) {
             return null;
         }
         $response = Arikaim::http()->get($url);
@@ -169,12 +169,23 @@ class Url
      */
     public static function verify($url)
     {
-        if (Utils::isUrl($url) == false) {
+        if (Self::isValid($url) == false) {
             return false;
         }
         $response = Arikaim::http()->get($url);
         $status = (is_object($response) == true) ? $response->getStatusCode() : null;
 
         return !(empty($status) == true || $status == 404);
+    }
+
+    /**
+     * Return true if url is valid
+     *
+     * @param string $url
+     * @return boolean
+     */
+    public static function isValid($url)
+    {
+        return (filter_var($url, FILTER_VALIDATE_URL) == true) ? true : false; 
     }
 }

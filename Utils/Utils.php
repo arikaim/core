@@ -240,17 +240,6 @@ class Utils
     }
 
     /**
-     * Return true if url is valid
-     *
-     * @param string $url
-     * @return boolean
-     */
-    public static function isUrl($url)
-    {
-        return (filter_var($url, FILTER_VALIDATE_URL) == true) ? true : false; 
-    }
-
-    /**
      * Return true if email is valid
      *
      * @param string $email

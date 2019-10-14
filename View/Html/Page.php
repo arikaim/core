@@ -464,11 +464,13 @@ class Page extends BaseComponent
             $library = $manager->createPackage($library_name);
             $files = $library->getFiles();
             $params = $library->getParams();
+
             foreach($files as $file) {
-                $item['file'] = Url::getLibraryFileUrl($library_name,$file);
+                $item['file'] = (Url::isValid($file) == true) ? $file : Url::getLibraryFileUrl($library_name,$file);
                 $item['type'] = File::getExtension(Path::getLibraryFilePath($library_name,$file));
                 $item['params'] = $params;
                 $item['library'] = $library_name;
+                $item['async'] = $library->getProperties()->get('async',false);
                 array_push($include_lib,$item);
             }           
             if ($library->isFramework() == true) {
@@ -478,6 +480,7 @@ class Page extends BaseComponent
         Arikaim::page()->properties()->set('ui.library.files',$include_lib);       
         Arikaim::session()->set("ui.included.libraries",json_encode($library_list));
         Arikaim::session()->set("ui.included.frameworks",json_encode($frameworks));
+
         return true;
     }
 

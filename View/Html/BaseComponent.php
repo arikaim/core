@@ -15,6 +15,7 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Utils\Mobile;
 use Arikaim\Core\View\Html\Component;
+use Arikaim\Core\System\Url;
 use Arikaim\Core\Interfaces\View\ComponentInterface;
 
 /**
@@ -99,7 +100,11 @@ class BaseComponent
             if (is_array($option) == true) {
                 // include component files
                 foreach ($option as $item) {
-                    $files = Self::getComponentFiles($item,$file_type);
+                    if (Url::isValid($item) == true) {  
+                        $files = [['url' => $item]];
+                    } else {
+                        $files = Self::getComponentFiles($item,$file_type);
+                    }                      
                     $component->addFiles($files,$file_type);
                 }
             } else {
