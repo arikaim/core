@@ -383,4 +383,16 @@ class Utils
         $result['label'] = $labels[$power];
         return ($as_text == true) ? $result['size'] . $result['label'] : $result; 
     }
+
+    /**
+     * Return base class name
+     *
+     * @param string $class_name
+     * @return string
+     */
+    public static function getClassBaseName($class_name)
+    {
+        $class_name = is_object($class_name) ? get_class($class_name) : $class_name;
+        return basename(str_replace('\\', '/', $class_name));
+    }
 }

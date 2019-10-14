@@ -32,18 +32,6 @@ function defaultValue($variable, $default)
 }
 
 /**
- * Return base class name
- *
- * @param string $class_name
- * @return string
- */
-function getClassBaseName($class_name)
-{
-    $class_name = is_object($class_name) ? get_class($class_name) : $class_name;
-    return basename(str_replace('\\', '/', $class_name));
-}
-
-/**
  * Call closure
  *
  * @param mixed $value

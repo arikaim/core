@@ -14,6 +14,7 @@ use Arikaim\Core\Interfaces\ExtensionInterface;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Utils\Factory;
+use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Models\Routes;
 
 /**
@@ -120,7 +121,7 @@ abstract class Extension implements ExtensionInterface
      */
     public function registerConsoleCommand($class_name)
     {
-        $class_name = Factory::getExtensionConsoleClassName($this->getName(),getClassBaseName($class_name));
+        $class_name = Factory::getExtensionConsoleClassName($this->getName(),Utils::getClassBaseName($class_name));
         if (class_exists($class_name) == false) {
             return false;
         }
