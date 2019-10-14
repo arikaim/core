@@ -180,14 +180,19 @@ class Page extends BaseComponent
         Arikaim::page()->properties()->merge('include.page.files',$component->getFiles());
             
         Self::includeFiles($component);
-        
         $properties = $component->getProperties();
+        
         if (isset($properties['head']) == true) {
-            $head = Text::renderMultiple($properties['head'],$this->head->getParams());       
-            $this->head->resolveProperties('og');
-            $this->head->resolveProperties('twitter');
-         
-            $this->head->replace($head);
+            $head = Text::renderMultiple($properties['head'],$this->head->getParams()); 
+            $this->head->replace($head); 
+            if (isset($head['og']) == true) {
+                $this->head->set('og',$head['og']);
+                $this->head->resolveProperties('og');
+            }
+            if (isset($head['twitter']) == true) {
+                $this->head->set('twitter',$head['twitter']);
+                $this->head->resolveProperties('twitter');
+            }         
         }
         $params = array_merge_recursive($params,(array)$properties);
 

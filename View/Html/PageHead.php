@@ -120,7 +120,7 @@ class PageHead extends Collection implements CollectionInterface, \Countable, \A
      */
     public function ogTitle($title = null)
     {
-        $title = $this->get('title',$title);      
+        $title = $this->get('title',$title);        
         return $this->og('title',$title);
     }
     
@@ -195,11 +195,11 @@ class PageHead extends Collection implements CollectionInterface, \Countable, \A
      * @return array
      */
     protected function createProperty($name, $value, $options = [])
-    {
-        return [
-            'name' => strtolower($name),
-            'value' => $value,
-            'options' => $options
+    {        
+        return [            
+            'name'      => strtolower($name),
+            'value'     => Text::render($value,$this->getParams()),
+            'options'   => $options
         ];
     }
 
@@ -216,9 +216,9 @@ class PageHead extends Collection implements CollectionInterface, \Countable, \A
             return false;
         }
 
-        $properties = [];        
+        $properties = [];
         foreach ($items as $name => $value) {
-            $property = (is_array($value) == false) ? $this->createProperty($name,$value,[]) : $value;         
+            $property = (is_array($value) == false) ? $this->createProperty($name,$value,[]) : $value;  
             array_push($properties,$property);            
         }
 
