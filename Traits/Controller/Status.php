@@ -24,7 +24,7 @@ trait Status
      * @param Validator $data
      * @return Psr\Http\Message\ResponseInterface
      */
-    public function setStatusController($request, $response, $data)
+    public function setStatus($request, $response, $data)
     {
         $this->requireControlPanelPermission();
 
@@ -44,5 +44,7 @@ trait Status
         $data
             ->addRule('status','checkList:items=0,1,toggle')
             ->validate(); 
+
+        return $this->getResponse();
     }
 }

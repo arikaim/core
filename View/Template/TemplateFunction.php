@@ -17,7 +17,13 @@ use Arikaim\Core\Db\Model;
 use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\View\Html\BaseComponent;
+use Arikaim\Core\View\Html\HtmlComponent;
 use Arikaim\Core\Access\Csrf;
+use Arikaim\Core\Packages\Package;
+use Arikaim\Core\Packages\Extension\ExtensionsManager;
+use Arikaim\Core\Packages\Library\LibraryManager;
+use Arikaim\Core\Packages\Template\TemplatesManager;
+use Arikaim\Core\Packages\Modules\ModulesManager;
 
 /**
  * Template functions
@@ -339,4 +345,42 @@ class TemplateFunction
             $context[$key] = $value;
         }
     }  
+
+    /**
+     * Get comonent options ( control panel access is required)
+     *
+     * @param string $name
+     * @return array|null
+     */
+    public function getComponentOptions($name)
+    {
+        return (Arikaim::access()->hasControlPanelAccess() == true) ? HtmlComponent::getOptions($name) : null;
+    }
+
+    /**
+     * Create package manager
+     *
+     * @param string $package_type
+     * @return PackageManagerInterface|null
+     */
+    public function packageManager($package_type)
+    {
+        // Control panel only
+        if (Arikaim::access()->hasControlPanelAccess() == false) {
+            return null;
+        }
+
+        switch ($package_type) {
+            case Package::EXTENSION:
+                return new ExtensionsManager();
+            case Package::LIBRARY:
+                return new LibraryManager();
+            case Package::TEMPLATE:
+                return new TemplatesManager();
+            case Package::MODULE:
+                return new ModulesManager();
+        }
+        
+        return null;
+    }
 }

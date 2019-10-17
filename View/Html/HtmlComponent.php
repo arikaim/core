@@ -160,8 +160,9 @@ class HtmlComponent extends BaseComponent
     {
         if (empty($files) == true) {
             return false;
-        }
-        foreach ($files as $item) {           
+        }       
+        foreach ($files as $item) {    
+          //  print_r($item);       
             Arikaim::page()->properties()->prepend('include.components.files',$item,$key);                    
         }
         return true;
@@ -178,5 +179,17 @@ class HtmlComponent extends BaseComponent
     {       
         $component = Self::create($name,$language);
         return (is_object($component) == true) ? $component->loadProperties() : null;
+    }
+    
+    /**
+     * Get component options
+     *
+     * @param string $name   
+     * @return array|null
+     */
+    public static function getOptions($name)
+    {       
+        $component = Self::create($name);
+        return (is_object($component) == true) ? $component->getOptions() : null;
     }
 }

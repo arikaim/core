@@ -73,6 +73,7 @@ class Extension extends AbstractExtension implements GlobalsInterface
             // html components
             new TwigFunction('component', ["\\Arikaim\\Core\\View\\Html\\HtmlComponent", 'load'], ['needs_environment' => true,'is_safe' => ['html']]),
             new TwigFunction('componentProperties', ["\\Arikaim\\Core\\View\\Html\\HtmlComponent", 'getProperties']),
+            new TwigFunction('componentOptions', [$template_function, 'getComponentOptions']),
             // page
             new TwigFunction('getPageFiles', ["\\Arikaim\\Core\\View\\Html\\Page", 'getPageFiles']),
             new TwigFunction('getComponentsFiles', ["\\Arikaim\\Core\\View\\Html\\Page", 'getComponentsFiles']),          
@@ -98,7 +99,8 @@ class Extension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('getConstant', ["Arikaim\\Core\\Db\\Model",'getConstant']),
             new TwigFunction('hasExtension', [$template_function, 'hasExtension']),
             new TwigFunction('getFileType', [$template_function, 'getFileType']),
-            new TwigFunction('execute', [$template_function, 'executeMethod']),          
+            new TwigFunction('execute', [$template_function, 'executeMethod']),         
+            new TwigFunction('package', [$template_function, 'packageManager']),       
             new TwigFunction('service', [$template_function, 'service']),        
             new TwigFunction('getCurrentLanguage', [$template_function, 'getCurrentLanguage']),
             new TwigFunction('getLanguage', ["\\Arikaim\\Core\\View\\Template\\Template","getLanguage"]),

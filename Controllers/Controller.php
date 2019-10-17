@@ -167,6 +167,7 @@ class Controller
         if ($result == true) {
             return true;
         }
+        
         // access denied response
         switch ($this->type) {
             case Controller::API: {    

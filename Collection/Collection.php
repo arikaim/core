@@ -132,6 +132,18 @@ class Collection implements CollectionInterface, \Countable, \ArrayAccess, \Iter
     }
 
     /**
+     * Remove item
+     *
+     * @param string $key
+     * @return Collection
+     */
+    public function remove($key)
+    {
+        $this->offsetUnset($key);
+        return $this;
+    }
+
+    /**
      * Return collection items count.
      *
      * @return integer

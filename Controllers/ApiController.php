@@ -172,9 +172,13 @@ class ApiController extends Controller
         }
         //
         $callable = [$this,$name . 'Controller'];
-        if (is_callable($callable) == true) {
-            $callback = function($arguments) use(&$callable) {
-                $callable($arguments[0],$arguments[1],$arguments[2]);
+        if (method_exists($this,$name . 'Controller') == true) {
+            $arg = (isset($arguments[0]) == true) ? $arguments[0] : null;
+            $arg1 = (isset($arguments[1]) == true) ? $arguments[1] : null;
+            $arg2 = (isset($arguments[2]) == true) ? $arguments[2] : null;
+
+            $callback = function($arguments) use(&$callable,$arg,$arg1,$arg2) {
+                $callable($arg,$arg1,$arg2);
                 return $this->getResponse();                 
             };
             return $callback($arguments);

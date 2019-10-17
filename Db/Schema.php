@@ -161,6 +161,17 @@ abstract class Schema
     }
 
     /**
+     * Get query builder for table
+     *
+     * @param string $table_name
+     * @return QueryBuilder
+     */
+    public static function getQuery($table_name)
+    {
+        return Manager::table($table_name);  
+    }
+
+    /**
      * Execute blueprint.
      *
      * @param  \Arikaim\Core\Db\TableBlueprint  $blueprint

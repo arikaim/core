@@ -18,6 +18,11 @@ use Arikaim\Core\Interfaces\Collection\CollectionInterface;
 */
 class Package implements PackageInterface
 {
+    const EXTENSION = 'extension';
+    const TEMPLATE  = 'template';
+    const MODULE    = 'module';
+    const LIBRARY   = 'library';
+
     /**
      * Package properties
      *
@@ -34,6 +39,16 @@ class Package implements PackageInterface
     {
         $properties['version'] = Utils::formatversion($properties->get('version','1.0.0'));
         $this->properties = $properties;
+    }
+
+    /**
+     * Get Package version
+     *
+     * @return void
+     */
+    public function getVersion()
+    {
+        return $this->properties->get('version','1.0.0');
     }
 
     /**

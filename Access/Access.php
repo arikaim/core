@@ -94,7 +94,7 @@ class Access
      */
     public function hasAccess($name, $type = null, $id = null)
     {
-        $id = ($id == null) ? Arikaim::auth()->getId() : $id; 
+        $id = (empty($id) == true) ? Arikaim::auth()->getId() : $id; 
         if (empty($id) == true) {
             return false;
         }
@@ -103,7 +103,7 @@ class Access
         if (is_array($permission_type) == false) {
             $permission_type = $this->resolvePermissionType($type);
         }
-      
+    
         return $this->getProvider()->hasPermissions($name,$id,$permission_type);            
     }
 

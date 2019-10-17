@@ -84,7 +84,7 @@ trait Translations
      * @param string|integer|null $id
      * @param array $data
      * @param string $language
-     * @return Model|boolean
+     * @return Model
      */
     public function saveTranslation(array $data, $language = null, $id = null)
     {
@@ -97,7 +97,12 @@ trait Translations
 
         $translation = $model->translation($language);
     
-        return ($translation === false) ? $model->translations()->create($data) : $translation->update($data);        
+        if ($translation === false) {
+            return $model->translations()->create($data);
+        } 
+        $translation->update($data);  
+        
+        return $translation;
     }
 
     /**
@@ -142,7 +147,7 @@ trait Translations
         $class = $this->getTranslationModelClass();
         $model = new $class();
 
-        $model = $model->where($attribute_name,'=',$value);
+        $model = $model->whereIgnoreCase($attribute_name,trim($value));
         return $model->first();
     }
 }

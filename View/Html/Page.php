@@ -291,9 +291,8 @@ class Page extends BaseComponent
      */
     public static function getCurrentUrl($full = true)
     {       
-        $url = ($full == true) ? Url::ARIKAIM_BASE_URL : "";     
         $path = Arikaim::session()->get('current.path');
-        return $url . $path;
+        return ($full == true) ? Self::getFullUrl($path) : $path;
     }
 
     /**

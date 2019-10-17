@@ -15,6 +15,7 @@ use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\System\Path;
 use Arikaim\Core\View\Template\Template;
+use Arikaim\Core\View\Html\Component;
 
 /**
  * Template package 
@@ -149,7 +150,7 @@ class TemplatePackage extends Package
      */
     public function getPages()
     {
-        $path = Path::getPagesPath($this->getName());    
+        $path = Path::getPagesPath($this->getName(),Component::TEMPLATE_COMPONENT);    
         return Template::getPages($path);
     }
 
@@ -160,7 +161,7 @@ class TemplatePackage extends Package
      */
     public function getMacros()
     {
-        $path = Path::getMacrosPath($this->getName());
+        $path = Path::getMacrosPath($this->getName(),Component::TEMPLATE_COMPONENT);
         return Template::getMacros($path);
     }
 
@@ -170,8 +171,8 @@ class TemplatePackage extends Package
      * @return array
      */
     public function getComponents()
-    {       
-        $path = Path::getComponentsPath($this->getName());
+    {          
+        $path = Path::getComponentsPath($this->getName(),Component::TEMPLATE_COMPONENT);    
         return Template::getComponents($path);
     }
 }

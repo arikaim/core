@@ -12,6 +12,7 @@ namespace Arikaim\Core\Controllers\Api\Ui;
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Html\HtmlComponent;
+use Arikaim\Core\Utils\Arrays;
 
 /**
  * Component Api controller
@@ -112,12 +113,12 @@ class Component extends ApiController
             return $this->withError('ACCESS_DENIED')->getResponse();           
         }
         $files = Arikaim::page()->properties()->get('include.components.files');
-
+        
         $result = [
             'html'       => $component->getHtmlCode(),
-            'css_files'  => (isset($files['css']) == true) ? array_column($files['css'],'url') : [],
-            'js_files'   => (isset($files['js']) == true)  ? array_column($files['js'],'url')  : [],
-            'properties' =>  json_encode($component->getProperties())
+            'css_files'  => (isset($files['css']) == true) ? Arrays::arrayColumns($files['css'],['url','params']) : [],
+            'js_files'   => (isset($files['js']) == true)  ? Arrays::arrayColumns($files['js'],['url','params'])  : [],
+            'properties' => json_encode($component->getProperties())
         ];
   
         return $this->setResult($result)->getResponse();        

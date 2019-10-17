@@ -248,6 +248,7 @@ class Routes
         $app->group('/core/api/orm',function($app) use($api_namespace) {
             $app->put('/relation/delete',"$api_namespace\Orm:deleteRelation");
             $app->post('/relation',"$api_namespace\Orm:addRelation");
+            $app->put('/options',"$api_namespace\Orm:saveOptions");
             $app->get('/model/{name}/{extension}/{uuid}',"$api_namespace\Orm:read");
         })->add($session_auth);
 

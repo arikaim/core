@@ -81,6 +81,17 @@ trait Slug
     }
 
     /**
+     * Create slug from text
+     *
+     * @param string $text
+     * @return string
+     */
+    public function slug($text)
+    {
+        return Utils::slug($text,$this->getSlugSeparator());
+    }
+
+    /**
      * Find model by slug
      *
      * @param string $slug

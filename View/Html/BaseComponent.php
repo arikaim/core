@@ -95,22 +95,28 @@ class BaseComponent
      */
     public static function applyIncludeOption($component, $option_key, $file_type)
     { 
-        $option = $component->getOption($option_key);
+        $option = $component->getOption($option_key);   
+       
         if (empty($option) == false) {
-            if (is_array($option) == true) {
+            if (is_array($option) == true) {              
                 // include component files
-                foreach ($option as $item) {
+                foreach ($option as $item) {                   
                     if (Url::isValid($item) == true) {  
-                        $files = [['url' => $item]];
+                        $files = [['url' => $item,'params' => ['external' => true] ]];                  
                     } else {
                         $files = Self::getComponentFiles($item,$file_type);
                     }                      
                     $component->addFiles($files,$file_type);
                 }
-            } else {
-                $files = Self::getComponentFiles($option,$file_type);
+            } else {               
+                if (Url::isValid($option) == true) {
+                    $files = [['url' => $option,'params' => ['external' => true]]];   
+                    print_r($files);           
+                } else {
+                    $files = Self::getComponentFiles($option,$file_type);
+                }            
                 $component->addFiles($files,$file_type);
-            }  
+            }
         }
         return $component;
     }

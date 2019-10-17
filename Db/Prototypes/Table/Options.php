@@ -29,12 +29,19 @@ class Options implements BlueprintPrototypeInterface
         $table->id();
         $table->prototype('uuid');              
         $table->status();
+        $table->position();
         $table->type();
         $table->relation('reference_id',$options[0],false);     
         $table->string('key')->nullable(false);
         $table->text('value')->nullable(true);
         $table->string('title')->nullable(true);
         $table->text('description')->nullable(true);
+        $table->integer('hidden')->nullable(false)->default(0);
+        $table->integer('readonly')->nullable(false)->default(0);
+        $table->string('default')->nullable(true);
+        $table->text('items')->nullable(true);
+        $table->integer('items_reference_id')->nullable(true);
+        $table->string('items_type')->nullable(true);
         // index
         $table->unique(['reference_id','key']);
 

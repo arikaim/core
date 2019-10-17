@@ -125,7 +125,7 @@ class Path
     /**
      * Get library themes path
      *
-     * @param string $library_name
+     * @param string $library_name   
      * @return string
      */
     public static function getLibraryThemesPath($library_name)
@@ -137,11 +137,12 @@ class Path
      * Get components path
      *
      * @param string $template_name
+     * @param string $type
      * @return string
      */
-    public static function getComponentsPath($template_name = null)
+    public static function getComponentsPath($template_name = null, $type = null)
     {
-        return Self::getTemplatePath($template_name) . "components" . DIRECTORY_SEPARATOR; 
+        return Self::getTemplatePath($template_name,$type) . "components" . DIRECTORY_SEPARATOR; 
     }
 
     /**
@@ -160,22 +161,24 @@ class Path
      * Get macros path
      *
      * @param string|null $template_name
+     * @param string $type
      * @return string
      */
-    public static function getMacrosPath($template_name = null)
+    public static function getMacrosPath($template_name = null, $type = null)
     {
-        return Self::getTemplatePath($template_name) . "macros" . DIRECTORY_SEPARATOR;
+        return Self::getTemplatePath($template_name,$type) . "macros" . DIRECTORY_SEPARATOR;
     }
 
     /**
      * Get pages path
      *
      * @param string $template_name
+     * @param string $type
      * @return string
      */
-    public static function getPagesPath($template_name = null)
+    public static function getPagesPath($template_name = null, $type = null)
     {
-        return Self::getTemplatePath($template_name) . "pages" . DIRECTORY_SEPARATOR; 
+        return Self::getTemplatePath($template_name,$type) . "pages" . DIRECTORY_SEPARATOR; 
     }
 
     /**

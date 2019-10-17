@@ -99,4 +99,18 @@ trait Find
     {
         return (empty($items) == true) ? false : parent::whereIn($this->getIdAttributeName($items[0]),$items);      
     }
+
+    /**
+     * Where case insensitive
+     *
+     * @param string $attribute
+     * @param mixed $value
+     * @param string $operator
+     * @return Query
+     */
+    public function whereIgnoreCase($attribute, $value, $operator = '=')
+    {
+        $value = \strtolower($value);
+        return $this->whereRaw('LOWER(' . $attribute .') ' . $operator . ' ?',[$value]);
+    }
 }

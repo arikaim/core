@@ -73,7 +73,7 @@ class Orm extends ApiController
     }
 
     /**
-     * Remove relation
+     * Read model
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param \Psr\Http\Message\ResponseInterface $response
@@ -94,6 +94,35 @@ class Orm extends ApiController
                     ->field('data',$model->toArray());                   
             },'errors.orm.read');
         });
+        $data->validate();
+    }
+
+    /**
+     * Save options
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+     */
+    public function saveOptionsController($request, $response, $data)
+    {
+        $this->requireControlPanelPermission();
+        
+        $this->onDataValid(function($data) { 
+            $model_name = $data->get('model');
+            $extension = $data->get('extension');
+            $reference_id = $data->get('id');
+            $model = Model::create($model_name,$extension);
+            $result = (is_object($model) == true) ? $model->saveOptions($reference_id,$data['options']) : false;
+         
+            $this->setResponse($result,function() use($model) {
+                $this
+                    ->message('orm.options.save')
+                    ->field('uuid',$model->uuid);                   
+            },'errors.options.save');
+        });
+
         $data->validate();
     }
 }

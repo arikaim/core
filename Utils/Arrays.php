@@ -280,4 +280,21 @@ class Arrays
             return !empty($value) || $value === 0;
         }); 
     }
+
+    /**
+     * Filer array columns
+     *
+     * @param array $data
+     * @param array $keys
+     * @return array
+     */
+    public static function arrayColumns(array $data, array $keys)
+    {    
+        $keys = array_flip($keys);
+        $filtered = array_map(function($a) use($keys){
+            return array_intersect_key($a,$keys);
+        },$data);
+
+        return $filtered;
+    }
 }
