@@ -154,15 +154,7 @@ trait Options
     {
         return $this->where('reference_id','=',$reference_id)->where('key','=',$key)->first();
     }
-
-
-    public function getOption($key)
-    {
-        echo "get:$key";
-        $optins = $this->keyBy('key');
-        print_r($optins);
-    }
-    
+ 
     /**
      * Save option
      *
