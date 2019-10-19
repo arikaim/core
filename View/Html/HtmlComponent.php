@@ -161,8 +161,7 @@ class HtmlComponent extends BaseComponent
         if (empty($files) == true) {
             return false;
         }       
-        foreach ($files as $item) {    
-          //  print_r($item);       
+        foreach ($files as $item) {             
             Arikaim::page()->properties()->prepend('include.components.files',$item,$key);                    
         }
         return true;

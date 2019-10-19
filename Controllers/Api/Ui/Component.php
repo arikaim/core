@@ -114,6 +114,10 @@ class Component extends ApiController
         }
         $files = Arikaim::page()->properties()->get('include.components.files');
         
+       // print_r(Arrays::arrayColumns($files['js'],['url','params']));
+
+       // echo json_encode(Arrays::arrayColumns($files['js'],['url','params']),true);
+       // exit();
         $result = [
             'html'       => $component->getHtmlCode(),
             'css_files'  => (isset($files['css']) == true) ? Arrays::arrayColumns($files['css'],['url','params']) : [],

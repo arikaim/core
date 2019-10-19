@@ -100,25 +100,39 @@ class BaseComponent
         if (empty($option) == false) {
             if (is_array($option) == true) {              
                 // include component files
-                foreach ($option as $item) {                   
-                    if (Url::isValid($item) == true) {  
-                        $files = [['url' => $item,'params' => ['external' => true] ]];                  
-                    } else {
-                        $files = Self::getComponentFiles($item,$file_type);
-                    }                      
+                foreach ($option as $item) {                      
+                    $files = Self::resolveIncludeFile($item,$file_type);
                     $component->addFiles($files,$file_type);
                 }
-            } else {               
-                if (Url::isValid($option) == true) {
-                    $files = [['url' => $option,'params' => ['external' => true]]];   
-                    print_r($files);           
-                } else {
-                    $files = Self::getComponentFiles($option,$file_type);
-                }            
+            } else {   
+                $files = Self::resolveIncludeFile($option,$file_type);                        
                 $component->addFiles($files,$file_type);
             }
         }
+        
         return $component;
+    }
+
+    /**
+     * Resolve include file
+     *
+     * @param string $include_file
+     * @param string $file_type
+     * @return array
+     */
+    protected static function resolveIncludeFile($include_file, $file_type)
+    {
+        if (Url::isValid($include_file) == true) {             
+            $tokens = explode('|',$include_file);
+            $url = $tokens[0];
+            $tokens[0] = 'external';
+            $params = (isset($tokens[1]) == true) ? $tokens : [];                           
+            $files = [['url' => $url,'params' => $params]];       
+        } else {
+            $files = Self::getComponentFiles($include_file,$file_type);
+        }
+
+        return $files;
     }
 
     /**

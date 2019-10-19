@@ -239,7 +239,7 @@ class Page extends BaseComponent
      * @return array
      */
     public static function getComponentsFiles()
-    {     
+    {    
         return Arikaim::page()->properties()->get('include.components.files');
     }
 
@@ -421,7 +421,6 @@ class Page extends BaseComponent
         }
     }
 
-
     /**
      * Get template include options
      *
@@ -448,7 +447,6 @@ class Page extends BaseComponent
             return $url . "/css/" . $value; 
         },$options['css']);
       
-
         return $options;
     }
 

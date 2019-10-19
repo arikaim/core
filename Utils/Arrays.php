@@ -291,7 +291,7 @@ class Arrays
     public static function arrayColumns(array $data, array $keys)
     {    
         $keys = array_flip($keys);
-        $filtered = array_map(function($a) use($keys){
+        $filtered = array_map(function($a) use($keys) {
             return array_intersect_key($a,$keys);
         },$data);
 
