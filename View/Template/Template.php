@@ -104,7 +104,7 @@ class Template
     {  
         $language = Arikaim::session()->get('language');
         if (empty($language) == true) {
-            $language = Arikaim::cookies()->get('language');
+            //$language = Arikaim::cookies()->get('language');
         }   
         if (empty($language) == true) { 
             try {
@@ -126,7 +126,7 @@ class Template
     public static function setLanguage($language_code) 
     {
         Arikaim::session()->set('language',$language_code);
-        Arikaim::cookies()->set('language',$language_code);
+        //Arikaim::cookies()->set('language',$language_code);
         return $language_code;
     }
 

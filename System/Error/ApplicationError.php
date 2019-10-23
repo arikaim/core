@@ -9,12 +9,17 @@
  */
 namespace Arikaim\Core\System\Error;
 
+use Slim\Interfaces\ErrorHandlerInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Throwable;
+
 use Arikaim\Core\System\Error\PhpError;
 
 /**
  * Application error handler
  */
-class ApplicationError extends PhpError
+class ApplicationError extends PhpError implements ErrorHandlerInterface
 {  
     /**
      * Invoke error handler
@@ -25,8 +30,8 @@ class ApplicationError extends PhpError
      *
      * @return ResponseInterface    
      */
-    public function __invoke($request, $response, $exception)
+    public function __invoke(ServerRequestInterface $request, Throwable $exception, bool $display_details, bool $log_errors, bool $log_error_details): ResponseInterface
     {
-        return $this->renderError($request,$response,$exception);
+        return $this->renderError($request,$exception, $display_details, $log_errors, $log_error_details);
     }
 }

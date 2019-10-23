@@ -21,23 +21,22 @@ class JwtAuthentication extends Middleware
      * Call the middleware
      *
      * @param $request
-     * @param $response
-     * @param callable $next
+     * @param $handler
      * @return \Psr\Http\Message\ResponseInterface
     */
-    public function __invoke($request, $response, $next)
+    public function __invoke($request, $handler)
     {      
         $token = $this->readToken($request);
 
         if ($token === false) {
-            return $this->resolveAuthError($request,$response);
+            return $this->resolveAuthError($request);
         } 
 
         if (Arikaim::auth()->withProvider('jwt')->authenticate(['token' => $token]) == false) {
-            return $this->resolveAuthError($request,$response);
+            return $this->resolveAuthError($request);
         };
         
-        return $next($request, $response);
+        return $handler->handle($request);
     }
 
     /**

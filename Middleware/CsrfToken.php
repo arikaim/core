@@ -24,23 +24,22 @@ class CsrfToken extends Middleware
      * Invoke 
      *
      * @param object $request
-     * @param object $response
-     * @param object $next
+     * @param object $handler
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function __invoke($request, $response, $next)
+    public function __invoke($request, $handler)
     {
         if (in_array($request->getMethod(),['POST', 'PUT', 'DELETE', 'PATCH']) == true) {
             $token = $this->getToken($request);
             if (Csrf::validateToken($token) == false) {    
                 $request = $this->generateToken($request);                                    
                 // token error
-                return $this->displayTokenError($request,$response);
+                return $this->displayTokenError($request);
             }
         }
         $request = $this->generateToken($request);     
 
-        return $next($request, $response);     
+        return $handler->handle($request);
     }
 
     /**

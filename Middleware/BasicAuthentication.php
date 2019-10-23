@@ -21,22 +21,21 @@ class BasicAuthentication extends Middleware
      * Call the middleware
      *
      * @param $request
-     * @param $response
-     * @param callable $next
+     * @param $handler
      * @return \Psr\Http\Message\ResponseInterface
     */
-    public function __invoke($request, $response, $next)
+    public function __invoke($request, $handler)
     {      
         if (empty(Arikaim::auth()->getId()) == false) {
-            return $next($request, $response);
+            return $handler->handle($request);
         }
         // auth
         $credentials = $this->getCredentials($request);
         if (Arikaim::auth()->withProvider('basic')->authenticate($credentials) == false) {
-            return $this->resolveAuthError($request,$response);
+            return $this->resolveAuthError($request);
         }
 
-        return $next($request, $response);
+        return $handler->handle($request);
     }
 
     /**

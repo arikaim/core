@@ -27,7 +27,7 @@ class PageLoader extends Controller
      * @return Psr\Http\Message\ResponseInterface
     */
     public function loadControlPanel($request, $response, $data) 
-    {         
+    {            
         if (Install::isInstalled() == false) { 
             return $this->loadInstallPage($request,$response,$data);
         }   

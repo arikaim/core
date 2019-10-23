@@ -222,4 +222,15 @@ class File
     {
         return (Self::exists($file_name) == true) ? file_get_contents($file_name) : null;           
     }
+
+    /**
+     * Return true if MIME type is image
+     *
+     * @param string $mime_type
+     * @return boolean
+     */
+    public static function isImageMimeType($mime_type)
+    {
+        return (substr($mime_type,0,5) == 'image');
+    }
 }

@@ -21,27 +21,27 @@ class TokenAuthentication extends Middleware
      * Call the middleware
      *
      * @param $request
-     * @param $response
-     * @param callable $next
+     * @param $handler    
      * @return \Psr\Http\Message\ResponseInterface
     */
-    public function __invoke($request, $response, $next)
+    public function __invoke($request, $handler)
     {      
         $token = $this->readToken($request);
         $result = Arikaim::auth()->withProvider('token')->authenticate(['token' => $token]);
         if ($result === false) {          
             if (empty(Arikaim::auth()->withProvider('session')->getId()) == true) {
-                return $this->resolveAuthError($request,$response);
+                return $this->resolveAuthError($request);
             }           
         }
-        return $next($request, $response);         
+
+        return $handler->handle($request);  
     }
 
     /**
      * Get token from request header or cookies
      *
      * @param \Psr\Http\Message\RequestInterface $request
-     * @return 
+     * @return string
      */
     protected function readToken($request)
     {   
@@ -49,8 +49,8 @@ class TokenAuthentication extends Middleware
         $token = $route->getArgument('token'); 
       
         if (empty($token) == true) {
-            // try from cokies
-            $token = Arikaim::cookies()->get('token');
+            // try from cokies TODO
+            // $token = Arikaim::cookies()->get('token');
         }
         if (empty($token) == true) {
             // try from requets body 

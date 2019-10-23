@@ -96,9 +96,9 @@ class Page extends BaseComponent
      * @param string|null $language
      * @return object
      */
-    public function load($name, $params = [], $language = null)
+    public function load($name, $params = [], $language = null, $response = null)
     {
-        $response = Arikaim::response();
+        $response = ($response == null) ? Arikaim::response() : $response;
         if (empty($name) == true || $this->has($name) == false) {          
             $name = 'system:page-not-found';
             $response->withStatus(404);          
@@ -110,7 +110,9 @@ class Page extends BaseComponent
         $component = $this->render($name,$params,$language);  
         $html = $component->getHtmlCode();
     
-        return $response->write($html);
+        $response->getBody()->write($html);
+
+        return $response;
     }
 
     /**
@@ -473,6 +475,7 @@ class Page extends BaseComponent
                 $item['params'] = $params;
                 $item['library'] = $library_name;
                 $item['async'] = $library->getProperties()->get('async',false);
+                $item['crossorigin'] = $library->getProperties()->get('crossorigin',null);
                 array_push($include_lib,$item);
             }           
             if ($library->isFramework() == true) {

@@ -23,7 +23,7 @@ use Arikaim\Core\Packages\Package;
 use Arikaim\Core\Packages\Extension\ExtensionsManager;
 use Arikaim\Core\Packages\Library\LibraryManager;
 use Arikaim\Core\Packages\Template\TemplatesManager;
-use Arikaim\Core\Packages\Modules\ModulesManager;
+use Arikaim\Core\Packages\Module\ModulesManager;
 
 /**
  * Template functions
@@ -35,7 +35,10 @@ class TemplateFunction
      *
      * @var array
      */
-    private $allowed_classes;
+    private $allowed_classes = [
+        'Arikaim\\Core\\System\\Update',
+        'Arikaim\\Core\\System\\System'
+    ];
     
     /**
      * Contain all methods not allowed for execute.
@@ -49,7 +52,6 @@ class TemplateFunction
      */
     public function __construct() 
     {
-        $this->allowed_classes = Arikaim::config()->load('allowed-classes.php');
         $this->deny_methods = [];
     }
 
@@ -365,7 +367,7 @@ class TemplateFunction
      */
     public function packageManager($package_type)
     {
-        // Control panel only
+        // Control Panel only
         if (Arikaim::access()->hasControlPanelAccess() == false) {
             return null;
         }

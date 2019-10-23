@@ -54,11 +54,18 @@ class Response
     protected $raw;
 
     /**
+     * Request response object
+     *
+     * @var ResponseInterface
+     */
+    protected $response;
+
+    /**
      * Constructor
      *
      * @param boolean $debug
      */
-    public function __construct($debug = false) 
+    public function __construct($debug = false, $response = null) 
     {                    
         $this->errors = [];
         $this->debug = ($debug == true) ? true : false;
@@ -68,6 +75,7 @@ class Response
         $this->result['errors'] = $this->errors;  
         $this->pretty_format = false; 
         $this->raw = false; 
+        $this->response = ($response == null) ? Arikaim::getApp()->getResponseFactory()->createResponse() : $response;
     }
 
     /**
@@ -250,10 +258,9 @@ class Response
         $this->raw = $raw;
 
         $json = $this->getResponseJson();
-        return Arikaim::response()
-            ->withStatus($this->result['code'])
-            ->withHeader('Content-Type','application/json')
-            ->write($json);
+        $this->response->getBody()->write($json);
+
+        return $this->response->withStatus($this->result['code'])->withHeader('Content-Type','application/json');           
     }
 
     /**

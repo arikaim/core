@@ -74,11 +74,12 @@ class Middleware
      * Resolve auth error,  redirect or show error page
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param \Psr\Http\Message\ResponseInterface|null $response
      * @return void
      */
-    protected function resolveAuthError($request, $response)
+    protected function resolveAuthError($request, $response = null)
     {
+        $response = ($response == null) ? Arikaim::getApp()->handle($request) : $response;
         $route = $request->getAttribute('route');  
         if (is_object($route) == true) {
             $pattern = $route->getPattern();

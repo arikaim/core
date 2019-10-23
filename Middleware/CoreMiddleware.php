@@ -23,11 +23,10 @@ class CoreMiddleware extends Middleware
      * Invoke 
      *
      * @param object $request
-     * @param object $response
-     * @param object $next
+     * @param object $handler   
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function __invoke($request, $response, $next)
+    public function __invoke($request, $handler)
     {
         // set current path 
         Arikaim::session()->set('current.path',$request->getUri()->getPath());
@@ -40,7 +39,7 @@ class CoreMiddleware extends Middleware
         $request->withAttribute('client_ip',$client_id);   
         Arikaim::session()->set('client_ip',$client_id);
 
-        return $next($request, $response);     
+        return $handler->handle($request);
     }
 
     /**

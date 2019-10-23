@@ -21,16 +21,15 @@ class SessionAuthentication extends Middleware
      * Call the middleware
      *
      * @param $request
-     * @param $response
-     * @param callable $next
+     * @param $handler   
      * @return \Psr\Http\Message\ResponseInterface
     */
-    public function __invoke($request, $response, $next) 
+    public function __invoke($request, $handler) 
     {
         if (empty(Arikaim::auth()->getId()) == true) {
-            return $this->resolveAuthError($request,$response);            
+            return $this->resolveAuthError($request);            
         }      
 
-        return $next($request, $response);         
+        return $handler->handle($request); 
     }
 }

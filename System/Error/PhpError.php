@@ -13,6 +13,7 @@ use Arikaim\Core\System\System;
 use Arikaim\Core\Utils\Html;
 use Arikaim\Core\Utils\Request;
 use Arikaim\Core\Api\Response;
+use Arikaim\Core\Arikaim;
 
 /**
  * Php error base class
@@ -34,6 +35,20 @@ class PhpError
     protected $display_error_trace;
 
     /**
+     * Log errors
+     *
+     * @var boolean
+     */
+    protected $log_errors;
+
+    /**
+     * Log error details
+     *
+     * @var boolean
+     */
+    protected $log_error_details;
+
+    /**
      * Constructor
      *
      * @param boolean $display_error_details
@@ -41,7 +56,7 @@ class PhpError
     public function __construct($display_error_details = true, $display_error_trace = true)
     {
         $this->display_error_details = $display_error_details;
-        $this->display_error_trace = $display_error_trace;
+        $this->display_error_trace = $display_error_trace;        
     }
 
     /**
@@ -53,18 +68,22 @@ class PhpError
      *
      * @return ResponseInterface   
      */
-    public function renderError($request, $response, $error)
+    public function renderError($request, $exception, $display_details, $log_errors, $log_error_details)
     {
+        $this->log_errors = $log_errors;
+        $this->display_error_details = $display_details;
+        $this->log_error_details = $log_error_details;
+
         if (System::isConsole() == true) {
-            return $this->renderConsoleErrorMessage($error);
+            return $this->renderConsoleErrorMessage($exception);
         } elseif (Request::acceptJson($request) == true) {
-            return $this->renderJsonErrorMessage($error);
+            return $this->renderJsonErrorMessage($exception);
         }
 
-        $output = $this->renderHtmlErrorMessage($error);
-        return $response
-                ->withStatus(400)
-                ->write($output);
+        $output = $this->renderHtmlErrorMessage($exception);       
+        $response = Arikaim::getApp()->handle($request)->getBody()->write($output);
+
+        return $response->withStatus(400);              
     }
 
     /**

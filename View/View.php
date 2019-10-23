@@ -100,17 +100,19 @@ class View
         return $this->environment->createTemplate($string)->render($params);
     }
 
-    /**
-     * render template
+    /*  DEPRECATED
+     * Render template
      *
      * @param string $template
      * @param array $params
      * @return void
-     */
+     
     public function render($template, $params = [])
     {
         return Arikaim::response()->getBody()->write($this->fetch($template, $params));
     }
+    
+    */
 
     /**
      * Get Twig loader

@@ -53,12 +53,13 @@ class Controller
     /**
      * Get url
      *
+     * @param ServerRequestInterface $request 
      * @param boolean $relative
      * @return string
      */
-    public function getUrl($relative = false)
+    public function getUrl($request, $relative = false)
     {
-        $path = Arikaim::request()->getUri()->getPath();
+        $path = $request->getUri()->getPath();
         return ($relative == true ) ? $path : Url::ARIKAIM_BASE_URL . '/' . $path;
     }
 
@@ -207,17 +208,21 @@ class Controller
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param \Psr\Http\Message\ResponseInterface $response
-     * @param Validator $data     
+     * @param Validator $data   
+     * @param string|null $name Page name  
      * @return Psr\Http\Message\ResponseInterface
     */
-    public function loadPage($request, $response, $data)
+    public function loadPage($request, $response, $data, $name = null)
     {       
         $language = $this->getPageLanguage($data);
-        $page_name = (isset($data['page_name']) == true) ? $data['page_name'] : $this->resolvePageName($request, $data);
-
+        if ($name != null) {
+            $page_name = $name;
+        } else {
+            $page_name = (isset($data['page_name']) == true) ? $data['page_name'] : $this->resolvePageName($request, $data);
+        }
+      
         $data = (is_object($data) == true) ? $data->toArray() : $data;
-    
-        return Arikaim::page()->load($page_name,$data,$language);
+        return Arikaim::page()->load($page_name,$data,$language,$response);
     }
 
     /**

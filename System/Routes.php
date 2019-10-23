@@ -101,9 +101,6 @@ class Routes
         $api_namespace = Path::API_CONTROLLERS_NAMESPACE;
         $controller_namespace = Path::CONTROLLERS_NAMESPACE;
 
-        // Middleware for sanitize request body and client ip
-        $app->add(new \Arikaim\Core\Middleware\CoreMiddleware());        
-      
         $session_auth = Arikaim::auth()->middleware('session');
         // Control Panel
         $app->get('/admin/[{language:[a-z]{2}}/]',"$controller_namespace\PageLoader:loadControlPanel");       

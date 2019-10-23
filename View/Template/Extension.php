@@ -116,6 +116,8 @@ class Extension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('getThemeFiles', ["\\Arikaim\\Core\\View\\Template\\Template", 'getThemeFiles']),
             new TwigFunction('getCurrentTheme', ["\\Arikaim\\Core\\View\\Theme", 'getCurrentTheme']),
             new TwigFunction('getLibraryFiles', ["\\Arikaim\\Core\\View\\Template\\Template", 'getLibraryFiles']),
+            new TwigFunction('currentFramework', ["\\Arikaim\\Core\\View\\Template\\Template", 'getCurrentFramework']),
+
             new TwigFunction('loadLibraryFile', [$template_function, 'loadLibraryFile']),     
             new TwigFunction('loadComponentCssFile', [$template_function, 'loadComponentCssFile']),             
             // date and time
