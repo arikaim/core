@@ -13,7 +13,7 @@ use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Api\ClientResponse;
 
 /**
- * Api Client TODO
+ * Api Client (TODO)
 */
 class Client 
 {
@@ -58,7 +58,7 @@ class Client
      * @param string $host Host url
      * @param integer $timeout
      */
-    public function __construct($host,$timeout = 30) 
+    public function __construct($host, $timeout = 30) 
     {
         $this->host = $host;
         $this->timeout = $timeout;

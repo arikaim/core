@@ -22,6 +22,7 @@ use Arikaim\Core\System\ServiceContainer;
 use Arikaim\Core\System\Routes;
 use Arikaim\Core\Interfaces\Collection\CollectionInterface;
 use Arikaim\Core\System\Path;
+use Arikaim\Core\System\ModulesMiddleware;
 
 /**
  * Arikaim core class
@@ -33,7 +34,7 @@ class Arikaim
      * 
      * @var object
     */
-    private static $app;
+    public static $app;
     
     /**
      * Http Scheme
@@ -55,16 +56,6 @@ class Arikaim
      * @var string
      */
     private static $base_path;
-
-    /**
-     * Get Slim application object
-     *
-     * @return Slim\App
-    */
-    public static function getApp()
-    {
-        return Self::$app;
-    }
 
     /**
      * Start time
@@ -179,9 +170,11 @@ class Arikaim
         $error_middleware->setDefaultErrorHandler(new \Arikaim\Core\System\Error\ApplicationError());
 
         Self::$app->add(new OutputBufferingMiddleware(new StreamFactory(),OutputBufferingMiddleware::APPEND));
-        // Middleware for sanitize request body and client ip
+        // sanitize request body and client ip
         Self::$app->add(new \Arikaim\Core\Middleware\CoreMiddleware());        
-      
+        // add modules middlewares 
+        ModulesMiddleware::add();
+
         // set router 
         Self::$app->getRouteCollector()->setDefaultInvocationStrategy(new ValidatorStrategy());
         Self::$app->getRouteCollector()->setCacheFile(Path::CACHE_PATH . "/routes.cache.php");
@@ -192,10 +185,21 @@ class Arikaim
     
         if ($load_routes == true) {
             // map routes                       
-            Self::$app = Routes::mapSystemRoutes(Self::$app);              
+            Routes::mapSystemRoutes();    
+            Routes::mapRoutes();          
         }       
     }
     
+    /**
+     * Get route parser
+     *
+     * @return RouteParser
+     */
+    public static function getRouteParser()
+    {
+        return Self::$app->getRouteCollector()->getRouteParser();
+    }
+
     /**
      * Create response object
      *

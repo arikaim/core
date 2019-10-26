@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Access\Authenticate;
 use Arikaim\Core\System\Url;
+use Arikaim\Core\System\Routes as SystemRoutes;
 use Arikaim\Core\View\Html\HtmlComponent;
 use Arikaim\Core\Traits\Db\Find;
 use Arikaim\Core\Traits\Db\Status;
@@ -76,6 +77,18 @@ class Routes extends Model
     }
     
     /**
+     * Get route url (parse route pattern with data)
+     *
+     * @param array $data
+     * @param array $query_params
+     * @return string
+     */
+    public function getRouteUrl(array $data = [], array $query_params = [])
+    {
+        return ($this->hasPlaceholder() == false) ? $this->pattern : SystemRoutes::getRouteUrl($this->pattern,$data,$query_params);
+    }
+
+    /**
      * Mutator (set) for options attribute.
      *
      * @param array:null $value
@@ -115,6 +128,37 @@ class Routes extends Model
             $routes = $routes->where('status','=', $status);
         }         
         return $routes->get();
+    }
+
+    /**
+     * Get page routes query
+     *
+     * @param string $extension_name
+     * @param integer $status
+     * @return QueryBuilder
+     */
+    public function getPageRoutesQuery($extension_name = null, $status = null)
+    {
+        $query = $this->where('type','=',Self::TYPE_PAGE);
+        
+        if ($extension_name != null) {
+            $query = $query->where('extension_name','=',$extension_name);
+        }
+        if ($status != null) {
+            $query = $query->where('status','=', $status);
+        }  
+
+        return $query;
+    }
+
+    /**
+     * Return true if route pattern have placeholder
+     *
+     * @return boolean
+     */
+    public function hasPlaceholder()
+    {
+        return SystemRoutes::hasPlaceholder($this->pattern);
     }
 
     /**
@@ -327,20 +371,24 @@ class Routes extends Model
      * @param integer $auth  
      * @param integer $type
      * @param string|null $redirect_url
+     * @param string|null $route_name
+     * @param boolean $with_language
      * @return bool
      */
-    public function addPageRoute($pattern, $handler_class, $handler_method, $extension_name, $page_name, $auth = null, $redirect_url = null)
+    public function addPageRoute($pattern, $handler_class, $handler_method, $extension_name, $page_name, $auth = null, $redirect_url = null, $route_name = null, $with_language = true)
     {
+        $language_pattern = ($with_language == true) ? $this->getLanguagePattern($pattern) : '';
         $route = [
             'method'            => "GET",
-            'pattern'           => $pattern . $this->getLanguagePattern($pattern),
+            'pattern'           => $pattern . $language_pattern,
             'handler_class'     => $handler_class,
             'handler_method'    => $handler_method,
             'auth'              => $auth,
             'type'              => Self::TYPE_PAGE,
             'extension_name'    => $extension_name,
-            'page_name'     => $page_name,
+            'page_name'         => $page_name,
             'template_name'     => null,
+            'name'              => $route_name,
             'redirect_url'      => $redirect_url
         ];
 

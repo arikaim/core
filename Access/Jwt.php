@@ -36,32 +36,32 @@ class Jwt
     /**
      * Constructor
      *
-     * @param int|null $expire_time Expire time stamp, default value 1 month
+     * @param int|null $expireTime Expire time stamp, default value 1 month
      */
-    public function __construct($expire_time = null)
+    public function __construct($expireTime = null)
     {
-        $this->init($expire_time);
+        $this->init($expireTime);
     }
 
     /**
      * Init token data
      *
-     * @param int|null $expire_time
+     * @param int|null $expireTime
      * @return void
      */
-    private function init($expire_time = null) 
+    private function init($expireTime = null) 
     {
         $this->key = Arikaim::config('settings/jwt_key');
-        $expire_time = ($expire_time == null) ? strtotime("+1 week") : $expire_time;
-        $token_id = base64_encode(random_bytes(32));
+        $expireTime = ($expireTime == null) ? strtotime("+1 week") : $expireTime;
+        $tokenId = base64_encode(random_bytes(32));
        
         $this->token = new Builder();
         $this->token->setIssuer(ARIKAIM_DOMAIN);
         $this->token->setAudience(ARIKAIM_DOMAIN);
-        $this->token->setId($token_id, true);
+        $this->token->setId($tokenId, true);
         $this->token->setIssuedAt(time());
         $this->token->setNotBefore(time());
-        $this->token->setExpiration($expire_time);
+        $this->token->setExpiration($expireTime);
     }
 
     /**
@@ -91,18 +91,19 @@ class Jwt
     /**
      * Decode encrypted JWT token
      *
-     * @param string $jwt_token
+     * @param string $token
      * @param boolean $verify
      * @return boolean
      */
-    public function decodeToken($jwt_token,$verify = true)
+    public function decodeToken($token, $verify = true)
     {
         try {
             $parser = new Parser();
-            $this->token = $parser->parse($jwt_token);      
+            $this->token = $parser->parse($token);      
             if ($verify == true) {
                 if ($this->verify($this->key) == false) {
-                    return false; // Token not valid
+                    // Token not valid
+                    return false; 
                 }
             }
             return $this->token->getClaims();
@@ -125,11 +126,11 @@ class Jwt
     /**
      * Validate token data
      *
-     * @param mixed $validation_data
+     * @param mixed $data
      * @return void
      */
-    public function validate($validation_data) 
+    public function validate($data) 
     {
-        return $this->token->validate($validation_data);
+        return $this->token->validate($data);
     }
 }

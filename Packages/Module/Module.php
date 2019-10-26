@@ -33,13 +33,6 @@ class Module implements ModuleInterface
     protected $service_name;
     
     /**
-     * Bootable
-     *
-     * @var bool
-     */
-    protected $bootable;
-
-    /**
      * test error
      *
      * @var string|null
@@ -102,27 +95,6 @@ class Module implements ModuleInterface
     public function setServiceName($name)
     {
         return $this->service_name = $name;
-    }
-
-    /**
-     * Return true if module is bootable
-     *
-     * @return boolean
-     */
-    public function isBootable()
-    {
-        return ($this->bootable == true) ? true : false; 
-    }
-
-    /**
-     * Set module bootable
-     *
-     * @param boolean $bootable
-     * @return void
-     */
-    public function setBootable($bootable = true)
-    {
-        $this->bootable = $bootable;
     }
 
     /**

@@ -9,6 +9,7 @@
 */
 namespace Arikaim\Core\Cache;
 
+use Doctrine\Common\Cache\Cache as CacheInterface;
 use Doctrine\Common\Cache\FilesystemCache;
 use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\System\Path;
@@ -37,24 +38,22 @@ class Cache
      *
      * @var string|null
      */
-    private $router_cache_file;
+    private $routerCacheFile;
 
     /**
      * Constructor
      *
      * @param Doctrine\Common\Cache\Cache $driver
      * @param boolean $status
+     * @param string|null $routerCacheFile
      */
-    public function __construct($driver = null, $status = false, $settings = [])
+    public function __construct($status = false, $driver = null, $routerCacheFile = null)
     {
         $this->setStatus($status);
-        $this->router_cache_file = (isset($settings['routerCacheFile']) == true) ? $settings['routerCacheFile'] : null;
+        $this->routerCacheFile = (empty($routerCacheFile) == true) ? Path::CACHE_PATH . "/routes.cache.php" : $routerCacheFile;
 
-        if (empty($driver) == false) {
-            $this->setDriver($driver);
-        } else {
-            $this->driver = new FilesystemCache(Path::CACHE_PATH);
-        }
+        $driver = (empty($driver) == true) ? new FilesystemCache(Path::CACHE_PATH) : $driver;             
+        $this->setDriver($driver);
     }
 
     /**
@@ -106,10 +105,10 @@ class Cache
      */
     public function setDriver($driver)
     {
-        if ($driver instanceof Doctrine\Common\Cache\Cache) {
+        if ($driver instanceof CacheInterface) {
             $this->driver = $driver;
         } else {
-            throw new Exception("Error cache driver not valid!", 1);
+            throw new \Exception("Error cache driver not valid!", 1);
         }
     }
 
@@ -151,12 +150,12 @@ class Cache
      *
      * @param string $id item id
      * @param mixed $data item data
-     * @param integer $life_time  lifetime in minutes
+     * @param integer $lifeTime  lifetime in minutes
      * @return bool
      */
-    public function save($id, $data, $life_time = 0)
+    public function save($id, $data, $lifeTime = 0)
     {
-        return ($this->isDiabled() == true) ? false : $this->driver->save($id,$data,($life_time * 60));
+        return ($this->isDiabled() == true) ? false : $this->driver->save($id,$data,($lifeTime * 60));
     }
 
     /**
@@ -211,7 +210,7 @@ class Cache
      */
     public function hasRouteCache()
     {
-        return (empty($this->router_cache_file) == true) ? false : File::exists($this->router_cache_file);
+        return (empty($this->routerCacheFile) == true) ? false : File::exists($this->routerCacheFile);
     }
 
     /**
@@ -222,7 +221,7 @@ class Cache
     public function clearRouteCache()
     {
         $this->delete('routes.list');
-        return (empty($this->router_cache_file) == true) ? true : File::delete($this->router_cache_file);
+        return (empty($this->routerCacheFile) == true) ? true : File::delete($this->routerCacheFile);
     }
     
     /**

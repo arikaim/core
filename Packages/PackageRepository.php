@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\Packages;
 
-use Arikaim\Core\Collection\Collection;
 use Arikaim\Core\Interfaces\Packages\RepositoryInterface;
 use Arikaim\Core\Utils\Url;
 
@@ -19,6 +18,28 @@ use Arikaim\Core\Utils\Url;
 abstract class PackageRepository implements RepositoryInterface
 {
     /**
+     *  Repository type
+     */
+    const REPOSITORY_TYPE_GITHUB    = 'github';
+    const REPOSITORY_TYPE_ARIKAIM   = 'arikaim';
+    const REPOSITORY_TYPE_BITBUCKET = 'bitbucket';
+    const REPOSITORY_TYPE_COMPOSER  = 'composer';
+
+    /**
+     * Repository type
+     *
+     * @var string|null
+     */
+    protected $type;
+
+    /**
+     * Repository url or name
+     *
+     * @var string
+     */
+    protected $url;
+
+    /**
      * Access token for remote package repository
      *
      * @var string
@@ -26,13 +47,18 @@ abstract class PackageRepository implements RepositoryInterface
     protected $access_token;
 
     /**
-     * Download package
+     * Repository driver
      *
-     * @param string $name
-     * @param string|null $licese_key
+     * @var RepositoryDriverInterface
+     */
+    protected $driver;
+
+    /**
+     * Download package
+     *   
      * @return bool
      */
-    abstract public function download($name, $licese_key = null);
+    abstract public function download();
 
     /**
      * Get package last version
@@ -40,42 +66,87 @@ abstract class PackageRepository implements RepositoryInterface
      * @param string $name
      * @return string|false
      */
-    abstract public function getVersion($name);
+    abstract public function getLastVersion();
 
     /**
-     * Logoout from repository 
+     * Install package
      *
-     * @return void
+     * @return boolean
      */
-    public function logout()
+    abstract public function install();
+
+    /**
+     * Constructor
+     * 
+     * @param string $url  
+     */
+    public function __construct($url)
     {
-        $this->access_token = null;
+        $this->url = $url;
+        $this->type = $this->resolveType($url);
     }
 
     /**
-     * Login to remote package repository
-     *
-     * @param string $user_name
-     * @param string $password
-     * @return bool
-     */
-    public function login($user_name, $password)
-    {
-        $url = Url::REPOSITORY_URL . '/login/';
-    }
-
-    /**
-     * Return access token
+     * Get type
      *
      * @return string
      */
-    public function getAccessToken()
+    public function getType()
     {
-        return $this->access_token;
+        return $this->type;
     }
 
-    public static function unpack($file_name)
+    /**
+     * Get repository url
+     *
+     * @return string
+     */
+    public function getUrl()
     {
-
+        return $this->url;
     }
+
+    /**
+     * Create repository driver
+     *
+     * @return void
+     */
+    protected function createDriver()
+    {
+        switch ($this->type) {
+            case Self::REPOSITORY_TYPE_ARIKAIM:
+                return new ArikaimRepositoryDriver();
+            case Self::REPOSITORY_TYPE_GITHUB:
+                return new GitHubRepositoryDriver();
+        }
+
+        return nulll;
+    }
+
+    /**
+     * Resolve package repository type
+     *
+     * @param string $repository
+     * @return string|null
+     */
+    protected function resolveType($repository)
+    {
+        if ($repository == 'arikaim') {
+            return Self::REPOSITORY_TYPE_ARIKAIM;
+        }
+        if (substr($repository,0,8) == 'composer') {
+            return Self::REPOSITORY_TYPE_COMPOSER;
+        }
+        $url = parse_url($repository);
+
+        if ($url['host'] == 'github.com' || $url['host'] == 'www.github.com') {
+            return Self::REPOSITORY_TYPE_GITHUB;
+        }
+
+        if ($url['host'] == 'bitbucket.org' || $url['host'] == 'www.bitbucket.org') {
+            return Self::REPOSITORY_TYPE_BITBUCKET;
+        }
+
+        return null;       
+    }   
 }

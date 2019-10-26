@@ -221,16 +221,38 @@ abstract class Extension implements ExtensionInterface
      * @param string|null $handler_method
      * @param null|integer|string $auth
      * @param string|null $redirect_url 
+     * @param string|null $route_name
+     * @param boolean $with_language
      * @return bool
      */
-    public function addPageRoute($pattern, $page_name, $handler_class = null, $handler_method = null, $auth = null, $redirect_url = null)
+    public function addPageRoute($pattern, $handler_class = null, $handler_method = null, $auth = null, $redirect_url = null, $route_name = null, $with_language = true)
     {
         $routes = Model::Routes();
         $handler_class = ($handler_class == null) ? Factory::getControllerClass("PageLoader") : $this->getControllerClassName($handler_class);
         $handler_method = ($handler_method == null) ? "loadPage" : $handler_method;
         $auth = Arikaim::auth()->resolveAuthType($auth);
 
-        return $routes->addPageRoute($pattern,$handler_class,$handler_method,$this->getName(),$page_name,$auth,$redirect_url);
+        return $routes->addPageRoute($pattern,$handler_class,$handler_method,$this->getName(),null,$auth,$redirect_url,$route_name,$with_language);
+    }
+
+    /**
+     * Register show page route (handler: PageLoader:loadPage)
+     *
+     * @param string $pattern
+     * @param string $page_name
+     * @param null|integer|string $auth
+     * @param string|null $redirect_url 
+     * @param string|null $route_name
+     * @param boolean $with_language
+     * @return bool
+     */
+
+    public function addShowPageRoute($pattern, $page_name, $auth = null, $redirect_url = null, $route_name = null, $with_language = true)
+    {
+        $routes = Model::Routes();       
+        $auth = Arikaim::auth()->resolveAuthType($auth);
+
+        return $routes->addPageRoute($pattern,Factory::getControllerClass("PageLoader"),"loadPage",$this->getName(),$page_name,$auth,$redirect_url,$route_name,$with_language);
     }
 
     /**

@@ -56,8 +56,8 @@ class TemplatePackage extends Package
      */
     public function install()
     {
-        // clear cached items
-        Arikaim::cache()->deleteTemplateItems();
+        // clear cache
+        Arikaim::cache()->clear();
 
         $result = Arikaim::options()->set('current.template',$this->getName());
         if ($result == false) {

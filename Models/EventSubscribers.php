@@ -49,14 +49,19 @@ class EventSubscribers extends Model
      *
      * @param string $extension_name
      * @param integer $status
+     * @param string|null $event_name
      * @return array
      */
-    public function getExtensionSubscribers($extension_name, $status = null) 
+    public function getExtensionSubscribers($extension_name, $status = null, $event_name = null) 
     {           
         $model = $this->where('extension_name','=',$extension_name);
         if ($status != null) {
             $model = $model->where('status','=',$status);
         }
+        if ($event_name != null) {
+            $model = $model->where('name','=',$event_name);
+        }
+
         $model = $model->orderBy('priority')->get();
         return (is_object($model) == true) ? $model->toArray() : [];
     }

@@ -81,9 +81,11 @@ class PhpError
         }
 
         $output = $this->renderHtmlErrorMessage($exception);       
-        $response = Arikaim::getApp()->handle($request)->getBody()->write($output);
-
-        return $response->withStatus(400);              
+        
+        $response = Arikaim::response()->withStatus(400);
+        $response->getBody()->write($output);   
+        
+        return $response;              
     }
 
     /**

@@ -25,9 +25,7 @@ class Url
     const EXTENSIONS_URL   = Self::ARIKAIM_URL . '/extensions';
     const TEMPLATES_URL    = Self::ARIKAIM_VIEW_URL . '/templates';
     const COMPONENTS_URL   = Self::ARIKAIM_VIEW_URL . '/components';
-
-    const REPOSITORY_URL   = 'https://www.arikaim.com/store/';
-    
+  
     /**
      * Get theme file url
      *

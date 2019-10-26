@@ -46,10 +46,10 @@ class SessionAuthProvider implements AuthProviderInterface
     {
         $password = (isset($credentials['password']) == true) ? $credentials['password'] : null;
         $user = $this->user->getUserByCredentials($credentials);
-        $login_attempts = $this->getLoginAttempts() + 1;
+        $loginAttempts = $this->getLoginAttempts() + 1;
 
         if ($user === false) {
-            Arikaim::session()->set('auth.login.attempts',$login_attempts);
+            Arikaim::session()->set('auth.login.attempts',$loginAttempts);
             return false;
         }
       
@@ -60,7 +60,7 @@ class SessionAuthProvider implements AuthProviderInterface
             $user->updateLoginDate();
             return true;
         }
-        Arikaim::session()->set('auth.login.attempts',$login_attempts);
+        Arikaim::session()->set('auth.login.attempts',$loginAttempts);
         return false;
     }
   

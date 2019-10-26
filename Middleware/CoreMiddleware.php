@@ -9,6 +9,11 @@
 */
 namespace Arikaim\Core\Middleware;
 
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+
 use Arikaim\Core\Validator\Validator;
 use Arikaim\Core\Utils\ClientIp;
 use Arikaim\Core\Arikaim;
@@ -17,16 +22,16 @@ use Arikaim\Core\Middleware\Middleware;
 /**
  * Core middleware
  */
-class CoreMiddleware extends Middleware
+class CoreMiddleware extends Middleware implements MiddlewareInterface
 {
     /**
-     * Invoke 
-     *
-     * @param object $request
-     * @param object $handler   
-     * @return \Psr\Http\Message\ResponseInterface
-     */
-    public function __invoke($request, $handler)
+     * Process middleware
+     * 
+     * @param ServerRequestInterface  $request
+     * @param RequestHandlerInterface $handler
+     * @return ResponseInterface
+    */
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         // set current path 
         Arikaim::session()->set('current.path',$request->getUri()->getPath());
@@ -45,8 +50,8 @@ class CoreMiddleware extends Middleware
     /**
      * Sanitize request 
      *
-     * @param object $request
-     * @return object
+     * @param ServerRequestInterface $request
+     * @return ServerRequestInterface
      */
     private function sanitizeRequest($request)
     {

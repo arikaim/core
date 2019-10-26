@@ -22,13 +22,6 @@ interface ModuleInterface
     public function getServiceName();
 
     /**
-     * Return true if module is bootable
-     *
-     * @return boolean
-     */
-    public function isBootable();
-
-    /**
      * Boot module callback
      *
      * @return void

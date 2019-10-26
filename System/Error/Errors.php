@@ -231,7 +231,7 @@ class Errors extends Collection
         }       
         if ($end == true) {
             $response = Arikaim::page()->load('system:system-error');
-            Arikaim::getApp()->respond($response); 
+            Arikaim::$app->respond($response); 
             Arikaim::end();
         }
        

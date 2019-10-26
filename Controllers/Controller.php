@@ -9,6 +9,8 @@
  */
 namespace Arikaim\Core\Controllers;
 
+use Psr\Http\Message\ResponseInterface;
+
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\System\Url;
 use Arikaim\Core\Db\Model;
@@ -173,12 +175,12 @@ class Controller
         switch ($this->type) {
             case Controller::API: {    
                 $this->setError(Arikaim::getError("AUTH_FAILED"));                        
-                Arikaim::getApp()->respond($this->getResponse()); 
+                Arikaim::$app->respond($this->getResponse()); 
                 Arikaim::end();       
             }   
             default: {
                 $response = Arikaim::page()->load("system:system-error");
-                Arikaim::getApp()->respond($response); 
+                Arikaim::$app->respond($response); 
                 Arikaim::end(); 
             }         
         }
@@ -261,5 +263,18 @@ class Controller
         $language = $this->getPageLanguage($data);
 
         return Arikaim::page()->load('system:page-not-found',$data,$language);    
+    }
+
+    /**
+     * Write XML to reponse body
+     *
+     * @param ResponseInterface $response
+     * @param string $xml
+     * @return ResponseInterface
+     */
+    public function writeXml(ResponseInterface $response, $xml)
+    {
+        $response->getBody()->write($xml);
+        return $response->withHeader('Content-Type','text/xml');
     }
 }

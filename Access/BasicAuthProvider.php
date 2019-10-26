@@ -9,7 +9,6 @@
  */
 namespace Arikaim\Core\Access;
 
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Interfaces\Auth\UserProviderInterface;
 use Arikaim\Core\Interfaces\Auth\AuthProviderInterface;
@@ -88,7 +87,7 @@ class BasicAuthProvider implements AuthProviderInterface
     }
 
     /**
-     * Gte auth id
+     * Get auth id
      *
      * @return null|integer
      */

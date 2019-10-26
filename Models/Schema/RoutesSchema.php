@@ -49,7 +49,7 @@ class RoutesSchema extends Schema
         $table->string('redirect_url')->nullable(true);     
         // indexes           
         $table->unique(['pattern','method']);          
-        $table->unique('name');
+        $table->unique(['name','extension_name']);
     }
 
     /**

@@ -79,7 +79,7 @@ class Middleware
      */
     protected function resolveAuthError($request, $response = null)
     {
-        $response = ($response == null) ? Arikaim::getApp()->handle($request) : $response;
+        $response = ($response == null) ? Arikaim::$app->handle($request) : $response;
         $route = $request->getAttribute('route');  
         if (is_object($route) == true) {
             $pattern = $route->getPattern();

@@ -44,6 +44,12 @@ class TokenAuthProvider implements AuthProviderInterface
         $this->token = null;
     }
 
+    /**
+     * Authenticate
+     *
+     * @param array $credentials
+     * @return boolean
+     */
     public function authenticate(array $credentials)
     {
         $token = (isset($credentials['token']) == false) ? null : $credentials['token'];
@@ -78,11 +84,11 @@ class TokenAuthProvider implements AuthProviderInterface
     public function getUser()
     {       
         $id = $this->getId();
-        return ($id > 0) ?  $this->user->findById($id) : null;        
+        return ($id > 0) ? $this->user->findById($id) : null;        
     }
 
     /**
-     * Gte auth id
+     * Get auth id
      *
      * @return null|integer
      */
@@ -114,13 +120,13 @@ class TokenAuthProvider implements AuthProviderInterface
     /**
      * Create access token
      *
-     * @param integer $user_id
+     * @param integer $userId
      * @param integer $type
-     * @param integer $expire_period
+     * @param integer $expireTime
      * @return Model|false
      */
-    public function createToken($user_id, $type = AccessTokens::PAGE_ACCESS_TOKEN, $expire_time = 1800)
+    public function createToken($userId, $type = AccessTokens::PAGE_ACCESS_TOKEN, $expireTime = 1800)
     {
-        return Model::AccessTokens()->createToken($user_id,$type,$expire_time);
+        return Model::AccessTokens()->createToken($userId,$type,$expireTime);
     }    
 }

@@ -24,6 +24,13 @@ class Package implements PackageInterface
     const LIBRARY   = 'library';
 
     /**
+     * Reference to package repository
+     *
+     * @var RepositoryInterface
+     */
+    protected $repository;
+
+    /**
      * Package properties
      *
      * @var CollectionInterface
@@ -39,6 +46,16 @@ class Package implements PackageInterface
     {
         $properties['version'] = Utils::formatversion($properties->get('version','1.0.0'));
         $this->properties = $properties;
+    }
+
+    /**
+     * Get package repository
+     *
+     * @return RepositoryInterface
+     */
+    public function getRepository()
+    {
+        return $this->repository;
     }
 
     /**

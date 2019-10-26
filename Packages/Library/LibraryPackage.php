@@ -10,8 +10,10 @@
 namespace Arikaim\Core\Packages\Library;
 
 use Arikaim\Core\Packages\Package;
+use Arikaim\Core\Packages\Library\LibraryRepository;
 use Arikaim\Core\Utils\Text;
 use Arikaim\Core\System\Url;
+use Arikaim\Core\Interfaces\Collection\CollectionInterface;
 
 /**
  * UI Library Package class
@@ -21,11 +23,13 @@ class LibraryPackage extends Package
     /**
      * Constructor
      *
-     * @param \Arikaim\Core\Interfaces\Collection\CollectionInterface $properties
+     * @param CollectionInterface $properties
      */
-    public function __construct($properties) 
+    public function __construct(CollectionInterface $properties) 
     {
         parent::__construct($properties);
+        // create repository
+        $this->repository = new LibraryRepository($this->properties->get('repository',null));
     }
 
     /**

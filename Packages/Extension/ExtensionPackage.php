@@ -190,8 +190,8 @@ class ExtensionPackage extends Package
      */
     public function install()
     {
-        // clear extension cache
-        Arikaim::cache()->deleteExtensionItems();
+        // clear cache
+        Arikaim::cache()->clear();
 
         $details = $this->getProperties(true);
         $extension_name = $this->getName();

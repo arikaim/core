@@ -44,7 +44,7 @@ class Response
      *
      * @var bool
      */
-    protected $pretty_format;
+    protected $prettyFormat;
 
     /**
      * Raw json response
@@ -73,9 +73,9 @@ class Response
         $this->result['status'] = "ok";  
         $this->result['code'] = 200; 
         $this->result['errors'] = $this->errors;  
-        $this->pretty_format = false; 
+        $this->prettyFormat = false; 
         $this->raw = false; 
-        $this->response = ($response == null) ? Arikaim::getApp()->getResponseFactory()->createResponse() : $response;
+        $this->response = ($response == null) ? Arikaim::respone() : $response;
     }
 
     /**
@@ -85,7 +85,7 @@ class Response
      */
     public function useJsonPrettyformat()
     {
-        $this->pretty_format = true;
+        $this->prettyFormat = true;
         return $this;
     }
 
@@ -127,27 +127,27 @@ class Response
     /**
      * Set error message
      *
-     * @param string $error_message
+     * @param string $errorMessage
      * @param boolean $condition
      * @return void
      */
-    public function setError($error_message, $condition = true) 
+    public function setError($errorMessage, $condition = true) 
     {
         if ($condition !== false) {
-            array_push($this->errors,$error_message);  
+            array_push($this->errors,$errorMessage);  
         }               
     }
 
     /**
      * Set error message
      *
-     * @param string $error_message
+     * @param string $errorMessage
      * @param boolean $condition
      * @return Response
      */
-    public function withError($error_message, $condition = true) 
+    public function withError($errorMessage, $condition = true) 
     {
-        $this->setError($error_message,$condition);
+        $this->setError($errorMessage,$condition);
         return $this;
     }
 
@@ -155,7 +155,6 @@ class Response
      * Set response result
      *
      * @param mixed $data
-   
      * @return Response
      */
     public function setResult($data) 
@@ -282,6 +281,6 @@ class Response
         }
         $result = ($this->raw == true) ? $this->result['result'] : $this->result;
     
-        return ($this->pretty_format == true) ? Utils::jsonEncode($result) : json_encode($result,true);      
+        return ($this->prettyFormat == true) ? Utils::jsonEncode($result) : json_encode($result,true);      
     }    
 }

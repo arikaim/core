@@ -10,21 +10,21 @@
 namespace Arikaim\Core\Interfaces\Packages;
 
 /**
- * Package repository interface
+ * Repositorydriver interface
  */
-interface RepositoryInterface 
+interface RepositoryDriverInterface 
 {  
     /**
-     * Install repository
+     * Download package
      *
-     * @return boolean
+     * @return bool
      */
-    public function install();
+    public function download();
 
     /**
-     * Get repository type
+     * Get package last version
      *
      * @return string
      */
-    public function getType();
+    public function getLastVersion();
 }

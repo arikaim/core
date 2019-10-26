@@ -22,31 +22,32 @@ use Arikaim\Core\System\Path;
 class LibraryRepository extends PackageRepository
 {
 
-    public function __construct()
+    public function __construct($repository)
     {
+        parent::__construct($repository);
     }
     
-    public function download($name, $license_key = null)
+    public function download()
     {
-        $license_key = (emty($license_key) == true) ? "" : $license_key;
-        $url = Url::REPOSITORY_URL . '/download/library/' . $name . "/$license_key";
+      //  $license_key = (emty($license_key) == true) ? "" : $license_key;
+      //  $url = Url::REPOSITORY_URL . '/download/library/' . $name . "/$license_key";
     }
 
-    public function getVersion($name)
+    public function getLastVersion()
     {
-        $url = Url::REPOSITORY_URL . '/library/' . $name;
+       // $url = Url::REPOSITORY_URL . '/library/' . $name;
        
     }
 
-    public static function unpack($file_name, $library_name = null)
+    public function install()
     {
-        if (ZipFile::isValid($file_name) == false) {
+       // if (ZipFile::isValid($file_name) == false) {
     
-        }
+       // }
         // extract
-        $destination_file = ($library_name == null) ? basename($file_name) : $library_name;
+        //$destination_file = ($library_name == null) ? basename($file_name) : $library_name;
 
 
-        $result = ZipFile::extract($file_name,Path::STORAGE_TEMP_PATH);
+       // $result = ZipFile::extract($file_name,Path::STORAGE_TEMP_PATH);
     }
 }

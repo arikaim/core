@@ -18,13 +18,14 @@ use Arikaim\Core\Traits\Db\Uuid;
 use Arikaim\Core\Traits\Db\Find;
 use Arikaim\Core\Traits\Db\DateCreated;
 
-use Arikaim\Core\Db\Model as DbModel;
-
 /**
  * Access tokens database model
 */
 class AccessTokens extends Model 
 {
+    /**
+     * Token access type
+     */
     const PAGE_ACCESS_TOKEN  = 0;
     const LOGIN_ACCESS_TOKEN = 1;
 

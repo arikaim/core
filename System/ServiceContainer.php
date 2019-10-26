@@ -35,11 +35,11 @@ class ServiceContainer
     public static function registerCoreModules($container)
     {
         if ($container->get('db')->isValidConnection() == false) {
-            return false;
+            return $container;
         }
         
         if (Manager::schema()->hasTable('modules') == false) {
-            return false;
+            return $container;
         }
         $modules = $container->get('cache')->fetch('services.list');
         if (is_array($modules) == false) {
@@ -84,8 +84,9 @@ class ServiceContainer
             return new \Arikaim\Core\System\ClassLoader(ARIKAIM_BASE_PATH,ARIKAIM_ROOT_PATH);
         };
         // Cache 
-        $container['cache'] = function($container) {   
-            return new \Arikaim\Core\Cache\Cache(null,true,$container->get('settings'));
+        $container['cache'] = function($container) {            
+            $enabled = $container->get('settings')->get('cache',false);     
+            return new \Arikaim\Core\Cache\Cache($enabled);
         };
         // Config
         $container['config'] = function($container) {    
@@ -167,16 +168,12 @@ class ServiceContainer
         $container['http'] = function() {
             return new \GuzzleHttp\Client();
         }; 
-        // Set cache status
-        $cache = $container->get('config')->getByPath('settings/cache',false);     
-        $container->get('cache')->setStatus($cache);  
-        
-        $container = Self::registerCoreModules($container);
 
         $container->get('view');
         if (Arikaim::isConsole() == false) {
             $container->get('session');
         }
+        $container = Self::registerCoreModules($container);
 
         return $container;
     }

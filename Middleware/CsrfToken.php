@@ -9,6 +9,11 @@
 */
 namespace Arikaim\Core\Middleware;
 
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Access\Csrf;
 use Arikaim\Core\Api\Response;
@@ -18,16 +23,16 @@ use Arikaim\Core\Middleware\Middleware;
 /**
  * Verify Csrf token middleware
  */
-class CsrfToken extends Middleware
+class CsrfToken extends Middleware implements MiddlewareInterface
 {
     /**
-     * Invoke 
-     *
-     * @param object $request
-     * @param object $handler
-     * @return \Psr\Http\Message\ResponseInterface
-     */
-    public function __invoke($request, $handler)
+     * Process middleware
+     * 
+     * @param ServerRequestInterface  $request
+     * @param RequestHandlerInterface $handler
+     * @return ResponseInterface
+    */
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         if (in_array($request->getMethod(),['POST', 'PUT', 'DELETE', 'PATCH']) == true) {
             $token = $this->getToken($request);
@@ -45,10 +50,10 @@ class CsrfToken extends Middleware
     /**
      * Vreate new token if middleware param recreate_token is set to true
      *
-     * @param object $request
-     * @return object
+     * @param ServerRequestInterface $request
+     * @return ServerRequestInterface
      */
-    protected function generateToken(Request $request)
+    protected function generateToken(ServerRequestInterface $request)
     {
         if ($this->getParam('recreate_token') == true) {
             $token = Csrf::createToken();
@@ -59,12 +64,12 @@ class CsrfToken extends Middleware
     }
 
     /**
-     * Show token error
+     * Show token error // TODO
      *
      * @param \Psr\Http\Message\ResponseInterface $response
      * @return void
      */
-    protected function displayTokenError($request, $response)
+    protected function displayTokenError(ServerRequestInterface $request, $response = null)
     {
         Arikaim::logger()->alert(Arikaim::getError("ACCESS_DENIED"));   
         Arikaim::errors()->addError('ACCESS_DENIED');
@@ -81,10 +86,10 @@ class CsrfToken extends Middleware
     /**
      * Get csrf token from request
      *
-     * @param object $request
+     * @param ServerRequestInterface $request
      * @return string|null
      */
-    public function getToken($request)
+    public function getToken(ResponseInterface $request)
     {
         $body = $request->getParsedBody();
         $body = (empty($body) == true) ? [] : $body;

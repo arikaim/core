@@ -9,22 +9,27 @@
 */
 namespace Arikaim\Core\Middleware;
 
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Middleware\Middleware;
 
 /**
  * JWT auth middleware
  */
-class JwtAuthentication extends Middleware
+class JwtAuthentication extends Middleware implements MiddlewareInterface
 {
     /**
-     * Call the middleware
-     *
-     * @param $request
-     * @param $handler
-     * @return \Psr\Http\Message\ResponseInterface
+     * Process middleware
+     * 
+     * @param ServerRequestInterface  $request
+     * @param RequestHandlerInterface $handler
+     * @return ResponseInterface
     */
-    public function __invoke($request, $handler)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {      
         $token = $this->readToken($request);
 
@@ -45,7 +50,7 @@ class JwtAuthentication extends Middleware
      * @param \Psr\Http\Message\RequestInterface $request
      * @return string|false Base64 encoded JSON Web Token, Session ID or false if not found.
      */
-    protected function readToken($request)
+    protected function readToken(ServerRequestInterface $request)
     {   
         $headers = $request->getHeader('Authorization');
         $header = isset($headers[0]) ? $headers[0] : "";

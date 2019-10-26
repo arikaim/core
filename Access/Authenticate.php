@@ -30,7 +30,7 @@ class Authenticate
      *
      * @var array
      */
-    private $auth_names = ["none","basic","session","jwt",'token'];
+    private $authNames = ["none","basic","session","jwt",'token'];
 
     /**
      * Auth provider variable
@@ -89,15 +89,15 @@ class Authenticate
     /**
      * Create auth provider
      *
-     * @param string $auth_name
+     * @param string $name
      * @return object|null
      */
-    public function provider($auth_name)
+    public function provider($name)
     {
-        $auth_id = $this->resolveAuthType($auth_name);
-        $class_name = $this->getAuthProviderClass($auth_id);
+        $id = $this->resolveAuthType($name);
+        $className = $this->getAuthProviderClass($id);
         
-        return Factory::createAuthProvider($class_name);
+        return Factory::createAuthProvider($className);
     }
 
     /**
@@ -169,7 +169,7 @@ class Authenticate
      */
     public function getAuthName($auth)
     {
-        return (isset($this->auth_names[$auth]) == true) ? $this->auth_names[$auth] : false;          
+        return (isset($this->authNames[$auth]) == true) ? $this->authNames[$auth] : false;          
     }
 
     /**
@@ -180,7 +180,7 @@ class Authenticate
      */
     public function getTypeId($name)
     {
-        return array_search($name,$this->auth_names);                 
+        return array_search($name,$this->authNames);                 
     }
 
     /**
@@ -191,7 +191,7 @@ class Authenticate
      */
     public function isValidAuthName($name)
     {
-        return (array_search($name,$this->auth_names) === false) ? false : true;     
+        return (array_search($name,$this->authNames) === false) ? false : true;     
     }
 
     /**
@@ -217,19 +217,19 @@ class Authenticate
      */
     public function middleware($auth, $args = null)
     {
-        $auth_id = $this->resolveAuthType($auth);
-        $class_name = $this->getAuthMiddlewareClass($auth_id);
+        $id = $this->resolveAuthType($auth);
+        $className = $this->getAuthMiddlewareClass($id);
        
-        return Factory::createMiddleware($class_name,$args);
+        return Factory::createMiddleware($className,$args);
     }
 
     /**
      * Get middleware class name
      *
-     * @param integer $auth_id
+     * @param integer $id
      * @return string|null
      */
-    public function getAuthMiddlewareClass($auth_id)
+    public function getAuthMiddlewareClass($id)
     {
         $classes = [
             null,
@@ -238,16 +238,16 @@ class Authenticate
             'JwtAuthentication',
             'TokenAuthentication'
         ];
-        return (isset($classes[$auth_id]) == true) ? $classes[$auth_id] : null;
+        return (isset($classes[$id]) == true) ? $classes[$id] : null;
     }
 
     /**
      * Get auth provider class
      *
-     * @param ineteger $auth_id
+     * @param ineteger $id
      * @return string|null
      */
-    public function getAuthProviderClass($auth_id)
+    public function getAuthProviderClass($id)
     {
         $classes = [
             null,
@@ -256,6 +256,6 @@ class Authenticate
             'JwtAuthProvider',
             'TokenAuthProvider'
         ];
-        return (isset($classes[$auth_id]) == true) ? $classes[$auth_id] : null;
+        return (isset($classes[$id]) == true) ? $classes[$id] : null;
     }
 }

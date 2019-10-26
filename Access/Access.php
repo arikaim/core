@@ -22,7 +22,7 @@ class Access
     /**
      *  Full permissions
      */
-    const FULL      = ['read','write','delete','execute'];
+    const FULL = ['read','write','delete','execute'];
     
     /**
      * Read
@@ -98,13 +98,13 @@ class Access
         if (empty($id) == true) {
             return false;
         }
-        list($name, $permission_type) = $this->resolvePermissionName($name);
+        list($name, $permissionType) = $this->resolvePermissionName($name);
        
-        if (is_array($permission_type) == false) {
-            $permission_type = $this->resolvePermissionType($type);
+        if (is_array($permissionType) == false) {
+            $permissionType = $this->resolvePermissionType($type);
         }
     
-        return $this->getProvider()->hasPermissions($name,$id,$permission_type);            
+        return $this->getProvider()->hasPermissions($name,$id,$permissionType);            
     }
 
     /**

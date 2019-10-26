@@ -9,22 +9,27 @@
 */
 namespace Arikaim\Core\Middleware;
 
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Middleware\Middleware;
 
 /**
  * Session auth middleware
  */
-class SessionAuthentication extends Middleware
+class SessionAuthentication extends Middleware implements MiddlewareInterface
 {
     /**
-     * Call the middleware
-     *
-     * @param $request
-     * @param $handler   
-     * @return \Psr\Http\Message\ResponseInterface
+     * Process middleware
+     * 
+     * @param ServerRequestInterface  $request
+     * @param RequestHandlerInterface $handler
+     * @return ResponseInterface
     */
-    public function __invoke($request, $handler) 
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         if (empty(Arikaim::auth()->getId()) == true) {
             return $this->resolveAuthError($request);            

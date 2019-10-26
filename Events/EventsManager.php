@@ -171,9 +171,10 @@ class EventsManager
      * @param string $event_name
      * @param array|EventInterface $event
      * @param boolean $callback_only
+     * @param string|null $extension_name
      * @return array
      */
-    public function trigger($event_name, $event = [], $callback_only = false)
+    public function trigger($event_name, $event = [], $callback_only = false, $extension_name = null)
     {       
         if (is_object($event) == false) {
             $event = new Event($event);   
@@ -187,7 +188,11 @@ class EventsManager
 
         if ($callback_only != true) {
             // get all subscribers for event
-            $subscribers = Model::EventSubscribers()->getSubscribers($event_name,1);       
+            if (empty($extension_name) == false) {
+                $subscribers = Model::EventSubscribers()->getExtensionSubscribers($extension_name,1,$event_name);   
+            } else {
+                $subscribers = Model::EventSubscribers()->getSubscribers($event_name,1);       
+            }            
             $result = $this->executeEventHandlers($subscribers,$event);  
         }
 
@@ -234,9 +239,12 @@ class EventsManager
         $result = [];
         foreach ($event_subscribers as $item) {
             $subscriber = Factory::createInstance($item['handler_class']);
+
             if (is_object($subscriber) == true && $subscriber instanceof EventSubscriberInterface) {
                 $event_result = $subscriber->execute($event);
-                array_push($result,$event_result);
+                if (empty($event_result) == false) {
+                    $result[] = $event_result;
+                }              
             }
         }
         return $result;
