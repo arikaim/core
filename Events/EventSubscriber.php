@@ -21,7 +21,7 @@ abstract class EventSubscriber implements EventSubscriberInterface
      *
      * @var array
      */
-    protected $subscribed_events = [];
+    protected $subscribedEvents = [];
 
     /**
      * Subscriber code executed.
@@ -34,35 +34,35 @@ abstract class EventSubscriber implements EventSubscriberInterface
     /**
      * Constructor
      *
-     * @param string $event_name
-     * @param string|null $extension_name
+     * @param string $eventName
+     * @param string|null $extension
      * @param integer $priority
      */
-    public function __construct($event_name = null, $extension_name = null, $priority = 0)
+    public function __construct($eventName = null, $extension = null, $priority = 0)
     {
-        if ($event_name != null) {
-            $this->subscribe($event_name,$extension_name,$priority);
+        if ($eventName != null) {
+            $this->subscribe($eventName,$extension,$priority);
         }
     }
     
     /**
      * Subscribe to event.
      *
-     * @param string $event_name
-     * @param string|null $extension_name
+     * @param string $eventName
+     * @param string|null $extension
      * @param integer $priority
      * @return void
      */
-    public function subscribe($event_name, $extension_name = null, $priority = 0)
+    public function subscribe($eventName, $extension = null, $priority = 0)
     {
         $event = [
-            'event_name'     => $event_name,
+            'event_name'     => $eventName,
             'priority'       => $priority,
-            'extension_name' => $extension_name
+            'extension_name' => $extension
         ];
 
-        array_push($this->subscribed_events,$event); 
-        $this->subscribed_events = array_unique($this->subscribed_events);
+        array_push($this->subscribedEvents,$event); 
+        $this->subscribedEvents = array_unique($this->subscribedEvents);
     }
 
     /**
@@ -72,6 +72,6 @@ abstract class EventSubscriber implements EventSubscriberInterface
      */
     public function getEvents() 
     {
-        return $this->subscribed_events;
+        return $this->subscribedEvents;
     }
 }

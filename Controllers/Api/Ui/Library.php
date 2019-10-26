@@ -42,7 +42,7 @@ class Library extends ApiController
             }
 
             if ($file->getError() === UPLOAD_ERR_OK) {
-                $file_name = $file->getClientFilename();
+                $fileName = $file->getClientFilename();
                 $dstination = Path::STORAGE_TEMP_PATH . $file->getClientFilename();
                 $file->moveTo($dstination);
 
@@ -52,7 +52,7 @@ class Library extends ApiController
                 }
             }
 
-            $this->setResult(['file_name' => $file_name]); 
+            $this->setResult(['file_name' => $fileName]); 
         });
         $data->validate();
     }

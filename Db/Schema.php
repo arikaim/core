@@ -26,14 +26,14 @@ abstract class Schema
      *
      * @var string
      */
-    protected $table_name;
+    protected $tableName;
 
     /**
      * Db storage engine
      *
      * @var string
      */
-    protected $storage_engine = 'InnoDB';
+    protected $storageEngine = 'InnoDB';
 
     /**
      * Create table
@@ -64,12 +64,12 @@ abstract class Schema
     /**
      * Constructor
      *
-     * @param string|null $table_name
+     * @param string|null $tableName
      */
-    public function __construct($table_name = null) 
+    public function __construct($tableName = null) 
     {      
-        if (empty($table_name) == false) {
-            $this->table_name = $table_name;
+        if (empty($tableName) == false) {
+            $this->tableName = $tableName;
         }
     }
 
@@ -80,18 +80,18 @@ abstract class Schema
      */
     public function getTableName() 
     {
-        return $this->table_name;
+        return $this->tableName;
     }
     
     /**
      * Return model table name
      *
-     * @param string $class_name Model class name
+     * @param string $class Model class name
      * @return boo|string
      */
-    public static function getTable($class_name)
+    public static function getTable($class)
     {
-        $instance = Factory::createSchema($class_name);
+        $instance = Factory::createSchema($class);
         return (is_object($instance) == false) ? false : $instance->getTableName();         
     }
 
@@ -103,13 +103,13 @@ abstract class Schema
     public function createTable()
     {
         if ($this->tableExists() == false) {                                  
-            $blueprint = new TableBlueprint($this->table_name,null);
+            $blueprint = new TableBlueprint($this->tableName,null);
             
             $call = function() use($blueprint) {
                 $blueprint->create();
 
                 $this->create($blueprint);            
-                $blueprint->engine = $this->storage_engine;               
+                $blueprint->engine = $this->storageEngine;               
             };
             $call(); 
             $this->build($blueprint, Manager::schema());           
@@ -124,7 +124,7 @@ abstract class Schema
     public function updateTable() 
     {
         if ($this->tableExists() == true) {                           
-            $blueprint = new TableBlueprint($this->table_name,null);
+            $blueprint = new TableBlueprint($this->tableName,null);
             
             $callback = function() use($blueprint) {
                 $this->update($blueprint);                                 
@@ -142,7 +142,7 @@ abstract class Schema
     public function runSeeds()
     {
         if ($this->tableExists() == true) {  
-            $query = Manager::table($this->table_name);          
+            $query = Manager::table($this->tableName);          
             return $this->seeds($query);
         }
 
@@ -156,19 +156,19 @@ abstract class Schema
      */
     public function isEmpty()
     {
-        $query = Manager::table($this->table_name);     
+        $query = Manager::table($this->tableName);     
         return empty($query->count() == true);
     }
 
     /**
      * Get query builder for table
      *
-     * @param string $table_name
+     * @param string $tableName
      * @return QueryBuilder
      */
-    public static function getQuery($table_name)
+    public static function getQuery($tableName)
     {
-        return Manager::table($table_name);  
+        return Manager::table($tableName);  
     }
 
     /**
@@ -196,24 +196,24 @@ abstract class Schema
         if (Arikaim::db()->has(Arikaim::config('db/database')) == false) {
             return false;
         }
-        $table_name = (is_object($model) == true) ? $model->getTable() : $model;
+        $tableName = (is_object($model) == true) ? $model->getTable() : $model;
         
-        return Manager::schema()->hasTable($table_name);      
+        return Manager::schema()->hasTable($tableName);      
     }
 
     /**
      * Drop table
      * 
-     * @param boolean $empty_only
+     * @param boolean $emptyOnly
      * @return boolean
      */
-    public function dropTable($empty_only = true) 
+    public function dropTable($emptyOnly = true) 
     {
-        if ($empty_only == true && $this->isEmpty() == true) {                  
-            Manager::schema()->dropIfExists($this->table_name);
+        if ($emptyOnly == true && $this->isEmpty() == true) {                  
+            Manager::schema()->dropIfExists($this->tableName);
         } 
-        if ($empty_only == false) {
-            Manager::schema()->dropIfExists($this->table_name);           
+        if ($emptyOnly == false) {
+            Manager::schema()->dropIfExists($this->tableName);           
         }
         return !$this->tableExists();
     } 
@@ -225,18 +225,18 @@ abstract class Schema
      */
     public function tableExists() 
     {
-        return Manager::schema()->hasTable($this->table_name);
+        return Manager::schema()->hasTable($this->tableName);
     }
 
     /**
      * Check if table column exists.
      *
-     * @param string $column_name
+     * @param string $column
      * @return boolean
      */
-    public function hasColumn($column_name) 
+    public function hasColumn($column) 
     {
-        return Manager::schema()->hasColumn($this->table_name,$column_name); 
+        return Manager::schema()->hasColumn($this->tableName,$column); 
     }
     
     /**
@@ -252,13 +252,13 @@ abstract class Schema
     /**
      * Run Create and Update migration
      *
-     * @param string $class_name
-     * @param string $extension_name
+     * @param string $class
+     * @param string $extension
      * @return bool
      */
-    public static function install($class_name, $extension_name = null) 
+    public static function install($class, $extension = null) 
     {                   
-        $instance = Factory::createSchema($class_name,$extension_name);
+        $instance = Factory::createSchema($class,$extension);
         if (is_object($instance) == true) {
             try {
                 $instance->createTable();
@@ -275,14 +275,14 @@ abstract class Schema
     /**
      * UnInstall migration
      *
-     * @param string $class_name
-     * @param string $extension_name
+     * @param string $class
+     * @param string $extension
      * @param boolean $force Set to true will drop table if have rows.
      * @return bool
      */
-    public static function unInstall($class_name, $extension_name = null, $force = false) 
+    public static function unInstall($class, $extension = null, $force = false) 
     {                   
-        $instance = Factory::createSchema($class_name,$extension_name);
+        $instance = Factory::createSchema($class,$extension);
         if (is_object($instance) == true) {
             try {
                 return $instance->dropTable(!$force);

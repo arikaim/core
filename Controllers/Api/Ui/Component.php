@@ -85,8 +85,8 @@ class Component extends ApiController
         $params = $this->getParams($request);
      
         // get header params
-        $header_params = $this->getHeaderParams($request);
-        $params = array_merge($params,$header_params);
+        $headerParams = $this->getHeaderParams($request);
+        $params = array_merge($params,$headerParams);
     
         return $this->load($data['name'],$params);
     }
@@ -94,13 +94,13 @@ class Component extends ApiController
     /**
      * Load html component
      *
-     * @param string $component_name
+     * @param string $name
      * @param array $params
      * @return JSON 
      */
-    public function load($component_name, $params = [])
+    public function load($name, $params = [])
     {   
-        $component = HtmlComponent::renderComponent($component_name,$params);
+        $component = HtmlComponent::renderComponent($name,$params);
         if (is_object($component) == false) {
             return $this->withError('Not valid component nane.')->getResponse();  
         }
@@ -132,12 +132,12 @@ class Component extends ApiController
      */
     private function getHeaderParams($request)
     {       
-        $header_params = (isset($request->getHeader('Params')[0]) == true) ? $request->getHeader('Params')[0] : null;
+        $headerParams = (isset($request->getHeader('Params')[0]) == true) ? $request->getHeader('Params')[0] : null;
         
-        if ($header_params != null) {
-            $header_params = json_decode($header_params,true);
-            if (is_array($header_params) == true) {
-                return $header_params;
+        if ($headerParams != null) {
+            $headerParams = json_decode($headerParams,true);
+            if (is_array($headerParams) == true) {
+                return $headerParams;
             }
         }
         return [];

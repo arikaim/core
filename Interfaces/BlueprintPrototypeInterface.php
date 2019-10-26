@@ -21,5 +21,5 @@ interface BlueprintPrototypeInterface
      * @param mixed $options
      * @return void
      */
-    public function build($table,...$options); 
+    public function build($table, ...$options); 
 }

@@ -44,7 +44,7 @@ class TableBlueprint extends Blueprint
      * @param mixed|null $options
      * @return void
      */
-    public function prototype($name,$options = null)
+    public function prototype($name, $options = null)
     {
         $class = $this->resolveColumnPrototypeClass($name); 
         $this->buildPrototype($class,$options);
@@ -57,7 +57,7 @@ class TableBlueprint extends Blueprint
      * @param mixed|null $options
      * @return void
      */
-    public function tablePrototype($name,$options = null)
+    public function tablePrototype($name, $options = null)
     {
         $class = "\\Arikaim\\Core\\Db\\Prototypes\\Table\\" . ucfirst($name);
         $this->buildPrototype($class,$options);
@@ -70,7 +70,7 @@ class TableBlueprint extends Blueprint
      * @param mixed $options
      * @return void
      */
-    protected function buildPrototype($class,$options)
+    protected function buildPrototype($class, $options)
     {      
         if (class_exists($class) == true) {               
             $prototype = new $class();

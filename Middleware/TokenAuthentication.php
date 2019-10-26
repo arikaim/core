@@ -61,7 +61,8 @@ class TokenAuthentication extends Middleware implements MiddlewareInterface
             // try from requets body 
             $vars = $request->getParsedBody();
             $token = (isset($vars['token']) == true) ? $vars['token'] : null;             
-        }       
+        }      
+         
         return $token;
     }
 }

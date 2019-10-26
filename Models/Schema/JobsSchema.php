@@ -21,7 +21,7 @@ class JobsSchema extends Schema
      *
      * @var string
      */ 
-    protected $table_name = "jobs";
+    protected $tableName = "jobs";
 
     /**
      * Create table

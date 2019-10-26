@@ -14,29 +14,29 @@ use Arikaim\Core\Utils\Text;
 use Arikaim\Core\System\Error\Errors;
 
 /**
- * File
+ * File (todo  readJSONFile  )
 */
 class File 
 {
     /**
      * Load json file and return decoded array
      *
-     * @param string $file_name
+     * @param string $fileName
      * @param array $vars
-     * @param boolean $to_array
+     * @param boolean $toArray
      * @return array|false
      */
-    public static function readJSONFile($file_name, $vars = null, $to_array = true) 
+    public static function readJSONFile($fileName, $vars = null, $toArray = true) 
     {    
-        if (File::exists($file_name) == false) {
+        if (File::exists($fileName) == false) {
             return false;
         }
-        $json_text = Self::read($file_name);   
+        $json = Self::read($fileName);   
        
         if (is_array($vars) == true) {
-            $json_text = Text::render($json_text,$vars);
+            $json = Text::render($json,$vars);
         }     
-        $data = json_decode($json_text,$to_array);
+        $data = json_decode($json,$toArray);
         if ($data == false) {
             $error = Errors::getJsonError();
             if ($error != null) {
@@ -46,61 +46,61 @@ class File
         return $data;
     }
 
-    public static function getClassesInFile($file_name) 
+    public static function getClassesInFile($fileName) 
     {
-        if (File::exists($file_name) == false) {
+        if (File::exists($fileName) == false) {
             return false;
         }
-        $php_code = file_get_contents($file_name);
-        return Utils::getClasses($php_code);
+        $code = file_get_contents($fileName);
+        return Utils::getClasses($code);
     }
 
     /**
      * Check if file exists
      *
-     * @param string $file_name
+     * @param string $fileName
      * @return bool
      */
-    public static function exists($file_name) 
+    public static function exists($fileName) 
     {
-        return file_exists($file_name);           
+        return file_exists($fileName);           
     }
 
     /**
      * Return true if file is writtable
      *
-     * @param string $file_name
+     * @param string $fileName
      * @return boolean
      */
-    public static function isWritable($file_name) 
+    public static function isWritable($fileName) 
     {
-        return is_writable($file_name);
+        return is_writable($fileName);
     }
 
     /**
      * Set file writtable
      *
-     * @param string $file_name
+     * @param string $fileName
      * @return boolean
      */
-    public static function setWritable($file_name) 
+    public static function setWritable($fileName) 
     {
-        if (Self::exists($file_name) == false) return false;
-        if (Self::isWritable($file_name) == true) return true;
+        if (Self::exists($fileName) == false) return false;
+        if (Self::isWritable($fileName) == true) return true;
 
-        chmod($file_name, 0755);
-        return Self::isWritable($file_name);
+        chmod($fileName, 0755);
+        return Self::isWritable($fileName);
     }
 
     /**
      * Return file size
      *
-     * @param string $file_name
+     * @param string $fileName
      * @return integer
      */
-    public static function getSize($file_name)
+    public static function getSize($fileName)
     {
-        return (File::exists($file_name) == false) ? false : filesize($file_name);          
+        return (File::exists($fileName) == false) ? false : filesize($fileName);          
     }
 
     /**
@@ -108,12 +108,12 @@ class File
      *
      * @param integer $size
      * @param array $labels
-     * @param boolean $as_text
+     * @param boolean $asText
      * @return string|array
      */
-    public static function getSizeText($size, $labels = null, $as_text = true)
+    public static function getSizeText($size, $labels = null, $asText = true)
     {        
-        return Utils::getMemorySizeText($size,$labels,$as_text);      
+        return Utils::getMemorySizeText($size,$labels,$asText);      
     }
 
     /**
@@ -129,49 +129,75 @@ class File
         return (Self::exists($path) == true) ?Self::setWritable($path,$mode) : mkdir($path,$mode,$recursive);         
     }
 
+    /**
+     * Undocumented function
+     *
+     * @param array $file
+     * @param string $path
+     * @param integer $mode
+     * @param integer $flags
+     * @return boolean
+     */
     public static function writeUplaodedFile(array $file, $path, $mode = null, $flags = 0)
     {
-        $file_name = $path . $file['name'];
+        $fileName = $path . $file['name'];
         $data = explode(',',$file['data']);
-        $result = Self::writeEncoded($file_name,$data[1],$flags);
+        $result = Self::writeEncoded($fileName,$data[1],$flags);
         if ($result != false && $mode != null) {
-            chmod($file_name,$mode);
+            chmod($fileName,$mode);
         }
+
         return $result;
     }
 
-    public static function writeEncoded($file_name, $encoded_data, $flags = 0)
+    /**
+     * Write encoded file
+     *
+     * @param string $fileName
+     * @param mixed $encodedData
+     * @param integer $flags
+     * @return boolean
+     */
+    public static function writeEncoded($fileName, $encodedData, $flags = 0)
     {
-        $data = base64_decode($encoded_data);
-        return Self::write($file_name,$data,$flags);
+        $data = base64_decode($encodedData);
+        return Self::write($fileName,$data,$flags);
     }
 
-    public static function write($file_name, $data, $flags = 0)
+    /**
+     * Write file
+     *
+     * @param string $fileName
+     * @param mixed $data
+     * @param integer $flags
+     * @return boolean
+     */
+    public static function write($fileName, $data, $flags = 0)
     {
-        return file_put_contents($file_name,$data,$flags);
+        return file_put_contents($fileName,$data,$flags);
     }
 
     /**
      * Return file extension
      *
-     * @param string $file_name
+     * @param string $fileName
      * @return string
      */
-    public static function getExtension($file_name)
+    public static function getExtension($fileName)
     {
-        return pathinfo($file_name, PATHINFO_EXTENSION);
+        return pathinfo($fileName, PATHINFO_EXTENSION);
     }
 
     /**
      * Delete file or durectiry
      *
-     * @param string $file_name
+     * @param string $fileName
      * @return bool
      */
-    public static function delete($file_name)
+    public static function delete($fileName)
     {
-        if (Self::exists($file_name) == true) {
-            return (is_dir($file_name) == true) ? Self::deleteDirectory($file_name) : unlink($file_name);          
+        if (Self::exists($fileName) == true) {
+            return (is_dir($fileName) == true) ? Self::deleteDirectory($fileName) : unlink($fileName);          
         }
         return false;
     }
@@ -215,22 +241,22 @@ class File
     /**
      * Read file
      *
-     * @param string $file_name
+     * @param string $fileName
      * @return mixed|null
      */
-    public static function read($file_name)
+    public static function read($fileName)
     {
-        return (Self::exists($file_name) == true) ? file_get_contents($file_name) : null;           
+        return (Self::exists($fileName) == true) ? file_get_contents($fileName) : null;           
     }
 
     /**
      * Return true if MIME type is image
      *
-     * @param string $mime_type
+     * @param string $mimeType
      * @return boolean
      */
-    public static function isImageMimeType($mime_type)
+    public static function isImageMimeType($mimeType)
     {
-        return (substr($mime_type,0,5) == 'image');
+        return (substr($mimeType,0,5) == 'image');
     }
 }

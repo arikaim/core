@@ -21,7 +21,7 @@ class ApiCredentialsSchema extends Schema
      *
      * @var string
      */ 
-    public $table_name = "api_credentials";
+    public $tableName = "api_credentials";
 
     /**
      * Create table

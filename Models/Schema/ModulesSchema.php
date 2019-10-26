@@ -21,7 +21,7 @@ class ModulesSchema extends Schema
      *
      * @var string
      */
-    protected $table_name = "modules";
+    protected $tableName = "modules";
 
     /**
      * Create table

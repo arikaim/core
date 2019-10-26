@@ -22,13 +22,14 @@ class Search
     /**
      * Return search value
      *
-     * @param [type] $namespace
+     * @param string $field
+     * @param string|nmull $namespace
      * @return mixed|null
      */
-    public static function getSearchValue($field_name, $namespace = null)
+    public static function getSearchValue($field, $namespace = null)
     {
         $search = Self::getSearch($namespace);
-        return (isset($search[$field_name]) == true) ? $search[$field_name] : null;      
+        return (isset($search[$field]) == true) ? $search[$field] : null;      
     }
 
     /**
@@ -56,26 +57,26 @@ class Search
     /**
      * Set search data
      *
-     * @param array $search_data
+     * @param array $searchData
      * @param string|null $namespace
      * @return void
      */
-    public static function setSearch($search_data, $namespace = null)
+    public static function setSearch($searchData, $namespace = null)
     {
-        Arikaim::session()->set(Utils::createKey('search',$namespace),$search_data);      
+        Arikaim::session()->set(Utils::createKey('search',$namespace),$searchData);      
     }
 
     /**
      * Return search field
      *
-     * @param string $model_field_name
+     * @param string $field
      * @param string|null $namespace
      * @return array|null
      */
-    public static function getSearchCondition($model_field_name, $namespace = null)
+    public static function getSearchCondition($field, $namespace = null)
     {
         $conditions = Self::getSearchConditions($namespace);
-        return (isset($conditions[$model_field_name]) == true) ? $conditions[$model_field_name] : null;
+        return (isset($conditions[$field]) == true) ? $conditions[$field] : null;
     }
 
     /**
@@ -92,14 +93,14 @@ class Search
     /**
      * Delete search condition
      *
-     * @param string $model_field_name
+     * @param string $field
      * @param string|null $namespace
      * @return void
      */
-    public static function deleteSearchCondition($model_field_name, $namespace = null)
+    public static function deleteSearchCondition($field, $namespace = null)
     {
         $conditions = Self::getSearchConditions($namespace);
-        unset($conditions[$model_field_name]);
+        unset($conditions[$field]);
         Self::setSearchConditions($conditions,$namespace);
     }
 
@@ -118,18 +119,18 @@ class Search
     /**
      * Set search field value
      *
-     * @param string $model_field_name
-     * @param mixed $search_field_name
+     * @param string $field
+     * @param mixed $searchFieldName
      * @param string $operator
-     * @param string $query_operator
+     * @param string $queryOperator
      * @param string|null $namespace
      * @return void
      */
-    public static function setSearchCondition($model_field_name, $namespace = null, $operator = null, $query_operator = null, $search_field_name = 'search_text')
+    public static function setSearchCondition($field, $namespace = null, $operator = null, $queryOperator = null, $searchFieldName = 'search_text')
     {
-        $condition = SearchCondition::crate($model_field_name,$search_field_name,$operator,$query_operator);
+        $condition = SearchCondition::crate($field,$searchFieldName,$operator,$queryOperator);
         $conditions = Self::getSearchConditions($namespace);
-        $conditions[$model_field_name] = $condition;
+        $conditions[$field] = $condition;
     
         Self::setSearchConditions($conditions,$namespace);
     }
@@ -147,6 +148,7 @@ class Search
         foreach ($conditions as $condition) {          
             $builder = Self::applyCondition($builder,$condition,$namespace);            
         }
+        
         return $builder;
     }
 

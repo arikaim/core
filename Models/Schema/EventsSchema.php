@@ -21,7 +21,7 @@ class EventsSchema extends Schema
      *
      * @var string
      */
-    protected $table_name = "events";
+    protected $tableName = "events";
 
     /**
      * Create table

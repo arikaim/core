@@ -63,10 +63,10 @@ class DriverManager
       * @param string|null $description
       * @param string|null $version
       * @param array $config
-      * @param string|null $extension_name
+      * @param string|null $extension
       * @return boolean|Model
     */
-    public function install($name, $class = null, $category = null, $title = null, $description = null, $version = null, $config = [], $extension_name = null)
+    public function install($name, $class = null, $category = null, $title = null, $description = null, $version = null, $config = [], $extension = null)
     {
         list($name,$category) = $this->resolveName($name,$category);
         $info = $this->getDriverParams($name);
@@ -80,7 +80,7 @@ class DriverManager
                 'class'          => $class,
                 'description'    => $description,
                 'version'        => $version,
-                'extension_name' => $extension_name,
+                'extension_name' => $extension,
                 'config'         => $config
             ];
         }

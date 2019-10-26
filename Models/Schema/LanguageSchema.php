@@ -21,7 +21,7 @@ class LanguageSchema extends Schema
      *
      * @var string
      */ 
-    protected $table_name = "language";
+    protected $tableName = "language";
 
     /**
      * Create table

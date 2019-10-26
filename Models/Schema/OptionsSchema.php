@@ -21,7 +21,7 @@ class OptionsSchema extends Schema
      *
      * @var string
      */
-    protected $table_name = "options";
+    protected $tableName = "options";
 
     /**
      * Create table

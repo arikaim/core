@@ -45,9 +45,9 @@ class Mail implements MailInterface
     public function setDefaultFrom()
     {
         $from = Arikaim::options()->get('mailer.from.email',null);
-        $from_name = Arikaim::options()->get('mailer.from.name',null);
+        $fromName = Arikaim::options()->get('mailer.from.name',null);
         if (empty($from) == false) {
-            $this->from($from,$from_name);
+            $this->from($from,$fromName);
         }
         return $this;
     }
@@ -244,13 +244,13 @@ class Mail implements MailInterface
     /**
      * Load email message from html component
      *
-     * @param string $component_name
+     * @param string $componentName
      * @param array $params
      * @return object
      */
-    public function loadComponent($component_name, $params = [])
+    public function loadComponent($componentName, $params = [])
     {
-        $component = HtmlComponent::renderComponent($component_name,$params,null,false);
+        $component = HtmlComponent::renderComponent($componentName,$params,null,false);
         $properties = $component->getProperties();
         $body = $component->getHtmlCode();
 

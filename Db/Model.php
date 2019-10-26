@@ -20,16 +20,16 @@ class Model
     /**
      * Create db model instance
      *
-     * @param string $class_name Base model class name
-     * @param string $extension_name
+     * @param string $className Base model class name
+     * @param string $extensionName
      * @param Closure|null $callback
      * @return object|null
      */ 
-    public static function create($class_name, $extension_name = null, $callback = null) 
+    public static function create($className, $extensionName = null, $callback = null) 
     {  
         try {
-            $full_class_name = (class_exists($class_name) == false) ? Self::getFullClassName($class_name,$extension_name) : $class_name; 
-            $instance = Factory::createInstance($full_class_name);
+            $className = (class_exists($className) == false) ? Self::getFullClassName($className,$extensionName) : $className; 
+            $instance = Factory::createInstance($className);
             if (is_callable($callback) == true) {
                 return $callback($instance);
             }
@@ -54,16 +54,13 @@ class Model
     /**
      * Get model full calss name
      *
-     * @param string $class_name
-     * @param string|null $extension_name
+     * @param string $className
+     * @param string|null $extensionName
      * @return string
      */
-    public static function getFullClassName($class_name, $extension_name = null)
+    public static function getFullClassName($className, $extensionName = null)
     {
-        if (empty($extension_name) == true) {
-            return Factory::getModelClass($class_name);
-        }
-        return Factory::getExtensionModelClass($extension_name,$class_name);
+        return (empty($extensionName) == true) : Factory::getModelClass($className) : Factory::getExtensionModelClass($extensionName,$className);         
     }
 
     /**
@@ -81,15 +78,15 @@ class Model
     /**
      * Get model constant
      *
-     * @param string $class_name
-     * @param string $constant_name
-     * @param string $extension_name
+     * @param string $className
+     * @param string $constantName
+     * @param string $extensionName
      * @return mixed
      */
-    public static function getConstant($class_name, $constant_name, $extension_name = null)
+    public static function getConstant($className, $constantName, $extensionName = null)
     {
-        $class_name = Self::getFullClassName($class_name,$extension_name);
-        return Factory::getConstant($class_name,$constant_name);
+        $className = Self::getFullClassName($className,$extensionName);
+        return Factory::getConstant($className,$constantName);
     }
 
     /**
@@ -101,10 +98,10 @@ class Model
      */
     public static function __callStatic($name, $args)
     {  
-        $extension_name = (isset($args[0]) == true) ? $args[0] : null;
+        $extensionName = (isset($args[0]) == true) ? $args[0] : null;
         $callback = (isset($args[1]) == true) ? $args[1] : null;
 
-        return Self::create($name,$extension_name,$callback);
+        return Self::create($name,$extensionName,$callback);
     }
     
     /**

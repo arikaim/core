@@ -23,31 +23,31 @@ class SearchCondition
     /**
      * Create condition array
      *
-     * @param string $field_name
+     * @param string $field
      * @param mixed $value
      * @param string $operator
-     * @param string $query_operator
+     * @param string $queryOperator
      * @return array
      */
-    public static function crate($model_field_name, $search_field_name, $operator = null, $query_operator = null)
+    public static function crate($field, $searchFieldName, $operator = null, $queryOperator = null)
     {
         $operator = (empty($operator) == true) ? '=' : $operator;
         $tokens = explode(':',$operator);
         if (isset($tokens[1]) == true) {
-            $operator_params = $tokens[1];
+            $operatorParams = $tokens[1];
             $operator = $tokens[0];
         } else {
-            $operator_params = null;            
+            $operatorParams = null;            
         }
 
-        $query_operator = (empty($query_operator) == true) ? 'and' : $query_operator;
+        $queryOperator = (empty($queryOperator) == true) ? 'and' : $queryOperator;
 
         return [
-            'field'           => $model_field_name,
-            'search_field'    => $search_field_name,
+            'field'           => $field,
+            'search_field'    => $searchFieldName,
             'operator'        => $operator,
-            'operator_params' => $operator_params,
-            'query_operator'  => $query_operator
+            'operator_params' => $operatorParams,
+            'query_operator'  => $queryOperator
         ];
     } 
 
@@ -55,19 +55,20 @@ class SearchCondition
      * Parse search condition.
      *
      * @param array $condition
-     * @param array $search_data
+     * @param array $search
      * @return array
      */
-    public static function parse($condition, $search_data)
+    public static function parse($condition, $search)
     {
-        $search_field = $condition['search_field'];
-        $search_value = (isset($search_data[$search_field]) == true) ? $search_data[$search_field] : '';
+        $searchField = $condition['search_field'];
+        $searchValue = (isset($search[$searchField]) == true) ? $search[$searchField] : '';
 
         if (empty($condition['operator_params']) == false && $condition['operator'] == 'like') {
-            $search_value = str_replace('{value}',$search_value,$condition['operator_params']);
+            $searchValue = str_replace('{value}',$searchValue,$condition['operator_params']);
         }
 
-        $condition['search_value'] = $search_value;
+        $condition['search_value'] = $searchValue;
+
         return $condition;
     }
 }

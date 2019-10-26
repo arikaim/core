@@ -21,7 +21,7 @@ class AccessTokensSchema extends Schema
      *
      * @var string
      */ 
-    protected $table_name = "access_tokens";
+    protected $tableName = "access_tokens";
 
     /**
      * Create table

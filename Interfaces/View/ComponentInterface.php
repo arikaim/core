@@ -31,10 +31,10 @@ interface ComponentInterface
     /**
      * Return component files 
      *
-     * @param string $file_type
+     * @param string $fileType
      * @return array
      */
-    public function getFiles($file_type = null);
+    public function getFiles($fileType = null);
 
     /**
      * Get properties

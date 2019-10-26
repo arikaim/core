@@ -13,10 +13,20 @@ use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Db\Model;
 
 /**
- * Api client controller   TODO
+ * Api client controller (TODO)
 */
 class ApiClient extends ApiController
 {
+    /**
+     * Init controller
+     *
+     * @return void
+     */
+    public function init()
+    {
+        $this->loadMessages('system:admin.messages');
+    }
+
     /**
      * Create auth token
      *
@@ -28,25 +38,9 @@ class ApiClient extends ApiController
     public function createTokenController($request, $response, $data) 
     {               
         $this->onDataValid(function($data) { 
-            $this->loadMessages('system:admin.messages');      
-            // TODO
-            $user = Model::Users()->getApiUser($data->get('api_key'),$data->get('api_secret'));
-           // if ($user == false) {
-              //  $this->setError("Not valid api key or api secret!");
-           // } else {
-                $token = Arikaim::access()->createToken($user->id);            
-                $this->setResult($token);     
-          //  }   
-            $result = '';
-            $this->setResponse($result,function() use($token) {
-                $this
-                    ->message('token.create')
-                    ->field('token',$token);
-            },'errors.token.create');
+           
         });
-        $data
-            ->addRule("text:min=5","api_key")
-            ->addRule("text:min=5","api_secret")
-            ->validate();       
+
+        $data->validate();       
     }
 }

@@ -30,14 +30,14 @@ class ApiController extends Controller
      *
      * @var string|null
      */
-    protected $extension_name;
+    protected $extensionName;
 
     /**
      * Model class name
      *
      * @var string
      */
-    protected $model_class;
+    protected $modelClass;
 
     /**
      * Constructor
@@ -53,8 +53,8 @@ class ApiController extends Controller
             $this->setErrors($errors);
         });
 
-        $this->extension_name = null;
-        $this->model_class = null;
+        $this->extensionName = null;
+        $this->modelClass = null;
     }
 
     /**
@@ -64,7 +64,7 @@ class ApiController extends Controller
      */
     public function getExtensionName()
     {
-        return $this->extension_name;
+        return $this->extensionName;
     }
 
     /**
@@ -75,7 +75,7 @@ class ApiController extends Controller
      */
     public function setExtensionName($name)
     {
-        $this->extension_name = $name;
+        $this->extensionName = $name;
     }
 
     /**
@@ -86,7 +86,7 @@ class ApiController extends Controller
      */
     public function setModelClass($class)
     {
-        $this->model_class = $class;
+        $this->modelClass = $class;
     }
 
     /**
@@ -96,7 +96,7 @@ class ApiController extends Controller
      */
     public function getModelClass()
     {
-        return $this->model_class;
+        return $this->modelClass;
     }
 
     /**

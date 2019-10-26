@@ -27,7 +27,7 @@ interface PackageManagerInterface
     /**
      * Find package 
      */
-    public function findPackage($param,$value);
+    public function findPackage($param, $value);
 
     /**
      *  @return Collection

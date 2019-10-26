@@ -41,28 +41,33 @@ class Logger
      *
      * @var string
      */
-    private $file_name;
+    private $fileName;
 
     /**
      * Constructor
      *
      * @param boolean $enabled
-     * @param string $file_name
+     * @param string $fileName
      */
-    public function __construct($enabled = false, $file_name = null) 
+    public function __construct($enabled = false, $fileName = null) 
     {         
-        $file_name = (empty($file_name) == true) ? "errors.log" : $file_name;
-        $this->file_name = Path::LOGS_PATH . "errors.log"; 
+        $fileName = (empty($fileName) == true) ? "errors.log" : $fileName;
+        $this->fileName = Path::LOGS_PATH . "errors.log"; 
         $this->enabled = $enabled;
 
         $this->init();
     }
 
+    /**
+     * Create logger
+     *
+     * @return void
+     */
     protected function init()
     {
         // init
         $this->logger = new MonologLogger('system');            
-        $handler = new StreamHandler($this->file_name, MonologLogger::DEBUG);
+        $handler = new StreamHandler($this->fileName, MonologLogger::DEBUG);
         $json_format = new JsonLogsFormatter();            
         $handler->setFormatter($json_format); 
 
@@ -78,7 +83,7 @@ class Logger
      */
     public function deleteSystemLogs()
     {
-        return (File::exists($this->file_name) == false) ? true : File::delete($this->file_name);
+        return (File::exists($this->fileName) == false) ? true : File::delete($this->fileName);
     }
 
     /**
@@ -89,7 +94,7 @@ class Logger
     public function readSystemLogs()
     {       
         $logs_text ="[";
-        $logs_text .= File::read($this->file_name);
+        $logs_text .= File::read($this->fileName);
         $logs_text = rtrim($logs_text,",\n");
         $logs_text .="]\n";
         $logs = json_decode($logs_text,true);

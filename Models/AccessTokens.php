@@ -68,30 +68,30 @@ class AccessTokens extends Model
     /**
      * Create access token
      *
-     * @param integer $user_id
+     * @param integer $userId
      * @param integer $type
      * @param integer $expire_period
      * @return Model|false
      */
-    public function createToken($user_id, $type = AccessTokens::PAGE_ACCESS_TOKEN, $expire_time = 1800, $delete_expired = true)
+    public function createToken($userId, $type = AccessTokens::PAGE_ACCESS_TOKEN, $expireTime = 1800, $deleteExpired = true)
     {
-        $expire_time = ($expire_time < 1000) ? 1000 : $expire_time;
-        $date_expired = DateTime::getCurrentTime() + $expire_time;
+        $expireTime = ($expireTime < 1000) ? 1000 : $expireTime;
+        $dateExpired = DateTime::getCurrentTime() + $expireTime;
         $token = ($type == Self::LOGIN_ACCESS_TOKEN) ? Utils::createRandomKey() : Utils::createUUID();
 
-        if ($delete_expired == true) {          
-            $result = $this->deleteExpired($user_id,$type);
+        if ($deleteExpired == true) {          
+            $result = $this->deleteExpired($userId,$type);
         }
         
-        $model = $this->getTokenByUser($user_id,$type);
+        $model = $this->getTokenByUser($userId,$type);
         if (is_object($model) == true) {
             return $model;
         }
 
         $info = [
-            'user_id'      => $user_id,
+            'user_id'      => $userId,
             'token'        => $token,
-            'date_expired' => $date_expired,
+            'date_expired' => $dateExpired,
             'type'         => $type
         ];
         $model = $this->create($info);
@@ -148,39 +148,39 @@ class AccessTokens extends Model
     /**
      * Find token
      *
-     * @param integer $user_id
+     * @param integer $userId
      * @param integer $type
      * @return mxied
      */
-    public function getTokenByUser($user_id, $type = AccessTokens::PAGE_ACCESS_TOKEN)
+    public function getTokenByUser($userId, $type = AccessTokens::PAGE_ACCESS_TOKEN)
     {
-        return $model = $this->where('user_id','=',$user_id)->where('type','=',$type)->first();
+        return $model = $this->where('user_id','=',$userId)->where('type','=',$type)->first();
     }
 
     /**
      * Return true if token exist
      *
-     * @param integer $user_id
+     * @param integer $userId
      * @param integer $type
      * @return boolean
      */
-    public function hasToken($user_id, $type = AccessTokens::PAGE_ACCESS_TOKEN)
+    public function hasToken($userId, $type = AccessTokens::PAGE_ACCESS_TOKEN)
     {    
-        return is_object($this->getTokenByUser($user_id,$type));
+        return is_object($this->getTokenByUser($userId,$type));
     }
 
     /**
      * Delete expired token
      *
-     * @param integer $user_id
+     * @param integer $userId
      * @param integer|null $type
      * @return void
      */
-    public function deleteExpired($user_id, $type = AccessTokens::PAGE_ACCESS_TOKEN)
+    public function deleteExpired($userId, $type = AccessTokens::PAGE_ACCESS_TOKEN)
     {
         $model = $this->where('date_expired','<',DateTime::getCurrentTime())
             ->where('date_expired','<>',-1)
-            ->where('user_id','=', $user_id);
+            ->where('user_id','=', $userId);
         
         if ($type != null) {
             $model = $model->where('type','=',$type);
@@ -201,11 +201,11 @@ class AccessTokens extends Model
     /**
      * Get all tokens for user
      *
-     * @param integer $user_id
+     * @param integer $userId
      * @return null|Model
      */
-    public function getUserTokens($user_id)
+    public function getUserTokens($userId)
     {
-        return $this->where('user_id','=',$user_id)->get();
+        return $this->where('user_id','=',$userId)->get();
     }
 }

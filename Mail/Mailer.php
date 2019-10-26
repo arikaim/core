@@ -35,12 +35,12 @@ class Mailer implements MailerInterface
     /**
      * Constructor
      * 
-     * @param \Swift_Transport $transport_driver
+     * @param \Swift_Transport $transportDriver
      */
-    public function __construct($transport_driver = null) 
+    public function __construct($transportDriver = null) 
     {
         $this->error = null;
-        if ($transport_driver == null) {
+        if ($transportDriver == null) {
             $transport = $this->createDefaultTransportDriver();
         }
         $this->mailer = new \Swift_Mailer($transport);

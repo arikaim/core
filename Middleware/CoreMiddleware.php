@@ -40,9 +40,9 @@ class CoreMiddleware extends Middleware implements MiddlewareInterface
         $request = $this->sanitizeRequest($request);
         
         // get client ip address      
-        $client_id = ClientIp::getClientIpAddress($request);
-        $request->withAttribute('client_ip',$client_id);   
-        Arikaim::session()->set('client_ip',$client_id);
+        $Ip = ClientIp::getClientIpAddress($request);
+        $request->withAttribute('client_ip',$Ip);   
+        Arikaim::session()->set('client_ip',$Ip);
 
         return $handler->handle($request);
     }

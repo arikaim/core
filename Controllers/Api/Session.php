@@ -27,10 +27,10 @@ class Session extends ApiController
      */
     public function getInfo($request, $response, $data) 
     {           
-        $session_info = Arikaim::session()->getParams();   
-        $session_info['recreate'] = Arikaim::options()->get('session.recreation.interval');
+        $sessionInfo = Arikaim::session()->getParams();   
+        $sessionInfo['recreate'] = Arikaim::options()->get('session.recreation.interval');
         
-        return $this->setResult($session_info)->getResponse();       
+        return $this->setResult($sessionInfo)->getResponse();       
     }
 
     /**
@@ -46,10 +46,10 @@ class Session extends ApiController
         $lifetime = $data->get('$lifetime',null);
         Arikaim::session()->recrete($lifetime);
 
-        $session_info = Arikaim::session()->getParams();  
-        $session_info['recreate'] = Arikaim::options()->get('session.recreation.interval');     
+        $sessionInfo = Arikaim::session()->getParams();  
+        $sessionInfo['recreate'] = Arikaim::options()->get('session.recreation.interval');     
         
-        return $this->setResult($session_info)->getResponse();       
+        return $this->setResult($sessionInfo)->getResponse();       
     }
 
      /**
@@ -67,7 +67,7 @@ class Session extends ApiController
         $lifetime = $data->get('$lifetime',null);
         Arikaim::session()->restart($lifetime);
 
-        $session_info = Arikaim::session()->getParams();  
-        return $this->setResult($session_info)->getResponse();       
+        $sessionInfo = Arikaim::session()->getParams();  
+        return $this->setResult($sessionInfo)->getResponse();       
     }
 }

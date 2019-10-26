@@ -87,14 +87,14 @@ class Db
     /**
      *  Check if database exist
      *
-     * @param string $database_name
+     * @param string $databaseName
      * @return boolean
      */
-    public function has($database_name)
+    public function has($databaseName)
     {   
         try {
             $schema = $this->capsule->getConnection('schema');
-            $result = $schema->select("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$database_name'");            
+            $result = $schema->select("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$databaseName'");            
         } catch(\Exception $e) {
             return false;
         }
@@ -122,12 +122,12 @@ class Db
     /**
      * Create database
      *
-     * @param string $database_name
+     * @param string $databaseName
      * @return boolean
      */
-    public function createDb($database_name, $charset = null, $collation = null) 
+    public function createDb($databaseName, $charset = null, $collation = null) 
     {    
-        if (Self::has($database_name) == true) {
+        if (Self::has($databaseName) == true) {
             return true;
         }
 
@@ -136,7 +136,7 @@ class Db
             $charset = ($charset != null) ? "CHARACTER SET $charset" : "";
             $collation = ($charset != null) ? "COLLATE $collation" : "";
 
-            $result = $schema->statement("CREATE DATABASE $database_name $charset $collation");
+            $result = $schema->statement("CREATE DATABASE $databaseName $charset $collation");
         } catch(\Exception $e) {
             Arikaim::errors()->addError('DB_DATABASE_ERROR');
             return false;

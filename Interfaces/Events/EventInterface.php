@@ -21,7 +21,7 @@ interface EventInterface
      * @param mixed $value
      * @return void
      */
-    public function setParameter($name,$value);
+    public function setParameter($name, $value);
     
     /**
      * Return all event parameters

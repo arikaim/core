@@ -30,7 +30,16 @@ class Property implements PropertyInterface
      *
      * @var array
      */
-    private $type_names = ['text','number','boolean','list','class','password','url','text-area'];
+    private $typeNames = [
+        'text',
+        'number',
+        'boolean',
+        'list',
+        'class',
+        'password',
+        'url',
+        'text-area'
+    ];
 
     /**
      * Property name
@@ -274,7 +283,7 @@ class Property implements PropertyInterface
      */
     public function getTypeId($type)
     {
-        $key = array_search($type,$this->type_names);       
+        $key = array_search($type,$this->typeNames);       
         return ($key !== false) ? $key : null;
     }
 
@@ -356,7 +365,7 @@ class Property implements PropertyInterface
     public function getTypeText()
     {
         $type = $this->getType();
-        return (isset($this->type_names[$type]) == true) ? $this->type_names[$type] : 'unknow';
+        return (isset($this->typeNames[$type]) == true) ? $this->typeNames[$type] : 'unknow';
     }
 
     /**
@@ -404,6 +413,7 @@ class Property implements PropertyInterface
             $token = explode('=',$param);
             $result[$token[0]] = $token[1];
         }
+        
         return Self::create($result);
     }
 

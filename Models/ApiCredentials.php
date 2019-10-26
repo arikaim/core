@@ -84,31 +84,31 @@ class ApiCredentials extends Model implements UserProviderInterface
     /**
      * Create Api Credintails
      *
-     * @param integer $user_id
-     * @param integer|null $expire_time
+     * @param integer $userId
+     * @param integer|null $expireTime
      * @return Model
      */
-    public function createCredintails($user_id, $expire_time = null)
+    public function createCredintails($userId, $expireTime = null)
     {
-        $date_expired = (empty($expire_time) == true) ? null : DateTime::getCurrentTime() + $expire_time;
+        $dateExpired = (empty($expireTime) == true) ? null : DateTime::getCurrentTime() + $expireTime;
 
         return $this->create([
-            'user_id'   => $user_id,
+            'user_id'   => $userId,
             'key'       => Utils::createUUID(),
             'secret'    => Utils::createRandomKey(),
-            'date_expired' => $date_expired,  
+            'date_expired' => $dateExpired,  
         ]);
     }
 
     /**
      * Get user api credintails
      *
-     * @param integer $user_id
+     * @param integer $userId
      * @return Model|false
      */
-    public function getCredintails($user_id)
+    public function getCredintails($userId)
     {
-        return $this->findByColumn($user_id,'user_id');
+        return $this->findByColumn($userId,'user_id');
     }
 
     /**

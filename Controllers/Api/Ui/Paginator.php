@@ -74,8 +74,8 @@ class Paginator extends ApiController
     public function setPageSizeController($request, $response, $data) 
     {       
         $namespace = $data->get('namespace','');
-        $page_size = $data->get('page_size',1);
-        SessionPaginator::setRowsPerPage($page_size,$namespace);
+        $pageSize = $data->get('page_size',1);
+        SessionPaginator::setRowsPerPage($pageSize,$namespace);
 
         $this
             ->field('page_size',SessionPaginator::getRowsPerPage($namespace))

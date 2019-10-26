@@ -77,13 +77,13 @@ class Controller
     /**
      * Load respons emessages from html component json file
      *
-     * @param string $component_name
+     * @param string $componentName
      * @param string $language
      * @return void
      */
-    public function loadMessages($component_name, $language = null)
+    public function loadMessages($componentName, $language = null)
     {
-        $messages = HtmlComponent::getProperties($component_name,$language);
+        $messages = HtmlComponent::getProperties($componentName,$language);
         $this->messages = (is_object($messages) == true) ? $messages->toArray() : [];
     }
 
@@ -218,13 +218,13 @@ class Controller
     {       
         $language = $this->getPageLanguage($data);
         if ($name != null) {
-            $page_name = $name;
+            $pageName = $name;
         } else {
-            $page_name = (isset($data['page_name']) == true) ? $data['page_name'] : $this->resolvePageName($request, $data);
+            $pageName = (isset($data['page_name']) == true) ? $data['page_name'] : $this->resolvePageName($request, $data);
         }
       
         $data = (is_object($data) == true) ? $data->toArray() : $data;
-        return Arikaim::page()->load($page_name,$data,$language,$response);
+        return Arikaim::page()->load($pageName,$data,$language,$response);
     }
 
     /**
@@ -242,12 +242,12 @@ class Controller
         if (is_object($route) == true) {
             $pattern = $route->getPattern();          
             $model = Model::Routes()->getRoute('GET',$pattern);            
-            $page_name = (is_object($model) == false) ? 'system:page-not-found' : $model->getPageName();             
+            $pageName = (is_object($model) == false) ? 'system:page-not-found' : $model->getPageName();             
         } else {
-            $page_name = "system:system-error";
+            $pageName = "system:system-error";
         }   
 
-        return $page_name;
+        return $pageName;
     }
 
     /**

@@ -38,14 +38,13 @@ class Drivers extends ApiController
     public function saveConfigController($request, $response, $data)
     {
         $this->onDataValid(function($data) {            
-            $driver_name = $data->get('name');           
+            $driverName = $data->get('name');           
             $data->offsetUnset('name');
 
-            $config = Arikaim::driver()->getConfig($driver_name);
+            $config = Arikaim::driver()->getConfig($driverName);
             // change config valus
             $config->setPropertyValues($data->toArray());
-            Arikaim::driver()->saveConfig($driver_name,$config);
-
+            Arikaim::driver()->saveConfig($driverName,$config);
             $result = true;
 
             $this->setResponse($result,'drivers.config','errors.drivers.config');

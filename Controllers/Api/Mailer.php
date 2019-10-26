@@ -15,7 +15,7 @@ use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\System\Mails\TestMail;
 
 /**
- * Mailer controller
+ * Mailer controller (TOOD message)
 */
 class Mailer extends ApiController
 {

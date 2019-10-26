@@ -42,9 +42,9 @@ class Position extends ApiController
         $model = $this->createModel($data);
 
         if (is_object($model) == true) {          
-            $target_model = $model->findById($data->get('target_uuid'));
-            if (is_object($target_model) == true) {                    
-                $model->shiftPosition($target_model);
+            $targetModel = $model->findById($data->get('target_uuid'));
+            if (is_object($targetModel) == true) {                    
+                $model->shiftPosition($targetModel);
             }
             $this->message('done');
         } else {
@@ -81,9 +81,9 @@ class Position extends ApiController
         $model = $this->createModel($data);
 
         if (is_object($model) == true) {          
-            $target_model = $model->findById($data->get('target_uuid'));
-            if (is_object($target_model) == true) {                    
-                $model->swapPosition($target_model);
+            $targetModel = $model->findById($data->get('target_uuid'));
+            if (is_object($targetModel) == true) {                    
+                $model->swapPosition($targetModel);
             }
             $this->message('done');
         } else {

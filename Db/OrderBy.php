@@ -20,18 +20,18 @@ class OrderBy
     /**
      * Undocumented function
      *
-     * @param string $field_name
+     * @param string $fieldName
      * @param string $type (asc|desc)
      * @param string|null $namespace
      * @return bool
      */
-    public static function setOrderBy($field_name, $type = null, $namespace = null)
+    public static function setOrderBy($fieldName, $type = null, $namespace = null)
     {
-        if (empty($field_name) == true) {
+        if (empty($fieldName) == true) {
             return false;
         }
         $type = (empty($type) == true) ? 'asc' : $type;
-        Arikaim::session()->set(Utils::createKey('order.by',$namespace),[$field_name => $type]);         
+        Arikaim::session()->set(Utils::createKey('order.by',$namespace),[$fieldName => $type]);         
         return true; 
     }
 

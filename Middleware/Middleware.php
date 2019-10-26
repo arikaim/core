@@ -83,10 +83,10 @@ class Middleware
         $route = $request->getAttribute('route');  
         if (is_object($route) == true) {
             $pattern = $route->getPattern();
-            $route_model = Model::Routes()->getRoute('GET',$pattern);
+            $routeModel = Model::Routes()->getRoute('GET',$pattern);
 
-            if (is_object($route_model) == true) {
-                $model = Model::Routes()->getAuthErrorRoute($route_model->extension_name,$route_model->auth);
+            if (is_object($routeModel) == true) {
+                $model = Model::Routes()->getAuthErrorRoute($routeModel->extension_name,$routeModel->auth);
                 if (is_object($model) == true) {
                     if (empty($model->redirect_url) == false) {                       
                         return $response->withRedirect($model->getRedirectUrl());

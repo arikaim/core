@@ -18,23 +18,23 @@ use Arikaim\Core\Collection\Property;
 class Properties extends Collection
 { 
     /**
-     * Converted to array properties
+     * Properties array
      *
      * @var array
      */
-    private $to_array;
+    private $properties;
 
     /**
      * Constructor
      * 
-     * @param boolean $resolve_properties
+     * @param boolean $resolveProperties
      * @param array $data
      */
-    public function __construct($data = [], $resolve_properties = true) 
+    public function __construct($data = [], $resolveProperties = true) 
     {
-        $this->to_array = [];
+        $this->properties = [];
 
-        if ($resolve_properties == true) {
+        if ($resolveProperties == true) {
             $this->createProperties($data);
         } else {
             parent::__construct($data);
@@ -67,6 +67,7 @@ class Properties extends Collection
             };
             $this->data[$name] = $callback();
         }
+
         return $this;
     }
 
@@ -100,11 +101,11 @@ class Properties extends Collection
     {       
         $callback = function($value, $key) {
             $property =  $this->getProperty($key);
-            $this->to_array[$key] = $property->toArray();           
+            $this->properties[$key] = $property->toArray();           
         };
         array_walk_recursive($this->data ,$callback);
 
-        return $this->to_array;
+        return $this->properties;
     }
 
     /**
@@ -140,8 +141,7 @@ class Properties extends Collection
             if ($editable == false) {
                 if ($property->isReadonly() == true || $property->isHidden() == true) {
                     $result[$key] = $property;
-                }  
-               
+                }                 
             }
 
             if (empty($hidden) == false) {
@@ -197,6 +197,7 @@ class Properties extends Collection
             $property = new Property($key);
             $this->data[$key] = $property;
         };
+        
         return array_walk_recursive($data,$callback);       
     }
 }

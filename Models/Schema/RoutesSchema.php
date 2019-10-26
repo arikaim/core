@@ -21,7 +21,7 @@ class RoutesSchema extends Schema
      *
      * @var string
      */ 
-    protected $table_name = "routes";
+    protected $tableName = "routes";
 
     /**
      * Create table

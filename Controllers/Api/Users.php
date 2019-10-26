@@ -90,20 +90,20 @@ class Users extends ApiController
          
         $this->onDataValid(function($data) { 
            
-            $user_name = $data->get('user_name');
-            $loged_user = Arikaim::auth()->getUser();
+            $userName = $data->get('user_name');
+            $logedUser = Arikaim::auth()->getUser();
             $user = Model::Users();
 
             // check if user name is changed           
-            if ($loged_user->user_name != $user_name) {
+            if ($logedUser->user_name != $userName) {
                 // check if user name exists 
-                if ($user->userNameExist($user_name) == true) {
+                if ($user->userNameExist($userName) == true) {
                     return $this->error('errors.username');                                              
                 }
             }
-            $loged_user->user_name = $user_name;
-            $loged_user->email = $data->get('email');
-            $result = $loged_user->update(); 
+            $logedUser->user_name = $userName;
+            $logedUser->email = $data->get('email');
+            $result = $logedUser->update(); 
             if ($result == false) {
                 return $this->error('errors.update');                    
             }
@@ -111,18 +111,18 @@ class Users extends ApiController
              // check for change password 
              $password = $data->get('password',null);
              if (empty($password) == false) {
-                $new_password = $data->get('new_password');
-                $repeat_password = $data->get('repeat_password');
+                $newPassword = $data->get('new_password');
+                $repeatPassword = $data->get('repeat_password');
 
-                if ($loged_user->verifyPassword($password) == false) {                  
+                if ($logedUser->verifyPassword($password) == false) {                  
                     return $this->error('errors.invalid');                  
                 } 
-                if ($new_password != $repeat_password) {
+                if ($newPassword != $repeatPassword) {
                     // passwords not mach            
                     return $this->error('errors.password');                                   
                 }
               
-                $result = $user->changePassword($loged_user->id,$new_password);
+                $result = $user->changePassword($logedUser->id,$newPassword);
                 $this->setResponse($result,'update','errors.update');   
             } else {
                 $this->setResponse($result,'update','errors.update'); 

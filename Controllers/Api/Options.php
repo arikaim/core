@@ -41,12 +41,12 @@ class Options extends ApiController
         $this->requireControlPanelPermission();
 
         $this->onDataValid(function($data) { 
-            $extension_name = $data->get('extension_name',null);
-            $auto_load = $data->get('auto_load',false);
+            $extensionName = $data->get('extension_name',null);
+            $autoLoad = $data->get('auto_load',false);
             $key = $data->get('key');
             $value = $data->get('value');
 
-            $result = Arikaim::options()->set($key,$value,$auto_load,$extension_name);
+            $result = Arikaim::options()->set($key,$value,$autoLoad,$extensionName);
 
             $this->setResponse($result,function() use($key,$value) {
                 $this
@@ -93,11 +93,11 @@ class Options extends ApiController
         $this->requireControlPanelPermission();
 
         $this->onDataValid(function($data) {           
-            $extension_name = $data->get('extension_name',null);
-            $auto_load = $data->get('auto_load',false);
+            $extensionName = $data->get('extension_name',null);
+            $autoLoad = $data->get('auto_load',false);
 
             foreach ($data as $key => $value) {
-                Arikaim::options()->set($key,$value,$auto_load,$extension_name);
+                Arikaim::options()->set($key,$value,$autoLoad,$extensionName);
             }
             $this->message('options.save');
         });

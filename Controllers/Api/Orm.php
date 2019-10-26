@@ -41,7 +41,6 @@ class Orm extends ApiController
         $this->requireControlPanelPermission();
 
         $this->onDataValid(function($data) {            
-            
             $model = Model::create($data['model'],$data['extension'])->findByid($data['uuid']);
             $result = (is_object($model) == true) ? $model->delete() : false;
 
@@ -62,8 +61,7 @@ class Orm extends ApiController
     {
         $this->requireControlPanelPermission();
 
-        $this->onDataValid(function($data) {            
-            
+        $this->onDataValid(function($data) {                        
             $model = Model::create($data['model'],$data['extension']);
             $result = $model->saveRelation($data['id'],$data['type'],$data['relation_id']);
             
@@ -110,11 +108,12 @@ class Orm extends ApiController
         $this->requireControlPanelPermission();
         
         $this->onDataValid(function($data) { 
-            $model_name = $data->get('model');
+            $modelName = $data->get('model');
             $extension = $data->get('extension');
-            $reference_id = $data->get('id');
-            $model = Model::create($model_name,$extension);
-            $result = (is_object($model) == true) ? $model->saveOptions($reference_id,$data['options']) : false;
+            $referenceId = $data->get('id');
+            $model = Model::create($modelName,$extension);
+            
+            $result = (is_object($model) == true) ? $model->saveOptions($referenceId,$data['options']) : false;
          
             $this->setResponse($result,function() use($model) {
                 $this

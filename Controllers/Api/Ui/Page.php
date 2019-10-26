@@ -27,13 +27,14 @@ class Page extends ApiController
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param \Psr\Http\Message\ResponseInterface $response
      * @param Validator $data
+     * @param stringnull $pageName
      * @return Psr\Http\Message\ResponseInterface
      */
-    public function loadPage($request, $response, $data, $page_name = null) 
+    public function loadPage($request, $response, $data, $pageName = null) 
     {        
-        $page_name = (empty($page_name) == true) ? $this->resolvePageName($request,$data) : $page_name;
+        $pageName = (empty($pageName) == true) ? $this->resolvePageName($request,$data) : $pageName;
 
-        $component = Arikaim::page()->render($page_name);
+        $component = Arikaim::page()->render($pageName);
         $files = Arikaim::page()->properties()->get('include.page.files',[]);
 
         $result = [
@@ -56,15 +57,15 @@ class Page extends ApiController
      */
     public function loadPageProperties($request, $response, $data)
     {       
-        $page_name = $data->get('name',Arikaim::page()->getCurrent());    
+        $pageName = $data->get('name',Arikaim::page()->getCurrent());    
     
         $loader = Template::getLoader(); 
-        $loader_code = (empty($loader) == false) ? HtmlComponent::loadComponent($loader) : "";
+        $loaderCode = (empty($loader) == false) ? HtmlComponent::loadComponent($loader) : "";
 
         $result['properties'] = [
-            'name'              => $page_name,            
+            'name'              => $pageName,            
             'framework'         => Template::getFrameworks(),
-            'loader'            => $loader_code,  
+            'loader'            => $loaderCode,  
             'loader_name'       => $loader,
             'library'           => Template::getLibraries(),
             'language'          => Template::getLanguage(),     

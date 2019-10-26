@@ -39,6 +39,7 @@ class JsonLogsFormatter implements FormatterInterface
         foreach ($records as $key => $record) {
             $records[$key] = $this->format($record);
         }
+        
         return $records;
     }
 }

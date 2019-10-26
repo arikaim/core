@@ -50,20 +50,20 @@ interface QueueInterface
      * Remove all jobs from queue
      * 
      * @param bool $completed - remove completed jobs only 
-     * @param string extension_name - remove extension jobs only
+     * @param string extension - remove extension jobs only
      * @return void
     */
-    public function clear($completed = true, $extension_name = null);
+    public function clear($completed = true, $extension = null);
 
     /**
      * Get jobs list
      *
      * @param bool $recurring
      * @param boolean $scheduled
-     * @param string $extenion_name
+     * @param string $extension
      * @return array
     */
-    public function getJobs($recurring = false, $scheduled = false, $extenion_name = null);
+    public function getJobs($recurring = false, $scheduled = false, $extension = null);
 
     /**
      * Return true if job exist in queue
@@ -76,18 +76,18 @@ interface QueueInterface
     /**
      * Get recurring jobs
      *
-     * @param string|null $extenion_name
+     * @param string|null $extension
      * @return array
      */
-    public function getRecuringJobs($extenion_name = null);
+    public function getRecuringJobs($extension = null);
 
     /**
     * Get scheduled jobs
     *
-    * @param string|null $extenion_name
+    * @param string|null $v
     * @return array
     */
-    public function getScheduledJobs($extenion_name = null);
+    public function getScheduledJobs($extension = null);
 
     /**
      * Get all jobs due

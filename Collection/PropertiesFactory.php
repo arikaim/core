@@ -30,6 +30,7 @@ class PropertiesFactory
             $property = (is_array($value) == true) ? Property::create($value) : new Property($key,$value);           
             $result[$key] = $property;
         }    
+
         return new Properties($result,false);   
     }
 
@@ -37,14 +38,14 @@ class PropertiesFactory
      * Create from file
      *
      * @param string $file_name
-     * @param boolean $resolve_properties
+     * @param boolean $resolveProperties
      * @return Properties
      */
-    public static function createFromFile($file_name, $resolve_properties = true)
+    public static function createFromFile($file_name, $resolveProperties = true)
     {
         $data = File::readJSONFile($file_name);
         $data = (is_array($data) == true) ? $data : [];
 
-        return ($resolve_properties == true) ? new Properties($data) : Self::createFromArray($data);       
+        return ($resolveProperties == true) ? new Properties($data) : Self::createFromArray($data);       
     }
 }

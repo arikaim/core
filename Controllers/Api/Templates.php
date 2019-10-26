@@ -43,16 +43,16 @@ class Templates extends ApiController
         $this->requireControlPanelPermission();
         
         $this->onDataValid(function($data) { 
-            $current_template = Template::getTemplateName();
+            $current = Template::getTemplateName();
             $templates = new TemplatesManager();
 
             // uninstall current template routes 
-            $result = $templates->unInstallPackage($current_template);
+            $result = $templates->unInstallPackage($current);
             // install new template routes
             $result = $templates->installPackage($data['name']);
             if ($result == false) {
                 // roll back current template
-                $templates->installPackage($current_template);
+                $templates->installPackage($current);
                 $this->error('errors.template.current');
             } else {                
                 $this
@@ -100,14 +100,14 @@ class Templates extends ApiController
         $this->requireControlPanelPermission();
             
         $this->onDataValid(function($data) {
-            $theme_name = $data->get('theme_name');
-            $template_name = $data->get('template_name',Template::getTemplateName());          
-            Theme::setCurrentTheme($theme_name,$template_name);
+            $themeName = $data->get('theme_name');
+            $templateName = $data->get('template_name',Template::getTemplateName());          
+            Theme::setCurrentTheme($themeName,$templateName);
          
             $this
                 ->message('theme.current')
-                ->field('theme',$theme_name)
-                ->field('template',$template_name);
+                ->field('theme',$themeName)
+                ->field('template',$templateName);
         });
         $data->validate();
     }

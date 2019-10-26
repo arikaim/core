@@ -57,11 +57,6 @@ class DbHandler extends AbstractProcessingHandler
      */
     protected function write(array $record)
     {
-        $info['channel'] = $record['channel'];      
-        $info['level'] = $record['level'];
-        $info['message'] = $record['message'];
-        $info['context'] = $record['context'];
-       
-        return (is_object($this->model) == true) ? $this->model->create($info) : false;          
+        return (is_object($this->model) == true) ? $this->model->create($record) : false;          
     }  
 }
