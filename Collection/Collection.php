@@ -38,14 +38,14 @@ class Collection implements CollectionInterface, \Countable, \ArrayAccess, \Iter
     /**
      * Create colection form json file
      *
-     * @param string $file_name
+     * @param string $fileName
      * @param string|null $root
      * @param array|null $vars
      * @return Collection
      */
-    public static function createFromFile($file_name, $root = null, $vars = null) 
+    public static function createFromFile($fileName, $root = null, $vars = null) 
     {
-        $data = File::readJSONFile($file_name,$vars);
+        $data = File::readJSONFile($fileName,$vars);
         $data = (is_array($data) == true) ? $data : [];
         $data = (isset($data[$root]) == true) ? $data[$root] : $data;
         
@@ -180,7 +180,7 @@ class Collection implements CollectionInterface, \Countable, \ArrayAccess, \Iter
      */
     public function setValue($path,$value)
     {
-        $this->data = Arrays::setValue($this->data,$path,$value);
+        $this->data = Arrays::setValue($this->data, $path, $value);
     }
 
     /**
@@ -245,17 +245,17 @@ class Collection implements CollectionInterface, \Countable, \ArrayAccess, \Iter
      *
      * @param string $key
      * @param mixed $value
-     * @param string|null $sub_key   
+     * @param string|null $subKey   
      * @return boolean
      */
-    public function push($key, $value, $sub_key = null) 
+    public function push($key, $value, $subKey = null) 
     {
-        if ($sub_key != null) {
-            if (isset($this->data[$key][$sub_key]) == false) {
-                $this->data[$key][$sub_key] = [];
+        if ($subKey != null) {
+            if (isset($this->data[$key][$subKey]) == false) {
+                $this->data[$key][$subKey] = [];
             } 
-            array_push($this->data[$key][$sub_key],$value);  
-            $this->data[$key][$sub_key] = array_unique($this->data[$key][$sub_key],SORT_REGULAR);
+            array_push($this->data[$key][$subKey],$value);  
+            $this->data[$key][$subKey] = array_unique($this->data[$key][$subKey],SORT_REGULAR);
         } else {
             if (isset($this->data[$key]) == false) {
                 $this->data[$key] = [];
@@ -271,17 +271,17 @@ class Collection implements CollectionInterface, \Countable, \ArrayAccess, \Iter
      *
      * @param string $key
      * @param mixed $value
-     * @param string|null $sub_key   
+     * @param string|null $subKey   
      * @return boolean
      */
-    public function prepend($key, $value, $sub_key = null) 
+    public function prepend($key, $value, $subKey = null) 
     {
-        if ($sub_key != null) {
-            if (isset($this->data[$key][$sub_key]) == false) {
-                $this->data[$key][$sub_key] = [];
+        if ($subKey != null) {
+            if (isset($this->data[$key][$subKey]) == false) {
+                $this->data[$key][$subKey] = [];
             } 
-            array_unshift($this->data[$key][$sub_key],$value);  
-            $this->data[$key][$sub_key] = array_unique($this->data[$key][$sub_key],SORT_REGULAR);
+            array_unshift($this->data[$key][$subKey],$value);  
+            $this->data[$key][$subKey] = array_unique($this->data[$key][$subKey],SORT_REGULAR);
         } else {
             if (isset($this->data[$key]) == false) {
                 $this->data[$key] = [];
@@ -401,7 +401,7 @@ class Collection implements CollectionInterface, \Countable, \ArrayAccess, \Iter
      * @param string $key
      * @param mixed $value
      */
-    public function __set($key,$value)
+    public function __set($key, $value)
     {
         return $this->set($key,$value);
     }
