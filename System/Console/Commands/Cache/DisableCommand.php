@@ -38,7 +38,6 @@ class DisableCommand extends ConsoleCommand
     protected function executeCommand($input, $output)
     {
         $this->showTitle('Disable cache.');
-        
         Arikaim::cache()->clear();
         
         Arikaim::config()->setBooleanValue('settings/cache',false);

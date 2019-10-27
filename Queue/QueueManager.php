@@ -91,12 +91,12 @@ class QueueManager
      * Add job
      *
      * @param JobInterface $job
-     * @param string|null $extension_name
+     * @param string|null $extension
      * @return bool
      */
-    public function addJob(JobInterface $job, $extension_name = null)
+    public function addJob(JobInterface $job, $extension = null)
     {       
-        return $this->driver->add($job,$extension_name);      
+        return $this->driver->add($job,$extension);      
     }
 
     /**
@@ -114,12 +114,12 @@ class QueueManager
      * Delete all jobs
      *
      * @param boolean $completed
-     * @param  dtring|null $extension_name
+     * @param  dtring|null $extension
      * @return void
      */
-    public function clear($completed = true, $extension_name = null)
+    public function clear($completed = true, $extension = null)
     {
-        $this->driver->clear($completed,$extension_name);
+        $this->driver->clear($completed,$extension);
     }
 
     /**
@@ -167,11 +167,11 @@ class QueueManager
    /**
      * Delete all extension jobs
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return boolean
      */
-    public function deleteExtensionJobs($extension_name)
+    public function deleteExtensionJobs($extension)
     { 
-        return $this->driver->deleteExtensionJobs($extension_name);
+        return $this->driver->deleteExtensionJobs($extension);
     } 
 }

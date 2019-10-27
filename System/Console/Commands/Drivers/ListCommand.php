@@ -48,7 +48,6 @@ class ListCommand extends ConsoleCommand
 
         $rows = [];
         foreach ($items as $driver) {
-           
             $label = ($driver->status == 1) ? ConsoleHelper::getLabelText('enabled','green') : ConsoleHelper::getLabelText('disabled','red');
             $row = [$label,$driver->name,$driver->title,$driver->category,$driver->full_name,$driver->version];
             array_push($rows,$row);

@@ -42,7 +42,7 @@ abstract class Job implements JobInterface
      *
      * @var string
      */
-    protected $extension_name;
+    protected $extension;
   
     /**
      * Job code
@@ -54,12 +54,12 @@ abstract class Job implements JobInterface
     /**
      * Constructor
      *
-     * @param string|null $extension_name
+     * @param string|null $extension
      * @param string|null $name
      */
-    public function __construct($extension_name = null, $name = null)
+    public function __construct($extension = null, $name = null)
     {
-        $this->setExtensionName($extension_name);
+        $this->setExtensionName($extension);
         $this->setName($name);
         $this->setPriority(0);
         $this->id = null;
@@ -104,7 +104,7 @@ abstract class Job implements JobInterface
      */
     public function getExtensionName()
     {
-        return $this->extension_name;
+        return $this->extension;
     }
 
     /**
@@ -157,6 +157,6 @@ abstract class Job implements JobInterface
      */
     public function setExtensionName($name)
     {
-        return $this->extension_name = $name;
+        return $this->extension = $name;
     }
 }

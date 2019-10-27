@@ -24,13 +24,12 @@ class CronJob extends RecuringJob implements RecuringJobInterface,JobInterface
     /**
      * Constructor
      *
-     * @param string|null $extension_name
+     * @param string|null $extension
      * @param string|null $name
      */
-    public function __construct($extension_name = null, $name = null)
+    public function __construct($extension = null, $name = null)
     {
-        parent::__construct($extension_name,$name);
-
+        parent::__construct($extension,$name);
         $this->interval = '* * * * *';
     }
 

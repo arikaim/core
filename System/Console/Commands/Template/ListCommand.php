@@ -48,8 +48,8 @@ class ListCommand extends ConsoleCommand
         $items = $manager->getPackages();
 
         $rows = [];
-        foreach ($items as $template_name) {
-            $package = $manager->createPackage($template_name);
+        foreach ($items as $name) {
+            $package = $manager->createPackage($name);
             $template = $package->getProperties();
             $label = ($template->current == true) ? ConsoleHelper::getLabelText('current','cyan') : '';
             $row = [$template->name,$template->version,$label];

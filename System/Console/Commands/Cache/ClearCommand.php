@@ -38,9 +38,7 @@ class ClearCommand extends ConsoleCommand
     protected function executeCommand($input, $output)
     {
         $this->showTitle('Clear cache.');
-      
         Arikaim::cache()->clear();
-
         $this->showCompleted();
     }
 }

@@ -52,9 +52,9 @@ class ListCommand extends ConsoleCommand
             $package = $manager->createPackage($name);
             $module = $package->getProperties(true);
 
-            $installed_label = ($module->installed == true) ?  ConsoleHelper::getLabelText('installed','cyan') : '';
-            $status_label = ($module->status == 1) ?  ConsoleHelper::getLabelText('enabled','green') : '';
-            $label = $installed_label . " " . $status_label;
+            $installedLabel = ($module->installed == true) ?  ConsoleHelper::getLabelText('installed','cyan') : '';
+            $statusLabel = ($module->status == 1) ?  ConsoleHelper::getLabelText('enabled','green') : '';
+            $label = $installedLabel . " " . $statusLabel;
             $row = [$module->name,$module->version,$module->type,$label];
             array_push($rows,$row);
         }

@@ -48,8 +48,8 @@ class ListCommand extends ConsoleCommand
         $items = $manager->getPackages();
         
         $rows = [];
-        foreach ($items as $extension_name) {
-            $package = $manager->createPackage($extension_name);
+        foreach ($items as $name) {
+            $package = $manager->createPackage($name);
             $extension = $package->getProperties();
 
             $status = ConsoleHelper::getStatusText($extension->status);

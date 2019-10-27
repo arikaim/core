@@ -165,6 +165,7 @@ class Cron extends StaticFacade
     
         $jobs = $this->getJobs();
         array_push($jobs,$command);
+
         return $this->addJobs($jobs);
     }
 
@@ -213,6 +214,7 @@ class Cron extends StaticFacade
             unset($jobs[array_search($command,$jobs)]);
             return $this->addJobs($jobs);
         }
+        
         return true;
     }
 

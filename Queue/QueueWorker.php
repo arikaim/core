@@ -13,7 +13,6 @@ use Arikaim\Core\System\Process;
 use Arikaim\Core\System\System;
 use Arikaim\Core\Queue\QueueManager;
 use Arikaim\Core\Arikaim;
-
 use Arikaim\Core\Interfaces\Queue\QueueInterface;
 
 /**
@@ -137,6 +136,7 @@ class QueueWorker
     public function isRunning()
     {
         $pid = Arikaim::options()->get('queue.worker.pid',null);
+
         return (empty($pid) == false) ? Process::isRunning($pid) : false;          
     }
 
@@ -148,6 +148,7 @@ class QueueWorker
     public function getPid()
     {
         $pid = Arikaim::options()->get('queue.worker.pid',null);
+        
         return $pid;    
     }
 

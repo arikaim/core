@@ -29,13 +29,13 @@ class DbQueue implements QueueInterface
      * Add job
      *
      * @param JobInterface $job
-     * @param string|null $extension_name
+     * @param string|null $extension
      * @return Model|false
      */
-    public function add(JobInterface $job, $extension_name = null)
+    public function add(JobInterface $job, $extension = null)
     {
         $model = Model::Jobs();
-        $extension_name = ($extension_name == null) ? $job->getExtensionName() : $extension_name;
+        $extension = ($extension == null) ? $job->getExtensionName() : $extension;
         $name = (empty($job->getName()) == true) ? null : $job->getName();
 
         if ($name != null) {
@@ -49,7 +49,7 @@ class DbQueue implements QueueInterface
             'priority'              => $job->getPriority(),
             'name'                  => $name,
             'handler_class'         => get_class($job),         
-            'extension_name'        => $extension_name,      
+            'extension_name'        => $extension,      
             'status'                => Status::$ACTIVE,
             'uuid'                  => $job->getId()
         ];
@@ -86,6 +86,7 @@ class DbQueue implements QueueInterface
             $model = $model->where('extension_name','=',$extension);
         }
         $model = $model->first();
+
         return (is_object($model) == true) ? $model : false;
     }
 
@@ -140,6 +141,7 @@ class DbQueue implements QueueInterface
             return false;
         }
         $model = Model::Jobs()->findById($id);
+
         return (is_object($model) == false) ? true : $model->delete();
     }
 
@@ -155,6 +157,7 @@ class DbQueue implements QueueInterface
         if (is_object($model) == false) {
             return false;
         }
+
         return Factory::createJobFromArray($model->toArray(),$model->handler_class);
     }
 
@@ -162,20 +165,21 @@ class DbQueue implements QueueInterface
      * Remove all jobs from queue
      *
      * @param integer|null $status
-     * @param string|null $extension_name
+     * @param string|null $extension
      * @return bool
      */
-    public function clear($status = null, $extension_name = null)
+    public function clear($status = null, $extension = null)
     {
         $model = Model::Jobs();
         if ($status != null) {
             $model = $model->where('status','=',$status);
         }
-        if ($extension_name != null) {
-            $model = $model->where('extension_name','=',$extension_name);
+        if ($extension != null) {
+            $model = $model->where('extension_name','=',$extension);
         }
 
         $result = $model->delete();
+
         return ($result == null) ? true : $result;
     }
 
@@ -214,30 +218,31 @@ class DbQueue implements QueueInterface
         } catch (\Exception $e) {
             return false;
         }
+
         return true;
     }
 
     /**
      * Get jobs
      *
-     * @param string|null $extenion_name
+     * @param string|null $extension
      * @param integer|null $status
-     * @param string|null $schedule_time
+     * @param string|null $scheduleTime
      * @param string|null $recuring
      * @return Model|null
      */
-    public function getJobs($extenion_name = null, $status = null, $schedule_time = null, $recuring = null)
+    public function getJobs($extension = null, $status = null, $scheduleTime = null, $recuring = null)
     {
         $model = Model::Jobs();  
 
-        if ($extenion_name != null) {
-            $model = $model->where('extenion_name','=',$extenion_name); 
+        if ($extension != null) {
+            $model = $model->where('extenion_name','=',$extension); 
         }
         if ($status != null) {
             $model = $model->where('status','=',$status); 
         }
-        if ($schedule_time != null) {
-            $model = $model->where('schedule_time','=',$schedule_time); 
+        if ($scheduleTime != null) {
+            $model = $model->where('schedule_time','=',$scheduleTime); 
         }
         if ($recuring != null) {
             $model = $model->where('recuring_interval','=',$recuring); 
@@ -250,24 +255,24 @@ class DbQueue implements QueueInterface
     /**
      * Get not scheduled or recurrnign jobs
      *
-     * @param string $extenion_name
+     * @param string $extension
      * @param integer $status
-     * @param boolean $query_only
+     * @param boolean $queryOnly
      * @return Model|Bulder|null
      */
-    public function getNotScheduledJobs($extenion_name = null, $status = null, $query_only = true)
+    public function getNotScheduledJobs($extension = null, $status = null, $queryOnly = true)
     {
         $model = Model::Jobs()->whereNull('recuring_interval')->whereNull('schedule_time'); 
        
-        if ($extenion_name != null) {
-            $model = $model->where('extenion_name','=',$extenion_name); 
+        if ($extension != null) {
+            $model = $model->where('extenion_name','=',$extension); 
         }
         if ($status != null) {
             $model = $model->where('status','=',$status); 
         }
         $model = $model->orderBy('priority','desc');
 
-        if ($query_only == false) {
+        if ($queryOnly == false) {
             $model = $model->get();
         }
      
@@ -294,15 +299,15 @@ class DbQueue implements QueueInterface
     /**
      * Get recurring jobs
      *
-     * @param string|null $extenion_name
+     * @param string|null $extension
      * @return array
      */
-    public function getRecuringJobs($extenion_name = null)
+    public function getRecuringJobs($extension = null)
     {   
         $model = Model::Jobs()->whereNotNull('recuring_interval');
 
-        if ($extenion_name != null) {
-            $model = $model->where('extension_name','=',$extenion_name); 
+        if ($extension != null) {
+            $model = $model->where('extension_name','=',$extension); 
         }
         $model = $model->get();
 
@@ -312,15 +317,15 @@ class DbQueue implements QueueInterface
     /**
      * Get scheduled jobs
      *
-     * @param string|null $extenion_name
+     * @param string|null $extension
      * @return array
      */
-    public function getScheduledJobs($extenion_name = null)
+    public function getScheduledJobs($extension = null)
     {
         $model = Model::Jobs()->whereNotNull('schedule_time');
 
-        if ($extenion_name != null) {
-            $model = $model->where('extension_name','=',$extenion_name); 
+        if ($extension != null) {
+            $model = $model->where('extension_name','=',$extension); 
         }
         $model = $model->get();
 
@@ -336,36 +341,33 @@ class DbQueue implements QueueInterface
     public function updateJobExecutionStatus(JobInterface $job)
     {       
         $id = (empty($job->getId()) == true) ? $job->uuid : $job->getId();
-     
         $model = Model::Jobs()->findByIdQuery($id);
     
         if (is_object($model->first()) == false) {
             return false;
         } 
-
         if ($job instanceof RecuringJobInterface) {
             $info = ['date_executed' => DateTime::toTimestamp()];
         }
-
         if ($job instanceof ScheduledJobInterface) {
             $info = ['date_executed' => DateTime::toTimestamp(),'status' => $model->first()->COMPLETED()];
         }
         // increment execution counter
         $model->increment('executed');
-
         $result = $model->update($info);     
+
         return ($result == null) ? true : $result;
     }
 
     /**
      * Delete all extension jobs
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return boolean
      */
-    public function deleteExtensionJobs($extension_name)
+    public function deleteExtensionJobs($extension)
     {
-        $model = Model::Jobs()->where('extension_name','=',$extension_name);
+        $model = Model::Jobs()->where('extension_name','=',$extension);
         
         return $model->delete();
     } 

@@ -24,19 +24,19 @@ abstract class ScheduledJob extends Job implements ScheduledJobInterface, JobInt
      *
      * @var integer
      */
-    protected $schedule_time;
+    protected $scheduleTime;
  
     /**
      * Constructor
      *  
-     * @param string $extension_name
+     * @param string $extension
      * @param string|null $name
      */
-    public function __construct($extension_name, $name = null)
+    public function __construct($extension, $name = null)
     {
-        parent::__construct($extension_name,$name);
+        parent::__construct($extension,$name);
 
-        $this->schedule_time = null;
+        $this->scheduleTime = null;
     }
 
     /**
@@ -46,7 +46,7 @@ abstract class ScheduledJob extends Job implements ScheduledJobInterface, JobInt
      */
     public function getScheduleTime()
     {
-        return $this->schedule_time;
+        return $this->scheduleTime;
     }
 
     /**
@@ -57,7 +57,7 @@ abstract class ScheduledJob extends Job implements ScheduledJobInterface, JobInt
      */
     public function setScheduleTime($timestamp)
     {
-        $this->schedule_time = $timestamp;
+        $this->scheduleTime = $timestamp;
 
         return $this;
     }
@@ -84,6 +84,6 @@ abstract class ScheduledJob extends Job implements ScheduledJobInterface, JobInt
             return false;
         }
 
-        return ($this->schedule_time < DateTime::create()->getTimestamp()) ? true : false;
+        return ($this->scheduleTime < DateTime::create()->getTimestamp()) ? true : false;
     }
 }

@@ -48,8 +48,9 @@ class ListCommand extends ConsoleCommand
         $items = $manager->getPackages();
 
         $rows = [];
-        foreach ($items as $library_name) {
-            $library_package = $manager->createPackage($library_name);
+        foreach ($items as $name) {
+            $library_package = $manager->createPackage($name);
+
             $library = $library_package->getProperties();
             $label = ($library->framework == true) ?  ConsoleHelper::getLabelText('framework','cyan') : '';
             $row = [$library->name,$library->version,$label];
