@@ -25,54 +25,55 @@ class PhpError
      *
      * @var boolean
      */
-    protected $display_error_details;
+    protected $displayErrorDetails;
 
     /**
      * Show error trace
      *
      * @var boolean
      */
-    protected $display_error_trace;
+    protected $displayErrorTrace;
 
     /**
      * Log errors
      *
      * @var boolean
      */
-    protected $log_errors;
+    protected $logErrors;
 
     /**
      * Log error details
      *
      * @var boolean
      */
-    protected $log_error_details;
+    protected $logErrorDetails;
 
     /**
      * Constructor
      *
-     * @param boolean $display_error_details
+     * @param boolean $displayErrorDetails
      */
-    public function __construct($display_error_details = true, $display_error_trace = true)
+    public function __construct($displayErrorDetails = true, $displayErrorTrace = true)
     {
-        $this->display_error_details = $display_error_details;
-        $this->display_error_trace = $display_error_trace;        
+        $this->displayErrorDetails = $displayErrorDetails;
+        $this->displayErrorTrace = $displayErrorTrace;        
     }
 
     /**
      * Render error
      *
-     * @param ServerRequestInterface $request   The most recent Request object
-     * @param ResponseInterface      $response  The most recent Response object
-     * @param \Throwable             $error     The caught Throwable object
-     *
+     * @param ServerRequestInterface $request   The most recent Request object    
+     * @param \Throwable             $exception     The caught Throwable object
+     * @param bool $displayDetails
+     * @param bool $logErrors
+     * @param bool $logErrorDetails
      * @return ResponseInterface   
      */
-    public function renderError($request, $exception, $display_details, $log_errors, $log_error_details)
+    public function renderError($request, $exception, $displayDetails, $logErrors, $logErrorDetails)
     {
-        $this->log_errors = $log_errors;
-        $this->display_error_details = $display_details;
-        $this->log_error_details = $log_error_details;
+        $this->logErrors = $logErrors;
+        $this->displayErrorDetails = $displayDetails;
+        $this->logErrorDetails = $logErrorDetails;
 
         if (System::isConsole() == true) {
             return $this->renderConsoleErrorMessage($exception);
@@ -102,14 +103,14 @@ class PhpError
         System::writeLine('Message: ' . $error->getMessage());
         System::writeLine('File: ' . $error->getFile());
 
-        if ($this->display_error_details == true) {
+        if ($this->displayErrorDetails == true) {
             System::writeLine('Type: ' . get_class($error));
             if ($error->getCode() == true) {
                 System::writeLine('Code: ' . $error->getCode());
             }
             System::writeLine('');
             System::writeLine('Line: ' . $error->getLine());
-            if ($this->display_error_trace == true) {
+            if ($this->displayErrorTrace == true) {
                 System::writeLine('Trace: ' . $error->getTraceAsString());
             }
             while ($error = $error->getPrevious()) {
@@ -130,9 +131,9 @@ class PhpError
     protected function renderJsonErrorMessage($error)
     {
         $response = new Response();
-        $error_message = $this->renderHtmlError($error);
+        $message = $this->renderHtmlError($error);
 
-        $response->setError($error_message);
+        $response->setError($message);
         return $response->getResponse();
     }
 
@@ -145,7 +146,7 @@ class PhpError
      */
     protected function renderHtmlErrorMessage($error)
     {
-        $error_html = $this->renderHtmlError($error);
+        $html = $this->renderHtmlError($error);
     
         $title = 'Application Error';    
         Html::startDocument();
@@ -161,7 +162,7 @@ class PhpError
         Html::h1($title);
 
         Html::h2('Details');
-        Html::appendHtml($error_html);
+        Html::appendHtml($html);
 
         Html::endBody();    
         Html::endHtml();
@@ -187,7 +188,7 @@ class PhpError
         Html::strong('File: ');
         Html::endDiv($error->getFile());
 
-        if ($this->display_error_details == true) {
+        if ($this->displayErrorDetails == true) {
             Html::startDiv();
             Html::strong('Type: ');
             Html::endDiv(get_class($error));
@@ -202,7 +203,7 @@ class PhpError
             Html::strong('Line: ');
             Html::endDiv($error->getLine());
             
-            if ($this->display_error_trace == true) {
+            if ($this->displayErrorTrace == true) {
                 Html::h2('Trace: ');
                 Html::pre($error->getTraceAsString());
             }

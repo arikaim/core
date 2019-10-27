@@ -50,12 +50,12 @@ class AdminResetCommand extends ConsoleCommand
         };
         $question = new Question("Enter new password: ",null);    
         $question->setValidator($validator);      
-        $new_password = trim($helper->ask($input, $output, $question));
+        $newPassword = trim($helper->ask($input, $output, $question));
         
         $question = new Question("Repeat new passsord: ");
-        $repeat_pasword = trim($helper->ask($input, $output, $question));
+        $repeatPasword = trim($helper->ask($input, $output, $question));
 
-        if ($new_password != $repeat_pasword) {
+        if ($newPassword != $repeatPasword) {
             $this->showError("New password and repeat password mot mach!");
             return;
         }
@@ -65,7 +65,7 @@ class AdminResetCommand extends ConsoleCommand
             return;
         }
         
-        $result = $user->changePassword($user->id,$new_password);
+        $result = $user->changePassword($user->id,$newPassword);
         if ($result == true) {
             $this->showCompleted();            
         } else {

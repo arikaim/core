@@ -96,7 +96,6 @@ class Application
             return false;
         }
         foreach ($commands as $class) {
-           
             $command = Factory::createInstance($class);
             if (is_object($command) == true) {
                 $this->application->add($command);

@@ -57,11 +57,12 @@ class ShellCommand extends ConsoleCommand
                 exit();
             }
             if (empty($command) == false) {
-                $command_input = new StringInput($command);
-                $app->run($command_input,$output);
+                $commandInput = new StringInput($command);
+                $app->run($commandInput,$output);
             }
           
         }
+        
         return true;
     }
 }

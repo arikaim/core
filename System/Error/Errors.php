@@ -47,14 +47,14 @@ class Errors extends Collection
     /**
      * Add error
      *
-     * @param string $error_code
+     * @param string $errorCode
      * @param array $params
      * @return bool
      */
-    public function addError($error_code, $params = [])
+    public function addError($errorCode, $params = [])
     {       
-        $message = $this->getError($error_code,$params);  
-        $message = (empty($message) == true) ? $error_code : $message;
+        $message = $this->getError($errorCode,$params);  
+        $message = (empty($message) == true) ? $errorCode : $message;
          
         array_push($this->errors,$message);
         return true;
@@ -93,14 +93,14 @@ class Errors extends Collection
     /**
      * Get error code
      *
-     * @param string $error_code
+     * @param string $errorCode
      * @param string|null $default
      * @param array $params
      * @return string
      */
-    public function getError($error_code, $params = [], $default = 'UNKNOWN_ERROR') 
+    public function getError($errorCode, $params = [], $default = 'UNKNOWN_ERROR') 
     {
-        $error = $this->get($error_code,null);
+        $error = $this->get($errorCode,null);
         $error = (empty($error) == true) ? $this->get($default,null) : $error;
 
         return (empty($error) == true) ? null : Text::render($this->prefix . $error['message'], $params);      
@@ -109,12 +109,12 @@ class Errors extends Collection
     /**
      * Get upload error message
      *
-     * @param integer $error_code
+     * @param integer $errorCode
      * @return string
      */
-    public function getUplaodFileError($error_code)
+    public function getUplaodFileError($errorCode)
     {
-        switch ($error_code) {
+        switch ($errorCode) {
             case UPLOAD_ERR_OK:
                 return "";// no error                
             case UPLOAD_ERR_INI_SIZE:

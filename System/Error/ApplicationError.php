@@ -27,11 +27,13 @@ class ApplicationError extends PhpError implements ErrorHandlerInterface
      * @param ServerRequestInterface $request   The most recent Request object
      * @param ResponseInterface      $response  The most recent Response object
      * @param \Exception             $exception  
-     *
+     * @param bool                   $displayDetails
+     * @param bool                   $logErrors
+     * @param bool                   $logErrorDetails
      * @return ResponseInterface    
      */
-    public function __invoke(ServerRequestInterface $request, Throwable $exception, bool $display_details, bool $log_errors, bool $log_error_details): ResponseInterface
+    public function __invoke(ServerRequestInterface $request, Throwable $exception, bool $displayDetails, bool $logErrors, bool $logErrorDetails): ResponseInterface
     {
-        return $this->renderError($request,$exception, $display_details, $log_errors, $log_error_details);
+        return $this->renderError($request,$exception,$displayDetails,$logErrors,$logErrorDetails);
     }
 }

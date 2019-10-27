@@ -84,15 +84,15 @@ class InstallCommand extends ConsoleCommand
         };
         $question = new Question("\t Enter database Name: ",null);    
         $question->setValidator($validator);      
-        $database_name = $helper->ask($input, $output, $question);
+        $databaseName = $helper->ask($input, $output, $question);
         
         $question = new Question("\t Enter database Username: ");
         $question->setValidator($validator);      
-        $database_username = $helper->ask($input, $output, $question);
+        $databaseUserName = $helper->ask($input, $output, $question);
 
         $question = new Question("\t Enter database Password: ");
         $question->setValidator($validator);      
-        $database_password = $helper->ask($input, $output, $question);
+        $databasePassword = $helper->ask($input, $output, $question);
 
         $this->style->newLine();
         $question = new ConfirmationQuestion ("\t Start installation [yes]: ",true);

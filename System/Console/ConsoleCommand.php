@@ -53,7 +53,7 @@ abstract class ConsoleCommand extends Command
      * @param OutputInterface $output
      * @return mixed
      */
-    abstract protected function executeCommand($input,$output);
+    abstract protected function executeCommand($input, $output);
 
     /**
      * Run method wrapper
@@ -62,9 +62,10 @@ abstract class ConsoleCommand extends Command
      * @param OutputInterface $output
      * @return void
      */
-    public function run(InputInterface $input,OutputInterface $output)
+    public function run(InputInterface $input, OutputInterface $output)
     {
         $this->style = new SymfonyStyle($input, $output);
+
         return parent::run($input, $output);
     }
 
@@ -101,7 +102,7 @@ abstract class ConsoleCommand extends Command
      * @param OutputInterface $output
      * @return void
      */
-    protected function execute(InputInterface $input,OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->executeCommand($input,$output);
     }
