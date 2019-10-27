@@ -27,7 +27,7 @@ abstract class Extension implements ExtensionInterface
      *
      * @var array
      */
-    private $console_classes = [];
+    private $consoleClasses = [];
 
     /**
      * All extensions should implement install method
@@ -50,13 +50,13 @@ abstract class Extension implements ExtensionInterface
      * Add relation map for Polymorphic Relations relations
      *
      * @param string $type
-     * @param string $model_class
+     * @param string $modelClass
      * @return void
      */
-    public function addRelationMap($type,$model_class)
+    public function addRelationMap($type, $modelClass)
     {
         $relations = Arikaim::config()->load('relations.php');       
-        $relations[$type] = Model::getFullClassName($model_class,$this->getName());
+        $relations[$type] = Model::getFullClassName($modelClass,$this->getName());
         $relations = array_unique($relations);
       
         return Arikaim::config()->save('relations.php',$relations);
@@ -66,13 +66,13 @@ abstract class Extension implements ExtensionInterface
      * Create extension option
      *
      * @param string $key
-     * @param [mxied $value
-     * @param boolean $auto_load
+     * @param mxied $value
+     * @param boolean $autoLoad
      * @return bool
      */
-    public function createOption($key, $value, $auto_load = true)
+    public function createOption($key, $value, $autoLoad = true)
     {
-        return Arikaim::options()->createOption($key, $value, $auto_load,$this->getName());
+        return Arikaim::options()->createOption($key, $value, $autoLoad,$this->getName());
     }
 
     /**
@@ -110,51 +110,53 @@ abstract class Extension implements ExtensionInterface
      */
     public function getConsoleCommands()
     {
-        return $this->console_classes;
+        return $this->consoleClasses;
     }
 
     /**
      * Register console command class
      *
-     * @param string $class_name
+     * @param string $class
      * @return bool
      */
-    public function registerConsoleCommand($class_name)
+    public function registerConsoleCommand($class)
     {
-        $class_name = Factory::getExtensionConsoleClassName($this->getName(),Utils::getClassBaseName($class_name));
-        if (class_exists($class_name) == false) {
+        $class = Factory::getExtensionConsoleClassName($this->getName(),Utils::getClassBaseName($class));
+        if (class_exists($class) == false) {
             return false;
         }
-        array_push($this->console_classes,$class_name);
-        $console_classes = array_unique($this->console_classes);
+        array_push($this->consoleClasses,$class);
+        $consoleClasses = array_unique($this->consoleClasses);
+
         return true;
     }
 
     /**
      * Create job
      *
-     * @param string $class_name
+     * @param string $class
      * @param string|null $name
      * @return JobInterface
      */
-    public function createJob($class_name, $name = null)
+    public function createJob($class, $name = null)
     {       
-        return Factory::createJob($class_name,$this->getName(),$name);
+        return Factory::createJob($class,$this->getName(),$name);
     }
 
     /**
      * Add job to queue
      *
-     * @param string $class_name
+     * @param string $class
      * @param string|null $name
      * @return boolean
      */
-    public function addJob($class_name, $name = null)
+    public function addJob($class, $name = null)
     {       
-        $job = $this->createJob($class_name,$name);
+        $job = $this->createJob($class,$name);
         if (is_object($job) == false) {
             return false;
         }
+
         return Arikaim::queue()->addJob($job,$this->getName());
     }
 
@@ -174,12 +176,12 @@ abstract class Extension implements ExtensionInterface
     /**
      * Get extension controller full class name
      *
-     * @param string $base_class_name
+     * @param string $class
      * @return string
      */
-    public function getControllerClassName($base_class_name)
+    public function getControllerClassName($class)
     {
-        return (Factory::isCoreControllerClass($base_class_name) == true) ? $base_class_name : Factory::getExtensionControllerClass($this->getName(),$base_class_name);       
+        return (Factory::isCoreControllerClass($class) == true) ? $class : Factory::getExtensionControllerClass($this->getName(),$class);       
     }
     
     /**
@@ -187,27 +189,27 @@ abstract class Extension implements ExtensionInterface
      *
      * @param string $method
      * @param string $pattern
-     * @param string $handler_class
-     * @param string $handler_method
+     * @param string $class
+     * @param string $handlerMethod
      * @param null|integer|string $auth
      * @param integer $type
-     * @param string|null $page_name
-     * @param string|null $redirect_url 
+     * @param string|null $pageName
+     * @param string|null $redirectUrl 
      * @return bool
      */
-    public function addRoute($method, $pattern, $handler_class, $handler_method, $auth = null, $type = 0, $page_name = null, $redirect_url = null)
+    public function addRoute($method, $pattern, $class, $handlerMethod, $auth = null, $type = 0, $pageName = null, $redirectUrl = null)
     {
         $routes = Model::Routes();
         $route = [
             'method'            => $method,
             'pattern'           => $pattern,
-            'handler_class'     => $this->getControllerClassName($handler_class),
-            'handler_method'    => $handler_method,
+            'handler_class'     => $this->getControllerClassName($class),
+            'handler_method'    => $handlerMethod,
             'auth'              => Arikaim::auth()->resolveAuthType($auth),
             'type'              => $type,
             'extension_name'    => $this->getName(),
-            'page_name'     => $page_name,
-            'redirect_url'      => $redirect_url
+            'page_name'         => $pageName,
+            'redirect_url'      => $redirectUrl
         ];
     
         return $routes->addRoute($route);      
@@ -217,72 +219,72 @@ abstract class Extension implements ExtensionInterface
      * Register page route
      *
      * @param string $pattern
-     * @param string|null $handler_class
-     * @param string|null $handler_method
+     * @param string|null $class
+     * @param string|null $handlerMethod
      * @param null|integer|string $auth
-     * @param string|null $redirect_url 
-     * @param string|null $route_name
-     * @param boolean $with_language
+     * @param string|null $redirectUrl 
+     * @param string|null $routeName
+     * @param boolean $withLanguage
      * @return bool
      */
-    public function addPageRoute($pattern, $handler_class = null, $handler_method = null, $auth = null, $redirect_url = null, $route_name = null, $with_language = true)
+    public function addPageRoute($pattern, $class = null, $handlerMethod = null, $auth = null, $redirectUrl = null, $routeName = null, $withLanguage = true)
     {
         $routes = Model::Routes();
-        $handler_class = ($handler_class == null) ? Factory::getControllerClass("PageLoader") : $this->getControllerClassName($handler_class);
-        $handler_method = ($handler_method == null) ? "loadPage" : $handler_method;
+        $class = ($class == null) ? Factory::getControllerClass("PageLoader") : $this->getControllerClassName($class);
+        $handlerMethod = ($handlerMethod == null) ? "loadPage" : $handlerMethod;
         $auth = Arikaim::auth()->resolveAuthType($auth);
 
-        return $routes->addPageRoute($pattern,$handler_class,$handler_method,$this->getName(),null,$auth,$redirect_url,$route_name,$with_language);
+        return $routes->addPageRoute($pattern,$class,$handlerMethod,$this->getName(),null,$auth,$redirectUrl,$routeName,$withLanguage);
     }
 
     /**
      * Register show page route (handler: PageLoader:loadPage)
      *
      * @param string $pattern
-     * @param string $page_name
+     * @param string $pageName
      * @param null|integer|string $auth
-     * @param string|null $redirect_url 
-     * @param string|null $route_name
-     * @param boolean $with_language
+     * @param string|null $redirectUrl 
+     * @param string|null $routeName
+     * @param boolean $withLanguage
      * @return bool
      */
 
-    public function addShowPageRoute($pattern, $page_name, $auth = null, $redirect_url = null, $route_name = null, $with_language = true)
+    public function addShowPageRoute($pattern, $pageName, $auth = null, $redirectUrl = null, $routeName = null, $withLanguage = true)
     {
         $routes = Model::Routes();       
         $auth = Arikaim::auth()->resolveAuthType($auth);
 
-        return $routes->addPageRoute($pattern,Factory::getControllerClass("PageLoader"),"loadPage",$this->getName(),$page_name,$auth,$redirect_url,$route_name,$with_language);
+        return $routes->addPageRoute($pattern,Factory::getControllerClass("PageLoader"),"loadPage",$this->getName(),$pageName,$auth,$redirectUrl,$routeName,$withLanguage);
     }
 
     /**
      * Add page error route
      *
      * @param string $pattern
-     * @param string $page_name
-     * @param string|null $handler_class
-     * @param string|null $handler_method
-     * @param string|null $redirect_url 
+     * @param string $pageName
+     * @param string|null $class
+     * @param string|null $handlerMethod
+     * @param string|null $redirectUrl 
      * @return boolean
      */
-    public function addErrorRoute($pattern, $page_name, $redirect_url = null, $handler_class = null, $handler_method = null)
+    public function addErrorRoute($pattern, $pageName, $redirectUrl = null, $class = null, $handlerMethod = null)
     {
-        return $this->addPageRoute($pattern,$page_name,null,$handler_class,$handler_method,Routes::TYPE_ERROR_PAGE,$redirect_url);
+        return $this->addPageRoute($pattern,$pageName,null,$class,$handlerMethod,Routes::TYPE_ERROR_PAGE,$redirectUrl);
     }
 
     /**
      * Add auth error page route
      *
      * @param string $pattern
-     * @param string $page_name
-     * @param string|null $redirect_url 
-     * @param string|null $handler_class
-     * @param string|null $handler_method
+     * @param string $pageName
+     * @param string|null $redirectUrl 
+     * @param string|null $class
+     * @param string|null $handlerMethod
      * @return boolean
      */
-    public function addAuthErrorRoute($pattern, $page_name, $auth = null, $redirect_url = null, $handler_class = null, $handler_method = null)
+    public function addAuthErrorRoute($pattern, $pageName, $auth = null, $redirectUrl = null, $class = null, $handlerMethod = null)
     {
-        return $this->addPageRoute($pattern,$page_name,$auth,$handler_class,$handler_method,Routes::TYPE_AUTH_ERROR_PAGE,$redirect_url);
+        return $this->addPageRoute($pattern,$pageName,$auth,$class,$handlerMethod,Routes::TYPE_AUTH_ERROR_PAGE,$redirectUrl);
     }
 
     /**
@@ -290,38 +292,36 @@ abstract class Extension implements ExtensionInterface
      *
      * @param string $method
      * @param string $pattern
-     * @param string $handler_class
-     * @param string $handler_method
+     * @param string $class
+     * @param string $handlerMethod
      * @param null|integer|string $auth
      * @return bool
      */
-    public function addApiRoute($method, $pattern, $handler_class, $handler_method, $auth = null)
+    public function addApiRoute($method, $pattern, $class, $handlerMethod, $auth = null)
     {
-        return $this->addRoute($method,$pattern,$handler_class,$handler_method,$auth,Routes::TYPE_API);
+        return $this->addRoute($method,$pattern,$class,$handlerMethod,$auth,Routes::TYPE_API);
     }
 
     /**
      * Creaete extension db table 
      *
-     * @param string $schema_class
+     * @param string $schemaClass
      * @return boolean
      */
-    public function createDbTable($schema_class)
-    {
-        $extension_name = $this->getName();
-        return Schema::install($schema_class,$extension_name);
+    public function createDbTable($schemaClass)
+    {       
+        return Schema::install($schemaClass,$this->getName());
     }
 
     /**
      * Drop extension db table
      *
-     * @param string $schema_class
+     * @param string $schemaClass
      * @return boolean
      */
-    public function dropDbTable($schema_class)
+    public function dropDbTable($schemaClass)
     {
-        $extension_name = $this->getName();
-        return Schema::unInstall($schema_class,$extension_name);
+        return Schema::unInstall($schemaClass,$this->getName());
     }
 
     /**

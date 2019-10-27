@@ -13,7 +13,6 @@ use Arikaim\Core\Interfaces\Mail\MailInterface;
 
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Utils;
-use Arikaim\Core\Utils\StaticFacade;
 use Arikaim\Core\View\Html\HtmlComponent;
 
 /**

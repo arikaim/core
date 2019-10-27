@@ -40,13 +40,6 @@ abstract class PackageRepository implements RepositoryInterface
     protected $url;
 
     /**
-     * Access token for remote package repository
-     *
-     * @var string
-     */
-    protected $access_token;
-
-    /**
      * Repository driver
      *
      * @var RepositoryDriverInterface

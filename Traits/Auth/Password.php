@@ -11,8 +11,8 @@ namespace Arikaim\Core\Traits\Auth;
 
 /**
  *  Password trait
- *  Change password attribute name in model: protected $password_attribute = 'password';
- *  Chage encrypth algo: protected $password_encrypt_algo = algo | null  
+ *  Change password attribute name in model: protected $passwordColumn = 'password';
+ *  Chage encrypth algo: protected $passwordEncryptAlgo = algo | null  
 */
 trait Password 
 {   
@@ -43,7 +43,8 @@ trait Password
         if (is_object($model) == false) {
             return false;
         }
-        $model->{$this->getPasswordAttributeName()} = $this->encryptPassword($password);    
+        $model->{$this->getPasswordAttributeName()} = $this->encryptPassword($password);  
+
         return $model->save();
     }    
 
@@ -71,7 +72,7 @@ trait Password
      */
     public function getPasswordAttributeName()
     {
-        return (isset($this->password_attribute) == true) ? $this->password_attribute : 'password';
+        return (isset($this->passwordColumn) == true) ? $this->passwordColumn : 'password';
     }
 
     /**
@@ -81,7 +82,7 @@ trait Password
      */
     public function getEncryptPasswordAlgo()
     {
-        return (isset($this->password_encrypt_algo) == true) ? $this->password_encrypt_algo : PASSWORD_BCRYPT;
+        return (isset($this->passwordEncryptAlgo) == true) ? $this->passwordEncryptAlgo : PASSWORD_BCRYPT;
     }
 
     /**

@@ -24,7 +24,7 @@ trait Translations
      */
     public function getTranslationReferenceAttributeName()
     {
-        return (isset($this->translation_reference_attribute) == true) ? $this->translation_reference_attribute : null;
+        return (isset($this->translationReference) == true) ? $this->translationReference : null;
     }
 
     /**
@@ -34,18 +34,17 @@ trait Translations
      */
     public function getTranslationModelClass()
     {
-        return (isset($this->translation_model_class) == true) ? $this->translation_model_class : null;
+        return (isset($this->translationModelClass) == true) ? $this->translationModelClass : null;
     }
 
     /**
      * HasMany relation
      *
-     * @return void
+     * @return mixed
      */
     public function translations()
-    {
-        $translation_model_class = $this->getTranslationModelClass();
-        return $this->hasMany($translation_model_class);
+    {       
+        return $this->hasMany($this->getTranslationModelClass());
     }
 
     /**
@@ -138,16 +137,16 @@ trait Translations
     /**
      * Find Translation
      *
-     * @param string $attribute_name
+     * @param string $attributeName
      * @param mixed $value
      * @return void
      */
-    public function findTranslation($attribute_name, $value)
+    public function findTranslation($attributeName, $value)
     {     
         $class = $this->getTranslationModelClass();
         $model = new $class();
 
-        $model = $model->whereIgnoreCase($attribute_name,trim($value));
+        $model = $model->whereIgnoreCase($attributeName,trim($value));
         return $model->first();
     }
 }

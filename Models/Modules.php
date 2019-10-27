@@ -156,6 +156,7 @@ class Modules extends Model
             $model = $model->where('status','=',$status);
         }
         $model = $model->get();
+        
         return (is_object($model) == true) ? $model->toArray() : [];
     }
 

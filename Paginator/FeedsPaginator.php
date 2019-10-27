@@ -22,20 +22,20 @@ class FeedsPaginator extends Paginator implements PaginatorInterface
      *
      * @param FeedCollection $source
      * @param integer $page
-     * @param string|integer $per_page_field
+     * @param string|integer $perPage
      */
-    public function __construct($source, $page = 1, $per_page = Paginator::DEFAULT_PER_PAGE)
+    public function __construct($source, $page = 1, $perPage = Paginator::DEFAULT_PER_PAGE)
     {                 
-        $this->current_page = $page;
-        $this->per_page = $per_page;
-        $this->items = $source->fetch($page,$per_page)->getItems();
+        $this->currentPage = $page;
+        $this->perPage = $perPage;
+        $this->items = $source->fetch($page,$perPage)->getItems();
      
         if (empty($source->getPageKey()) == true) {           
             $this->total = count($this->items);
             $this->items = $this->sliceItems($this->items);
-            $this->last_page = $this->calcLastPage();           
+            $this->lastPage = $this->calcLastPage();           
         } else {           
-            $this->last_page = Self::UNKNOWN;
+            $this->lastPage = Self::UNKNOWN;
             $this->total = Self::UNKNOWN;
         }      
     }

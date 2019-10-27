@@ -30,7 +30,7 @@ class Module implements ModuleInterface
      *
      * @var string|null
      */
-    protected $service_name;
+    protected $serviceName;
     
     /**
      * test error
@@ -83,7 +83,7 @@ class Module implements ModuleInterface
      */
     public function getServiceName()
     {
-        return $this->service_name;
+        return $this->serviceName;
     }
 
     /**
@@ -94,7 +94,7 @@ class Module implements ModuleInterface
      */
     public function setServiceName($name)
     {
-        return $this->service_name = $name;
+        return $this->serviceName = $name;
     }
 
     /**
@@ -138,6 +138,7 @@ class Module implements ModuleInterface
         if (empty($key) == true) {
             return $this->config;
         }
+
         return (isset($this->config[$key]) == true) ? $this->config[$key] : null;
     }
 
@@ -154,6 +155,7 @@ class Module implements ModuleInterface
             $this->setConfig($model->config);
             return true;
         } 
+        
         return false;
     }
 }

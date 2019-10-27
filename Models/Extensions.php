@@ -99,48 +99,48 @@ class Extensions extends Model
     /**
      * Return true if extension record exist.
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return boolean
      */
-    public function isInstalled($extension_name)
+    public function isInstalled($extension)
     {
-        $model = $this->where('name','=',$extension_name)->first();       
+        $model = $this->where('name','=',$extension)->first();       
         return (is_object($model) == true) ? true : false;   
     }
 
     /**
      * Return extension status (0 - disabled, 1 - enabled)
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return integer
      */
-    public function getStatus($extension_name)
+    public function getStatus($extension)
     {
-        $model = $this->where('name','=',$extension_name)->first();       
+        $model = $this->where('name','=',$extension)->first();       
         return (is_object($model) == false) ? 0 : $model->status;            
     }
 
     /**
      * Disable extension
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return bool
      */
-    public function disable($extension_name)
+    public function disable($extension)
     {        
-        $model = $this->findByColumn($extension_name,'name');       
+        $model = $this->findByColumn($extension,'name');       
         return (is_object($model) == true) ? $model->setStatus(Status::$DISABLED) : false;     
     }
 
     /**
      * Enable extension
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return bool
      */
-    public function enable($extension_name)
+    public function enable($extension)
     {
-        $model = $this->findByColumn($extension_name,'name');
+        $model = $this->findByColumn($extension,'name');
         return (is_object($model) == true) ? $model->setStatus(Status::$ACTIVE) : false;     
     }
 }

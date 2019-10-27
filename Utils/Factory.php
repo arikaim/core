@@ -188,6 +188,7 @@ class Factory
     {        
         $class_name = Self::getEventSubscriberClass($base_class_name,$extension_name);         
         $instance = Self::createInstance($class_name);
+        
         return ($instance instanceof EventSubscriberInterface) ? $instance : null;         
     }
 

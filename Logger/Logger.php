@@ -68,8 +68,8 @@ class Logger
         // init
         $this->logger = new MonologLogger('system');            
         $handler = new StreamHandler($this->fileName, MonologLogger::DEBUG);
-        $json_format = new JsonLogsFormatter();            
-        $handler->setFormatter($json_format); 
+        $jsonFormat = new JsonLogsFormatter();            
+        $handler->setFormatter($jsonFormat); 
 
         $proccesssor = new LogsProcessor();
         $this->logger->pushHandler($handler);
@@ -93,11 +93,11 @@ class Logger
      */
     public function readSystemLogs()
     {       
-        $logs_text ="[";
-        $logs_text .= File::read($this->fileName);
-        $logs_text = rtrim($logs_text,",\n");
-        $logs_text .="]\n";
-        $logs = json_decode($logs_text,true);
+        $text ="[" . File::read($this->fileName);      
+        $text = rtrim($text,",\n");
+        $text .="]\n";
+
+        $logs = json_decode($text,true);
       
         return $logs;
     }
@@ -107,7 +107,7 @@ class Logger
      *
      * @param string $name
      * @param mixed $arguments
-     * @return void
+     * @return boolean
      */
     public function __call($name, $arguments)
     {           
@@ -123,7 +123,7 @@ class Logger
      * @param string $level
      * @param string $message
      * @param array $context
-     * @return void
+     * @return boolean
      */
     public function log($level, $message, array $context = [])
     {   
@@ -135,7 +135,7 @@ class Logger
      *
      * @param string $message
      * @param array $context
-     * @return void
+     * @return boolean
      */
     public function error($message,$context = [])
     {      

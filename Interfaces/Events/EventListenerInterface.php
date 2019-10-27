@@ -10,22 +10,15 @@
 namespace Arikaim\Core\Interfaces\Events;
 
 /**
- * Event subscriber interface
+ * Event listener interface
  */
-interface EventSubscriberInterface
+interface EventListenerInterface
 {    
     /**
-     * Subscriber code.
+     * Run listener code.
      *
      * @param EventInterface $event
      * @return bool
      */
     public function execute($event);
-
-    /**
-     * Return subscribed events.
-     *
-     * @return array
-     */
-    public function getSubscribedEvents();
 }

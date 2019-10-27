@@ -61,20 +61,20 @@ class LibraryManager extends PackageManager
     /**
      * Get library theme file Url
      *
-     * @param string $library_name
-     * @param string $theme_name
+     * @param string $library
+     * @param string $theme
      * @return string
      */
-    public function getThemeFileUrl($library_name, $theme_name)
+    public function getThemeFileUrl($library, $theme)
     {
-        $library = $this->createPackage($library_name);
+        $library = $this->createPackage($library);
         if (is_object($library) == false) {
             return false;
         }
-        $file = $library->getThemeFile($theme_name);
+        $file = $library->getThemeFile($theme);
         if (empty($file) == true) {
             return false;
         }
-        return Url::getLibraryThemeUrl($library_name,$theme_name) . $file;
+        return Url::getLibraryThemeUrl($library,$theme) . $file;
     }
 }

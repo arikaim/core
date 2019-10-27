@@ -139,8 +139,8 @@ class Permissions extends Model implements PermissionsInterface
         }
 
         // check groups
-        $group_list = DbModel::UserGroups()->getUserGroups($id);
-        foreach ($group_list as $group) {
+        $groupList = DbModel::UserGroups()->getUserGroups($id);
+        foreach ($groupList as $group) {
             $permission = $this->getGroupPermission($name,$group->id);
             if (is_object($permission) == true) {
                 return $permission;
@@ -186,9 +186,9 @@ class Permissions extends Model implements PermissionsInterface
         } else {          
             $model = $this->where('group_id','=',$id);
         }
-        $permission_id = (is_string($name) == true) ? DbModel::PermissionsList()->getId($name) : $name;
+        $permissionId = (is_string($name) == true) ? DbModel::PermissionsList()->getId($name) : $name;
 
-        $model = $model->where('id','=',$permission_id)->first();
+        $model = $model->where('id','=',$permissionId)->first();
         return (is_object($model) == true) ? $model : false;           
     }
 

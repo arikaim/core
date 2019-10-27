@@ -108,14 +108,14 @@ trait Options
     /**
      * Read option
      *
-     * @param integer $reference_id
+     * @param integer $referenceId
      * @param string $key     
      * @param mixed $default
      * @return mixed
      */
-    public function read($reference_id, $key, $default = null) 
+    public function read($referenceId, $key, $default = null) 
     {
-        $model = $this->findOption($reference_id,$key);
+        $model = $this->findOption($referenceId,$key);
         return (is_object($model) == false) ? $default : $model->value;                      
     }
 
@@ -133,37 +133,37 @@ trait Options
     /**
      * Return true if option name exist
      *
-     * @param integer $reference_id
+     * @param integer $referenceId
      * @param string $key
      * @return boolean
      */
-    public function hasOption($reference_id, $key)
+    public function hasOption($referenceId, $key)
     {
-        $model = $this->findOption($reference_id,$key);
+        $model = $this->findOption($referenceId,$key);
         return is_object($model);
     }
 
     /**
      * Fidn option
      *
-     * @param integer $reference_id
+     * @param integer $referenceId
      * @param string $key
      * @return Model|null
      */
-    public function findOption($reference_id, $key)
+    public function findOption($referenceId, $key)
     {
-        return $this->where('reference_id','=',$reference_id)->where('key','=',$key)->first();
+        return $this->where('reference_id','=',$referenceId)->where('key','=',$key)->first();
     }
  
     /**
      * Save option
      *
-     * @param integer $reference_id
+     * @param integer $referenceId
      * @param string $key
      * @param mixed $value
      * @return Model|bool
      */
-    public function set($reference_id, $key, $value) 
+    public function set($referenceId, $key, $value) 
     {
         $key = trim($key);
         if (empty($key) == true) {
@@ -175,11 +175,11 @@ trait Options
         }
 
         $data = [
-            'reference_id' => $reference_id,
+            'reference_id' => $referenceId,
             'key'          => $key,
             'value'        => $value
         ];      
-        $model = $this->findOption($reference_id,$key);  
+        $model = $this->findOption($referenceId,$key);  
         $result = (is_object($model) == true) ? $model->update($data) : $this->create($data);             
     
         return $result;
@@ -188,15 +188,15 @@ trait Options
     /**
      * Save options
      *
-     * @param integer $reference_id
+     * @param integer $referenceId
      * @param array $data
      * @return boolean
      */
-    public function saveOptions($reference_id, array $data)
+    public function saveOptions($referenceId, array $data)
     {
         $errors = 0;
         foreach ($data as $key => $value) {
-            $result = $this->set($reference_id,$key,$value);
+            $result = $this->set($referenceId,$key,$value);
             $errors += ($result !== false) ? 0 : 1; 
         }      
         return ($errors == 0);
@@ -205,13 +205,13 @@ trait Options
     /**
      * Create option, if option exists return false
      *
-     * @param integer $reference_id
+     * @param integer $referenceId
      * @param string $key
      * @param mixed $value
      * @return boolean
      */
-    public function createOption($reference_id, $key, $value)
+    public function createOption($referenceId, $key, $value)
     {
-        return ($this->hasOption($reference_id,$key) == true) ? false : $this->set($reference_id,$key,$value);       
+        return ($this->hasOption($referenceId,$key) == true) ? false : $this->set($referenceId,$key,$value);       
     }
 }

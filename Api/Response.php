@@ -75,7 +75,7 @@ class Response
         $this->result['errors'] = $this->errors;  
         $this->prettyFormat = false; 
         $this->raw = false; 
-        $this->response = ($response == null) ? Arikaim::respone() : $response;
+        $this->response = ($response == null) ? Arikaim::response() : $response;
     }
 
     /**

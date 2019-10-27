@@ -43,6 +43,7 @@ class TemplatesManager extends PackageManager
             $result = $this->scan($filter);
             Arikaim::cache()->save('templates.list',$result,5);
         } 
+
         return $result;
     }
 
@@ -55,19 +56,20 @@ class TemplatesManager extends PackageManager
     public function createPackage($template_name)
     {
         $propertes = $this->loadPackageProperties($template_name);
+
         return new TemplatePackage($propertes);
     }
 
     /**
      * Return template routes
      *
-     * @param string $template_name Template name
+     * @param string $template Template name
      * @return void
      */
-    public function getRoutesList($template_name)
+    public function getRoutesList($template)
     {
         $model = Model::Routes();
-        $package = $this->createPackage($template_name);
+        $package = $this->createPackage($template);
         $routes = $package->getRoutes();
 
         if (is_array($routes) == false) {
@@ -85,6 +87,7 @@ class TemplatesManager extends PackageManager
                 $routes[$key]['auth'] = 0;
             }
         }
+        
         return $routes;
     }
 }

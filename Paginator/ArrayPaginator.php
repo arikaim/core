@@ -22,14 +22,14 @@ class ArrayPaginator extends Paginator implements PaginatorInterface
      *
      * @param array $items
      * @param integer $page
-     * @param integer $per_page
+     * @param integer $perPage
      */
-    public function __construct($items, $page, $per_page = Paginator::DEFAULT_PER_PAGE)
+    public function __construct($items, $page, $perPage = Paginator::DEFAULT_PER_PAGE)
     {      
-        $this->current_page = $page;
-        $this->per_page = $per_page;
+        $this->currentPage = $page;
+        $this->perPage = $perPage;
         $this->total = count($items);
-        $this->last_page = $this->calcLastPage();
+        $this->lastPage = $this->calcLastPage();
         $this->items = $this->sliceItems($items);       
     }
 }

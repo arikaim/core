@@ -89,12 +89,13 @@ class Users extends Model implements UserProviderInterface
     /**
      * Return true if user name exist
      *
-     * @param [type] $user_name
+     * @param string $userName
      * @return void
      */
-    public function userNameExist($user_name) 
+    public function userNameExist($userName) 
     {
-        $model = $this->where("user_name","=",trim($user_name))->first();
+        $model = $this->where("user_name","=",trim($userName))->first();
+
         return (is_object($model) == true) ? true : false;           
     }
 
@@ -106,6 +107,7 @@ class Users extends Model implements UserProviderInterface
     public function updateLoginDate()
     {
         $this->date_login = DateTime::getCurrentTime();
+
         return $this->save();
     }
 
@@ -152,8 +154,8 @@ class Users extends Model implements UserProviderInterface
         if (Schema::hasTable($permissions) == false) {
             return false;
         }
-        $permission_id = DbModel::PermissionsList()->getId(Access::CONTROL_PANEL);
-        $permissions = $permissions->where('permission_id','=',$permission_id)->where('user_id','>',0)->first();
+        $permissionId = DbModel::PermissionsList()->getId(Access::CONTROL_PANEL);
+        $permissions = $permissions->where('permission_id','=',$permissionId)->where('user_id','>',0)->first();
         if (is_object($permissions) == false) {
             return false;
         }
@@ -172,9 +174,10 @@ class Users extends Model implements UserProviderInterface
     {
         $id = (empty($id) == true) ? $this->id : $id;
         $permissions = DbModel::Permissions();
-        $permission_id = DbModel::PermissionsList()->getId(Access::CONTROL_PANEL);
+        $permissionId = DbModel::PermissionsList()->getId(Access::CONTROL_PANEL);
 
-        $permissions = $permissions->where('permission_id','=',$permission_id)->where('user_id','=',$id)->first();
+        $permissions = $permissions->where('permission_id','=',$permissionId)->where('user_id','=',$id)->first();
+
         return is_object($permissions);
     }
 
@@ -191,31 +194,32 @@ class Users extends Model implements UserProviderInterface
     /**
      * Find user by user name or email
      *
-     * @param string $user_name
+     * @param string $userName
      * @return Model|false
      */
-    private function getUser($user_name)
+    private function getUser($userName)
     {
-        $model = $this->where('user_name','=',$user_name)->orWhere('email','=',$user_name)->first();
+        $model = $this->where('user_name','=',$userName)->orWhere('email','=',$userName)->first();
+
         return (is_object($model) == false) ? false : $model;
     }
 
     /**
      * Create user
      *
-     * @param string $user_name
+     * @param string $userName
      * @param string $password
      * @param string|null $email
      * @return void
      */
-    public function createUser($user_name, $password, $email = null)
+    public function createUser($userName, $password, $email = null)
     {
-        $user = $this->getUser($user_name);
+        $user = $this->getUser($userName);
         if (is_object($user) == true) {
             return $user;
         }
         $data = [
-            'user_name'  => $user_name,
+            'user_name'  => $userName,
             'password'   => $this->EncryptPassword($password),
             'email'      => $email
         ];

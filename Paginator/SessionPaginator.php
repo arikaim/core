@@ -96,21 +96,21 @@ class SessionPaginator
      * Create paginator
      *
      * @param string|null $namespace
-     * @param integer|null $page_size
+     * @param integer|null $pageSize
      * @param object|array|json $source                            
      * @return array
      */
-    public static function create($source, $namespace = null, $page_size = null, $current_page = null)
+    public static function create($source, $namespace = null, $pageSize = null, $currentPage = null)
     {            
-        $page_size = (empty($page_size) == true) ? Self::getRowsPerPage($namespace) : $page_size;
-        $current_page = (empty($current_page) == true) ? Self::getCurrentPage($namespace) : $current_page;
+        $pageSize = (empty($pageSize) == true) ? Self::getRowsPerPage($namespace) : $pageSize;
+        $currentPage = (empty($currentPage) == true) ? Self::getCurrentPage($namespace) : $currentPage;
 
-        $paginator = Paginator::create($source,$current_page,$page_size);
+        $paginator = Paginator::create($source,$currentPage,$pageSize);
         $data = $paginator->toArray();
 
-        if ($paginator->getItemsCount() == 0 && $current_page > 1) {
+        if ($paginator->getItemsCount() == 0 && $currentPage > 1) {
             Self::setCurrentPage(1,$namespace);
-            $paginator = Paginator::create($source,1,$page_size);
+            $paginator = Paginator::create($source,1,$pageSize);
             $data = $paginator->toArray();           
         }
         Self::savePaginator($namespace,$data['paginator']);

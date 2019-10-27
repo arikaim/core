@@ -94,15 +94,16 @@ class ModulePackage extends Package
                 $file->getExtension() != 'php'
             ) continue;
          
-            $file_name = $file->getFilename();
-            $base_class = str_replace(".php","",$file_name);
-            $full_class_name = Factory::getModuleConsoleClassName($this->getName(),$base_class);          
+            $fileName = $file->getFilename();
+            $baseClass = str_replace(".php","",$fileName);
+            $class = Factory::getModuleConsoleClassName($this->getName(),$baseClass);          
 
-            $command = Factory::createInstance($full_class_name);
+            $command = Factory::createInstance($class);
             if (is_subclass_of($command,'Arikaim\Core\System\Console\ConsoleCommand') == true) {                                    
-                array_push($result,$full_class_name);
+                array_push($result,$class);
             }
         }     
+        
         return $result;
     }
 
@@ -115,16 +116,15 @@ class ModulePackage extends Package
     {
         // clear cached items
         Arikaim::cache()->deleteModuleItems();
-
         $data = $this->properties->toArray();
 
-        $module_obj = Factory::createModule($this->getName(),$this->getClass());
-        if (is_object($module_obj) == false) {
+        $module = Factory::createModule($this->getName(),$this->getClass());
+        if (is_object($module) == false) {
             Arikaim::errors()->addError("MODULE_CLASS_NOT_FOUND");
             return false;
         }
        
-        $module_obj->install();
+        $module->install();
 
         unset($data['requires']);
         unset($data['help']);
@@ -156,11 +156,9 @@ class ModulePackage extends Package
     {
         // clear cached items
         Arikaim::cache()->deleteModuleItems();
+        $model = Model::Modules()->findByColumn($this->getName(),'name');
 
-        $module = Model::Modules();
-        $model = $module->findByColumn($this->getName(),'name');
-
-        return ($model == false) ? false : $model->delete();
+        return (is_object($model) == false) ? false : $model->delete();
     }
 
     /**
@@ -173,8 +171,7 @@ class ModulePackage extends Package
         // clear cached items
         Arikaim::cache()->deleteModuleItems();
 
-        $module = Model::Modules();
-        return $module->enable($this->getName());
+        return Model::Modules()->enable($this->getName());
     }
 
     /**
@@ -187,18 +184,17 @@ class ModulePackage extends Package
         // clear cached items
         Arikaim::cache()->deleteModuleItems();
         
-        $module = Model::Modules();
-        return $module->disable($this->getName());
+        return Model::Modules()->disable($this->getName());        
     }   
 
     /**
      * Get type id
      *
-     * @param string $type_name
+     * @param string $typeName
      * @return integer
      */
-    public static function getTypeId($type_name)
+    public static function getTypeId($typeName)
     {
-        return array_search($type_name,Self::TYPE_NAME);
+        return array_search($typeName,Self::TYPE_NAME);
     }
 }

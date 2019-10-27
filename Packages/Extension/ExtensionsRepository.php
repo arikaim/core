@@ -22,33 +22,4 @@ use Arikaim\Core\System\Path;
 class ExtensionsRepository extends PackageRepository
 {
 
-    public function __construct()
-    {
-    }
-    
-    public function download($name, $license_key = null)
-    {
-        $license_key = (emty($license_key) == true) ? "" : $license_key;
-        $url = Url::REPOSITORY_URL . '/download/library/' . $name . "/$license_key";
-
-    }
-
-    public function getVersion($name)
-    {
-        $url = Url::REPOSITORY_URL . '/library/' . $name;
-     
-    }
-
-    public static function unpack($file_name, $library_name = null)
-    {
-        if (ZipFile::isValid($file_name) == false) {
-   
-        }
-        // extract
-        $destination_file = ($library_name == null) ? basename($file_name) : $library_name;
-
-        $result = ZipFile::extract($file_name,Path::STORAGE_TEMP_PATH);
-     
-
-    }
 }

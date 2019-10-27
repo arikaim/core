@@ -35,6 +35,13 @@ class ApiCredentials extends Model implements UserProviderInterface
         DateCreated;
 
     /**
+     * Db table name
+     *
+     * @var string
+     */
+    protected $table = 'api_credentials';
+
+    /**
      * Fillable attributes
      *
      * @var array
@@ -65,21 +72,21 @@ class ApiCredentials extends Model implements UserProviderInterface
      *
      * @var integer
     */
-    protected $auth_id_attribute = 'user_id';
+    protected $authIdColumn = 'user_id';
 
     /**
      * Enrypt password disabled
      *
      * @var mixed
      */
-    protected $password_encrypt_algo = null;
+    protected $passwordEncryptAlgo = null;
 
     /**
      * Password attribute name
      *
      * @var string
      */
-    protected $password_attribute = 'secret';
+    protected $passwordColumn = 'secret';
 
     /**
      * Create Api Credintails
@@ -114,7 +121,7 @@ class ApiCredentials extends Model implements UserProviderInterface
     /**
      * Get user by api credentials
      *
-     * @param array $credential
+     * @param array $credentials
      * @return Model|false
      */
     public function getUserByCredentials(array $credentials)

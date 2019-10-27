@@ -10,11 +10,11 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
+
 use Arikaim\Core\Traits\Db\Uuid;
 use Arikaim\Core\Traits\Db\Find;
 use Arikaim\Core\Traits\Db\Status;
 
-use Arikaim\Core\Db\Model as dbModel;
 /**
  * Drivers registry database model
  */
@@ -94,17 +94,17 @@ class Drivers extends Model
      *
      * @param string|integer $name Driver name, id or uuid 
      * @param string|null $category
-     * @param boolean $get_query
+     * @param boolean $getQuery
      * @return Model|boolean
      */
-    public function getDriver($name, $category = null, $get_query = false)
+    public function getDriver($name, $category = null, $getQuery = false)
     {
         $model = $this->findQuery($name,['name','id','uuid']);
         if (empty($category) == false) {
             $model = $model->where('category','=',$category);
         }  
         if (is_object($model) == true) {
-            return ($get_query == true) ? $model : $model->first();
+            return ($getQuery == true) ? $model : $model->first();
         }
         
         return false;
@@ -157,24 +157,25 @@ class Drivers extends Model
     /**
      * Delete extension drivers
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return boolean
      */
-    public function deleteExtensionDrivers($extension_name)
+    public function deleteExtensionDrivers($extension)
     {
-        $model = $this->where('extension_name','=',$extension_name);       
+        $model = $this->where('extension_name','=',$extension);       
+
         return $model->delete();
     }
 
     /**
      * Delete module drivers
      *
-     * @param string $module_name
+     * @param string $module
      * @return boolean
      */
-    public function deleteModuleDrivers($module_name)
+    public function deleteModuleDrivers($module)
     {
-        $model = $this->where($module_name,'=',$module_name);       
+        $model = $this->where('module_name','=',$module);       
         return $model->delete();
     }
 

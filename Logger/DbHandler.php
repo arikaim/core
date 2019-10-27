@@ -11,10 +11,8 @@ namespace Arikaim\Core\Logger;
 
 use Monolog\Logger;
 use Monolog\Handler\AbstractProcessingHandler;
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Utils\DateTime;
 
 /**
  * Database log handler, write log record to database 

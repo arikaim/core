@@ -54,6 +54,7 @@ class ExtensionsManager extends PackageManager
             $result = $this->scan($filter);
             Arikaim::cache()->save('extensions.list',$result,5);
         } 
+        
         return $result;
     }
 

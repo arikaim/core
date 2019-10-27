@@ -55,6 +55,7 @@ class ModulesManager extends PackageManager
             $result = $this->scan($filter);
             Arikaim::cache()->save('modules.list',$result,5);
         } 
+
         return $result;
     }
 
@@ -68,19 +69,19 @@ class ModulesManager extends PackageManager
      */
     public function getInstalled($status = null, $type = null, $category = null)
     {
-        $modules = Model::Modules();
+        $model = Model::Modules();
         if ($status !== null) {
-            $modules = $modules->where('status','=',$status);
+            $model = $model->where('status','=',$status);
         }
         if ($type !== null) {
-            $modules = $modules->where('type','=',$type);
+            $model = $model->where('type','=',$type);
         }
         if ($category !== null) {
-            $modules = $modules->where('category','=',$category);
+            $model = $model->where('category','=',$category);
         }
-        $modules = $modules->orderBy('position')->orderBy('id');
+        $model = $model->orderBy('position')->orderBy('id');
 
-        return $modules->get()->keyBy('name');
+        return $model->get()->keyBy('name');
     }
 
     /**
@@ -92,6 +93,7 @@ class ModulesManager extends PackageManager
     public function create($name)
     {
         $model = Model::Modules()->findByColumn($name,'name');
+        
         return (is_object($model) == false) ? null : Factory::createModule($name,$model->class);    
     }
 }

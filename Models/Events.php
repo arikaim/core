@@ -38,6 +38,13 @@ class Events extends Model
     ];
     
     /**
+     * Db table name
+     *
+     * @var string
+     */
+    protected $table = 'events';
+
+    /**
      * Timestamps disabled
      *
      * @var boolean
@@ -47,12 +54,12 @@ class Events extends Model
     /**
      * Return extension events list.
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return array
      */
-    public function getEvents($extension_name)
+    public function getEvents($extension)
     {
-        $model = $this->where('extension_name','=',$extension_name)->get();
+        $model = $this->where('extension_name','=',$extension)->get();
         return (is_object($model) == true) ? $model->toArray() : [];        
     }
 
@@ -83,12 +90,13 @@ class Events extends Model
     /**
      * Delete extensions event.
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return bool
      */
-    public function deleteEvents($extension_name)
+    public function deleteEvents($extension)
     {
-        $model = $this->where('extension_name','=',$extension_name);
+        $model = $this->where('extension_name','=',$extension);
+
         return (is_object($model) == true) ? $model->delete() : true;       
     }
 
@@ -106,7 +114,8 @@ class Events extends Model
             $model = $model->where('status','=',$status);
         }
         $model = $model->get();
-        return ($model->isEmpty() == true) ? false : true;        
+
+        return !($model->isEmpty() == true);    
     }
 
     /**
@@ -123,62 +132,62 @@ class Events extends Model
     /**
      * Disable all extension events. 
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return bool
      */
-    public function disableExtensionEvents($extension_name) 
+    public function disableExtensionEvents($extension) 
     {  
-        return $this->changeEventStatus(null,$extension_name,Status::$DISABLED);
+        return $this->changeEventStatus(null,$extension,Status::$DISABLED);
     }
 
     /**
      * Enable all extension events.
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return bool
      */
-    public function enableExtensionEvents($extension_name) 
+    public function enableExtensionEvents($extension) 
     {  
-       return $this->changeEventStatus(null,$extension_name,Status::$ACTIVE);
+       return $this->changeEventStatus(null,$extension,Status::$ACTIVE);
     }
 
     /**
      * Enable event
      *
-     * @param string $event_name
+     * @param string $eventName
      * @return bool
      */
-    public function enableEvent($event_name)
+    public function enableEvent($eventName)
     {
-        return $this->changeEventStatus($event_name,null,Status::$ACTIVE);
+        return $this->changeEventStatus($eventName,null,Status::$ACTIVE);
     }
 
     /**
      * Disable event
      *
-     * @param string $event_name
+     * @param string $eventName
      * @return bool
      */
-    public function disableEvent($event_name)
+    public function disableEvent($eventName)
     {
-        return $this->changeEventStatus($event_name,null,Status::$DISABLED);
+        return $this->changeEventStatus($eventName,null,Status::$DISABLED);
     }
 
     /**
      * Change event status
      *
-     * @param string $event_name
-     * @param string $extension_name
+     * @param string $eventName
+     * @param string $extension
      * @param integer $status
      * @return bool
      */
-    private function changeEventStatus($event_name = null, $extension_name = null, $status) 
+    private function changeEventStatus($eventName = null, $extension = null, $status) 
     {
-        if ($event_name != null) {
-            $this->where('name','=',$event_name);
+        if ($eventName != null) {
+            $this->where('name','=',$eventName);
         }
-        if ($extension_name != null) {
-            $this->where('extension_name','=',$extension_name);
+        if ($extension != null) {
+            $this->where('extension_name','=',$extension);
         }
         return $this->update(['status' => $status]);       
     }

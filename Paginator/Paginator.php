@@ -45,21 +45,21 @@ class Paginator implements PaginatorInterface
      *
      * @var integer
     */
-    protected $current_page;
+    protected $currentPage;
 
     /**
      * Last page
      *
      * @var integer
      */
-    protected $last_page;
+    protected $lastPage;
 
     /**
      * Row per page value
      *
      * @var integer
      */
-    protected $per_page;
+    protected $perPage;
 
     /**
      * Total number of items before slice
@@ -73,11 +73,11 @@ class Paginator implements PaginatorInterface
      */
     public function __construct()
     {
-        $this->current_page = 1;
-        $this->last_page = 1;
+        $this->currentPage = 1;
+        $this->lastPage = 1;
         $this->items = [];
      
-        $this->per_page = Self::DEFAULT_PER_PAGE;
+        $this->perPage = Self::DEFAULT_PER_PAGE;
         $this->total = 0;
     }    
 
@@ -98,13 +98,14 @@ class Paginator implements PaginatorInterface
      */
     public function getCurrentPage()
     {
-        if (empty($this->current_page) == true) {
+        if (empty($this->currentPage) == true) {
             return 1;   
         }
-        if ($this->last_page != Self::UNKNOWN) {
-            return ($this->current_page > $this->last_page) ? $this->last_page : $this->current_page;
+        if ($this->lastPage != Self::UNKNOWN) {
+            return ($this->currentPage > $this->lastPage) ? $this->lastPage : $this->currentPage;
         }
-        return $this->current_page;
+
+        return $this->currentPage;
     }
 
     /**
@@ -144,7 +145,7 @@ class Paginator implements PaginatorInterface
      */
     public function getLastPage()
     {        
-        return $this->last_page;
+        return $this->lastPage;
     }
 
     /**
@@ -154,7 +155,7 @@ class Paginator implements PaginatorInterface
      */
     public function getPerPage()
     {
-        return $this->per_page;
+        return $this->perPage;
     }
 
     /**
@@ -190,10 +191,10 @@ class Paginator implements PaginatorInterface
      *
      * @param object|array|json $source   
      * @param integer $page
-     * @param integer|null $per_page                         
+     * @param integer|null $perPage                         
      * @return PaginatorInterface
      */
-    public static function create($source, $page = 1, $per_page = null)
+    public static function create($source, $page = 1, $perPage = null)
     {       
         if (is_null($source) == true || empty($source) == true) {
             return new Self();
@@ -201,23 +202,23 @@ class Paginator implements PaginatorInterface
         
         switch($source) {
             case ($source instanceof Builder): {                        
-                $paginator = new DbPaginator($source,$page,$per_page);
+                $paginator = new DbPaginator($source,$page,$perPage);
                 break;
             }
             case ($source instanceof FeedCollection): {                        
-                $paginator = new FeedsPaginator($source,$page,$per_page);
+                $paginator = new FeedsPaginator($source,$page,$perPage);
                 break;
             }      
             case ($source instanceof CollectionInterface): {                        
-                $paginator = new ArrayPaginator($source->toArray(),$page,$per_page);
+                $paginator = new ArrayPaginator($source->toArray(),$page,$perPage);
                 break;
             }                             
             case is_array($source): {
-                $paginator = new ArrayPaginator($source,$page,$per_page);
+                $paginator = new ArrayPaginator($source,$page,$perPage);
                 break;
             }
             case Utils::isJSON($source): {
-                $paginator = new JsonPaginator($source,$page,$per_page);
+                $paginator = new JsonPaginator($source,$page,$perPage);
                 break;
             }
             default: {
@@ -235,7 +236,7 @@ class Paginator implements PaginatorInterface
      */
     protected function sliceItems($items)
     {    
-        $offset = ($this->current_page - 1) * $this->getPerPage();
+        $offset = ($this->currentPage - 1) * $this->getPerPage();
         return array_slice($items,$offset,$this->getPerPage());      
     }
 
@@ -246,6 +247,6 @@ class Paginator implements PaginatorInterface
      */
     protected function calcLastPage()
     {
-        return max((int)ceil($this->total / $this->per_page), 1);
+        return max((int)ceil($this->total / $this->perPage), 1);
     }
 }

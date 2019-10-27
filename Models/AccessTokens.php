@@ -34,6 +34,13 @@ class AccessTokens extends Model
         DateCreated;
 
     /**
+     * Db table name
+     *
+     * @var string
+     */
+    protected $table = 'access_tokens';
+
+    /**
      * Fillable attributes
      *
      * @var array

@@ -47,19 +47,19 @@ class EventSubscribers extends Model
     /**
      * Get all extension subscribers.
      *
-     * @param string $extension_name
+     * @param string $extension
      * @param integer $status
-     * @param string|null $event_name
+     * @param string|null $eventName
      * @return array
      */
-    public function getExtensionSubscribers($extension_name, $status = null, $event_name = null) 
+    public function getExtensionSubscribers($extension, $status = null, $eventName = null) 
     {           
-        $model = $this->where('extension_name','=',$extension_name);
+        $model = $this->where('extension_name','=',$extension);
         if ($status != null) {
             $model = $model->where('status','=',$status);
         }
-        if ($event_name != null) {
-            $model = $model->where('name','=',$event_name);
+        if ($eventName != null) {
+            $model = $model->where('name','=',$eventName);
         }
 
         $model = $model->orderBy('priority')->get();
@@ -69,13 +69,13 @@ class EventSubscribers extends Model
     /**
      * Get subscribers
      *
-     * @param string $event_name
+     * @param string $eventName
      * @param integer $status
      * @return array
      */
-    public function getSubscribers($event_name, $status = null) 
+    public function getSubscribers($eventName, $status = null) 
     {           
-        $model = $this->where('name','=',$event_name);
+        $model = $this->where('name','=',$eventName);
         if ($status != null) {
             $model = $model->where('status','=',$status);
         }
@@ -86,13 +86,13 @@ class EventSubscribers extends Model
     /**
      * Return true if event have subscriber(s)
      *
-     * @param string $event_name
-     * @param string $extension_name
+     * @param string $eventName
+     * @param string $extension
      * @return boolean
      */
-    public function hasSubscriber($event_name, $extension_name)
+    public function hasSubscriber($eventName, $extension)
     {
-        $model = $this->getSubscribersQuery($event_name,$extension_name);
+        $model = $this->getSubscribersQuery($eventName,$extension);
         $model = $model->get();
         return ($model->isEmpty() == true) ? false : true;           
     }
@@ -100,41 +100,41 @@ class EventSubscribers extends Model
     /**
      * Return subscribers query builder
      *
-     * @param string $event_name
-     * @param string $extension_name
+     * @param string $eventName
+     * @param string $extension
      * @return Builder
      */
-    public function getSubscribersQuery($event_name, $extension_name)
+    public function getSubscribersQuery($eventName, $extension)
     {
-        $model = $this->where('name','=',$event_name);
-        return $model->where('extension_name','=',$extension_name);       
+        $model = $this->where('name','=',$eventName);
+        return $model->where('extension_name','=',$extension);       
     }
 
     /**
      * Delete extension subscribers.
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return bool
      */
-    public function deleteExtensionSubscribers($extension_name)
+    public function deleteExtensionSubscribers($extension)
     {
-        if (empty($extension_name) == true) {
+        if (empty($extension) == true) {
             return false;
         }
-        $model = $this->where('extension_name','=',$extension_name);
+        $model = $this->where('extension_name','=',$extension);
         return (is_object($model) == true) ? $model->delete() : true;         
     }
 
     /**
      * Delete all subscribers for event
      *
-     * @param string $extension_name
-     * @param string $event_name
+     * @param string $extension
+     * @param string $eventName
      * @return bool
      */
-    public function deleteSubscribers($extension_name, $event_name)
+    public function deleteSubscribers($extension, $eventName)
     {
-        $model = $this->getSubscribersQuery($event_name,$extension_name);
+        $model = $this->getSubscribersQuery($eventName,$extension);
         return (is_object($model) == false) ? true : $model->delete();         
     }
 
@@ -160,62 +160,62 @@ class EventSubscribers extends Model
     /**
      * Disable extension subscribers.
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return bool
      */
-    public function disableExtensionSubscribers($extension_name) 
+    public function disableExtensionSubscribers($extension) 
     {  
-        return $this->changeStatus(null,$extension_name,Status::$DISABLED);
+        return $this->changeStatus(null,$extension,Status::$DISABLED);
     }
 
     /**
      * Enable extension subscribers.
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return bool
      */
-    public function enableExtensionSubscribers($extension_name) 
+    public function enableExtensionSubscribers($extension) 
     {  
-       return $this->changeStatus(null,$extension_name,Status::$ACTIVE);
+       return $this->changeStatus(null,$extension,Status::$ACTIVE);
     }
 
     /**
      * Enable all subscribers for event.
      *
-     * @param string $event_name
+     * @param string $eventName
      * @return bool
      */
-    public function enableSubscribers($event_name)
+    public function enableSubscribers($eventName)
     {
-        return $this->changeStatus($event_name,null,Status::$ACTIVE);
+        return $this->changeStatus($eventName,null,Status::$ACTIVE);
     }
 
     /**
      * Disable all subscribers for event.
      *
-     * @param string $event_name
+     * @param string $eventName
      * @return bool
      */
-    public function disableSubscribers($event_name)
+    public function disableSubscribers($eventName)
     {
-        return $this->changeStatus($event_name,null,Status::$DISABLED);
+        return $this->changeStatus($eventName,null,Status::$DISABLED);
     }
 
     /**
      * Change subscriber status
      *
-     * @param string $event_name
-     * @param string $extension_name
+     * @param string $eventName
+     * @param string $extension
      * @param string $status
      * @return bool
      */
-    private function changeStatus($event_name = null, $extension_name = null, $status) 
+    private function changeStatus($eventName = null, $extension = null, $status) 
     {
-        if ($event_name != null) {
-            $this->where('name','=',$event_name);
+        if ($eventName != null) {
+            $this->where('name','=',$eventName);
         }
-        if ($extension_name != null) {
-            $this->where('extension_name','=',$extension_name);
+        if ($extension != null) {
+            $this->where('extension_name','=',$extension);
         }
         return $this->update(['status' => $status]);       
     }

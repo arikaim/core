@@ -71,13 +71,13 @@ class Options extends Model
      *
      * @param string $key
      * @param mixed $value
-     * @param boolean $auto_load
-     * @param string|null $extension_name
+     * @param boolean $autoLoad
+     * @param string|null $extension
      * @return boolean
      */
-    public function createOption($key, $value, $auto_load = false, $extension_name = null)
+    public function createOption($key, $value, $autoLoad = false, $extension = null)
     {
-        return ($this->hasOption($key) == true) ? false : $this->set($key,$value,$auto_load,$extension_name);       
+        return ($this->hasOption($key) == true) ? false : $this->set($key,$value,$autoLoad,$extension);       
     }
 
     /**
@@ -97,11 +97,11 @@ class Options extends Model
      *
      * @param string $key
      * @param mixed $value
-     * @param boolean $auto_load
-     * @param string $extension_name
+     * @param boolean $autoLoad
+     * @param string $extension
      * @return bool
      */
-    public function set($key, $value, $auto_load = false, $extension_name = null) 
+    public function set($key, $value, $autoLoad = false, $extension = null) 
     {
         $key = trim($key);
         if (empty($key) == true) {
@@ -116,8 +116,8 @@ class Options extends Model
         $data = [
             'key'       => $key,
             'value'     => $value,
-            'auto_load' => ($auto_load == true) ? 1 : 0,      
-            'extension' => $extension_name
+            'auto_load' => ($autoLoad == true) ? 1 : 0,      
+            'extension' => $extension
         ];
     
         try {
@@ -168,7 +168,7 @@ class Options extends Model
      * @param mixed $value
      * @return void
      */
-    private function setOption($key,$value)
+    private function setOption($key, $value)
     {
         $this->options[$key] = $value;
     } 
@@ -177,12 +177,13 @@ class Options extends Model
      * Get option
      *
      * @param string $key
-     * @param mixed $default_value
+     * @param mixed $default
      * @return mixed
      */
-    public function get($key, $default_value = null)
+    public function get($key, $default = null)
     {
-        $value = (isset($this->options[$key]) == true) ? $this->options[$key] : $this->read($key,$default_value);
+        $value = (isset($this->options[$key]) == true) ? $this->options[$key] : $this->read($key,$default);
+
         return (Utils::isJSON($value) == true) ? json_decode($value,true) : $value;                      
     }   
     
@@ -199,20 +200,20 @@ class Options extends Model
     /**
      * Search for options
      *
-     * @param string $search_key
+     * @param string $searchKey
      * @return array
      */
-    public function searchOptions($search_key)
+    public function searchOptions($searchKey)
     {
         $options = [];
-        $model = $this->where('key','like',"$search_key%")->select('key','value')->get();
+        $model = $this->where('key','like',"$searchKey%")->select('key','value')->get();
       
         if (is_object($model) == true) {
             $options = $model->mapWithKeys(function ($item) {
                 return [$item['key'] => $item['value']];
             })->toArray(); 
         }     
-        $values = Arrays::getValues($options,$search_key);
+        $values = Arrays::getValues($options,$searchKey);
         if (is_array($values) == false) {
             return [];
         }
@@ -220,6 +221,7 @@ class Options extends Model
         foreach ($values as $key => $value) {
             $result = Arrays::setValue($result,$key,$value,'.');
         }      
+
         return $result;      
     }
 
@@ -233,22 +235,24 @@ class Options extends Model
     {
         $result = $this->where('key','=',$key)->delete();
         unset($this->options[$key]);
+
         return $result;
     }
 
     /**
      * Remove all extension options 
      *
-     * @param string $extension_name
+     * @param string $extension
      * @param boolean $reload
      * @return bool
      */
-    public function removeExtensionOptions($extension_name, $reload = true) 
+    public function removeExtensionOptions($extension, $reload = true) 
     {
-        $result = $this->where('extension','=',$extension_name)->delete();
+        $result = $this->where('extension','=',$extension)->delete();
         if ($reload == true) {
             $this->loadOptions();
         }
+        
         return $result;
     }
 }

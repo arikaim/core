@@ -35,30 +35,27 @@ abstract class EventSubscriber implements EventSubscriberInterface
      * Constructor
      *
      * @param string $eventName
-     * @param string|null $extension
      * @param integer $priority
      */
-    public function __construct($eventName = null, $extension = null, $priority = 0)
+    public function __construct($eventName = null, $priority = 0)
     {
         if ($eventName != null) {
-            $this->subscribe($eventName,$extension,$priority);
+            $this->subscribe($eventName,$priority);
         }
     }
     
     /**
      * Subscribe to event.
      *
-     * @param string $eventName
-     * @param string|null $extension
+     * @param string $eventName    
      * @param integer $priority
      * @return void
      */
-    public function subscribe($eventName, $extension = null, $priority = 0)
+    public function subscribe($eventName, $priority = 0)
     {
         $event = [
             'event_name'     => $eventName,
-            'priority'       => $priority,
-            'extension_name' => $extension
+            'priority'       => $priority
         ];
 
         array_push($this->subscribedEvents,$event); 
@@ -70,7 +67,7 @@ abstract class EventSubscriber implements EventSubscriberInterface
      *
      * @return array
      */
-    public function getEvents() 
+    public function getSubscribedEvents() 
     {
         return $this->subscribedEvents;
     }

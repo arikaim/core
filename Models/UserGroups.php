@@ -10,8 +10,8 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Arikaim\Core\Traits\Db\Uuid;;
-use Arikaim\Core\Traits\Db\Find;;
+use Arikaim\Core\Traits\Db\Uuid;
+use Arikaim\Core\Traits\Db\Find;
 use Arikaim\Core\Models\UserGroupMembers;
 
 /**
@@ -52,76 +52,81 @@ class UserGroups extends Model
     /**
      * Return true if user is member in current group.
      *
-     * @param integer $user_id
+     * @param integer $userId
      * @param object|null $model
      * @return boolean
      */
-    public function hasUser($user_id, $model = null)
+    public function hasUser($userId, $model = null)
     {
         $model = (is_object($model) == false) ? $this : $model;
-        $model = $model->members()->where('user_id','=',$user_id)->first();
+        $model = $model->members()->where('user_id','=',$userId)->first();
+
         return is_object($model);
     }
 
     /**
      * Return true if user is member of gorup 
      *
-     * @param integer $group_id
-     * @param integer $user_id
+     * @param integer $groupId
+     * @param integer $userId
      * @return bool
      */
-    public function inGroup($group_id, $user_id)
+    public function inGroup($groupId, $userId)
     {
-        $model = $this->where('id','=',$group_id)->get();
-        return (is_object($model) == true) ? $this->hasUser($user_id,$model) : false;         
+        $model = $this->where('id','=',$groupId)->get();
+
+        return (is_object($model) == true) ? $this->hasUser($userId,$model) : false;         
     }
 
     /**
      * Get user groups
      *
-     * @param integer $user_id
+     * @param integer $userId
      * @return Model
      */
-    public function getUserGroups($user_id)
+    public function getUserGroups($userId)
     {
-        $model = UserGroupMembers::where('user_id','=',$user_id)->get();
+        $model = UserGroupMembers::where('user_id','=',$userId)->get();
+
         return (is_object($model) == true) ? $model : [];
     }
 
     /**
      * Add user to group
      *
-     * @param integer $group_id
-     * @param integer|string $user_id
-     * @param integer|null $date_expire
+     * @param integer $groupId
+     * @param integer|string $userId
+     * @param integer|null $dateExpire
      * @return bool
      */
-    public function addUser($group_id, $user_id, $date_expire = null)
+    public function addUser($groupId, $userId, $dateExpire = null)
     {
-        if ($this->findById($user_id) == true) {
+        if ($this->findById($userId) == true) {
             return true;
         }
 
         $info = [
-            'group_id' => $group_id,
-            'user_id'  => $user_id,
-            'date_expire' => $date_expire
+            'group_id'    => $groupId,
+            'user_id'     => $userId,
+            'date_expire' => $dateExpire
         ];
         $model = UserGroupMembers::create($info);
+
         return is_object($model);
     }
 
     /**
      * Remove user from group
      *
-     * @param integer $group_id
-     * @param integer $user_id
+     * @param integer $groupId
+     * @param integer $userId
      * @return bool
      */
-    public function removeUser($group_id, $user_id)
+    public function removeUser($groupId, $userId)
     {       
-        $model = $this->members()->where('group_id','=',$group_id);
-        $model = $model->where('user_id','=',$user_id);
+        $model = $this->members()->where('group_id','=',$groupId);
+        $model = $model->where('user_id','=',$userId);
+        
         return $model->delete();
     }
 }

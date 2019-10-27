@@ -65,6 +65,7 @@ class LibraryPackage extends Package
             'domian'    => ARIKAIM_DOMAIN,
             'base_url'  => Url::ARIKAIM_BASE_URL
         ];
+
         return Text::renderMultiple($params,$vars);    
     }
 
@@ -81,11 +82,11 @@ class LibraryPackage extends Package
     /**
      * Get theme file
      *
-     * @param string $theme_name
+     * @param string $theme
      * @return string
      */
-    public function getThemeFile($theme_name)
+    public function getThemeFile($theme)
     {
-        return $this->properties->getByPath("themes/$theme_name/file","");
+        return $this->properties->getByPath("themes/$theme/file","");
     }
 }

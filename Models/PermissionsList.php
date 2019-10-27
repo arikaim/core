@@ -54,17 +54,17 @@ class PermissionsList extends Model
      * @param string $name    
      * @param string $title
      * @param string $description
-     * @param string $extension_name
+     * @param string $extension
      * @return void
      */
-    public function add($name, $title = null, $description = null, $extension_name = null)
+    public function add($name, $title = null, $description = null, $extension = null)
     {
         if ($this->has($name) == true) {
             return false;
         }
         $item = [
             'name'           => $name,
-            'extension_name' => $extension_name,
+            'extension_name' => $extension,
             'title'          => $title,
             'description'    => $description
         ];

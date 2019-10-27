@@ -28,9 +28,9 @@ abstract class PackageManager implements PackageManagerInterface
     /**
      * Package properites file name
      *
-     * @var [type]
+     * @var string
      */
-    protected $properties_file_name;
+    protected $propertiesFileName;
 
     /**
      * Create package 
@@ -53,16 +53,16 @@ abstract class PackageManager implements PackageManagerInterface
      * Constructor
      *
      * @param string $path
-     * @param string $properties_file_name
+     * @param string $propertiesFileName
      */
-    public function __construct($path, $properties_file_name = 'package.json')
+    public function __construct($path, $propertiesFileName = 'package.json')
     {
         if (File::exists($path) == false) {
             throw new Exception("Package path ( $path ) not exist!");
             return null;
         }
         $this->path = $path;
-        $this->properties_file_name = $properties_file_name;
+        $this->propertiesFileName = $propertiesFileName;
     }
 
     /**
@@ -82,7 +82,7 @@ abstract class PackageManager implements PackageManagerInterface
      */
     public function getPropertiesFileName()
     {
-        return $this->properties_file_name;
+        return $this->propertiesFileName;
     }
 
     /**
@@ -93,14 +93,15 @@ abstract class PackageManager implements PackageManagerInterface
      */
     public function loadPackageProperties($name) 
     {         
-        $full_file_name = $this->getPath() . $name . DIRECTORY_SEPARATOR . $this->getPropertiesFileName();
-        $data = File::readJSONFile($full_file_name);
+        $fileName = $this->getPath() . $name . DIRECTORY_SEPARATOR . $this->getPropertiesFileName();
+        $data = File::readJSONFile($fileName);
         $data = (is_array($data) == true) ? $data : [];
 
         $properties = new Collection($data);    
         if (empty($properties->name) == true) {
             $properties->set('name',$name);
-        }             
+        }           
+
         return $properties;
     }
 
@@ -143,6 +144,7 @@ abstract class PackageManager implements PackageManagerInterface
     public function getPackageProperties($name, $full = false)
     {
         $package = $this->createPackage($name);
+
         return $package->getProperties($full);
     }
 
@@ -153,7 +155,7 @@ abstract class PackageManager implements PackageManagerInterface
      * @param mixed $value
      * @return PackageInterface|false
      */
-    public function findPackage($param,$value)
+    public function findPackage($param, $value)
     {
         $packages = $this->getPackages();
         foreach ($packages as $name) {
@@ -162,6 +164,7 @@ abstract class PackageManager implements PackageManagerInterface
                 return $this->createPackage($name);
             }
         }
+
         return false;
     }
 
@@ -177,7 +180,8 @@ abstract class PackageManager implements PackageManagerInterface
         foreach ($packages as $name) {
             $errors += ($this->installPackage($name) == false) ? 1 : 0;
         }
-        return ($errors == 0) ? true : false;
+
+        return ($errors == 0);
     }
 
     /**
@@ -189,6 +193,7 @@ abstract class PackageManager implements PackageManagerInterface
     public function installPackage($name)
     {
         $package = $this->createPackage($name);
+
         return $package->install();
     }
 
@@ -201,6 +206,7 @@ abstract class PackageManager implements PackageManagerInterface
     public function unInstallPackage($name)
     {
         $package = $this->createPackage($name);
+
         return $package->unInstall();
     }
 
@@ -212,7 +218,6 @@ abstract class PackageManager implements PackageManagerInterface
      */
     public function enablePackage($name)
     {
-
         $package = $this->createPackage($name);
 
         return $package->enable();
@@ -227,6 +232,7 @@ abstract class PackageManager implements PackageManagerInterface
     public function disablePackage($name)
     {
         $package = $this->createPackage($name);
+
         return $package->disable();
     }
 
@@ -239,6 +245,7 @@ abstract class PackageManager implements PackageManagerInterface
     public function reInstallPackage($name)
     {
         $package = $this->createPackage($name);
+        
         return $package->reInstall();
     }
 

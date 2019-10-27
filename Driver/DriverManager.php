@@ -130,7 +130,7 @@ class DriverManager
     {
         list($name,$category) = $this->resolveName($name,$category);
 
-        return Model::Drivers()->remove($name, $category);       
+        return Model::Drivers()->remove($name,$category);       
     }
     
     /**

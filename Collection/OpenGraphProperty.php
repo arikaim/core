@@ -57,7 +57,7 @@ class OpenGraphProperty
      *
      * @var array
      */
-    private static $option_names = [
+    private static $optionNames = [
         'width',
         'height',
         'alt',
@@ -167,6 +167,6 @@ class OpenGraphProperty
     */
     public static function isValidOptionName($name)
     {
-        return in_array($name,Self::$option_names);
+        return in_array($name,Self::$optionNames);
     }
 }

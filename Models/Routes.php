@@ -80,12 +80,12 @@ class Routes extends Model
      * Get route url (parse route pattern with data)
      *
      * @param array $data
-     * @param array $query_params
+     * @param array $queryParams
      * @return string
      */
-    public function getRouteUrl(array $data = [], array $query_params = [])
+    public function getRouteUrl(array $data = [], array $queryParams = [])
     {
-        return ($this->hasPlaceholder() == false) ? $this->pattern : SystemRoutes::getRouteUrl($this->pattern,$data,$query_params);
+        return ($this->hasPlaceholder() == false) ? $this->pattern : SystemRoutes::getRouteUrl($this->pattern,$data,$queryParams);
     }
 
     /**
@@ -113,14 +113,14 @@ class Routes extends Model
     /**
      * Get extension routes
      *
-     * @param string $extension_name
+     * @param string $extension
      * @param integer $status
      * @param integer $type
      * @return object|null
      */
-    public function getExtensionRoutes($extension_name, $type = Self::TYPE_PAGE, $status = 1)
+    public function getExtensionRoutes($extension, $type = Self::TYPE_PAGE, $status = 1)
     {
-        $routes = $this->where('extension_name','=',$extension_name);
+        $routes = $this->where('extension_name','=',$extension);
         if ($type != null) {
             $routes = $routes->where('type','=', $type);
         }
@@ -133,16 +133,16 @@ class Routes extends Model
     /**
      * Get page routes query
      *
-     * @param string $extension_name
+     * @param string $extension
      * @param integer $status
      * @return QueryBuilder
      */
-    public function getPageRoutesQuery($extension_name = null, $status = null)
+    public function getPageRoutesQuery($extension = null, $status = null)
     {
         $query = $this->where('type','=',Self::TYPE_PAGE);
         
-        if ($extension_name != null) {
-            $query = $query->where('extension_name','=',$extension_name);
+        if ($extension != null) {
+            $query = $query->where('extension_name','=',$extension);
         }
         if ($status != null) {
             $query = $query->where('status','=', $status);
@@ -164,12 +164,12 @@ class Routes extends Model
     /**
      * Disable extension routes
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return bool
      */
-    public function disableExtensionRoutes($extension_name) 
+    public function disableExtensionRoutes($extension) 
     {  
-        $routes = $this->where('extension_name','=',$extension_name);
+        $routes = $this->where('extension_name','=',$extension);
         $result = $routes->update(['status' => Status::$DISABLED]);
         return ($result == null) ? true : $result;
     }
@@ -177,12 +177,12 @@ class Routes extends Model
     /**
      * Enable extension routes
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return bool
      */
-    public function enableExtensionRoutes($extension_name) 
+    public function enableExtensionRoutes($extension) 
     {  
-        $routes = $this->where('extension_name','=',$extension_name);
+        $routes = $this->where('extension_name','=',$extension);
         $result = $routes->update(['status' => Status::$ACTIVE]);
         return ($result == null) ? true : $result;
     }
@@ -191,10 +191,10 @@ class Routes extends Model
      * Get routes
      *
      * @param integer $status
-     * @param string|null $extension_name
+     * @param string|null $extension
      * @return array
      */
-    public function getRoutes($status = 1, $extension_name = null)
+    public function getRoutes($status = 1, $extension = null)
     {
         if (Schema::hasTable($this) == false) {
             return [];
@@ -203,8 +203,8 @@ class Routes extends Model
         if ($status != null) {
             $model = $this->where('status','=',$status);
         }
-        if ($extension_name != null) {
-            $model = $model->where('extension_name','=',$extension_name);
+        if ($extension != null) {
+            $model = $model->where('extension_name','=',$extension);
         }
         $model = $model->get();
 
@@ -214,12 +214,12 @@ class Routes extends Model
     /**
      * Delete extension routes
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return bool
      */
-    public function deleteExtensionRoutes($extension_name)
+    public function deleteExtensionRoutes($extension)
     {
-        $model = $this->where('extension_name','=',$extension_name);
+        $model = $this->where('extension_name','=',$extension);
         if (is_object($model) == true) {
             $result = $model->delete();
         }
@@ -366,7 +366,7 @@ class Routes extends Model
      * @param string $pattern
      * @param string $handler_class
      * @param string $handler_method
-     * @param string $extension_name
+     * @param string $extension
      * @param string $page_name
      * @param integer $auth  
      * @param integer $type
@@ -375,7 +375,7 @@ class Routes extends Model
      * @param boolean $with_language
      * @return bool
      */
-    public function addPageRoute($pattern, $handler_class, $handler_method, $extension_name, $page_name, $auth = null, $redirect_url = null, $route_name = null, $with_language = true)
+    public function addPageRoute($pattern, $handler_class, $handler_method, $extension, $page_name, $auth = null, $redirect_url = null, $route_name = null, $with_language = true)
     {
         $language_pattern = ($with_language == true) ? $this->getLanguagePattern($pattern) : '';
         $route = [
@@ -385,7 +385,7 @@ class Routes extends Model
             'handler_method'    => $handler_method,
             'auth'              => $auth,
             'type'              => Self::TYPE_PAGE,
-            'extension_name'    => $extension_name,
+            'extension_name'    => $extension,
             'page_name'         => $page_name,
             'template_name'     => null,
             'name'              => $route_name,
@@ -403,14 +403,14 @@ class Routes extends Model
      * @param string $pattern
      * @param string $handler_class
      * @param string $handler_method
-     * @param string $extension_name
+     * @param string $extension
      * @param string $page_name
      *
      * @return bool
      */
-    public function addErrorRoute($pattern, $handler_class, $handler_method, $extension_name, $page_name)
+    public function addErrorRoute($pattern, $handler_class, $handler_method, $extension, $page_name)
     {
-        return $this->addPageRoute($pattern,$handler_class,$handler_method,$extension_name,$page_name,null,Self::TYPE_ERROR_PAGE);
+        return $this->addPageRoute($pattern,$handler_class,$handler_method,$extension,$page_name,null,Self::TYPE_ERROR_PAGE);
     }
 
     /**
@@ -419,41 +419,41 @@ class Routes extends Model
      * @param string $pattern
      * @param string $handler_class
      * @param string $handler_method
-     * @param string $extension_name
+     * @param string $extension
      * @param integer|null $auth
      * @param string $page_name
      *
      * @return bool
     */
-    public function addAuthErrorRoute($pattern, $extension_name, $page_name, $auth = null, $handler_class, $handler_method)
+    public function addAuthErrorRoute($pattern, $extension, $page_name, $auth = null, $handler_class, $handler_method)
     {
-        return $this->addPageRoute($pattern,$handler_class,$handler_method,$extension_name,$page_name,$auth,Self::TYPE_AUTH_ERROR_PAGE);
+        return $this->addPageRoute($pattern,$handler_class,$handler_method,$extension,$page_name,$auth,Self::TYPE_AUTH_ERROR_PAGE);
     }
 
     /**
      * Get error route
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return Model|false
      */
-    public function getErrorRoute($extension_name)
+    public function getErrorRoute($extension)
     {
-        $model = $this->where('method','=','GET')->where('type','=',Self::TYPE_ERROR_PAGE)->where('extension_name','=',$extension_name)->first();
+        $model = $this->where('method','=','GET')->where('type','=',Self::TYPE_ERROR_PAGE)->where('extension_name','=',$extension)->first();
         return (is_object($model) == true) ? $model : false;
     }
 
     /**
      * Get auth error route
      *
-     * @param string $extension_name
+     * @param string $extension
      * @param integer $auth
      * @return void
      */
-    public function getAuthErrorRoute($extension_name, $auth)
+    public function getAuthErrorRoute($extension, $auth)
     {
         $model = $this->where('method','=','GET')
             ->where('type','=',Self::TYPE_AUTH_ERROR_PAGE)
-            ->where('extension_name','=',$extension_name)
+            ->where('extension_name','=',$extension)
             ->where('auth','=',$auth)
             ->first();
 
@@ -478,11 +478,11 @@ class Routes extends Model
      * @param string $pattern
      * @param string $handler_class
      * @param string $handler_method
-     * @param string $extension_name
+     * @param string $extension
      * @param integer $auth
      * @return bool
      */
-    public function addApiRoute($method, $pattern, $handler_class, $handler_method, $extension_name, $auth = Authenticate::AUTH_JWT)
+    public function addApiRoute($method, $pattern, $handler_class, $handler_method, $extension, $auth = Authenticate::AUTH_JWT)
     {
         $route = [
             'method'         => $method,
@@ -491,7 +491,7 @@ class Routes extends Model
             'handler_method' => $handler_method,
             'auth'           => $auth,
             'type'           => Self::TYPE_API,
-            'extension_name' => $extension_name
+            'extension_name' => $extension
         ];
         return $this->addRoute($route);
     }

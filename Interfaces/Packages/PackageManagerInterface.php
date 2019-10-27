@@ -83,6 +83,7 @@ interface PackageManagerInterface
     /**
      * Return package list (cached)
      * If cached list is empty run sacen and save new values to cache
+     * 
      * @param bool cached
      * @param array filter
      * @return array

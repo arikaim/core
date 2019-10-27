@@ -105,7 +105,7 @@ class Mailer implements MailerInterface
      * Set transport driver
      *
      * @param \Swift_Transport $driver
-     * @return void
+     * @return Swift_Mailer
      */
     public function setTransport($driver)
     {

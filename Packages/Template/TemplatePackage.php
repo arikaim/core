@@ -46,6 +46,7 @@ class TemplatePackage extends Package
             $this->properties->set('pages',$this->getPages());
             $this->properties->set('routes',$this->getRoutes());
         }
+
         return $this->properties; 
     }
 
@@ -68,27 +69,28 @@ class TemplatePackage extends Package
         $model->deleteTemplateRoutes('*');
 
         $routes = $this->getRoutes();
-        $routes_count = count($routes);
+        $routesCount = count($routes);
 
         // install template routes
-        $routes_added = 0;
+        $routesAdded = 0;
       
         foreach ($routes as $route) {
             if (isset($route['path']) == false || isset($route['page']) == false) {             
                 continue;
             }
           
-            $handler_class = Factory::getControllerClass("PageLoader"); 
-            $result = $model->addTemplateRoute($route['path'], $handler_class, 'loadPage', $this->getName(), $route['page']);
+            $handlerClass = Factory::getControllerClass("PageLoader"); 
+            $result = $model->addTemplateRoute($route['path'], $handlerClass, 'loadPage', $this->getName(), $route['page']);
             if ($result != false) {
-                $routes_added++;
+                $routesAdded++;
             }
         }
-        if ($routes_added != $routes_count) {
+        if ($routesAdded != $routesCount) {
             return false;
         }
         // trigger core.template.install event
         Arikaim::event()->trigger('core.template.install',$this->getProperties()->toArray());
+
         return true;
     }
     
@@ -101,11 +103,10 @@ class TemplatePackage extends Package
     {
         // clear cached items
         Arikaim::cache()->deleteTemplateItems();
-        
-        $model = Model::Routes();
-        $result = $model->deleteTemplateRoutes($this->getName());
+        $result = Model::Routes()->deleteTemplateRoutes($this->getName());
         // trigger core.template.uninstall event
         Arikaim::event()->trigger('core.template.uninstall',$this->getProperties()->toArray());
+
         return $result;
     }
 
@@ -118,6 +119,7 @@ class TemplatePackage extends Package
     {
         // clear cached items
         Arikaim::cache()->deleteTemplateItems();
+
         return true;
     }
 
@@ -130,6 +132,7 @@ class TemplatePackage extends Package
     {
         // clear cached items
         Arikaim::cache()->deleteTemplateItems();
+
         return true;
     }   
 
@@ -150,7 +153,8 @@ class TemplatePackage extends Package
      */
     public function getPages()
     {
-        $path = Path::getPagesPath($this->getName(),Component::TEMPLATE_COMPONENT);    
+        $path = Path::getPagesPath($this->getName(),Component::TEMPLATE_COMPONENT);
+
         return Template::getPages($path);
     }
 
@@ -162,6 +166,7 @@ class TemplatePackage extends Package
     public function getMacros()
     {
         $path = Path::getMacrosPath($this->getName(),Component::TEMPLATE_COMPONENT);
+
         return Template::getMacros($path);
     }
 
@@ -172,7 +177,8 @@ class TemplatePackage extends Package
      */
     public function getComponents()
     {          
-        $path = Path::getComponentsPath($this->getName(),Component::TEMPLATE_COMPONENT);    
+        $path = Path::getComponentsPath($this->getName(),Component::TEMPLATE_COMPONENT);  
+          
         return Template::getComponents($path);
     }
 }

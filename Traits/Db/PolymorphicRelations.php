@@ -21,7 +21,7 @@ trait PolymorphicRelations
      */
     public function getRelationModelClass()
     {
-        return (isset($this->relation_model_class) == true) ? $this->relation_model_class : null;
+        return (isset($this->relationModelClass) == true) ? $this->relationModelClass : null;
     }
 
     /**
@@ -31,7 +31,7 @@ trait PolymorphicRelations
      */
     public function getRelationAttributeName()
     {
-        return (isset($this->relation_attribute_name) == true) ? $this->relation_attribute_name : null;
+        return (isset($this->relationColumnName) == true) ? $this->relationColumnName : null;
     }
 
     /**
@@ -63,13 +63,13 @@ trait PolymorphicRelations
      */
     public function getRows($id, $type = null) 
     {
-        $relation_field = $this->getRelationAttributeName();
-        $model = (empty($id) == false) ? $this->where($relation_field,'=',$id) : $this;
+        $relationField = $this->getRelationAttributeName();
+        $query = (empty($id) == false) ? $this->where($relationField,'=',$id) : $this;
 
         if (empty($type) == false) {
-            $model = $model->where('relation_type','=',$type);
+            $query = $query->where('relation_type','=',$type);
         }
-        return $model;
+        return $query;
     }
 
     /**
@@ -79,14 +79,15 @@ trait PolymorphicRelations
      * @param string|null $type
      * @return Builder
      */
-    public function getRelationsQuery($relation_id, $type = null) 
+    public function getRelationsQuery($relationId, $type = null) 
     {      
-        $model = $this->where('relation_id','=',$relation_id);
+        $query = $this->where('relation_id','=',$relationId);
 
         if (empty($type) == false) {
-            $model = $model->where('relation_type','=',$type);
+            $query = $query->where('relation_type','=',$type);
         }
-        return $model;
+
+        return $query;
     }
 
     /**
@@ -107,19 +108,19 @@ trait PolymorphicRelations
      *
      * @param integer $id
      * @param string|null $type
-     * @param integer|null $type_id
+     * @param integer|null $relationId
      * @return void
      */
-    public function deleteRelations($id, $type = null, $type_id = null)
+    public function deleteRelations($id, $type = null, $relationId = null)
     {
-        $relation_field = $this->getRelationAttributeName();
-        $model = $this->where($relation_field,'=',$id);
+        $relationField = $this->getRelationAttributeName();
+        $model = $this->where($relationField,'=',$id);
 
         if (empty($type) == false) {
             $model = $model->where('relation_type','=',$type);
         }
-        if (empty($type_id) == false) {
-            $model = $model->where('relation_id','=',$type_id);
+        if (empty($relationId) == false) {
+            $model = $model->where('relation_id','=',$relationId);
         }
     
         return $model->delete();
@@ -130,18 +131,18 @@ trait PolymorphicRelations
      *
      * @param integer $id
      * @param string $type
-     * @param integer $type_id
+     * @param integer $relationId
      * @return void
      */
-    public function saveRelation($id, $type, $type_id)
+    public function saveRelation($id, $type, $relationId)
     {
-        $relation_field = $this->getRelationAttributeName();
+        $relationField = $this->getRelationAttributeName();
         $data = [
-            $relation_field => $id,
-            'relation_id'   => $type_id,
+            $relationField => $id,
+            'relation_id'   => $relationId,
             'relation_type' => "$type",
         ];       
-        return ($this->hasRelation($id,$type,$type_id) == false) ? $this->create($data) : false;       
+        return ($this->hasRelation($id,$type,$relationId) == false) ? $this->create($data) : false;       
     }
 
     /**
@@ -149,16 +150,16 @@ trait PolymorphicRelations
      *
      * @param integer $id
      * @param string $type
-     * @param integer $type_id
+     * @param integer $relationId
      * @return boolean
      */
-    public function hasRelation($id, $type, $type_id)
+    public function hasRelation($id, $type, $relationId)
     {
-        $relation_field = $this->getRelationAttributeName();
+        $relationField = $this->getRelationAttributeName();
         $model = $this
-            ->where($relation_field,'=',$id)
+            ->where($relationField,'=',$id)
             ->where('relation_type','=',$type)
-            ->where('relation_id','=',$type_id)->first();
+            ->where('relation_id','=',$relationId)->first();
         
         return is_object($model);
     }
@@ -168,14 +169,14 @@ trait PolymorphicRelations
      *
      * @param integer $id
      * @param string $type
-     * @param integer $type_id
+     * @param integer $relationId
      * @return array
      */
-    public function saveRelations(array $items, $type, $type_id)
+    public function saveRelations(array $items, $type, $relationId)
     {
         $added = [];
         foreach ($items as $item) {
-            $result = $this->saveRelation($item,$type,$type_id);
+            $result = $this->saveRelation($item,$type,$relationId);
             if ($result !== false) {
                $added[] = $item;
             }

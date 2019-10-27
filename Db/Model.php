@@ -60,7 +60,7 @@ class Model
      */
     public static function getFullClassName($className, $extensionName = null)
     {
-        return (empty($extensionName) == true) : Factory::getModelClass($className) : Factory::getExtensionModelClass($extensionName,$className);         
+        return (empty($extensionName) == true) ? Factory::getModelClass($className) : Factory::getExtensionModelClass($extensionName,$className);         
     }
 
     /**

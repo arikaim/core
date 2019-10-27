@@ -13,7 +13,7 @@ use Arikaim\Core\Utils\Utils;
 
 /**
  *  Auth trait
- *  For change auth id name in model:  protected $auth_id_attribute = 'auth id name';
+ *  For change auth id name in model:  protected $authIdColumn = 'auth id name';
 */
 trait Auth 
 {   
@@ -24,7 +24,7 @@ trait Auth
      */
     public function getAuthIdName()
     {
-        return (isset($this->auth_id_attribute) == true) ? $this->auth_id_attribute : 'id';
+        return (isset($this->authIdColumn) == true) ? $this->authIdColumn : 'id';
     }
 
     /**

@@ -104,7 +104,7 @@ class EventsManager
     {
         $subscriber = Factory::createEventSubscriber($class,$extension);
         if ($subscriber != false) {
-            $events = $subscriber->getEvents();
+            $events = $subscriber->getSubscribedEvents();
             foreach ($events as $event) {
                 $this->subscribe($event['event_name'],$class,$extension,$event['priority']);
             }
@@ -130,6 +130,7 @@ class EventsManager
             'extension_name' => $extension,
             'handler_class'  => Factory::getEventSubscriberClass($class,$extension)
         ];
+        
         return Model::EventSubscribers()->add($subscriber);
     }
 
@@ -232,7 +233,7 @@ class EventsManager
      * @param EventInterface $event
      * @return array 
      */
-    private function executeEventHandlers(array $eventSubscribers,Event $event)
+    private function executeEventHandlers(array $eventSubscribers, Event $event)
     {       
         if (empty($eventSubscribers) == true) {
             return [];
@@ -248,6 +249,7 @@ class EventsManager
                 }              
             }
         }
+
         return $result;
     }
 }
