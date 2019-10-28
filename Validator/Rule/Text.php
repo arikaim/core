@@ -53,6 +53,7 @@ class Text extends Rule
                 $errors++;
             }
         }
+        
         return ($errors > 0) ? false : true;
     } 
 

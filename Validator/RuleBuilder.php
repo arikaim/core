@@ -31,6 +31,7 @@ class RuleBuilder
             $rule = $this->createRule($value);
             array_push($rules,$rule);
         }
+
         return $rules;
     }
 
@@ -49,6 +50,7 @@ class RuleBuilder
         if (empty($error) == false) {
             $rule->setError($error);          
         }
+
         return $rule;
     }
 
@@ -87,6 +89,7 @@ class RuleBuilder
             $param = $this->parseRuleParam($value);
             $result[$param['name']] = $param['value'];      
         }
+
         return $result;
     }
 
@@ -105,6 +108,7 @@ class RuleBuilder
         if (count(explode(',',$value)) > 1) {
             $value = Arrays::toArray($value,',');
         }
+        
         return ['name' => $tokens[0],'value' => $value];
     }
 

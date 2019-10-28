@@ -22,13 +22,13 @@ class Text
      * Slice text
      *
      * @param string $text
-     * @param integer $max_length
+     * @param integer $maxLength
      * @return string
      */
-    public static function sliceText($text, $max_length)
+    public static function sliceText($text, $maxLength)
     {
-        if (strlen($text) > $max_length) {
-            $text = substr(trim($text),0,$max_length);    
+        if (strlen($text) > $maxLength) {
+            $text = substr(trim($text),0,$maxLength);    
             $pos = strrpos($text,' ');
             return ($pos > 0) ? substr($text,0,$pos) : $text;   
         }
@@ -74,15 +74,15 @@ class Text
      * Transfor word ( removes all not a-z chars )
      *
      * @param string $word
-     * @param mixed ...$options   1 - case
+     * @param mixed  ...$options   1 - case
      * @return void
      */
     public static function transformWord($word, ...$options)
     {       
         $case = (isset($options[0]) == true) ? $options[0] : Text::LOWER_CASE;
-        $remove_numbers = (isset($options[1]) == true) ? $options[1] : false;
+        $removeNumbers = (isset($options[1]) == true) ? $options[1] : false;
 
-        $word = Self::removeSpecialChars($word,$remove_numbers);
+        $word = Self::removeSpecialChars($word,$removeNumbers);
 
         switch($case) {
             case Text::LOWER_CASE: 
@@ -103,22 +103,28 @@ class Text
      * Remove special chars and numbers from text
      *
      * @param string $text
-     * @param boolean $remove_numbers
+     * @param boolean $removeNumbers
      * @return string
      */
-    public static function removeSpecialChars($text, $remove_numbers = false) 
+    public static function removeSpecialChars($text, $removeNumbers = false) 
     {        
-        return ($remove_numbers == true) ? preg_replace('/[^a-zA-Z ]/i','',trim($text)) : preg_replace("/[^a-zA-Z0-9]/","",$text);
+        return ($removeNumbers == true) ? preg_replace('/[^a-zA-Z ]/i','',trim($text)) : preg_replace("/[^a-zA-Z0-9]/","",$text);
     }
 
+    /**
+     * Convert to title (pascal) case
+     *
+     * @param string $text
+     * @return string
+     */
     public static function convertToTitleCase($text)
-    {
-       // $text = Self::transformWord($text,Text::FIRST_LETTER_UPPER);
+    {      
         $tokens = explode('_',$text);
         $result = '';
         foreach ($tokens as $word) {
             $result .= \ucfirst($word);
         }
+
         return $result;
     }
 
@@ -131,14 +137,14 @@ class Text
      */
     public static function render($text, $vars = []) 
     {    
-        $result = preg_replace_callback("/\{\{(.*?)\}\}/",
-            function ($matches) use ($vars) {
-                $variable_name = trim(strtolower($matches[1]));
-                if ( array_key_exists($variable_name,$vars) == true ) {
-                    return $vars[$variable_name];
-                }
-                return "";
-            },$text);
+        $result = preg_replace_callback("/\{\{(.*?)\}\}/", function ($matches) use ($vars) {
+            $variableName = trim(strtolower($matches[1]));
+            if ( array_key_exists($variableName,$vars) == true ) {
+                return $vars[$variableName];
+            }
+            return "";
+        },$text);
+
         return ($result == null) ? $text : $result;        
     }
 
@@ -156,6 +162,7 @@ class Text
                 $items[$key] = Text::render($value,$vars);
             }
         }
+        
         return $items;
     }
 }

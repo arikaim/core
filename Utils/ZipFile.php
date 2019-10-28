@@ -22,17 +22,17 @@ class ZipFile
      * Extract zip arhive
      *
      * @param string $file
-     * @param string $destination_path
+     * @param string $path
      * @return integer
      */
-    public static function extract($file, $destination_path)
+    public static function extract($file, $path)
     {
         if (File::exists($file) == false) {
             return false;
         }
 
-        if (File::isWritable($destination_path) == false) {
-            File::setWritable($destination_path);
+        if (File::isWritable($path) == false) {
+            File::setWritable($path);
         }
 
 
@@ -41,7 +41,7 @@ class ZipFile
         if ($result !== true) {
             return false;
         }
-        $result = $zip->extractTo($destination_path);
+        $result = $zip->extractTo($path);
         $zip->close(); 
 
         return $result;
@@ -70,6 +70,7 @@ class ZipFile
                 $error= 'Checksum failed';
                 break;
         }      
+
         return ($error == null) ? true : false;
     }    
 }

@@ -19,13 +19,13 @@ class FilterBuilder
     /**
      * Create filter 
      *
-     * @param string $class_name
+     * @param string $class
      * @param mixed $args
      * @return \Arikaim\Core\Interfaces\FilterInterface
      */
-    public static function createFilter($class_name, $args = null)
+    public static function createFilter($class, $args = null)
     {              
-        return Factory::createInstance(Factory::getValidatorFiltersClass($class_name),$args);             
+        return Factory::createInstance(Factory::getValidatorFiltersClass($class),$args);             
     }
 
     /**

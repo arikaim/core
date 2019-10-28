@@ -17,30 +17,52 @@ use Arikaim\Core\Utils\DateTime;
 */
 trait SoftDelete 
 {    
+    /**
+     * Return true if model is deleted
+     *
+     * @return boolean
+     */
     public function isDeleted()
     {
-        return ! is_null($this->{$this->getDeletedAttributeName()});
+        return ! is_null($this->{$this->getDeletedColumn()});
     }
 
+    /**
+     * Soft delete model
+     *
+     * @param integer string $id
+     * @return boolean
+     */
     public function softDelete($id = null)
     {
         $model = (empty($id) == true) ? $this : $this->findById($id);
-        $model->{$this->getDeletedAttributeName()} = DateTime::getCurrentTime();
+        $model->{$this->getDeletedColumn()} = DateTime::getCurrentTime();
         
         return $model->save();
     }
 
+    /**
+     * Restore soft deleted models
+     *
+     * @param integer string $id
+     * @return boolean
+     */
     public function restore($id = null)
     {
         $model = (empty($id) == true) ? $this : $this->findById($id);
-        $model->{$this->getDeletedAttributeName()} = null;
+        $model->{$this->getDeletedColumn()} = null;
         
         return $model->save();
     }
 
+    /**
+     * Get soft deleted query
+     *
+     * @return QueryBuilder
+     */
     public function softDeletedQuery()
     {
-        return $this->whereNotNull($this->getDeletedAttributeName());
+        return $this->whereNotNull($this->getDeletedColumn());
     }
 
     /**
@@ -48,8 +70,8 @@ trait SoftDelete
      *
      * @return string
      */
-    public function getDeletedAttributeName()
+    public function getDeletedColumn()
     {
-        return (isset($this->soft_delete_attribute) == true) ? $this->soft_delete_attribute : 'date_deleted';
+        return (isset($this->softDeleteColumn) == true) ? $this->softDeleteColumn : 'date_deleted';
     }
 }

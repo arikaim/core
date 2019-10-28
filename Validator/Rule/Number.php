@@ -52,6 +52,7 @@ class Number extends Rule
             $this->setError("NUMBER_MAX_VALUE_ERROR");
             $errors++;
         }
+        
         return ($errors > 0) ? false : true;
     } 
 

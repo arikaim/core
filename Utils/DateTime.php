@@ -25,28 +25,28 @@ class DateTime
      *
      * @var object
      */
-    private $time_zone;
+    private $timeZone;
 
     /**
      * DateTime object
      *
      * @var DateTime
      */
-    private $date_time;
+    private $dateTime;
 
     /**
      * Time zone name
      *
      * @var string
      */
-    private $time_zone_name;
+    private $timeZoneName;
 
     /**
      * Date format
      *
      * @var string
      */
-    private $date_format;
+    private $dateFormat;
 
     /**
      * Constructor
@@ -57,17 +57,17 @@ class DateTime
     public function __construct($date = null, $format = null) 
     {
         if (is_object(Arikaim::options()) == true) {
-            $this->time_zone_name = Arikaim::options()->get('time.zone');
+            $this->timeZoneName = Arikaim::options()->get('time.zone');
         }
-        if ($this->time_zone_name == null) {
-            $this->time_zone_name = Self::getDefaultTimeZoneName();
+        if ($this->timeZoneName == null) {
+            $this->timeZoneName = Self::getDefaultTimeZoneName();
         }
-        $this->time_zone = new \DateTimeZone($this->time_zone_name);
+        $this->timeZone = new \DateTimeZone($this->timeZoneName);
         $date = (empty($date) == true) ? 'now' : $date;
 
-        $this->date_format = Self::getDateFormat($format);
-        $this->date_time = new \DateTime($date,$this->time_zone);
-        $this->setDateFormat($this->date_format);
+        $this->dateFormat = Self::getDateFormat($format);
+        $this->dateTime = new \DateTime($date,$this->timeZone);
+        $this->setDateFormat($this->dateFormat);
     }
 
     /**
@@ -97,15 +97,16 @@ class DateTime
     /**
      * Get date format
      *
-     * @param string|null $date_format
+     * @param string|null $dateFormat
      * @return string
      */
-    public static function getDateFormat($date_format = null) 
+    public static function getDateFormat($dateFormat = null) 
     {      
-        if ($date_format == null) {
-            $date_format = (is_object(Arikaim::options()) == true) ? Arikaim::options()->get('date.format') : DateTime::DEFAULT_DATE_FORMAT;               
+        if ($dateFormat == null) {
+            $dateFormat = (is_object(Arikaim::options()) == true) ? Arikaim::options()->get('date.format') : DateTime::DEFAULT_DATE_FORMAT;               
         }
-        return $date_format;
+
+        return $dateFormat;
     }
 
     /**
@@ -126,6 +127,7 @@ class DateTime
         }
 
         $date = new Self(null,$format);
+
         return $date->setTimestamp($timestamp)->toString();      
     }
 
@@ -142,8 +144,8 @@ class DateTime
             return $timestamp;
         }
         $format = (empty($format) == true) ? Self::getTimeFormat() : $format;    
-
         $date = new Self(null,$format);
+
         return $date->setTimestamp($timestamp)->toString();     
     }
 
@@ -160,34 +162,36 @@ class DateTime
             return $timestamp;
         }
         $format = (empty($format) == true) ? Self::getDateFormat() : $format;   
-
         $date = new Self(null,$format);
+
         return $date->setTimestamp($timestamp)->toString();     
     }
 
     /**
      * Get time format
      *
-     * @param string $time_format
+     * @param string $timeFormat
      * @return void
      */
-    public static function getTimeFormat($time_format = null) 
+    public static function getTimeFormat($timeFormat = null) 
     {       
-        if ($time_format == null) {
-            $time_format = (is_object(Arikaim::options()) == true) ? Arikaim::options()->get('time.format') : DateTime::DEFAULT_TIME_FORMAT;             
+        if ($timeFormat == null) {
+            $timeFormat = (is_object(Arikaim::options()) == true) ? Arikaim::options()->get('time.format') : DateTime::DEFAULT_TIME_FORMAT;             
         }
-        return $time_format;
+
+        return $timeFormat;
     }
 
     /**
      * Get interval details
      *
-     * @param string $interval_text
+     * @param string $intervalText
      * @return array
      */
-    public function getInterval($interval_text)
+    public function getInterval($intervalText)
     {
-        $interval = new TimeInterval($interval_text);
+        $interval = new TimeInterval($intervalText);
+
         return $interval->toArray();
     }
 
@@ -208,7 +212,7 @@ class DateTime
      */
     public function getLocation() 
     {
-        return $this->time_zone->getLocation();
+        return $this->timeZone->getLocation();
     }
 
     /**
@@ -218,7 +222,7 @@ class DateTime
      */
     public function getTimeZoneOffset() 
     {
-        return $this->time_zone->getOffset($this->date_time);
+        return $this->timeZone->getOffset($this->dateTime);
     }
 
     /**
@@ -228,18 +232,18 @@ class DateTime
      */
     public function getTimeZoneName() 
     {
-        return $this->time_zone_name;
+        return $this->timeZoneName;
     }
 
     /**
      * Set date format.
      *
-     * @param string $date_format
+     * @param string $dateFormat
      * @return DateTime
      */
-    public function setDateFormat($date_format) 
+    public function setDateFormat($dateFormat) 
     {
-        $this->date_time->format($date_format);
+        $this->dateTime->format($dateFormat);
 
         return $this;
     }
@@ -252,7 +256,7 @@ class DateTime
      */
     public function modify($date_text) 
     {
-        $this->date_time->modify($date_text);
+        $this->dateTime->modify($date_text);
 
         return $this;
     }
@@ -260,13 +264,13 @@ class DateTime
     /**
      * Add interval
      *
-     * @param string $date_interval
+     * @param string $dateInterval
      * @return DateTime
      */
-    public function addInterval($date_interval)
+    public function addInterval($dateInterval)
     {
-        $interval = new \DateInterval($date_interval); 
-        $this->date_time->add($interval); 
+        $interval = new \DateInterval($dateInterval); 
+        $this->dateTime->add($interval); 
 
         return $this;
     }
@@ -274,13 +278,13 @@ class DateTime
     /**
      * Sub interval
      *
-     * @param string $date_interval
+     * @param string $dateInterval
      * @return DateTime
      */
-    public function subInterval($date_interval)
+    public function subInterval($dateInterval)
     {
-        $interval = new \DateInterval($date_interval); 
-        $this->date_time->sub($interval); 
+        $interval = new \DateInterval($dateInterval); 
+        $this->dateTime->sub($interval); 
         
         return $this;
     }
@@ -288,12 +292,12 @@ class DateTime
     /**
      * Set timestamp
      *
-     * @param integer $unix_timestamp
+     * @param integer $unixTimestamp
      * @return DateTime
      */
-    public function setTimestamp($unix_timestamp) 
+    public function setTimestamp($unixTimestamp) 
     {
-        $this->date_time->setTimestamp($unix_timestamp);
+        $this->dateTime->setTimestamp($unixTimestamp);
 
         return $this;
     }
@@ -305,7 +309,7 @@ class DateTime
      */
     public function getTimestamp()
     {
-        return $this->date_time->getTimestamp();
+        return $this->dateTime->getTimestamp();
     }
 
     /**
@@ -375,6 +379,7 @@ class DateTime
     public static function getCurrentTime()
     {
         $date = new Self();
+
         return $date->getTimestamp();
     }
 
@@ -385,7 +390,7 @@ class DateTime
      */
     public function getDateTime()
     {
-        return $this->date_time;
+        return $this->dateTime;
     }
 
     /**
@@ -396,8 +401,9 @@ class DateTime
      */
     public function toString($format = null) 
     {
-        $format = (empty($format) == true) ? $this->date_format : $format;         
-        return $this->date_time->format($format);
+        $format = (empty($format) == true) ? $this->dateFormat : $format;         
+
+        return $this->dateTime->format($format);
     }
 
     /**

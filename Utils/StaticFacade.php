@@ -49,8 +49,8 @@ abstract class StaticFacade
      */
     private static function createInstance()
     {
-        $instance_class = static::getInstanceClass();
-        $instance = ($instance_class != null) ? Factory::createInstance($instance_class) : null;
+        $class = static::getInstanceClass();
+        $instance = ($class != null) ? Factory::createInstance($class) : null;
         
         return ($instance == null) ? static::getFromContainer() : $instance;
     }
@@ -75,6 +75,7 @@ abstract class StaticFacade
     public static function getInstance()
     {
         static::$instance = (is_object(static::$instance) == false) ? static::createInstance() : static::$instance;
+
         return static::$instance;
     }
 
@@ -94,6 +95,7 @@ abstract class StaticFacade
         if (is_object($instance) == false) {        
             throw new \RuntimeException('Facade instance not set.');
         }
+        
         return Utils::call($instance,$method,$args);
     }
 }

@@ -12,7 +12,7 @@ namespace Arikaim\Core\Traits\Db;
 /**
  * Update Status field
  * Change default status column name in model:
- *      protected $status_attribute = 'column name';
+ *      protected $statusColumn = 'column name';
 */
 trait Status 
 {        
@@ -107,13 +107,13 @@ trait Status
     }
 
     /**
-     * Get status attribute name
+     * Get status column name
      *
      * @return string
      */
-    public function getStatusAttributeName()
+    public function getStatusColumn()
     {
-        return (isset($this->status_attribute) == true) ? $this->status_attribute : 'status';
+        return (isset($this->statusColumn) == true) ? $this->statusColumn : 'status';
     }
 
     /**
@@ -123,7 +123,7 @@ trait Status
      */
     public function getActive()
     {
-        return parent::where($this->getStatusAttributeName(),'=',Self::$ACTIVE);
+        return parent::where($this->getStatusColumn(),'=',Self::$ACTIVE);
     }
     
     /**
@@ -133,7 +133,7 @@ trait Status
      */
     public function getDisabled()
     {
-        return parent::where($this->getStatusAttributeName(),'=',Self::$DISABLED);
+        return parent::where($this->getStatusColumn(),'=',Self::$DISABLED);
     }
 
     /**
@@ -143,7 +143,7 @@ trait Status
      */
     public function getDeleted()
     {
-        return parent::where($this->getStatusAttributeName(),'=',Self::$DELETED);
+        return parent::where($this->getStatusColumn(),'=',Self::$DELETED);
     }
 
     /**
@@ -154,11 +154,12 @@ trait Status
      */
     public function setStatus($status = null)
     {
-        $attribute = $this->getStatusAttributeName();
+        $attribute = $this->getStatusColumn();
         if ($status === "toggle") {     
             $status = ($this->$attribute == 1) ? 0 : 1;
         }
         $this->$attribute = $status;    
+
         return $this->save();         
     }
 }

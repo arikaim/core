@@ -39,7 +39,8 @@ class BaseComponent
         $template = $env->loadTemplate($component->getTemplateFile());
     
         $code = $env->render($component->getTemplateFile(),$params);
-        $component->setHtmlCode($code);         
+        $component->setHtmlCode($code);    
+
         return $component;
     }
 
@@ -71,8 +72,8 @@ class BaseComponent
         $component = Self::applyIncludeOption($component,'include/css','css');
 
         // mobile only option
-        $mobile_only = $component->getOption('mobile-only');      
-        if ($mobile_only == "true") {
+        $mobileOnly = $component->getOption('mobile-only');      
+        if ($mobileOnly == "true") {
             if (Mobile::mobile() == false) {    
                 $component->clearContent();               
             }
@@ -82,6 +83,7 @@ class BaseComponent
             $error = Arikaim::getError("TEMPLATE_COMPONENT_ERROR",["full_component_name" => $component->getName(),'details' => $error]);
             $component->setError($error);
         }
+
         return $component;
     }
 
@@ -89,24 +91,24 @@ class BaseComponent
      * Apply component include option
      *
      * @param Component $component
-     * @param string $option_key
-     * @param string $file_type
+     * @param string $key
+     * @param string $fileType
      * @return Component
      */
-    public static function applyIncludeOption($component, $option_key, $file_type)
+    public static function applyIncludeOption($component, $key, $fileType)
     { 
-        $option = $component->getOption($option_key);   
+        $option = $component->getOption($key);   
        
         if (empty($option) == false) {
             if (is_array($option) == true) {              
                 // include component files
                 foreach ($option as $item) {                      
-                    $files = Self::resolveIncludeFile($item,$file_type);
-                    $component->addFiles($files,$file_type);
+                    $files = Self::resolveIncludeFile($item,$fileType);
+                    $component->addFiles($files,$fileType);
                 }
             } else {   
-                $files = Self::resolveIncludeFile($option,$file_type);                        
-                $component->addFiles($files,$file_type);
+                $files = Self::resolveIncludeFile($option,$fileType);                        
+                $component->addFiles($files,$fileType);
             }
         }
         
@@ -116,20 +118,20 @@ class BaseComponent
     /**
      * Resolve include file
      *
-     * @param string $include_file
-     * @param string $file_type
+     * @param string $includeFile
+     * @param string $fileType
      * @return array
      */
-    protected static function resolveIncludeFile($include_file, $file_type)
+    protected static function resolveIncludeFile($includeFile, $fileType)
     {
-        if (Url::isValid($include_file) == true) {             
-            $tokens = explode('|',$include_file);
+        if (Url::isValid($includeFile) == true) {             
+            $tokens = explode('|',$includeFile);
             $url = $tokens[0];
             $tokens[0] = 'external';
             $params = (isset($tokens[1]) == true) ? $tokens : [];                           
             $files = [['url' => $url,'params' => $params]];       
         } else {
-            $files = Self::getComponentFiles($include_file,$file_type);
+            $files = Self::getComponentFiles($includeFile,$fileType);
         }
 
         return $files;
@@ -139,35 +141,36 @@ class BaseComponent
      * Return compoenent files
      *
      * @param string $name
-     * @param string $file_type
+     * @param string $fileType
      * @return array
      */
-    public static function getComponentFiles($name, $file_type = null)
+    public static function getComponentFiles($name, $fileType = null)
     {
         $component = static::createComponent($name,'components');
-        return (is_object($component) == true) ? $component->getFiles($file_type) : ['js' => [],'css' => []];
+
+        return (is_object($component) == true) ? $component->getFiles($fileType) : ['js' => [],'css' => []];
     }
 
     /**
      * Create component
      *
      * @param string $name
-     * @param string $base_path
+     * @param string $basePath
      * @param string $language
-     * @param boolean $with_options
-     * @param string $options_file
+     * @param boolean $withOptions
+     * @param string $optionsFile
      * @return ComponentInterface
      */
-    protected static function createComponent($name, $base_path, $language = null, $with_options = true, $options_file = 'component.json')
+    protected static function createComponent($name, $basePath, $language = null, $withOptions = true, $optionsFile = 'component.json')
     {
         $language = (empty($language) == true) ? Template::getLanguage() : $language;
-        $component = new Component($name,$base_path,$language,$options_file);
+        $component = new Component($name,$basePath,$language,$optionsFile);
     
         if ($component->isValid() == false) {           
             return $component->setError(Arikaim::getError("TEMPLATE_COMPONENT_NOT_FOUND",["full_component_name" => $name]));           
         }
        
-        return ($with_options == true) ? Self::processOptions($component) : $component;         
+        return ($withOptions == true) ? Self::processOptions($component) : $component;         
     }
 
     /**

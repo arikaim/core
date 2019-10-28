@@ -15,7 +15,7 @@ use Arikaim\Core\Utils\DateTime;
  * Set current time for date created.
  * 
  * Change default date created attribute in model class 
- *      protected $date_created_attribute = 'db column name';
+ *      protected $dateCreatedColumn = 'db column name';
 */
 trait DateCreated
 {    
@@ -39,6 +39,6 @@ trait DateCreated
      */
     public function getDateCreatedAttributeName()
     {
-        return (isset($this->date_created_attribute) == true) ? $this->date_created_attribute : 'date_created';
+        return (isset($this->dateCreatedColumn) == true) ? $this->dateCreatedColumn : 'date_created';
     }
 }

@@ -38,6 +38,7 @@ class Exists extends DbRule
         if (is_object($this->model) == false) {
             return false;
         }
+        
         return (bool)$this->model->where($this->params->get('field'),'=',$value)->exists();
     }    
 }

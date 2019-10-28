@@ -15,25 +15,26 @@ namespace Arikaim\Core\Traits\Db;
 trait IncrementValue 
 {       
     /**
-     * Increment  field value
+     * Increment field value
      *
-     * @param string|integer $uuid  Unique row id or uuid
-     * @param string $field_name Field name
+     * @param string|integer $uuid Unique row id or uuid
+     * @param string $fieldName Field name
      * @param integer $increment 
      * @return integer
      */
-    public function incrementValue($uuid, $field_name, $increment = 1)
+    public function incrementValue($uuid, $fieldName, $increment = 1)
     {        
         $model = (is_string($uuid) == true) ? parent::where('uuid','=',$uuid)->first() : parent::where('id','=',$uuid)->first();
           
         if (is_object($model) == false) {
             return false;
         }
-        $value = $model->getAttribute($field_name);
+        $value = $model->getAttribute($fieldName);
         $value += $increment;
 
-        $model->setAttribute($field_name,$value);
-        $model->update();        
+        $model->setAttribute($fieldName,$value);
+        $model->update();   
+
         return $value;
     }
 }

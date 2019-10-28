@@ -21,7 +21,7 @@ trait DefaultTrait
      */
     public function getDefaultAttribute()
     {       
-        return (empty($this->attributes['default']) == true) ? false : true;
+        return ($this->attributes['default']) == 1);
     }
 
     /**
@@ -45,11 +45,12 @@ trait DefaultTrait
     /**
      * Get default model
      *
-     * @return Model|false
+     * @return Model|null
      */
     public function getDefault()
     {
         $model = $this->where('default','=','1')->first();
-        return (is_object($model) == true) ? $model : false; 
+
+        return (is_object($model) == true) ? $model : null; 
     }
 }

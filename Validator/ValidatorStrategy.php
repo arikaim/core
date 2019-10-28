@@ -7,8 +7,6 @@
  * @license     http://www.arikaim.com/license.html
  * 
  */
-declare(strict_types=1);
-
 namespace Arikaim\Core\Validator;
 
 use Psr\Http\Message\ResponseInterface;
@@ -26,20 +24,20 @@ class ValidatorStrategy implements InvocationStrategyInterface
      * @param array|callable         $callable
      * @param ServerRequestInterface $request
      * @param ResponseInterface      $response
-     * @param array                  $route_arguments
+     * @param array                  $routeArguments
      *
      * @return mixed
      */
-    public function __invoke(callable $callable, ServerRequestInterface $request, ResponseInterface $response, array $route_arguments): ResponseInterface  
+    public function __invoke(callable $callable, ServerRequestInterface $request, ResponseInterface $response, array $routeArguments): ResponseInterface  
     {
-        foreach ($route_arguments as $k => $v) {          
+        foreach ($routeArguments as $k => $v) {          
             $request = $request->withAttribute($k, $v);
         }
-        $body_data = $request->getParsedBody();
-        $body_data = (is_array($body_data) == false) ? [] : $body_data;
-        $data = array_merge($route_arguments,$body_data);
-      
+        $body = $request->getParsedBody();
+        $body = (is_array($body) == false) ? [] : $body;
+        $data = array_merge($routeArguments,$body);
         $validator = new Validator($data);
-        return $callable($request, $response, $validator, $route_arguments);
+
+        return $callable($request, $response, $validator, $routeArguments);
     }
 }

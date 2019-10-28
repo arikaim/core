@@ -15,7 +15,7 @@ use Arikaim\Core\Utils\DateTime;
  * Set current time for date updated.
  * 
  * Change default date updated attribute
- *      protected $date_updated_attribute = 'db column name';
+ *      protected $dateUpdatedColumn = 'db column name';
 */
 trait DateUpdated
 {    
@@ -39,6 +39,6 @@ trait DateUpdated
      */
     public function getDateUpdatedAttributeName()
     {
-        return (isset($this->date_updated_attribute) == true) ? $this->date_updated_attribute : 'date_updated';
+        return (isset($this->dateUpdatedColumn) == true) ? $this->dateUpdatedColumn : 'date_updated';
     }
 }

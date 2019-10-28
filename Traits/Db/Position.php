@@ -14,7 +14,7 @@ use Arikaim\Core\Db\Model;
 /**
  * Update position field
  * Change default position  attribute in model
- *     protected $position_attribute_name = 'attribute name';
+ *     protected $positionColumnName = 'attribute name';
 */
 trait Position 
 {    
@@ -37,7 +37,7 @@ trait Position
      */
     protected function getPositionAttributeName()
     {
-        return (isset($this->position_attribute_name) == true) ? $this->position_attribute_name : 'position';
+        return (isset($this->positionColumnName) == true) ? $this->positionColumnName : 'position';
     }
 
     /**
@@ -52,7 +52,8 @@ trait Position
        
         if (empty($model->$column) == true) {      
             $model->$column = $model->max($column) + 1;
-        }        
+        }      
+
         return $model;
     }
 
@@ -74,6 +75,7 @@ trait Position
         $this->save();
 
         $this->where($this->getKeyName(), '!=', $this->id)->increment($column);
+
         return $this;
     }
 
@@ -113,7 +115,7 @@ trait Position
     {
         $column = $this->getPositionAttributeName();
         $position = $target->$column;
-        $current_position = $this->$column;
+        $currentPosition = $this->$column;
 
         $this->$column = null;
         $this->save();
@@ -122,19 +124,19 @@ trait Position
             return $this;
         }
 
-        if ($current_position < $position) {
+        if ($currentPosition < $position) {
             // shift up
             static::query()
             ->where($this->getKeyName(), '!=', $this->id)
             ->where($column, '<=', $position)
-            ->where($column, '>=', $current_position)
+            ->where($column, '>=', $currentPosition)
             ->orderBy($column,'asc')->decrement($column);
         } else {
             // shift down
             static::query()
             ->where($this->getKeyName(), '!=', $this->id)
             ->where($column, '>=', $position)
-            ->where($column, '<=', $current_position)
+            ->where($column, '<=', $currentPosition)
             ->orderBy($column,'desc')->increment($column);
         }
 
@@ -165,6 +167,7 @@ trait Position
         $this->save();
 
         $model->save();
+        
         return $this;
     }
 

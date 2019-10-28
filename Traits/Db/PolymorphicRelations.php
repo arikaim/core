@@ -69,6 +69,7 @@ trait PolymorphicRelations
         if (empty($type) == false) {
             $query = $query->where('relation_type','=',$type);
         }
+
         return $query;
     }
 
@@ -130,7 +131,7 @@ trait PolymorphicRelations
      * Save relation
      *
      * @param integer $id
-     * @param string $type
+     * @param string  $type
      * @param integer $relationId
      * @return void
      */
@@ -138,10 +139,11 @@ trait PolymorphicRelations
     {
         $relationField = $this->getRelationAttributeName();
         $data = [
-            $relationField => $id,
+            $relationField  => $id,
             'relation_id'   => $relationId,
             'relation_type' => "$type",
-        ];       
+        ];    
+
         return ($this->hasRelation($id,$type,$relationId) == false) ? $this->create($data) : false;       
     }
 
@@ -149,7 +151,7 @@ trait PolymorphicRelations
      * Return true if relation exist
      *
      * @param integer $id
-     * @param string $type
+     * @param string  $type
      * @param integer $relationId
      * @return boolean
      */
@@ -168,7 +170,7 @@ trait PolymorphicRelations
      * Save relations
      *
      * @param integer $id
-     * @param string $type
+     * @param string  $type
      * @param integer $relationId
      * @return array
      */

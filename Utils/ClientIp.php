@@ -21,7 +21,7 @@ class ClientIp
      *
      * @var bool
      */
-    protected static $look_in_headers = [
+    protected static $lookInHeaders = [
         'Forwarded',
         'X-Forwarded-For',
         'X-Forwarded',
@@ -33,17 +33,16 @@ class ClientIp
      * Return client Ip address.
      *
      * @param object $request
-     * @return object
+     * @return string
      */
     public static function getClientIpAddress($request)
     {       
-        $server_params = $request->getServerParams();
-        if (isset($server_params['REMOTE_ADDR']) && Utils::isValidIp($server_params['REMOTE_ADDR'])) {
-            return $server_params['REMOTE_ADDR'];     
+        $serverParams = $request->getServerParams();
+        if (isset($serverParams['REMOTE_ADDR']) && Utils::isValidIp($serverParams['REMOTE_ADDR'])) {
+            return $serverParams['REMOTE_ADDR'];     
         }
-            
-        $ip_address = null;                 
-        foreach (Self::$look_in_headers as $header) {
+                               
+        foreach (Self::$lookInHeaders as $header) {
             if ($request->hasHeader($header)) {
                 $ip = Self::getFromHeader($request, $header);
                 if (Utils::isValidIp($ip) == true) {
@@ -52,7 +51,7 @@ class ClientIp
             }
         }
       
-        return $ip_address;
+        return null;
     }
     
     /**
@@ -75,6 +74,7 @@ class ClientIp
                 }
             }
         }
+        
         return $value;
     }
 }

@@ -33,9 +33,9 @@ trait Slug
      *
      * @return string
      */
-    public function getSlugAttributeName()
+    public function getSlugColumn()
     {
-        return (isset($this->slug_attribute) == true) ? $this->slug_attribute : 'slug';
+        return (isset($this->slugColumn) == true) ? $this->slugColumn : 'slug';
     }
 
     /**
@@ -43,9 +43,9 @@ trait Slug
      *
      * @return string
      */
-    public function getSlugSourceAttributeName()
+    public function getSlugSourceColumn()
     {
-        return (isset($this->slug_source) == true) ? $this->slug_source : 'title';
+        return (isset($this->slugSourceColumn) == true) ? $this->slugSourceColumn : 'title';
     }
 
     /**
@@ -55,7 +55,7 @@ trait Slug
      */
     public function getSlugSeparator()
     {
-        return (isset($this->slug_separator) == true) ? $this->slug_separator : '-';
+        return (isset($this->slugSeparator) == true) ? $this->slugSeparator : '-';
     }
 
     /**
@@ -67,13 +67,14 @@ trait Slug
      */
     public static function createSlug($model)
     {
-        $slug_attribute = $model->getSlugAttributeName();
+        $slugColumn = $model->getSlugColumn();
     
-        if (empty($model->attributes[$slug_attribute]) == true) {
-            $slug_source = $model->getSlugSourceAttributeName();
-            $separator = $model->getSlugSeparator();        
-            if (is_null($model->$slug_source) == false) {                   
-                $model->attributes[$slug_attribute] = Utils::slug($model->$slug_source,$separator);
+        if (empty($model->attributes[$slugColumn]) == true) {
+            $slugSourceColumn = $model->getSlugSourceColumn();
+            $separator = $model->getSlugSeparator(); 
+
+            if (is_null($model->$slugSourceColumn) == false) {                   
+                $model->attributes[$slugColumn] = Utils::slug($model->$slugSourceColumn,$separator);
             }              
         }
         
@@ -99,8 +100,8 @@ trait Slug
      */
     public function findBySlug($slug)
     {
-        $slug_attribute = $this->getSlugAttributeName();
-        $model = $this->where($slug_attribute,'=',$slug)->first();
+        $slugColumn = $model->getSlugColumn();
+        $model = $this->where($slugColumn,'=',$slug)->first();
 
         return (is_object($model) == true) ? $model : false;
     }

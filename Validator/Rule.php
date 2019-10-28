@@ -37,7 +37,7 @@ abstract class Rule implements RuleInterface
      *
      * @var array
      */
-    protected $error_params;
+    protected $errorParams;
 
     /**
      * Rule params
@@ -74,7 +74,7 @@ abstract class Rule implements RuleInterface
     {
         $error = (empty($error) == false) ? $error : "NOT_VALID_VALUE_ERROR";
         $this->params = new Collection($params);  
-        $this->error_params = [];
+        $this->errorParams = [];
         $this->setError($error);
     }
 
@@ -120,45 +120,31 @@ abstract class Rule implements RuleInterface
     {
         switch ($type) {
             case Self::INTEGER_TYPE: {        
-                if (is_numeric($value) == true) {
-                    $value = (int)$value;                   
-                    if (is_int($value) == true) {
-                        return true;
-                    }
+                if (is_numeric($value) == true) {                                   
+                    return (is_int((int)$value) == true);
                 }
                 break;
             }
             case Self::STRING_TYPE: {
-                if (is_string($value) == true) {
-                    return true;
-                }
-                break;
+                return (is_string($value) == true);             
             }
             case Self::FLOAT_TYPE: {
-                if (is_numeric($value) == true) {
-                    $value = (float)$value;
-                    if (is_float($value) == true) {
-                        return true;
-                    }
+                if (is_numeric($value) == true) {                  
+                    return (is_float((float)$value) == true);
                 }
                 break;
             }
             case Self::NUMBER_TYPE: {
-                if (is_numeric($value) == true) {
-                    return true;
-                }
-                break;
+                return (is_numeric($value) == true);                   
             }
             case Slf::ITEMS_ARRAY: {
-                if (is_array($value) == true) {
-                    return true;
-                }
-                break;
+                return (is_array($value) == true);
             }
             default: {
                 return true;
             }
         }       
+
         return false;
     }
 
@@ -184,10 +170,10 @@ abstract class Rule implements RuleInterface
         if (empty($this->error) == true) {
             return "";
         }
-        $this->error_params = array_merge($this->error_params,$this->params->toArray());  
-                    
-        $error_message = Arikaim::getError($this->error,$this->error_params,null);
-        return (empty($error_message) == true) ? $this->error : $error_message;              
+        $this->errorParams = array_merge($this->errorParams,$this->params->toArray());              
+        $errorMessage = Arikaim::getError($this->error,$this->errorParams,null);
+
+        return (empty($errorMessage) == true) ? $this->error : $errorMessage;              
     }
     
     /**
@@ -198,7 +184,7 @@ abstract class Rule implements RuleInterface
      */
     public function setErrorParams($params = [])
     {
-        $this->error_params = $params;
+        $this->errorParams = $params;
     }
 
     /**

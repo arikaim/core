@@ -15,23 +15,23 @@ namespace Arikaim\Core\Traits\Db;
 trait Relations 
 {           
     /**
-     * Get relations target refernce attribute name 
+     * Get relations target refernce column name 
      *
      * @return string
      */
     public function getRelationsTargetAttributeName()
     {
-        return (isset($this->relation_target_attribute) == true) ? $this->relation_target_attribute : null;
+        return (isset($this->relationTargetColumn) == true) ? $this->relationTargetColumn : null;
     }
 
     /**
-     * Get relations source refernce attribute name 
+     * Get relations source refernce column name 
      *
      * @return string
      */
     public function getRelationsSourceAttributeName()
     {
-        return (isset($this->relation_source_attribute) == true) ? $this->relation_source_attribute : null;
+        return (isset($this->relationSourceColumn) == true) ? $this->relationSourceColumn : null;
     }
 
     /**
@@ -42,8 +42,8 @@ trait Relations
      */
     public function relation($id)
     {
-        $target_attribute = $this->getRelationsTargetAttributeName();
-        $model = $this->getQuery()->where($target_attribute,'=',$id)->first();  
+        $targetColumn= $this->getRelationsTargetAttributeName();
+        $model = $this->getQuery()->where($targetColumn,'=',$id)->first();  
 
         return (is_object($model) == false) ? false : $model;
     }
@@ -51,21 +51,20 @@ trait Relations
     /**
      * Add relation
      *
-     * @param [type] $id
+     * @param integer $targetId
      * @param array $data
-     * 
      * @return Model|false
      */
-    public function addRelation($target_id, $data = [])
+    public function addRelation($targetId, $data = [])
     {        
-        $model = $this->relation($target_id);
+        $model = $this->relation($targetId);
 
         if (is_object($model) == false) {
-            $target_attribute = $this->getRelationsTargetAttributeName();
-            $source_attribute = $this->getRelationsSourceAttributeName();
+            $targetColumn = $this->getRelationsTargetAttributeName();
+            $sourceColumn = $this->getRelationsSourceAttributeName();
 
-            $data[$target_attribute] = $target_id;     
-            $data[$source_attribute] = $this->$source_attribute;
+            $data[$targetColumn] = $targetId;     
+            $data[$sourceColumn] = $this->$sourceColumn;
 
             return $this->create($data);
         }
@@ -77,7 +76,6 @@ trait Relations
      * Add relations 
      *
      * @param array $items
-     * 
      * @return void
      */
     public function addRelations(array $items)
@@ -93,9 +91,9 @@ trait Relations
      * @param integer $target_id
      * @return boolean
      */
-    public function hasRelation($target_id)
+    public function hasRelation($targetId)
     {
-        return is_object($this->relation($target_id));
+        return is_object($this->relation($targetId));
     }
 
     /**
@@ -108,6 +106,7 @@ trait Relations
     public function removeRelation($id)
     {        
         $model = $this->relation($id);
+        
         return (is_object($model) == true) ? $model->delete() : false;
     }
 

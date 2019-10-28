@@ -1,4 +1,4 @@
-camelCase Traits
+camelCase View/Component
 
 
 

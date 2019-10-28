@@ -17,11 +17,11 @@ trait ToggleValue
     /**
      * Toggle model attribute value
      *
-     * @param string $field_name
+     * @param string $fieldName
      * @param string|integer|null $id
      * @return boolean
      */
-    public function toggle($field_name, $id = null)
+    public function toggle($fieldName, $id = null)
     {
         $id = (empty($id) == true) ? $this->id : $id;
     
@@ -29,9 +29,9 @@ trait ToggleValue
         if (is_object($model) == false) {
             return false;
         }
-        $value = $model->getAttribute($field_name);
+        $value = $model->getAttribute($fieldName);
         $value = ($value == 0) ? 1 : 0;
-        $result = $model->update([$field_name => $value]);  
+        $result = $model->update([$fieldName => $value]);  
         
         return ($result !== false) ? true : false;
     }

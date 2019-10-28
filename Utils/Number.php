@@ -21,10 +21,10 @@ class Number
      *
      * @var array
      */
-    private static $default_format = [
-        'name' => 'default',
-        'decimals' => 2,
-        'decimals_separator' => ",",
+    private static $defaultFormat = [
+        'name'                => 'default',
+        'decimals'            => 2,
+        'decimals_separator'  => ",",
         'thousands_separator' => " "
     ]; 
 
@@ -32,19 +32,19 @@ class Number
      * Format number
      *
      * @param integer|float $number
-     * @param string|null|array $format_name
+     * @param string|null|array $formatName
      * @return integer|float
      */
-    public static function format($number, $format_name = null)
+    public static function format($number, $formatName = null)
     {
-        if (is_array($format_name) == true) {
+        if (is_array($formatName) == true) {
             $format = [
-                'decimals' => $format_name[0],
-                'decimals_separator' => (isset($format_name[1]) == true) ? $format_name[1] : null,
-                'thousands_separator' => (isset($format_name[2]) == true) ? $format_name[2] : null
+                'decimals'             => $formatName[0],
+                'decimals_separator'   => (isset($formatName[1]) == true) ? $formatName[1] : null,
+                'thousands_separator'  => (isset($formatName[2]) == true) ? $formatName[2] : null
             ];
         } else {
-            $format = Self::getFormat($format_name);
+            $format = Self::getFormat($formatName);
         }
       
         return number_format($number,$format['decimals'],$format['decimals_separator'],$format['thousands_separator']);
@@ -60,10 +60,10 @@ class Number
     public static function getFormat($name = null)
     {
         $name = ($name == null) ? Arikaim::options()->get('number.format','default') : $name;
-        $formats = Arikaim::options()->get('number.format.items',Self::$default_format);
+        $formats = Arikaim::options()->get('number.format.items',Self::$defaultFormat);
         $key = array_search($name, array_column($formats, 'name'));
 
-        return ($key !== false) ? $formats[$key] : Self::$default_format;          
+        return ($key !== false) ? $formats[$key] : Self::$defaultFormat;          
     }
 
     /**

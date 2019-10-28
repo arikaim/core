@@ -26,22 +26,22 @@ trait UserRelation
     public static function bootUserRelation()
     {
         static::creating(function($model) {
-            $user_id = $model->getUuidAttributeName();   
-            if (empty($model->attributes[$user_id]) == true) {  
-                $auth_id = Arikaim::auth()->getId();
-                $model->attributes[$user_id] = (empty($auth_id) == true) ? null : $auth_id;
+            $userId = $model->getUserIdAttributeName();   
+            if (empty($model->attributes[$userId]) == true) {  
+                $authId = Arikaim::auth()->getId();
+                $model->attributes[$userId] = (empty($authId) == true) ? null : $authId;
             }
         });
     }
 
     /**
-     * Get uuid attribute name
+     * Get user id attribute name
      *
      * @return string
      */
     public function getUserIdAttributeName()
     {
-        return (isset($this->user_attribute_name) == true) ? $this->user_attribute_name : 'user_id';
+        return (isset($this->userIdColumn) == true) ? $this->userIdColumn : 'user_id';
     }
 
     /**

@@ -140,6 +140,7 @@ trait Options
     public function hasOption($referenceId, $key)
     {
         $model = $this->findOption($referenceId,$key);
+
         return is_object($model);
     }
 
@@ -199,6 +200,7 @@ trait Options
             $result = $this->set($referenceId,$key,$value);
             $errors += ($result !== false) ? 0 : 1; 
         }      
+        
         return ($errors == 0);
     }
 

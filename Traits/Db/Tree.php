@@ -12,15 +12,15 @@ namespace Arikaim\Core\Traits\Db;
 /**
  * Manage models with parent - child relations.
  *  Change parrent id column name in model:
- *       protected $parent_attribute = "column name";
+ *       protected $parentColumn = "column name";
 */
 trait Tree 
 {       
     /**
-     * Gte model tree
+     * Get model tree
      *
      * @param Moldel $model
-     * @return void
+     * @return array
      */
     public function getModelPath($model)
     {
@@ -28,12 +28,13 @@ trait Tree
         array_unshift($result,$model->toArray());
       
         while ($model != false) {
-            $parent_id = $model->attributes[$this->getParentAttributeName()];
-            $model = parent::where('id','=',$parent_id)->first();
+            $parentId = $model->attributes[$this->getParentColumn()];
+            $model = parent::where('id','=',$parentId)->first();
             if (is_object($model) == true) {
                 array_unshift($result,$model->toArray());
             }
         }
+
         return $result;
     }
 
@@ -42,9 +43,9 @@ trait Tree
      *
      * @return string
      */
-    public function getParentAttributeName()
+    public function getParentColumn()
     {
-        return (isset($this->parent_attribute) == true) ? $this->parent_attribute : 'parent_id';
+        return (isset($this->parentColumn) == true) ? $this->parentColumn : 'parent_id';
     }
 
     /**

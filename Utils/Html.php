@@ -34,36 +34,44 @@ class Html
      * @param string|null $content
      * @param string $name
      * @param array $attributes
-     * @param boolean $single_tag
-     * @param boolean $start_tag_only
+     * @param boolean $singleTag
+     * @param boolean $startTagOnly
      * @return string
      */
-    public static function htmlTag($name, $content, $attributes = null, $single_tag = false, $start_tag_only = false)
+    public static function htmlTag($name, $content, $attributes = null, $singleTag = false, $startTagOnly = false)
     {    
-        $attr_list = Self::getAttributes($attributes);
-        if ($single_tag == true) {
-            return "<$name $attr_list />";
+        $attributes = Self::getAttributes($attributes);
+        if ($singleTag == true) {
+            return "<$name $attributes />";
         }
-        if ($start_tag_only == true) {
-            return "<$name $attr_list>";
+        if ($startTagOnly == true) {
+            return "<$name $attributes>";
         }
-        return "<$name $attr_list>$content</$name>";   
+
+        return "<$name $attributes>$content</$name>";   
     }
 
+    /**
+     * Call static methods
+     *
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
     public static function __callStatic($name, $arguments)
     {
         $content = (isset($arguments[0]) == true) ? $arguments[0] : '';
         if (substr($name,0,5) == 'start') {
-            $tag_name = strtolower(str_replace('start','',$name));
-            $html = Self::startTag($tag_name,$content,$arguments);
+            $tag = strtolower(str_replace('start','',$name));
+            $html = Self::startTag($tag,$content,$arguments);
         } elseif (substr($name,0,3) == 'end') {
-            $tag_name = strtolower(str_replace('end','',$name));
-            $html = Self::endTag($tag_name,$content);
+            $tag = strtolower(str_replace('end','',$name));
+            $html = Self::endTag($tag,$content);
         } else {
             $html = Self::htmlTag($name,$content,$arguments);
         }
-      
         Self::appendHtml($html);
+
         return $html;
     }
 
@@ -83,6 +91,7 @@ class Html
             if ($key == "content" || is_array($value) == true) continue;          
             $result .= " " . Self::attr($value,$key);
         }
+
         return $result;   
     }
 
@@ -97,6 +106,7 @@ class Html
     public static function attr($value, $name = null, $default = null)
     {   
         $value = (empty($value) == true) ? $default : $value;
+
         return (empty($value) == false) ? "$name=\"$value\"" : "";
     }
 
@@ -124,6 +134,13 @@ class Html
         return Self::htmlTag($name,null,$attributes,false,true);
     }
 
+    /**
+     * Get html end tag
+     *
+     * @param string $name
+     * @param string $content
+     * @return string
+     */
     public static function endTag($name, $content = '')
     {        
         return "$content</$name>";
@@ -156,25 +173,47 @@ class Html
             $replace = preg_replace("#\\<" . $tag . "(.*)/" . $tag . ">#iUs","", $text);
             $text = ($replace !== null) ? $replace : $text;  
         }
+
         return $text;
     }
 
+    /**
+     * Start html
+     *
+     * @return void
+     */
     public static function startDocument()
     {
         Self::$document = '';
         Self::$append = true;
     }
 
+    /**
+     * Show html code
+     *
+     * @return string
+     */
     public static function renderDocument()
     {
         echo Self::$document; 
     }
 
+    /**
+     * Get html code
+     *
+     * @return string
+     */
     public static function getDocument()
     {
         return Self::$document; 
     }
     
+    /**
+     * Append html code
+     *
+     * @param string $html
+     * @return void
+     */
     public static function appendHtml($html)
     {
         if (Self::$append == true) {

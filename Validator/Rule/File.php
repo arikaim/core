@@ -44,6 +44,7 @@ class File extends Rule
             // missing name 
             return false;
         }
+        
         return true;
     } 
 

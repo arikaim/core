@@ -17,20 +17,21 @@ class Utils
     /**
      * Return classes from php code
      *
-     * @param string $php_code
+     * @param string $phpCode
      * @return array
      */
-    public static function getClasses($php_code) 
+    public static function getClasses($phpCode) 
     {
         $classes = [];
-        $tokens = token_get_all($php_code);
+        $tokens = token_get_all($phpCode);
         $count = count($tokens);
+
         for ($i = 2; $i < $count; $i++) {
-            if ($tokens[$i - 2][0] == T_CLASS && $tokens[$i - 1][0] == T_WHITESPACE && $tokens[$i][0] == T_STRING && !($tokens[$i - 3] && $i - 4 >= 0 && $tokens[$i - 4][0] == T_ABSTRACT)) {
-                $class_name = $tokens[$i][1];
-                array_push($classes,$class_name);
+            if ($tokens[$i - 2][0] == T_CLASS && $tokens[$i - 1][0] == T_WHITESPACE && $tokens[$i][0] == T_STRING && !($tokens[$i - 3] && $i - 4 >= 0 && $tokens[$i - 4][0] == T_ABSTRACT)) {               
+                array_push($classes,$tokens[$i][1]);
             }
         }
+
         return $classes;
     }
 
@@ -68,30 +69,30 @@ class Utils
      */
     public static function isValidUUID($uuid) 
     {
-        return preg_match('/^\{?[0-9a-f]{8}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{12}\}?$/i', $uuid) === 1;
+        return preg_match('/^\{?[0-9a-f]{8}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{12}\}?$/i',$uuid) === 1;
     }
 
     /**
      * Return true if ip is valid.
      *
-     * @param string $ip_address
+     * @param string $ip
      * @return boolean
      */
-    public static function isValidIp($ip_address)
+    public static function isValidIp($ip)
     {      
-        return (filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6) === false) ? false : true;
+        return (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6) === false) ? false : true;
     }
 
     /**
      * Check if class implement interface 
      *
      * @param object $obj
-     * @param string $interface_name
+     * @param string $interfaceName
      * @return boolean
      */
-    public static function isImplemented($obj, $interface_name)
+    public static function isImplemented($obj, $interfaceName)
     {       
-        $result = $obj instanceof $interface_name;
+        $result = $obj instanceof $interfaceName;
         if ($result == true) {
             return true;
         }
@@ -103,8 +104,9 @@ class Utils
             if ($result == true) {
                 break;
             }
-            $result = Self::isImplemented($sub_class, $interface_name);
+            $result = Self::isImplemented($sub_class, $interfaceName);
         } 
+
         return $result;
     }
 
@@ -123,12 +125,12 @@ class Utils
     /**
      * Convert path to url
      *
-     * @param string $file_path
+     * @param string $path
      * @return void
      */
-    public static function convertPathToUrl($file_path) 
+    public static function convertPathToUrl($path) 
     {
-        return str_replace('\\','/',$file_path);
+        return str_replace('\\','/',$path);
     }
 
     /**
@@ -140,8 +142,9 @@ class Utils
     public static function isJSON($text)
     {
         if (is_string($text) == true) {
-            return is_array(json_decode($text, true)) ? true : false;
+            return is_array(json_decode($text,true)) ? true : false;
         }
+
         return false;
     }
     
@@ -153,7 +156,7 @@ class Utils
      */
     public static function jsonEncode(array $data)
     {
-        return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        return json_encode($data,JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     /**
@@ -171,6 +174,7 @@ class Utils
         $text = Self::removeBOM($text);
         $text = stripslashes($text);
         $text = htmlspecialchars_decode($text);
+
         return $text;
     }
 
@@ -179,37 +183,38 @@ class Utils
      *
      * @param string $text
      * @param boolean $clean
-     * @param boolean $to_array
+     * @param boolean $toArray
      * @return array
      */
-    public static function jsonDecode($text, $clean = true, $to_array = true)
+    public static function jsonDecode($text, $clean = true, $toArray = true)
     {        
         $text = ($clean == true) ? Self::cleanJson($text) : $text;
-        return json_decode($text,$to_array);
+
+        return json_decode($text,$toArray);
     }
 
     /**
      * Return base class name
      *
-     * @param string $full_class_name
+     * @param string $class
      * @return string
      */
-    public static function getBaseClassName($full_class_name)
+    public static function getBaseClassName($class)
     {
-        return last(explode('\\',$full_class_name));
+        return last(explode('\\',$class));
     }
 
     /**
      * Call static method
      *
-     * @param string $class_name
+     * @param string $class
      * @param string $method
      * @param array|null $args
      * @return mixed
      */
-    public static function callStatic($class_name, $method, $args = null)
+    public static function callStatic($class, $method, $args = null)
     {     
-        return (is_callable([$class_name,$method]) == false) ? null : forward_static_call([$class_name,$method],$args);
+        return (is_callable([$class,$method]) == false) ? null : forward_static_call([$class,$method],$args);
     }
 
     /**
@@ -224,17 +229,17 @@ class Utils
     {
         if (is_object($obj) == true) {
             $callable = array($obj,$method);
-            $class_name = get_class($obj);
+            $class = get_class($obj);
         } else {
             $callable = $method; 
-            $class_name = null;
+            $class = null;
         }
 
         if (is_callable($callable) == false) {
-            if ($class_name == null) {
-                $class_name = $obj;
+            if ($class == null) {
+                $class = $obj;
             }
-            return Self::callStatic($class_name,$method,$args);  
+            return Self::callStatic($class,$method,$args);  
         }
         return (is_array($args) == true) ? call_user_func_array($callable,$args) : call_user_func($callable,$args);
     }
@@ -303,13 +308,13 @@ class Utils
      * Create key 
      *
      * @param string $text
-     * @param string $path_item
+     * @param string $pathItem
      * @param string $separator
      * @return string
      */
-    public static function createKey($text, $path_item = null, $separator = ".")
+    public static function createKey($text, $pathItem = null, $separator = ".")
     {
-        return (empty($path_item) == true) ? $text : $text . $separator . $path_item;     
+        return (empty($pathItem) == true) ? $text : $text . $separator . $pathItem;     
     }
 
     /**
@@ -335,6 +340,7 @@ class Utils
         if (gettype($value) == "boolean") {           
             return ($value == true) ? "true" : "false"; 
         }       
+
         return "\"$value\"";
     }
 
@@ -370,10 +376,10 @@ class Utils
      *
      * @param integer $size
      * @param array $labels
-     * @param boolean $as_text
+     * @param boolean $asText
      * @return string|array
      */
-    public static function getMemorySizeText($size, $labels = null, $as_text = true)
+    public static function getMemorySizeText($size, $labels = null, $asText = true)
     {        
         if (is_array($labels) == false) {
             $labels = ['Bytes','KB','MB','GB','TB','PB','EB','ZB','YB'];
@@ -381,18 +387,20 @@ class Utils
         $power = $size > 0 ? floor(log($size, 1024)) : 0;
         $result['size'] = round($size / pow(1024, $power),2);
         $result['label'] = $labels[$power];
-        return ($as_text == true) ? $result['size'] . $result['label'] : $result; 
+
+        return ($asText == true) ? $result['size'] . $result['label'] : $result; 
     }
 
     /**
      * Return base class name
      *
-     * @param string $class_name
+     * @param string $class
      * @return string
      */
-    public static function getClassBaseName($class_name)
+    public static function getClassBaseName($class)
     {
-        $class_name = is_object($class_name) ? get_class($class_name) : $class_name;
-        return basename(str_replace('\\', '/', $class_name));
+        $class = is_object($class) ? get_class($class) : $class;
+
+        return basename(str_replace('\\', '/', $class));
     }
 }

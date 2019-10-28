@@ -32,7 +32,6 @@ class DbRule extends Rule
     public function __construct($params = []) 
     {
         parent::__construct($params);
-
         $this->model = Model::create($this->params->get('model'),$this->params->get('extension',null));      
     }
 

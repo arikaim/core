@@ -193,6 +193,7 @@ class TimeInterval
     public static function create($interval)
     {       
         $result = new Self($interval);
+        
         return $result->toArray();
     }
 

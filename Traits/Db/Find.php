@@ -35,6 +35,7 @@ trait Find
     public function findByColumn($value, $column = null)
     {
         $model = $this->findQuery($value,$column);
+        
         return (is_object($model) == false) ? false : $model->first();
     }
 
@@ -85,15 +86,15 @@ trait Find
      */
     public function getIdAttributeName($id)
     {
-        $uuid_attribute = (method_exists($this,'getUuidAttributeName') == true) ? $this->getUuidAttributeName() : 'uuid';
-        return (is_numeric($id) == true) ? $this->getKeyName() : $uuid_attribute;
+        $uuidAttribute = (method_exists($this,'getUuidAttributeName') == true) ? $this->getUuidAttributeName() : 'uuid';
+        return (is_numeric($id) == true) ? $this->getKeyName() : $uuidAttribute;
     }
 
     /**
      * Find collection of models by id or uuid
      *
      * @param array $items
-     * @return object
+     * @return QueryBuilder
      */
     public function findItems($items) 
     {
@@ -111,6 +112,7 @@ trait Find
     public function whereIgnoreCase($attribute, $value, $operator = '=')
     {
         $value = \strtolower($value);
+        
         return $this->whereRaw('LOWER(' . $attribute .') ' . $operator . ' ?',[$value]);
     }
 }

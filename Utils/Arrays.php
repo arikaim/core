@@ -49,18 +49,22 @@ class Arrays
             $current = &$current[$segment];
         }
         $current = $value;
+
         return $array;
     }
 
     /**
-     * return true if array is associative
+     * Return true if array is associative
      *
      * @param array $array
      * @return boolean
      */
     public static function isAssociative(array $array)
     {
-        if (array() === $array) return false;
+        if (array() === $array) {
+            return false;
+        }
+
         return (array_keys($array) !== range(0, count($array) - 1));
     }
 
@@ -90,11 +94,12 @@ class Arrays
         if (empty($path) == true) {
             return null;
         }
-        $path_parts = is_array($path) ? $path : explode($separator, $path);
+        $pathParts = is_array($path) ? $path : explode($separator, $path);
         $reference = &$array;
-        foreach ($path_parts as $key) {           
+        foreach ($pathParts as $key) {           
             $reference = &$reference[$key];
         }
+
         return $reference;                
     }
 
@@ -102,19 +107,20 @@ class Arrays
      * Get array value
      *
      * @param array $array
-     * @param string $key_search
+     * @param string $keySearch
      * @return mixed
      */
-    public static function getValues($array, $key_search)
+    public static function getValues($array, $keySearch)
     {
         if (is_array($array) == false) return null;
-        $len = strlen($key_search);
+        $len = strlen($keySearch);
         $result = [];
         foreach ($array as $key => $value) {
-            if (substr($key,0,$len) == $key_search) {
+            if (substr($key,0,$len) == $keySearch) {
                 $result[$key] = $value;
             }
         }
+
         return $result;
     }
 
@@ -123,29 +129,30 @@ class Arrays
      *
      * @param array $array1
      * @param array $array2
-     * @param string $prev_key
-     * @param string $full_key
+     * @param string $prevKey
+     * @param string $fullKey
      * @return array
      */
-    public static function merge($array1, $array2, $prev_key = "", $full_key = "") 
+    public static function merge($array1, $array2, $prevKey = "", $fullKey = "") 
     {
         $result = $array1;
         if (is_array($array2) == false) {
             return $result;
         }
         foreach ($array2 as $key => &$value) {
-            if ($full_key != "") { 
-                $full_key .= "/"; 
+            if ($fullKey != "") { 
+                $fullKey .= "/"; 
             }
-            $full_key .= $key;
+            $fullKey .= $key;
             if (is_array($value) && isset($result[$key]) && is_array($result[$key])) {     
-                $result[$key] = Self::merge($result[$key],$value,$key,$full_key);
+                $result[$key] = Self::merge($result[$key],$value,$key,$fullKey);
             } else {
-                $full_key = str_replace("0/","",$full_key);
+                $fullKey = str_replace("0/","",$fullKey);
                 $result[$key] = $value;               
-                $full_key = str_replace("/$prev_key/$key","",$full_key);
+                $fullKey = str_replace("/$prevKey/$key","",$fullKey);
             }
         }
+
         return $result;
     }
 
@@ -166,6 +173,7 @@ class Arrays
         } else {
             $result = end($array);
         }
+
         return $result;
     }
 
@@ -182,6 +190,7 @@ class Arrays
             return $text;
         }
         $separator = (empty($separator) == true) ? System::getEof() : $separator;   
+
         return explode($separator,trim($text));       
     }
 
@@ -196,7 +205,8 @@ class Arrays
         if (count($array) == 0) {
             return "";
         }
-        $separator = (empty($separator) == true) ? System::getEof() : $separator;          
+        $separator = (empty($separator) == true) ? System::getEof() : $separator; 
+
         return implode($separator, $array);
     }
 
@@ -216,6 +226,7 @@ class Arrays
             $result[$name] = $property->getValue($object);
             $property->setAccessible(false);
         }
+
         return $result;
     }
 
@@ -235,6 +246,7 @@ class Arrays
                 return true;
             }
         }
+
         return false;
     } 
 
@@ -251,6 +263,7 @@ class Arrays
         if (isset($array[$key]) == false) {          
             $array[$key] = $value;
         }
+
         return $array;
     }
 
@@ -291,8 +304,8 @@ class Arrays
     public static function arrayColumns(array $data, array $keys)
     {    
         $keys = array_flip($keys);
-        $filtered = array_map(function($a) use($keys) {
-            return array_intersect_key($a,$keys);
+        $filtered = array_map(function($item) use($keys) {
+            return array_intersect_key($item,$keys);
         },$data);
 
         return $filtered;

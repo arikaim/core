@@ -23,20 +23,20 @@ class Factory
     /**
      * Create object
      *
-     * @param string $full_class_name
+     * @param string $class
      * @param array|null $args
      * @return object|null
      */
-    public static function createInstance($full_class_name, $args = null)
+    public static function createInstance($class, $args = null)
     {
-        if (class_exists($full_class_name) == false) {
-            $full_class_name = Self::getFullClassName($full_class_name);
+        if (class_exists($class) == false) {
+            $class = Self::getFullClassName($class);
         }
        
-        if (class_exists($full_class_name) == false) {
+        if (class_exists($class) == false) {
             return false;
         }
-        $instance = ($args != null) ? new $full_class_name(...$args) : new $full_class_name();           
+        $instance = ($args != null) ? new $class(...$args) : new $class();           
            
         return (is_object($instance) == true) ? $instance : null;                
     }
@@ -50,67 +50,69 @@ class Factory
      */
     public static function createRule($name, $args = null)
     {              
-        $class_name = ucfirst($name);
-        return Self::createInstance(Self::getValidatorRuleClass($class_name),$args);            
+        $class = ucfirst($name);
+        return Self::createInstance(Self::getValidatorRuleClass($class),$args);            
     }
 
     /**
      * Create db schema object
      *
-     * @param string $class_name
-     * @param string $extension_name
+     * @param string $schemaClass
+     * @param string $extension
      * @return object|null
      */
-    public static function createSchema($class_name, $extension_name = null)
+    public static function createSchema($schemaClass, $extension = null)
     {
-        $schema_class_name = Self::getSchemaClass($class_name,$extension_name);
-        $instance = Self::createInstance($schema_class_name);
+        $schemaClass = Self::getSchemaClass($schemaClass,$extension);
+        $instance = Self::createInstance($schemaClass);
 
         if (is_subclass_of($instance,Path::CORE_NAMESPACE . "\\Db\\Schema") == false) {
-            throw new \Exception("Not valid schema class '$schema_class_name'");
+            throw new \Exception("Not valid schema class '$schemaClass' ");
             return null;           
         } 
+
         return $instance;
     }
 
     /**
      * Get class constant
      *
-     * @param string $class_name
+     * @param string $class
      * @param string $name
      * @return mixed
      */
-    public static function getConstant($class_name,$name)
+    public static function getConstant($class,$name)
     {
-        return constant($class_name . "::" . $name);
+        return constant($class . "::" . $name);
     }
 
     /**
      * Create module object
      *
-     * @param string $module_name
-     * @param string$class_name
+     * @param string $module
+     * @param string $class
      * @param array $args
      * @return object|null
      */
-    public static function createModule($module_name, $class_name, $args = null)
+    public static function createModule($module, $class, $args = null)
     {
-        $full_class_name = Self::getModuleClass($module_name,$class_name);
-        return  Self::createInstance($full_class_name,$args);             
+        $moduleClass = Self::getModuleClass($module,$class);
+
+        return  Self::createInstance($moduleClass,$args);             
     }
 
     /**
      * Create extension
      *
-     * @param string $extension_name
-     * @param string $class_name
+     * @param string $extension
+     * @param string $class
      * @param array $args
      * @return object|null
      */
-    public static function createExtension($extension_name, $class_name, $args = null)
+    public static function createExtension($extension, $class, $args = null)
     {
-        $full_class_name = Self::getExtensionClassName($extension_name,$class_name);  
-        $instance = Self::createInstance($full_class_name,$args);       
+        $class = Self::getExtensionClassName($extension,$class);  
+        $instance = Self::createInstance($class,$args);       
 
         return ($instance instanceof ExtensionInterface) ? $instance : null;                 
     }
@@ -118,19 +120,19 @@ class Factory
     /**
      * Create Job
      *
-     * @param string $class_name
-     * @param string|null $extension_name
+     * @param string $class
+     * @param string|null $extension
      * @param string|null $name
      * @param integer $priority
      * @return object|null
      */
-    public static function createJob($class_name, $extension_name = null, $name = null)
+    public static function createJob($class, $extension = null, $name = null)
     {  
-        if (class_exists($class_name) == false) {
-            $class_name = Self::getJobClassName($extension_name,$class_name);
+        if (class_exists($class) == false) {
+            $class = Self::getJobClassName($extension,$class);
         }
-        $params = [$extension_name,$name];
-        $job = Self::createInstance($class_name,$params);
+        $params = [$extension,$name];
+        $job = Self::createInstance($class,$params);
        
         return ($job instanceof JobInterface) ? $job : null;
     }
@@ -163,31 +165,30 @@ class Factory
     /**
      * Get event subscriber full class name
      *
-     * @param string $base_class_name
-     * @param string|null $extension_name
+     * @param string $baseClass
+     * @param string|null $extension
      * @return string
      */
-    public static function getEventSubscriberClass($base_class_name, $extension_name = null)
+    public static function getEventSubscriberClass($baseClass, $extension = null)
     {
-        if (empty($extension_name) == true) {
-            $class_name = Self::getSystemEventsNamespace() . "\\" . $base_class_name;
-        } else {
-            $class_name = Self::getExtensionEventSubscriberClass($base_class_name,$extension_name);
-        }   
-        return $class_name;
+        if (empty($extension) == true) {
+            return Self::getSystemEventsNamespace() . "\\" . $baseClass;
+        } 
+        
+        return Self::getExtensionEventSubscriberClass($baseClass,$extension);        
     }
 
     /**
      * Create event subscriber
      *
-     * @param string $base_class_name
-     * @param string|null $extension_name
+     * @param string $baseClass
+     * @param string|null $extension
      * @return object|null
      */
-    public static function createEventSubscriber($base_class_name, $extension_name = null)
+    public static function createEventSubscriber($baseClass, $extension = null)
     {        
-        $class_name = Self::getEventSubscriberClass($base_class_name,$extension_name);         
-        $instance = Self::createInstance($class_name);
+        $class = Self::getEventSubscriberClass($baseClass,$extension);         
+        $instance = Self::createInstance($class);
         
         return ($instance instanceof EventSubscriberInterface) ? $instance : null;         
     }
@@ -195,82 +196,82 @@ class Factory
     /**
      * Get full core class name
      *
-     * @param string $class_name
+     * @param string $class
      * @return string
      */
-    public static function getFullClassName($class_name)
+    public static function getFullClassName($class)
     {
-        return Path::CORE_NAMESPACE . "\\$class_name";
+        return Path::CORE_NAMESPACE . "\\$class";
     }
 
     /**
      * Get module namespace
      *
-     * @param string $module_name
+     * @param string $module
      * @return string
      */
-    public static function getModuleNamespace($module_name)
+    public static function getModuleNamespace($module)
     {
-        return Path::MODULES_NAMESAPCE . "\\" . ucfirst($module_name);
+        return Path::MODULES_NAMESAPCE . "\\" . ucfirst($module);
     }
 
     /**
      * Get module full class name
      *
-     * @param string $module_name
-     * @param string $base_class
+     * @param string $module
+     * @param string $baseClass
      * @return string
      */
-    public static function getModuleClass($module_name,$base_class)
+    public static function getModuleClass($module, $baseClass)
     {
-        return Self::getModuleNamespace($module_name) . "\\$base_class";
+        return Self::getModuleNamespace($module) . "\\$baseClass";
     }
 
     /**
      * Get middleware full class name
      *
-     * @param string $class_name
+     * @param string $class
      * @return string
      */
-    public static function getMiddlewareClassName($class_name)
+    public static function getMiddlewareClassName($class)
     {
-        return Path::MIDDLEWARE_NAMESPACE . "\\$class_name";
+        return Path::MIDDLEWARE_NAMESPACE . "\\$class";
     }
 
     /**
      * Create middleware instance
      *
-     * @param string $class_name
+     * @param string $class
      * @param mixed|null $args
      * @return object|null
      */
-    public static function createMiddleware($class_name, $args = null)
+    public static function createMiddleware($class, $args = null)
     {
-        return Self::createInstance(Self::getMiddlewareClassName($class_name),$args);
+        return Self::createInstance(Self::getMiddlewareClassName($class),$args);
     }
 
     /**
      * Create auth provider instance
      *
-     * @param string $class_name
+     * @param string $class
      * @param mixed|null $args
      * @return object|null
      */
-    public static function createAuthProvider($class_name, $args = null)
+    public static function createAuthProvider($class, $args = null)
     {
-        return Self::createInstance(Path::ACCESS_NAMESPACE . "\\$class_name",$args);
+        return Self::createInstance(Path::ACCESS_NAMESPACE . "\\$class",$args);
     }
 
     /**
      * Get extension controller full class name
      *
-     * @param string $extension_name
-     * @param string $base_class_name
+     * @param string $extension
+     * @param string $baseClass
      * @return string
      */
-    public static function getExtensionControllerClass($extension_name, $base_class_name)
+    public static function getExtensionControllerClass($extension, $baseClass)
     {        
-        return Self::getExtensionControllersNamespace(ucfirst($extension_name)) . "\\" . $base_class_name;
+        return Self::getExtensionControllersNamespace(ucfirst($extension)) . "\\" . $baseClass;
     }
 
     /**
@@ -287,179 +288,181 @@ class Factory
     /**
      * Get extension controller namespace
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return string
      */
-    public static function getExtensionControllersNamespace($extension_name)
+    public static function getExtensionControllersNamespace($extension)
     {
-        return Self::getExtensionNamespace($extension_name) . "\\Controllers";
+        return Self::getExtensionNamespace($extension) . "\\Controllers";
     }
 
     /**
      * Get extension subscriber full class name
      *
-     * @param string $base_class_name
-     * @param string|null $extension_name
+     * @param string $baseClass
+     * @param string|null $extension
      * @return string
      */
-    public static function getExtensionEventSubscriberClass($base_class_name, $extension_name)
+    public static function getExtensionEventSubscriberClass($baseClass, $extension)
     {
-        return Self::getExtensionSubscribersNamespace($extension_name) . "\\" . $base_class_name;
+        return Self::getExtensionSubscribersNamespace($extension) . "\\" . $baseClass;
     }
 
     /**
      * Get extension namespace
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return string
      */
-    public static function getExtensionNamespace($extension_name) 
+    public static function getExtensionNamespace($extension) 
     {          
-        return Path::EXTENSIONS_NAMESPACE . "\\" . ucfirst($extension_name);
+        return Path::EXTENSIONS_NAMESPACE . "\\" . ucfirst($extension);
     }
 
     /**
      * Get extension full class name
      *
-     * @param string $extension_name
-     * @param string $base_class_name
+     * @param string $extension
+     * @param string $baseClass
      * @return string
      */
-    public static function getExtensionClassName($extension_name, $base_class_name)
+    public static function getExtensionClassName($extension, $baseClass)
     {
-        return Self::getExtensionNamespace($extension_name) . "\\" . $base_class_name;
+        return Self::getExtensionNamespace($extension) . "\\" . $baseClass;
     }
 
     /**
      * Get module console command full class name
      *
-     * @param string $module_name
-     * @param string $base_class_name
+     * @param string $module
+     * @param string $baseClass
      * @return string
      */
-    public static function getModuleConsoleClassName($module_name, $base_class_name)
+    public static function getModuleConsoleClassName($module, $baseClass)
     {
-        return Self::getModuleNamespace($module_name) . "\\Console\\$base_class_name";
+        return Self::getModuleNamespace($module) . "\\Console\\$baseClass";
     }
 
     /**
      * Get extension console command full class name
      *
-     * @param string $extension_name
-     * @param string $base_class_name
+     * @param string $extension
+     * @param string $baseClass
      * @return string
      */
-    public static function getExtensionConsoleClassName($extension_name, $base_class_name)
+    public static function getExtensionConsoleClassName($extension, $baseClass)
     {
-        return Self::getExtensionNamespace($extension_name) . "\\Console\\$base_class_name";
+        return Self::getExtensionNamespace($extension) . "\\Console\\$baseClass";
     }
 
     /**
      * Get full interface name
      *
-     * @param string $base_name
+     * @param string $baseName
      * @return string
      */
-    public static function getFullInterfaceName($base_name)
+    public static function getFullInterfaceName($baseName)
     {
-        return Path::INTERFACES_NAMESPACE ."\\" . $base_name;
+        return Path::INTERFACES_NAMESPACE ."\\" . $baseName;
     }
 
     /**
      * Get job full class name
      *
-     * @param string $extension_name
-     * @param string $class_name
+     * @param string $extension
+     * @param string $class
      * @return string
      */
-    public static function getJobClassName($extension_name,$class_name)
+    public static function getJobClassName($extension, $class)
     {
-        return Self::getJobsNamespace($extension_name) . "\\$class_name";
+        return Self::getJobsNamespace($extension) . "\\$class";
     }
 
     /**
      * Get job namespace
      *
-     * @param string|null $extension_name
+     * @param string|null $extension
      * @return string
      */
-    public static function getJobsNamespace($extension_name = null)
+    public static function getJobsNamespace($extension = null)
     {
-        if (empty($extension_name) == false) {
-            return Self::getExtensionNamespace($extension_name) . "\\Jobs";
+        if (empty($extension) == false) {
+            return Self::getExtensionNamespace($extension) . "\\Jobs";
         }
+
         return Path::CORE_NAMESPACE . "\\Jobs";
     }
 
     /**
      * Get model full class name
      *
-     * @param string $class_name
+     * @param string $class
      * @return string
      */
-    public static function getModelClass($class_name) 
+    public static function getModelClass($class) 
     {
-        return Path::CORE_NAMESPACE . "\\Models\\" . $class_name;
+        return Path::CORE_NAMESPACE . "\\Models\\" . $class;
     }
     
     /**
      * Get extension model full class name
      *
-     * @param string $extension_name
-     * @param string $base_class_name
+     * @param string $extension
+     * @param string $baseClass
      * @return string
      */
-    public static function getExtensionModelClass($extension_name, $base_class_name)
+    public static function getExtensionModelClass($extension, $baseClass)
     {
-        return Self::getExtensionModelNamespace($extension_name) . "\\" . $base_class_name;
+        return Self::getExtensionModelNamespace($extension) . "\\" . $baseClass;
     }
 
     /**
      * Get extension namespace
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return string
      */
-    public static function getExtensionModelNamespace($extension_name)
+    public static function getExtensionModelNamespace($extension)
     {   
-        return Self::getExtensionNamespace($extension_name) . "\\Models";
+        return Self::getExtensionNamespace($extension) . "\\Models";
     }
 
     /**
      * Get controller full class name
      *
-     * @param string $class_name
+     * @param string $class
      * @return string
      */
-    public static function getControllerClass($class_name)
+    public static function getControllerClass($class)
     {
-        return Path::CONTROLLERS_NAMESPACE . "\\" . $class_name;
+        return Path::CONTROLLERS_NAMESPACE . "\\" . $class;
     }
 
     /**
      * Get validator rule full class name
      *
-     * @param string $base_class
+     * @param string $baseClass
      * @return string
      */
-    public static function getValidatorRuleClass($base_class)
+    public static function getValidatorRuleClass($baseClass)
     {
-        $class = Path::CORE_NAMESPACE . "\\Validator\\Rule\\" . $base_class;
+        $class = Path::CORE_NAMESPACE . "\\Validator\\Rule\\" . $baseClass;
         if (class_exists($class) == false) {
-            $class = Path::CORE_NAMESPACE . "\\Validator\\Rule\\Db\\" . $base_class;
+            $class = Path::CORE_NAMESPACE . "\\Validator\\Rule\\Db\\" . $baseClass;
         }
+
         return $class;
     }
 
     /**
      * Get validator filter full class name
      *
-     * @param string $base_class
+     * @param string $baseClass
      * @return string
      */
-    public static function getValidatorFiltersClass($base_class)
+    public static function getValidatorFiltersClass($baseClass)
     {
-        return Path::CORE_NAMESPACE . "\\Validator\\Filter\\" . $base_class; 
+        return Path::CORE_NAMESPACE . "\\Validator\\Filter\\" . $baseClass; 
     }
 
     /**
@@ -475,39 +478,40 @@ class Factory
     /**
      * Get extension event subscribers namespace
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return string
      */
-    public static function getExtensionSubscribersNamespace($extension_name)
+    public static function getExtensionSubscribersNamespace($extension)
     {
-        return Self::getExtensionNamespace($extension_name) . "\\Subscribers";
+        return Self::getExtensionNamespace($extension) . "\\Subscribers";
     }
 
     /**
      * Get db schema namespace
      *
-     * @param string|null $extension_name
+     * @param string|null $extension
      * @return string
      */
-    public static function getSchemaNamespace($extension_name = null)
+    public static function getSchemaNamespace($extension = null)
     {
-        if ($extension_name != null) {
-            $extension_name = ucfirst($extension_name);
-            return Path::EXTENSIONS_NAMESPACE . "\\$extension_name\\Models\\Schema\\";
+        if ($extension != null) {
+            $extension = ucfirst($extension);
+            return Path::EXTENSIONS_NAMESPACE . "\\$extension\\Models\\Schema\\";
         }
+        
         return Path::CORE_NAMESPACE . "\\Models\\Schema\\";
     }
 
     /**
      * Get db schema class
      *
-     * @param string $base_class
-     * @param string $extension_name
+     * @param string $baseClass
+     * @param string $extension
      * @return string
      */
-    public static function getSchemaClass($base_class, $extension_name)
+    public static function getSchemaClass($baseClass, $extension)
     {
-        return Self::getSchemaNamespace($extension_name) . $base_class;
+        return Self::getSchemaNamespace($extension) . $baseClass;
     }
 
     /**
@@ -518,8 +522,8 @@ class Factory
      */
     public static function getClassName($obj) 
     {    
-        $current_class = get_class($obj);
-        $class = new \ReflectionClass($current_class);      
+        $currentClass = get_class($obj);
+        $class = new \ReflectionClass($currentClass);      
         
         return last(explode("\\",$class->getNamespaceName()));       
     }

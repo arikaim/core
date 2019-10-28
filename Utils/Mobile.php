@@ -21,7 +21,7 @@ class Mobile
      *
      * @var string|null
      */
-    protected $user_agent;
+    protected $userAgent;
 
     /**
      * Request headers
@@ -30,13 +30,6 @@ class Mobile
      */
     protected $headers;
 
-    /**
-     * Cloud front headers
-     *
-     * @var array
-     */
-    protected $cloud_front_headers;
-    
     /**
      * Rules
      *
@@ -49,7 +42,7 @@ class Mobile
      *
      * @var array
      */
-    protected $mobile_headers = [
+    protected $mobileHeaders = [
             'HTTP_ACCEPT' => ['matches' => [
                                     'application/x-obml2d',
                                     'application/vnd.rim.html',
@@ -128,7 +121,7 @@ class Mobile
      * @var array
      */
     protected $utilities = [
-        'Bot'         => 'Googlebot|facebookexternalhit|AdsBot-Google|Google Keyword Suggestion|Facebot|YandexBot|YandexMobileBot|bingbot|ia_archiver|AhrefsBot|Ezooms|GSLFbot|WBSearchBot|Twitterbot|TweetmemeBot|Twikle|PaperLiBot|Wotbox|UnwindFetchor|Exabot|MJ12bot|YandexImages|TurnitinBot|Pingdom',
+        'Bot'         => 'Googlebot|facebookexternalhit|AdsBot-Google|Google Keyword Suggestion|Facebot|YandexBot|YandexMobileBot|bingbot|ia_archiver|AhrefsBot|Ezooms|GSLFbot|WBSearchBot|Twitterbot|TweetmemeBot',
         'MobileBot'   => 'Googlebot-Mobile|AdsBot-Google-Mobile|YahooSeeker/M1A1-R2D2',
         'DesktopMode' => 'WPDesktop',
         'TV'          => 'SonyDTV|HbbTV',
@@ -142,7 +135,7 @@ class Mobile
      *
      * @var array
      */
-    protected $user_agent_headers = [
+    protected $userAgentHeaders = [
         'HTTP_USER_AGENT',
         'HTTP_X_OPERAMINI_PHONE_UA',
         'HTTP_X_DEVICE_USER_AGENT',
@@ -183,26 +176,6 @@ class Mobile
                 $this->headers[$key] = $value;
             }
         }
-        $this->initCloudFrontHeaders($headers);
-    }
-
-    /**
-     * Init CloudFront headers
-     *
-     * @param array $headers
-     * @return bool
-     */
-    public function initCloudFrontHeaders($headers) 
-    {
-        $this->cloud_front_headers = [];
-      
-        foreach ($headers as $key => $value) {
-            if (substr(strtolower($key), 0, 16) === 'http_cloudfront_') {
-                $this->cloud_front_headers[strtoupper($key)] = $value;
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -212,23 +185,18 @@ class Mobile
      */
     public function initUserAgent()
     {
-        $this->user_agent = null;
-        foreach ($this->user_agent_headers as $altHeader) {
+        $this->userAgent = null;
+        foreach ($this->userAgentHeaders as $altHeader) {
             if (empty($this->headers[$altHeader]) == false) {
-                $this->user_agent .= $this->headers[$altHeader] . " ";
+                $this->userAgent .= $this->headers[$altHeader] . " ";
             }
         }
 
-        if (empty($this->user_agent) == false) {
-            $this->user_agent = substr(trim($this->user_agent),0,500);
+        if (empty($this->userAgent) == false) {
+            $this->userAgent = substr(trim($this->userAgent),0,500);
             return;
         }
-        
-        if (count($this->cloud_front_headers) > 0) {
-            $this->user_agent = 'Amazon CloudFront';
-            return;
-        }
-        $this->user_agent = null;
+        $this->userAgent = null;
     }
 
     /**
@@ -238,11 +206,11 @@ class Mobile
      */
     public function checkHeadersForMobile()
     {
-        foreach ($this->mobile_headers as $mobile_header => $match_type) {
-            if (isset($this->headers[$mobile_header]) == true) {
-                if (is_array($match_type['matches']) == true) {
-                    foreach ($match_type['matches'] as $match) {
-                        if (strpos($this->headers[$mobile_header],$match) !== false) {
+        foreach ($this->mobileHeaders as $header => $matchType) {
+            if (isset($this->headers[$header]) == true) {
+                if (is_array($matchType['matches']) == true) {
+                    foreach ($matchType['matches'] as $match) {
+                        if (strpos($this->headers[$header],$match) !== false) {
                             return true;
                         }
                     }
@@ -282,6 +250,7 @@ class Mobile
     public static function mobile()
     {
         $obj = new Mobile();
+
         return $obj->isMobile();
     }
 
@@ -292,18 +261,15 @@ class Mobile
      */
     public function isMobile()
     {
-        $is_mobile = Arikaim::session()->get('mobile.mode');
-        if ($is_mobile !== null) {
-            return $is_mobile;
-        }
-
-        if ($this->isCloudFront() == true) {
-            return true;
+        $isMobile = Arikaim::session()->get('mobile.mode');
+        if ($isMobile !== null) {
+            return $isMobile;
         }
 
         if ($this->checkHeadersForMobile() == true) {
             return true;
         }
+
         return $this->matchUserAgent();
     }
 
@@ -328,21 +294,6 @@ class Mobile
     }
 
     /**
-     * Return true for Amazon CloudFront
-     *
-     * @return boolean
-     */
-    public function isCloudFront()
-    {
-        if ($this->user_agent === 'Amazon CloudFront') {
-            if (array_key_exists('HTTP_CLOUDFRONT_IS_MOBILE_VIEWER', $this->cloud_front_headers) && $this->cloud_front_headers['HTTP_CLOUDFRONT_IS_MOBILE_VIEWER'] === 'true') {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Match helper
      *
      * @param string $regex
@@ -350,6 +301,6 @@ class Mobile
      */
     protected function match($regex)
     {
-       return (bool)preg_match(sprintf('#%s#is', $regex),$this->user_agent,$matches);
+       return (bool)preg_match(sprintf('#%s#is', $regex),$this->userAgent,$matches);
     }
 }

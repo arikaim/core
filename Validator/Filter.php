@@ -60,9 +60,10 @@ abstract class Filter implements FilterInterface
     public function processFilter($value)
     {
         $type = $this->getType();
-        $filter_options = ($type == FILTER_CALLBACK) ?  ['options' => [$this, 'filterValue']] : [];
+        $options = ($type == FILTER_CALLBACK) ?  ['options' => [$this, 'filterValue']] : [];
           
-        $result = filter_var($value,$type,$filter_options);
+        $result = filter_var($value,$type,$options);
+        
         return ($result == false) ? $value : $result;
     }
 }

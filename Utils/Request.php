@@ -44,6 +44,7 @@ class Request
     public static function isJsonContentType($request)
     {
         $content = Self::getContentType($request);
+
         return (substr($content,-4) == 'json') ? true : false;
     }
     
@@ -56,6 +57,7 @@ class Request
     public static function isXmlContentType($request)
     {
         $content = Self::getContentType($request);
+
         return (substr($content,-3) == 'xml') ? true : false;
     }
 
@@ -68,6 +70,7 @@ class Request
     public static function isHtmlContentType($request)
     {
         $content = Self::getContentType($request);
+
         return (substr($content,-4) == 'html') ? true : false;
     }
 
@@ -81,6 +84,7 @@ class Request
     {
         $accept = $request->getHeaderLine('Accept');
         $parts = explode(';',$accept);
+
         return explode(',',$parts[0]);
     }
 
@@ -92,12 +96,13 @@ class Request
      */
     public static function acceptJson($request)
     {
-        $content_types = Self::parseAcceptHeader($request);
-        foreach ($content_types as $item) {
+        $contentTypes = Self::parseAcceptHeader($request);
+        foreach ($contentTypes as $item) {
             if (substr($item,-4) == 'json') {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -109,12 +114,13 @@ class Request
      */
     public static function acceptXml($request)
     {
-        $content_types = Self::parseAcceptHeader($request);
-        foreach ($content_types as $item) {
+        $contentTypes = Self::parseAcceptHeader($request);
+        foreach ($contentTypes as $item) {
             if (substr($item,-3) == 'xml') {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -125,23 +131,23 @@ class Request
      */
     public static function getBrowserName()
     {      
-        $user_agent =  " " . strtolower($_SERVER['HTTP_USER_AGENT']);
-        switch ($user_agent) {
-            case (strpos($user_agent,'opera') != false):
+        $userAgent =  " " . strtolower($_SERVER['HTTP_USER_AGENT']);
+        switch ($userAgent) {
+            case (strpos($userAgent,'opera') != false):
                 return 'Opera';                
-            case (strpos($user_agent,'edge') != false):
+            case (strpos($userAgent,'edge') != false):
                 return 'Edge';
-            case (strpos($user_agent,'firefox') != false):
+            case (strpos($userAgent,'firefox') != false):
                 return 'Firefox';    
-            case (strpos($user_agent,'chrome') != false):
+            case (strpos($userAgent,'chrome') != false):
                 return 'Chrome';  
-            case (strpos($user_agent,'safari') != false):
+            case (strpos($userAgent,'safari') != false):
                 return 'Safari';    
-            case (strpos($user_agent,'msie') != false):
+            case (strpos($userAgent,'msie') != false):
                 return 'Internet Explorer';  
-            case (strpos($user_agent,'mobile') != false):
+            case (strpos($userAgent,'mobile') != false):
                 return 'Mobile Browser'; 
-            case (strpos($user_agent,'android') != false):
+            case (strpos($userAgent,'android') != false):
                 return 'Mobile Browser';                
             default: 
                 return null;

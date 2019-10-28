@@ -26,7 +26,6 @@ class TemplatePath extends Rule
     {
         parent::__construct();
         $this->setError("TEMPLATE_NOT_EXISTS");
-       
     }
 
     /**
@@ -36,9 +35,8 @@ class TemplatePath extends Rule
      * @return boolean
      */
     public function validate($value) 
-    {           
-        $template_path = Path::getTemplatePath($value);
-        return (File::exists($template_path) == false) ? false : true;
+    {                  
+        return (File::exists(Path::getTemplatePath($value)) == false) ? false : true;
     } 
 
     /**

@@ -18,7 +18,7 @@ class Unique extends DbRule
 {
     /**
      * Constructor
-     * params model, field, extension , exclude
+     * params model,field, extension, exclude
      * @param array $params
      */
     public function __construct($params) 

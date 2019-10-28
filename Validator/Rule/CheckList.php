@@ -39,6 +39,7 @@ class CheckList extends Rule
             $this->setErrorParams($items);  
             return false;         
         } 
+        
         return true;
     } 
 
