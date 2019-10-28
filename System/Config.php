@@ -9,7 +9,6 @@
  */
 namespace Arikaim\Core\System;
 
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Collection\Collection;
 use Arikaim\Core\System\Path;
@@ -25,7 +24,7 @@ class Config extends Collection
      *
      * @var string
      */
-    private $file_name;
+    private $fileName;
     
     /**
      * Config array comments
@@ -44,14 +43,14 @@ class Config extends Collection
     /**
      * Constructor
      *
-     * @param string $file_name
+     * @param string $fileName
      * @param array|null $cache
      */
-    public function __construct($file_name = null, $cache = null) 
+    public function __construct($fileName = null, $cache = null) 
     {       
         $this->cache = $cache;
-        $this->file_name = (empty($file_name) == true) ? 'config.php' : $file_name;
-        $data = $this->load($this->file_name);   
+        $this->fileName = (empty($fileName) == true) ? 'config.php' : $fileName;
+        $data = $this->load($this->fileName);   
        
         parent::__construct($data);   
 
@@ -59,34 +58,40 @@ class Config extends Collection
         $this->setComment('application settings','settings');
     }
     
-    public static function read($file_name) 
+    /**
+     * Read config file
+     *
+     * @param string $fileName
+     * @return array
+     */
+    public static function read($fileName) 
     {
         $instance = new Self();
-        return $instance->load($file_name);
+        return $instance->load($fileName);
     }
 
     /**
      * Load config file
      *
-     * @param string $file_name
+     * @param string $fileName
      * @return array
      */
-    public function load($file_name) 
-    {
-        $cache_id = strtolower($file_name);
+    public function load($fileName) 
+    {       
         if (is_null($this->cache) == false) {
-            $result = $this->cache->fetch($cache_id);
+            $result = $this->cache->fetch(strtolower($fileName));
             if (is_array($result) == true) {
                 return $result;
             }
         }
       
-        $file_name = Path::CONFIG_PATH . $file_name;
+        $fullFileName = Path::CONFIG_PATH . $fileName;
        
-        $result = (File::exists($file_name) == true) ? include($file_name) : [];    
+        $result = (File::exists($fullFileName) == true) ? include($fullFileName) : [];    
         if (is_null($this->cache) == false && (empty($result) == false)) {
-            $this->cache->save($cache_id,$result);
+            $this->cache->save(strtolower($fileName),$result);
         } 
+
         return $result;            
     }   
 
@@ -130,22 +135,23 @@ class Config extends Collection
      * Export array as text
      *
      * @param array $data
-     * @param string $array_key
+     * @param string $arrayKey
      * @return string
      */
-    protected function exportArray(array $data, $array_key)
+    protected function exportArray(array $data, $arrayKey)
     {     
         $items = "";  
-        $max_tabs = $this->determineMaxTabs($data);
+        $maxTabs = $this->determineMaxTabs($data);
     
         foreach ($data as $key => $value) {
             $items .= (empty($items) == false) ? ",\n" : "";
             $value = Utils::getValueAsText($value);
-            $tabs = $max_tabs - $this->determineTabs($key);
+            $tabs = $maxTabs - $this->determineTabs($key);
             $items .="\t\t'$key'" . $this->getTabs($tabs) . "=> $value";
         }
-        $comment = $this->getCommentsText($array_key);
-        return "$comment\t'" . $array_key . "' => [\n" . $items . "\n\t]";
+        $comment = $this->getCommentsText($arrayKey);
+
+        return "$comment\t'" . $arrayKey . "' => [\n" . $items . "\n\t]";
     }
 
     /**
@@ -153,13 +159,14 @@ class Config extends Collection
      *
      * @param string $key
      * @param mixed $value
-     * @param integer $max_tabs
+     * @param integer $maxTabs
      * @return string
      */
-    protected function exportItem($key, $value, $max_tabs)
+    protected function exportItem($key, $value, $maxTabs)
     {
-        $tabs = $max_tabs - $this->determineTabs($key);
+        $tabs = $maxTabs - $this->determineTabs($key);
         $value = Utils::getValueAsText($value);
+
         return "\t'$key'" . $this->getTabs($tabs) . "=> $value";
     }
 
@@ -171,7 +178,7 @@ class Config extends Collection
     protected function exportConfig($data)
     {
         $items = '';
-        $max_tabs = $this->determineMaxTabs($data);
+        $maxTabs = $this->determineMaxTabs($data);
 
         foreach ($data as $key => $item) {
             if (is_array($item) == true) {
@@ -179,7 +186,7 @@ class Config extends Collection
                 $items .= $this->exportArray($item,$key);
             } else {
                 $items .= (empty($items) == false) ? ",\n" : "";
-                $items .= $this->exportItem($key,$item,$max_tabs);
+                $items .= $this->exportItem($key,$item,$maxTabs);
             }
         }
         return "return [\n $items \n];\n";      
@@ -195,8 +202,8 @@ class Config extends Collection
         $code = "<?php \n/**\n";
         $code .= "* Arikaim\n";
         $code .= "* @link        http://www.arikaim.com\n";
-        $code .= "* @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>\n";
-        $code .= "* @license     http://www.arikaim.com/license.html\n";
+        $code .= "* @copyright   Copyright (c) 2017-" . date("Y") . " Konstantin Atanasov <info@arikaim.com>\n";
+        $code .= "* @license     http://www.arikaim.com/license\n";
         $code .= "*/\n\n";
 
         return $code;
@@ -205,37 +212,37 @@ class Config extends Collection
     /**
      * Save config file
      *
-     * @param string|null $file_name
+     * @param string|null $fileName
      * @return bool
      */
-    public function save($file_name = null, $data = null)
+    public function save($fileName = null, $data = null)
     {
-        $file_name = (empty($file_name) == true) ? $this->file_name : $file_name;
+        $fileName = (empty($fileName) == true) ? $this->fileName : $fileName;
         $data = (empty($data) == true) ? $this->data : $data;
 
-        if (is_null($this->cache) == false) {
-            $cache_id = strtolower($file_name);
-            $this->cache->delete($cache_id);
+        if (is_null($this->cache) == false) {        
+            $this->cache->delete(strtolower($fileName));
         }
        
-        $full_file_name = Path::CONFIG_PATH . $file_name;
-        if (File::isWritable($full_file_name) == false) {
-            File::setWritable($full_file_name);
+        $fileName = Path::CONFIG_PATH . $fileName;
+
+        if (File::isWritable($fileName) == false) {
+            File::setWritable($fileName);
         }
         $content = $this->getFileContent($data);  
      
-        return File::write($full_file_name,$content);       
+        return File::write($fileName,$content);       
     }
 
     /**
      * Load json config file
      *
-     * @param string $file_name
+     * @param string $fileName
      * @return array
      */
-    public static function loadJsonConfigFile($file_name = null)
+    public static function loadJsonConfigFile($fileName = null)
     {
-        $data = File::readJSONFile(Path::CONFIG_PATH . $file_name);
+        $data = File::readJSONFile(Path::CONFIG_PATH . $fileName);
         $data = (is_array($data) == true) ? $data : [];
 
         $items = new Collection($data);
@@ -250,28 +257,28 @@ class Config extends Collection
      * Get max tabs count
      *
      * @param array $data
-     * @param integer $tab_size
+     * @param integer $tabSize
      * @return integer
      */
-    private function determineMaxTabs(array $data, $tab_size = 4)
+    private function determineMaxTabs(array $data, $tabSize = 4)
     {
         $keys = [];
         foreach ($data as $key => $value) {
             array_push($keys,strlen($key));
         }
-        return ceil(max($keys) / $tab_size);
+        return ceil(max($keys) / $tabSize);
     }
 
     /**
      * Get tabs count for array key
      *
      * @param string $key
-     * @param integer $tab_size
+     * @param integer $tabSize
      * @return integer
      */
-    private function determineTabs($key, $tab_size = 4)
+    private function determineTabs($key, $tabSize = 4)
     {
-        return round(strlen($key) / $tab_size);
+        return round(strlen($key) / $tabSize);
     }
 
     /**

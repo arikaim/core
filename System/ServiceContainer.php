@@ -37,10 +37,10 @@ class ServiceContainer
         if ($container->get('db')->isValidConnection() == false) {
             return $container;
         }
-        
         if (Manager::schema()->hasTable('modules') == false) {
             return $container;
         }
+
         $modules = $container->get('cache')->fetch('services.list');
         if (is_array($modules) == false) {
             $modules = Model::Modules()->getList(ModulePackage::getTypeId('service'),1);
@@ -48,21 +48,22 @@ class ServiceContainer
         } 
             
         foreach ($modules as $module) {
-            $service_name = $module['service_name'];
-            if (empty($service_name) == false) {
+            $serviceName = $module['service_name'];
+            if (empty($serviceName) == false) {
                 // add to container
-                $container[$service_name] = function() use($module) {
+                $container[$serviceName] = function() use($module) {
                     return Factory::createModule($module['name'],$module['class']);
                 };
             }
             if ($module['bootable'] == true) {
-                $container->get($service_name)->boot();
+                $container->get($serviceName)->boot();
             }
             // load facade class alias
             if (isset($module['facade_alias']) == true) {
                 $container->get('classLoader')->loadClassAlias($module['facade_class'],$module['facade_alias']);
             }
         }
+
         return $container;
     }
     

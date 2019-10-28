@@ -50,26 +50,27 @@ class Update
     /**
      * Return array with code packages
      *
-     * @param integer $result_length Result maximum lenght
+     * @param integer $resultLength Result maximum lenght
      * @return array
      */
-    public function getCorePackagesList($result_length = null)
+    public function getCorePackagesList($resultLength = null)
     {
-        $package_info = Self::getPackageInfo("arikaim","core");
-        $list = $package_info['package']['versions'];
+        $packageInfo = Self::getPackageInfo("arikaim","core");
+        $list = $packageInfo['package']['versions'];
         unset($list['dev-master']);
         $packages = [];
         $count = 0;       
         
-        foreach ($list as $key => $package) {          
+        foreach ($list as $package) {          
             $info['version'] = $package['version'];
             $info['name'] = $package['name'];
             array_push($packages,$info);
             $count++;
-            if (($result_length != null) && ($count >= $result_length)) {               
+            if (($resultLength != null) && ($count >= $resultLength)) {               
                 return $packages;
             }
         }
+
         return $packages;
     }
 
@@ -80,9 +81,10 @@ class Update
      * @param string $package Package name
      * @return array
      */
-    public static function getPackageInfo($vendor,$package)
+    public static function getPackageInfo($vendor, $package)
     {       
         $info = Url::fetch("https://packagist.org/packages/$vendor/$package.json");
+
         return (empty($info) == true) ? null : json_decode($info,true);
     }
 }

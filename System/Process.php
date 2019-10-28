@@ -12,9 +12,6 @@ namespace Arikaim\Core\System;
 use Symfony\Component\Process\Process as SProcess;
 use Symfony\Component\Process\PhpExecutableFinder;
 
-use Arikaim\Core\System\Path;
-use Arikaim\Core\Arikaim;
-
 /**
  * System Process
  */
@@ -30,11 +27,11 @@ class Process
      * @param array $options
      * @return void
      */
-    public static function create($command,array $env = null, $input = null, $timeout = 60, array $options = array())
+    public static function create($command, array $env = null, $input = null, $timeout = 60, array $options = array())
     {
-        // ARIKAIM_BASE_PATH
         $process = new SProcess($command,null,$env,$input,$timeout,$options);
         $process->enableOutput();
+
         return $process;
     }
 
@@ -42,11 +39,10 @@ class Process
      * Run console command
      *
      * @param string|array $command
-     * @param callable|null $callback
      * @param array $env
      * @return mixed
      */
-    public static function run($command, callable $callback = null, array $env = [])
+    public static function run($command, array $env = [])
     {
         $process = Self::create($command,$env);
         $process->run();

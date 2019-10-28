@@ -21,7 +21,7 @@ use Arikaim\Core\Packages\Module\ModulesManager;
 use Arikaim\Core\Queue\Cron;
 
 /**
- * Arikaim install
+ * Arikaim install (TODO error messages)
  */
 class Install 
 {
@@ -55,8 +55,8 @@ class Install
         $this->registerCoreEvents();
 
         // install core modules
-        $modules_manager = new ModulesManager();       
-        $modules_manager->installAllPackages();
+        $modulesManager = new ModulesManager();       
+        $modulesManager->installAllPackages();
 
         // reload seystem options
         Arikaim::options()->loadOptions();
@@ -71,9 +71,9 @@ class Install
         $this->installDrivers();
 
         // install current template 
-        $template_manager = new TemplatesManager();
-        $current_template = $template_manager->findPackage('current',true);
-        $result = $current_template->install();
+        $templateManager = new TemplatesManager();
+        $currentTemplate = $templateManager->findPackage('current',true);
+        $result = $currentTemplate->install();
 
         //Install extensions      
         $extension_manager = new ExtensionsManager();
@@ -152,7 +152,7 @@ class Install
         $items = Arikaim::config()->loadJsonConfigFile("date_format.json");      
         Arikaim::options()->createOption('date.format.items',$items,false);
         // set default date format 
-        $key = array_search(1,array_column($items, 'default'));
+        $key = array_search(1,array_column($items,'default'));
         if ($key !== false) {
             Arikaim::options()->createOption('date.format',$items[$key]['value'],true);
         }
@@ -161,7 +161,7 @@ class Install
         $items = Arikaim::config()->loadJsonConfigFile("time_format.json");
         Arikaim::options()->createOption('time.format.items',$items,false);
         // set default time format
-        $key = array_search(1,array_column($items, 'default'));
+        $key = array_search(1,array_column($items,'default'));
         if ($key !== false) {
             Arikaim::options()->createOption('time.format',$items[$key]['value'],true);
         }
@@ -214,13 +214,14 @@ class Install
     {                 
         $classes = $this->getSystemSchemaClasses();
         $errors = 0;      
-        foreach ($classes as $class_name) {            
-            $installed = Schema::install($class_name);
+        foreach ($classes as $class) {            
+            $installed = Schema::install($class);
             if ($installed == false) {
                 $errors++; 
-                Arikaim::errors()->addError('Error create database table "' . Schema::getTable($class_name) . '"');
+                Arikaim::errors()->addError('Error create database table "' . Schema::getTable($class) . '"');
             }
         }
+
         return ($errors == 0) ? true : false;         
     }
 
@@ -240,8 +241,8 @@ class Install
             }
             // check db tables
             $tables = Self::getSystemDbTableNames();
-            foreach ($tables as $table_name) {
-                $errors += Schema::schema()->hasTable($table_name) ? 0:1;
+            foreach ($tables as $tableName) {
+                $errors += Schema::schema()->hasTable($tableName) ? 0:1;
             }
            
             $result = Model::Users()->hasControlPanelUser();                          
@@ -252,7 +253,8 @@ class Install
         } catch(\Exception $e) {
             $errors++;
         }
-        return ($errors > 0) ? false : true;        
+
+        return !($errors > 0);   
     }
 
     /**

@@ -9,7 +9,6 @@
  */
 namespace Arikaim\Core\System;
 
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\System\Process;
 
 /**
@@ -20,78 +19,78 @@ class ComposerApplication
     /**
      * Run require command
      *
-     * @param string $package_name
+     * @param string $packageName
      * @param boolean $async
-     * @param boolean $real_time_output
+     * @param boolean $realTimeOutput
      * @return mixed
      */
-    public static function requireCommand($package_name, $async = false, $real_time_output = false)
+    public static function requireCommand($packageName, $async = false, $realTimeOutput = false)
     {
-        return Self::runCommand("require $package_name",$async,$real_time_output); 
+        return Self::runCommand("require $packageName",$async,$realTimeOutput); 
     }
     
     /**
      * Check if package is installed
      *
-     * @param string $package_name
+     * @param string $packageName
      * @param boolean $async
-     * @param boolean $real_time_output
+     * @param boolean $realTimeOutput
      * @return boolean
      */
-    public static function hasPackage($package_name, $async = false, $real_time_output = false)
+    public static function hasPackage($packageName, $async = false, $realTimeOutput = false)
     {
-        return Self::runCommand("show $package_name",$async,$real_time_output); 
+        return Self::runCommand("show $packageName",$async,$realTimeOutput); 
     }
 
     /**
      * Run show command
      *
-     * @param string $package_name
+     * @param string $packageName
      * @param boolean $async
-     * @param boolean $real_time_output
+     * @param boolean $realTimeOutput
      * @return mixed
      */
-    public static function show($package_name, $async = false, $real_time_output = false)
+    public static function show($packageName, $async = false, $realTimeOutput = false)
     {
-        return Self::runCommand("show $package_name",$async,$real_time_output); 
+        return Self::runCommand("show $packageName",$async,$realTimeOutput); 
     }
 
     /**
      * Run remove comand
      *
-     * @param string $package_name
+     * @param string $packageName
      * @param boolean $async
-     * @param boolean $real_time_output
+     * @param boolean $realTimeOutput
      * @return mixed
      */
-    public static function remove($package_name,$async = false, $real_time_output = false)
+    public static function remove($packageName,$async = false, $realTimeOutput = false)
     {
-        return Self::runCommand("remove $package_name --no-dev",$async,$real_time_output); 
+        return Self::runCommand("remove $packageName --no-dev",$async,$realTimeOutput); 
     }
 
     /**
      * Run update package command
      *
-     * @param string $package_name
+     * @param string $packageName
      * @param boolean $async
-     * @param boolean $real_time_output
+     * @param boolean $realTimeOutput
      * @return mixed
      */
-    public static function updatePackage($package_name, $async = false, $real_time_output = false)
+    public static function updatePackage($packageName, $async = false, $realTimeOutput = false)
     {
-        return Self::runCommand("update $package_name --no-dev",$async,$real_time_output);
+        return Self::runCommand("update $packageName --no-dev",$async,$realTimeOutput);
     }
 
     /**
      * Run update command
      *
      * @param boolean $async
-     * @param boolean $real_time_output
+     * @param boolean $realTimeOutput
      * @return mixed
      */
-    public static function update($async = false, $real_time_output = false)
+    public static function update($async = false, $realTimeOutput = false)
     {
-        return Self::runCommand('update --no-dev',$real_time_output);
+        return Self::runCommand('update --no-dev',$async,$realTimeOutput);
     }
 
     /**
@@ -99,10 +98,10 @@ class ComposerApplication
      *
      * @param string $command
      * @param boolean $async
-     * @param boolean $real_time_output
+     * @param boolean $realTimeOutput
      * @return mixed
      */
-    public static function runCommand($command, $async = false, $real_time_output = false)
+    public static function runCommand($command, $async = false, $realTimeOutput = false)
     {
         $command = "php " . Path::ARIKAIM_BIN_PATH . 'composer.phar ' . $command;
         $env = [
@@ -114,7 +113,7 @@ class ComposerApplication
             if ($async == true) {
                 $process->start();
             } else {
-                if ($real_time_output == true) {
+                if ($realTimeOutput == true) {
                     $process->run(function ($type, $buffer) {                       
                         echo $buffer;                        
                     });
@@ -125,6 +124,7 @@ class ComposerApplication
         } catch(\Exception $e) {
             return false;
         }
+
         return $output;
     }
 }

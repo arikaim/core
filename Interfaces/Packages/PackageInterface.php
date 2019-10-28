@@ -70,4 +70,11 @@ interface PackageInterface
      * @return bool
      */
     public function disable();
+
+    /**
+     * Get package repository
+     *
+     * @return RepositoryInterface
+     */
+    public function getRepository();
 }

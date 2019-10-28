@@ -12,6 +12,7 @@ namespace Arikaim\Core\Packages;
 use Arikaim\Core\Interfaces\Packages\PackageManagerInterface;
 use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Collection\Collection;
+use Arikaim\Core\Arikaim;
 
 /**
  * Package managers base class

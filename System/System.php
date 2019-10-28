@@ -55,6 +55,7 @@ class System
             'os_node'     => $os['nodename'],
             'database'    => Self::getDatabaseInfo()
         ];
+
         return $info;
     }
 
@@ -70,6 +71,7 @@ class System
             set_time_limit($time);
             return true;
         }
+
         return false;
     }
 
@@ -96,30 +98,32 @@ class System
             $version = Utils::formatVersion(Self::getPhpExtensionVersion($item));   
             array_push($data,['name' => $item,'version' => $version]);
         }
+
         return $data;
     }
 
     /**
      * Return php extension version
      *
-     * @param string $php_extension_name
+     * @param string $phpExtensionName
      * @return string
      */
-    public static function getPhpExtensionVersion($php_extension_name)
+    public static function getPhpExtensionVersion($phpExtensionName)
     {
-        $ext = new \ReflectionExtension($php_extension_name);
+        $ext = new \ReflectionExtension($phpExtensionName);
+
         return substr($ext->getVersion(),0,6);
     }
 
     /**
      * Return true if php extension is instaed
      *
-     * @param string $php_extension_name
+     * @param string $phpExtensionName
      * @return boolean
      */
-    public static function hasPhpExtension($php_extension_name) 
+    public static function hasPhpExtension($phpExtensionName) 
     {
-        return extension_loaded($php_extension_name);
+        return extension_loaded($phpExtensionName);
     }
 
     /**
@@ -131,19 +135,18 @@ class System
     {        
         if (Self::hasPhpExtension('PDO') == true) {
             $pdo = Manager::connection()->getPdo();
-            $driver_name = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
-            $server_info = $pdo->getAttribute(\PDO::ATTR_SERVER_INFO); 
+            $driverName = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+            $serverInfo = $pdo->getAttribute(\PDO::ATTR_SERVER_INFO); 
             $version = substr($pdo->getAttribute(\PDO::ATTR_SERVER_VERSION),0,6); 
         } else {
-            $driver_name = "";
-            $server_info = "";
+            $driverName = "";
+            $serverInfo = "";
             $version = "";
-            $name = "";
         }
         
         $info = [
-            'driver'      => $driver_name,
-            'server_info' => $server_info,
+            'driver'      => $driverName,
+            'server_info' => $serverInfo,
             'version'     => $version,
             'name'        => Arikaim::config('db/database')
         ];
@@ -154,13 +157,14 @@ class System
     /**
      * Return true if PDO driver is installed
      *
-     * @param string $driver_name
+     * @param string $driverName
      * @return boolean
      */
-    public static function hasPdoDriver($driver_name)
+    public static function hasPdoDriver($driverName)
     {
         $drivers = Self::getPdoDrivers();
-        return (is_array($drivers) == true) ? in_array($driver_name,$drivers) : false;        
+
+        return (is_array($drivers) == true) ? in_array($driverName,$drivers) : false;        
     }
 
     /**
@@ -185,10 +189,10 @@ class System
         $errors = [];
 
         // php 5.6 or above
-        $php_version = Self::getPhpVersion();
-        $item['message'] = "PHP $php_version";
+        $phpVersion = Self::getPhpVersion();
+        $item['message'] = "PHP $phpVersion";
         $item['status'] = 0; // error   
-        if (version_compare($php_version,'7.1','>=') == true) {               
+        if (version_compare($phpVersion,'7.1','>=') == true) {               
             $item['status'] = 1; // ok                    
         } else {
             array_push($errors,Arikaim::errors()->getError("PHP_VERSION_ERROR"));
@@ -202,10 +206,10 @@ class System
         array_push($info['items'],$item);
 
         // PDO driver
-        $pdo_driver = Arikaim::config('db/driver');
-        $item['message'] = "$pdo_driver PDO driver";
+        $pdoDriver = Arikaim::config('db/driver');
+        $item['message'] = "$pdoDriver PDO driver";
         $item['status'] = 0; // error
-        if (Self::hasPdoDriver($pdo_driver) == true) {
+        if (Self::hasPdoDriver($pdoDriver) == true) {
             $item['status'] = 1; // ok
         } else {
             array_push($errors,Arikaim::errors()->getError("PDO_ERROR"));         
@@ -231,6 +235,7 @@ class System
         array_push($info['items'],$item);
 
         $info['errors'] = $errors;
+        
         return $info;
     }  
 

@@ -15,11 +15,19 @@ namespace Arikaim\Core\Interfaces\Packages;
 interface RepositoryInterface 
 {  
     /**
+     * Get repository url
+     *
+     * @return string
+     */
+    public function getRepositoryUrl();
+  
+    /**
      * Install repository
      *
+     * @param string|null $version
      * @return boolean
      */
-    public function install();
+    public function install($version = null);
 
     /**
      * Get repository type
@@ -27,4 +35,11 @@ interface RepositoryInterface
      * @return string
      */
     public function getType();
+
+    /**
+     * Get package name
+     *
+     * @return string
+     */
+    public function getPackageName();
 }

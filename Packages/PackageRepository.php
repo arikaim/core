@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Packages;
 
 use Arikaim\Core\Interfaces\Packages\RepositoryInterface;
-use Arikaim\Core\Utils\Url;
+use Arikaim\Core\Packages\Drivers\GitHubRepositoryDriver;
 
 /**
  * Package repository base class
@@ -37,7 +37,7 @@ abstract class PackageRepository implements RepositoryInterface
      *
      * @var string
      */
-    protected $url;
+    protected $repositoryUrl;
 
     /**
      * Repository driver
@@ -47,36 +47,31 @@ abstract class PackageRepository implements RepositoryInterface
     protected $driver;
 
     /**
-     * Download package
-     *   
-     * @return bool
-     */
-    abstract public function download();
-
-    /**
-     * Get package last version
+     * Cyrrent package version
      *
-     * @param string $name
-     * @return string|false
+     * @var string
      */
-    abstract public function getLastVersion();
+    protected $currentVersion;
 
     /**
      * Install package
      *
+     * @param string|null $version
      * @return boolean
      */
-    abstract public function install();
+    abstract public function install($version = null);
 
     /**
      * Constructor
      * 
+     * @param string $currentVersion
      * @param string $url  
      */
-    public function __construct($url)
+    public function __construct($repositoryUrl, $currentVersion)
     {
-        $this->url = $url;
-        $this->type = $this->resolveType($url);
+        $this->repositoryUrl = $repositoryUrl;
+        $this->type = $this->resolveRepositoryUrl();
+        $this->driver = $this->createDriver();
     }
 
     /**
@@ -94,9 +89,40 @@ abstract class PackageRepository implements RepositoryInterface
      *
      * @return string
      */
-    public function getUrl()
+    public function getRepositoryUrl()
     {
-        return $this->url;
+        return $this->repositoryUrl;
+    }
+
+    /**
+     * Get package last version
+     *
+     * @return string
+     */
+    public function getLastVersion()
+    {
+        return (is_object($this->driver) == true) ? $this->driver->getLastVersion() : '';
+    }
+
+    /**
+     * Download package
+     *   
+     * @param string|null $version
+     * @return bool
+     */
+    public function download($version = null)
+    {
+        return (is_object($this->driver) == true) ? $this->driver->download($version) : '';
+    }
+
+    /**
+     * Get package name
+     *
+     * @return string
+     */
+    public function getPackageName()
+    {
+        return (is_object($this->driver) == true) ? $this->driver->getPackageName($version) : null;
     }
 
     /**
@@ -104,33 +130,35 @@ abstract class PackageRepository implements RepositoryInterface
      *
      * @return void
      */
-    protected function createDriver()
+    private function createDriver()
     {
         switch ($this->type) {
             case Self::REPOSITORY_TYPE_ARIKAIM:
                 return new ArikaimRepositoryDriver();
-            case Self::REPOSITORY_TYPE_GITHUB:
-                return new GitHubRepositoryDriver();
+            case Self::REPOSITORY_TYPE_GITHUB:           
+                return new GitHubRepositoryDriver($this->repositoryUrl);
         }
 
-        return nulll;
+        return null;
     }
 
     /**
      * Resolve package repository type
-     *
-     * @param string $repository
+     *   
      * @return string|null
      */
-    protected function resolveType($repository)
+    private function resolveRepositoryUrl()
     {
-        if ($repository == 'arikaim') {
+        if (empty($this->repositoryUrl) == true) {
+            return null;
+        }
+        if ($this->repositoryUrl == 'arikaim') {
             return Self::REPOSITORY_TYPE_ARIKAIM;
         }
-        if (substr($repository,0,8) == 'composer') {
+        if (substr($this->repositoryUrl,0,8) == 'composer') {
             return Self::REPOSITORY_TYPE_COMPOSER;
         }
-        $url = parse_url($repository);
+        $url = parse_url($this->repositoryUrl);
 
         if ($url['host'] == 'github.com' || $url['host'] == 'www.github.com') {
             return Self::REPOSITORY_TYPE_GITHUB;

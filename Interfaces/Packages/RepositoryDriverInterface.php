@@ -19,7 +19,7 @@ interface RepositoryDriverInterface
      *
      * @return bool
      */
-    public function download();
+    public function download($version = null);
 
     /**
      * Get package last version

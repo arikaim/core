@@ -21,7 +21,7 @@ class Session
      *
      * @var integer
      */
-    private $default_lifetime = 36000;
+    private $defaultLifetime = 36000;
 
     /**
      * Constructor
@@ -41,14 +41,14 @@ class Session
      */
     public function start($lifetime = null) 
     {
-        $lifetime = ($lifetime == null) ? $this->default_lifetime : $lifetime;          
+        $lifetime = ($lifetime == null) ? $this->defaultLifetime : $lifetime;          
         $this->setLifetime($lifetime);
 
         if ($this->isStarted() == false) {
             session_start();
-            $start_time = $this->getStartTime();
-            $start_time = (empty($start_time) == true) ? time() : $start_time;
-            $this->set('time_start',$start_time);  
+            $startTime = $this->getStartTime();
+            $startTime = (empty($startTime) == true) ? time() : $startTime;
+            $this->set('time_start',$startTime);  
             $this->set('lifetime',$lifetime);          
         }
 
@@ -91,8 +91,8 @@ class Session
         foreach ($session as $key => $value) {
             $this->set($key,$value);
         }
-        
         $this->set('time_start',time());   
+
         return true;
     }
 
@@ -148,6 +148,7 @@ class Session
     public function getId() 
     {
         $id = session_id();
+
         return (empty($id) == true) ? $this->getCookie('PHPSESSID') : $id;      
     }
     
@@ -181,12 +182,12 @@ class Session
      * Return session value or default value if session variable missing
      *
      * @param string $name
-     * @param mixed $default_value
+     * @param mixed $default
      * @return mixed
      */
-    public function get($name, $default_value = null)
+    public function get($name, $default = null)
     {
-        return (isset($_SESSION[$name]) == true) ? $_SESSION[$name] : $default_value;
+        return (isset($_SESSION[$name]) == true) ? $_SESSION[$name] : $default;
     }
     
     /**
@@ -214,12 +215,12 @@ class Session
     /**
      * Destroy session
      * 
-     * @param boolean $destory_cookie
+     * @param boolean $destoryCookie
      * @return void
      */
-    public function destroy($destory_cookie = true)
+    public function destroy($destoryCookie = true)
     {
-        if ($destory_cookie == true) {
+        if ($destoryCookie == true) {
             setcookie(session_id(),"",time() - 3600);
         }       
         session_destroy();

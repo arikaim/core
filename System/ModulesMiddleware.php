@@ -43,6 +43,7 @@ class ModulesMiddleware
                 Arikaim::$app->add($instance);  
             }         
         }
+        
         return true;
     }
 }

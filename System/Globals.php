@@ -41,5 +41,6 @@ function defaultValue($variable, $default)
 function call($value, $closure)
 {
     $closure($value);
+    
     return $value;
 }

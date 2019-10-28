@@ -66,135 +66,135 @@ class Path
     /**
      * Get macro path
      *
-     * @param string $macro_name
-     * @param string $template_name
+     * @param string $macroName
+     * @param string $template
      * @return string
      */
-    public static function getMacroPath($macro_name, $template_name = null)
+    public static function getMacroPath($macroName, $template = null)
     {
-        $template_name = (empty($template_name) == true) ? Template::getTemplateName() : $template_name;          
-        return DIRECTORY_SEPARATOR . $template_name . DIRECTORY_SEPARATOR . "macros" . DIRECTORY_SEPARATOR . $macro_name;
+        $template = (empty($template) == true) ? Template::getTemplateName() : $template;          
+        return DIRECTORY_SEPARATOR . $template . DIRECTORY_SEPARATOR . "macros" . DIRECTORY_SEPARATOR . $macroName;
     }
 
     /**
      * Get system macro path
      *
-     * @param string $macro_name
+     * @param string $macroName
      * @return string
      */
-    public static function getSystemMacroPath($macro_name)
+    public static function getSystemMacroPath($macroName)
     {
-        return Self::getMacroPath($macro_name,Template::SYSTEM_TEMPLATE_NAME);
+        return Self::getMacroPath($macroName,Template::SYSTEM_TEMPLATE_NAME);
     }
 
     /**
      * Get template theme path
      *
-     * @param string $template_name
-     * @param string $theme_name
+     * @param string $template
+     * @param string $theme
      * @return string
      */
-    public static function getTemplateThemePath($template_name, $theme_name = Theme::DEFAULT_THEME_NAME)
+    public static function getTemplateThemePath($template, $theme = Theme::DEFAULT_THEME_NAME)
     {
-        return Self::getTemplateThemesPath($template_name) . DIRECTORY_SEPARATOR . $theme_name;
+        return Self::getTemplateThemesPath($template) . DIRECTORY_SEPARATOR . $theme;
     }
 
     /**
      * Get template themes path
      *
-     * @param string $template_name
+     * @param string $template
      * @return string
      */
-    public static function getTemplateThemesPath($template_name)
+    public static function getTemplateThemesPath($template)
     {
-        return Self::getTemplatePath($template_name) . "themes";
+        return Self::getTemplatePath($template) . "themes";
     }
 
     /**
      * Get library theme path
      *
-     * @param string $library_name
-     * @param string $theme_name
+     * @param string $library
+     * @param string $theme
      * @return string
      */
-    public static function getLibraryThemePath($library_name, $theme_name = Theme::DEFAULT_THEME_NAME)
+    public static function getLibraryThemePath($library, $theme = Theme::DEFAULT_THEME_NAME)
     {
-        return Self::getLibraryThemesPath($library_name) . DIRECTORY_SEPARATOR . $theme_name;
+        return Self::getLibraryThemesPath($library) . DIRECTORY_SEPARATOR . $theme;
     }
 
     /**
      * Get library themes path
      *
-     * @param string $library_name   
+     * @param string $library   
      * @return string
      */
-    public static function getLibraryThemesPath($library_name)
+    public static function getLibraryThemesPath($library)
     {
-        return Self::getLibraryPath($library_name) . DIRECTORY_SEPARATOR . "themes";
+        return Self::getLibraryPath($library) . DIRECTORY_SEPARATOR . "themes";
     }
 
     /**
      * Get components path
      *
-     * @param string $template_name
+     * @param string $template
      * @param string $type
      * @return string
      */
-    public static function getComponentsPath($template_name = null, $type = null)
+    public static function getComponentsPath($template = null, $type = null)
     {
-        return Self::getTemplatePath($template_name,$type) . "components" . DIRECTORY_SEPARATOR; 
+        return Self::getTemplatePath($template,$type) . "components" . DIRECTORY_SEPARATOR; 
     }
 
     /**
      * Get extension macro path
      *
-     * @param string $macro_name
-     * @param string $extension_name
+     * @param string $macroName
+     * @param string $extension
      * @return string
      */
-    public static function getExtensionMacroPath($macro_name, $extension_name)
+    public static function getExtensionMacroPath($macroName, $extension)
     {
-        return Self::getExtensionMacrosRelativePath($extension_name) . $macro_name;       
+        return Self::getExtensionMacrosRelativePath($extension) . $macroName;       
     }
 
     /**
      * Get macros path
      *
-     * @param string|null $template_name
+     * @param string|null $template
      * @param string $type
      * @return string
      */
-    public static function getMacrosPath($template_name = null, $type = null)
+    public static function getMacrosPath($template = null, $type = null)
     {
-        return Self::getTemplatePath($template_name,$type) . "macros" . DIRECTORY_SEPARATOR;
+        return Self::getTemplatePath($template,$type) . "macros" . DIRECTORY_SEPARATOR;
     }
 
     /**
      * Get pages path
      *
-     * @param string $template_name
+     * @param string $template
      * @param string $type
      * @return string
      */
-    public static function getPagesPath($template_name = null, $type = null)
+    public static function getPagesPath($template = null, $type = null)
     {
-        return Self::getTemplatePath($template_name,$type) . "pages" . DIRECTORY_SEPARATOR; 
+        return Self::getTemplatePath($template,$type) . "pages" . DIRECTORY_SEPARATOR; 
     }
 
     /**
      * Get template path
      *
-     * @param string $template_name
+     * @param string $template
      * @param string $type
      * @return string
      */
-    public static function getTemplatePath($template_name = null, $type = null) 
+    public static function getTemplatePath($template = null, $type = null) 
     {   
         switch($type) {
             case Component::EXTENSION_COMPONENT:
-                return Self::getExtensionViewPath($template_name);
+                return Self::getExtensionViewPath($template);
             case Component::TEMPLATE_COMPONENT:
-                return  Self::TEMPLATES_PATH . $template_name . DIRECTORY_SEPARATOR;
+                return  Self::TEMPLATES_PATH . $template . DIRECTORY_SEPARATOR;
             case Component::GLOBAL_COMPONENT:
                 return Path::ARIKAIM_VIEW_PATH . DIRECTORY_SEPARATOR;
         }                     
@@ -203,134 +203,134 @@ class Path
     /**
      * Get library file path
      *
-     * @param string $library_name
-     * @param string $file_name
+     * @param string $library
+     * @param string $fileName
      * @return string
      */
-    public static function getLibraryFilePath($library_name, $file_name) {
-        return Self::getLibraryPath($library_name) . DIRECTORY_SEPARATOR . $file_name;
+    public static function getLibraryFilePath($library, $fileName) {
+        return Self::getLibraryPath($library) . DIRECTORY_SEPARATOR . $fileName;
     }
     
     /**
      * Get library path
      *
-     * @param string $library_name
+     * @param string $library
      * @return string
      */
-    public static function getLibraryPath($library_name)
+    public static function getLibraryPath($library)
     {
-        return Self::LIBRARY_PATH . $library_name;
+        return Self::LIBRARY_PATH . $library;
     }
 
     /**
      * Get extension view path
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return string
      */
-    public static function getExtensionViewPath($extension_name)
+    public static function getExtensionViewPath($extension)
     {
-        return Path::EXTENSIONS_PATH . $extension_name . DIRECTORY_SEPARATOR . "view" . DIRECTORY_SEPARATOR;
+        return Path::EXTENSIONS_PATH . $extension . DIRECTORY_SEPARATOR . "view" . DIRECTORY_SEPARATOR;
     }
 
     /**
      * Get extension jobs path
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return string
      */
-    public static function getExtensionJobsPath($extension_name)   
+    public static function getExtensionJobsPath($extension)   
     {
-        return Path::EXTENSIONS_PATH . $extension_name . DIRECTORY_SEPARATOR . 'jobs' . DIRECTORY_SEPARATOR;
+        return Path::EXTENSIONS_PATH . $extension . DIRECTORY_SEPARATOR . 'jobs' . DIRECTORY_SEPARATOR;
     }
 
     /**
      * Get extension subscribers path.
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return string
      */
-    public static function getExtensionSubscribersPath($extension_name)   
+    public static function getExtensionSubscribersPath($extension)   
     {
-        return Self::EXTENSIONS_PATH . $extension_name . DIRECTORY_SEPARATOR . 'subscribers' . DIRECTORY_SEPARATOR;
+        return Self::EXTENSIONS_PATH . $extension . DIRECTORY_SEPARATOR . 'subscribers' . DIRECTORY_SEPARATOR;
     }
     
     /**
      * Get extension model path
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return string
      */
-    public static function getExtensionModelsPath($extension_name)   
+    public static function getExtensionModelsPath($extension)   
     {
-        return Self::EXTENSIONS_PATH . $extension_name . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR;
+        return Self::EXTENSIONS_PATH . $extension . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR;
     }
 
     /**
      * Get extensions models schema path
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return string
      */
-    public static function getExtensionModelsSchemaPath($extension_name)   
+    public static function getExtensionModelsSchemaPath($extension)   
     {
-        return Self::getExtensionModelsPath($extension_name) . 'schema' . DIRECTORY_SEPARATOR;
+        return Self::getExtensionModelsPath($extension) . 'schema' . DIRECTORY_SEPARATOR;
     }
 
     /**
      * Get extension pages path
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return string
      */
-    public static function getExtensionPagesPath($extension_name)  
+    public static function getExtensionPagesPath($extension)  
     {
-        return Self::getExtensionViewPath($extension_name) . 'pages' . DIRECTORY_SEPARATOR;
+        return Self::getExtensionViewPath($extension) . 'pages' . DIRECTORY_SEPARATOR;
     }
 
     /**
      * Get extension macros path
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return string
      */
-    public static function getExtensionMacrosPath($extension_name)
+    public static function getExtensionMacrosPath($extension)
     {
-        return Path::getExtensionViewPath($extension_name) . "macros" . DIRECTORY_SEPARATOR;
+        return Path::getExtensionViewPath($extension) . "macros" . DIRECTORY_SEPARATOR;
     }
 
     /**
      * Get extension macros relative path
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return string
      */
-    public static function getExtensionMacrosRelativePath($extension_name)
+    public static function getExtensionMacrosRelativePath($extension)
     {
-        return $extension_name . DIRECTORY_SEPARATOR . "view" . DIRECTORY_SEPARATOR . "macros" . DIRECTORY_SEPARATOR;
+        return $extension . DIRECTORY_SEPARATOR . "view" . DIRECTORY_SEPARATOR . "macros" . DIRECTORY_SEPARATOR;
     }
 
     /**
      * Get extension components path
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return string
      */
-    public static function getExtensionComponentsPath($extension_name)  
+    public static function getExtensionComponentsPath($extension)  
     {
-        return Path::getExtensionViewPath($extension_name) . 'components' . DIRECTORY_SEPARATOR;
+        return Path::getExtensionViewPath($extension) . 'components' . DIRECTORY_SEPARATOR;
     }
 
     /**
      * Get extension component path
      *
-     * @param string $extension_name
-     * @param string $component_name
+     * @param string $extension
+     * @param string $componentName
      * @return string
      */
-    public static function getExtensionComponentPath($extension_name, $component_name)  
+    public static function getExtensionComponentPath($extension, $componentName)  
     {
-        return Self::getExtensionComponentsPath($extension_name) . $component_name;
+        return Self::getExtensionComponentsPath($extension) . $componentName;
     }
 
     /**
@@ -344,9 +344,9 @@ class Path
         if (empty($path) == true) {
             return false;
         }       
-        $parent_path = dirname($path);
+        $parentPath = dirname($path);
 
-        return ($parent_path == "." || empty($path) == true) ? false : $parent_path;          
+        return ($parentPath == "." || empty($path) == true) ? false : $parentPath;          
     }
 
     /**

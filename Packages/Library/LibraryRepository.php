@@ -21,26 +21,27 @@ use Arikaim\Core\System\Path;
 */
 class LibraryRepository extends PackageRepository
 {
-
-    public function __construct($repository)
+    /**
+     * Constructor
+     *
+     * @param string $repositoryUrl
+     * @param string $currentVersion
+     */
+    public function __construct($repositoryUrl, $currentVersion)
     {
-        parent::__construct($repository);
+        parent::__construct($repositoryUrl,$currentVersion);
     }
     
-    public function download()
+    /**
+     * Install package
+     *
+     * @param string|null $version
+     * @return void
+     */
+    public function install($version = null)
     {
-      //  $license_key = (emty($license_key) == true) ? "" : $license_key;
-      //  $url = Url::REPOSITORY_URL . '/download/library/' . $name . "/$license_key";
-    }
+        $this->download();
 
-    public function getLastVersion()
-    {
-       // $url = Url::REPOSITORY_URL . '/library/' . $name;
-       
-    }
-
-    public function install()
-    {
        // if (ZipFile::isValid($file_name) == false) {
     
        // }

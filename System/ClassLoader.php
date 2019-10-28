@@ -19,28 +19,28 @@ class ClassLoader
      *
      * @var string
      */
-    private $root_path;
+    private $rootPath;
 
     /**
      * Base path
      *
      * @var string
      */
-    private $base_path;
+    private $basePath;
 
     /**
      * Arikaim core path
      *
      * @var string
      */
-    private $core_path;
+    private $corePath;
 
     /**
      * Arikaim extensions path.
      *
      * @var string
      */
-    private $extensions_path;
+    private $extensionsPath;
 
     /**
      * Namepaces
@@ -52,17 +52,17 @@ class ClassLoader
     /**
      * Constructor
      *
-     * @param string $base_path
-     * @param string $root_path
-     * @param string $core_path
-     * @param string $extensions_path
+     * @param string $basePath
+     * @param string $rootPath
+     * @param string $corePath
+     * @param string $extensionsPath
      */
-    public function __construct($base_path, $root_path = null, $core_path = null, $extensions_path = null) 
+    public function __construct($basePath, $rootPath = null, $corePath = null, $extensionsPath = null) 
     {   
-        $this->root_path = $root_path;
-        $this->core_path = $core_path;
-        $this->extensions_path = $extensions_path;
-        $this->base_path = $base_path;
+        $this->rootPath = $rootPath;
+        $this->corePath = $corePath;
+        $this->extensionsPath = $extensionsPath;
+        $this->basePath = $basePath;
     }
     
     /**
@@ -72,7 +72,7 @@ class ClassLoader
      */
     public function register() 
     {
-        spl_autoload_register(array($this, 'LoadClassFile'));
+        spl_autoload_register(array($this,'LoadClassFile'));
     }
 
     /**
@@ -88,6 +88,7 @@ class ClassLoader
             require $file;
             return true;
         }
+
         return false;
     }
 
@@ -98,8 +99,8 @@ class ClassLoader
      */
     public function getDocumentRoot()
     {
-        if ($this->root_path != null) {
-            return $this->root_path;
+        if ($this->rootPath != null) {
+            return $this->rootPath;
         }
         return (php_sapi_name() == "cli") ? __DIR__ : $_SERVER['DOCUMENT_ROOT'];         
     }
@@ -112,53 +113,54 @@ class ClassLoader
      */
     public function getClassFileName($class) 
     {   
-        $path = $this->getDocumentRoot() . $this->base_path;
-        $class_name = class_basename($class);
+        $path = $this->getDocumentRoot() . $this->basePath;     
         $namespace = $this->getNamespace($class);
-        $namespace = $this->namespaceToPath($namespace);   
-        return $path . DIRECTORY_SEPARATOR .  $namespace . DIRECTORY_SEPARATOR . $class_name . ".php";       
+        $class = class_basename($class);
+        $namespace = $this->namespaceToPath($namespace); 
+
+        return $path . DIRECTORY_SEPARATOR .  $namespace . DIRECTORY_SEPARATOR . $class . ".php";       
     }
 
     /**
      * Get namspace
      *
-     * @param string $full_class_name
+     * @param string $class
      * @return string
      */
-    public function getNamespace($full_class_name) 
-    {    
-        $rpos = strrpos($full_class_name,"\\");       
-        return substr($full_class_name,0,$rpos);       
+    public function getNamespace($class) 
+    {           
+        return substr($class,0,strrpos($class,"\\"));       
     } 
     
     /**
      * Convert namespace to path
      *
      * @param string $namespace
-     * @param boolean $full_path
+     * @param boolean $full
      * @return string
      */
-    public function namespaceToPath($namespace, $full_path = false) 
+    public function namespaceToPath($namespace, $full = false) 
     {  
         $namespace = str_replace("\\",DIRECTORY_SEPARATOR,$namespace);
         
         if ($this->isExtensionsNamespace($namespace) == true) {
             $namespace = strtolower($namespace);
         } else {
-            $namespace = str_replace($this->core_path,strtolower($this->core_path),$namespace);
+            $namespace = str_replace($this->corePath,strtolower($this->corePath),$namespace);
         }
 
-        if ($full_path == true) {
-            $path = $this->getDocumentRoot() . $this->base_path;
+        if ($full == true) {
+            $path = $this->getDocumentRoot() . $this->basePath;
             $namespace = $path . DIRECTORY_SEPARATOR .  $namespace;
         }
+       
         return $namespace;   
     } 
 
     /**
      * Return true if namespace is extension namespace
      *
-     * @param [type] $namespace
+     * @param string $namespace
      * @return boolean
      */
     private function isExtensionsNamespace($namespace)
@@ -169,19 +171,20 @@ class ClassLoader
                 return true;
             }
         }        
+
         return false;
     }
 
     /**
      *  Load class alias
      *
-     * @param string $class_name
+     * @param string $class
      * @param string $alias
      * @return bool
      */
-    public function loadClassAlias($class_name,$alias)
+    public function loadClassAlias($class, $alias)
     {
-        return (class_exists($class_name) == true) ? class_alias($class_name,$alias) : false;                
+        return (class_exists($class) == true) ? class_alias($class,$alias) : false;                
     }
 
     /**
@@ -192,12 +195,13 @@ class ClassLoader
      */
     public function loadAlliases(array $items)
     {                
-        foreach ($items as $class_name => $alias) {      
-            if ($this->loadClassAlias($class_name,$alias) == false) { 
-                throw new \Exception("Error load class alias for class ($class_name) alias ($alias)", 1);      
+        foreach ($items as $class => $alias) {      
+            if ($this->loadClassAlias($class,$alias) == false) { 
+                throw new \Exception("Error load class alias for class ($class) alias ($alias)", 1);      
                 return false;
             }
         }
+        
         return true;
     }
 }

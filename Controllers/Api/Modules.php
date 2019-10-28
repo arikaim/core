@@ -12,7 +12,6 @@ namespace Arikaim\Core\Controllers\Api;
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Packages\Module\ModulesManager;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\Arikaim;
 
 /**
  * Modules controller
@@ -39,6 +38,8 @@ class Modules extends ApiController
      */
     public function saveConfigController($request, $response, $data)
     {
+        $this->requireControlPanelPermission();
+
         $this->onDataValid(function($data) {            
             $module = Model::Modules()->FindByColumn('name',$data['name']);
             $module->config = $data->toArray();

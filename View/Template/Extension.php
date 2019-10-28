@@ -100,7 +100,7 @@ class Extension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('hasExtension', [$template_function, 'hasExtension']),
             new TwigFunction('getFileType', [$template_function, 'getFileType']),
             new TwigFunction('execute', [$template_function, 'executeMethod']),         
-            new TwigFunction('package', [$template_function, 'packageManager']),       
+            new TwigFunction('package', ['Arikaim\\Core\\Packages\\PackageManagerFactory', 'create']),       
             new TwigFunction('service', [$template_function, 'service']),        
             new TwigFunction('getCurrentLanguage', [$template_function, 'getCurrentLanguage']),
             new TwigFunction('getLanguage', ["\\Arikaim\\Core\\View\\Template\\Template","getLanguage"]),
@@ -117,7 +117,6 @@ class Extension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('getCurrentTheme', ["\\Arikaim\\Core\\View\\Theme", 'getCurrentTheme']),
             new TwigFunction('getLibraryFiles', ["\\Arikaim\\Core\\View\\Template\\Template", 'getLibraryFiles']),
             new TwigFunction('currentFramework', ["\\Arikaim\\Core\\View\\Template\\Template", 'getCurrentFramework']),
-
             new TwigFunction('loadLibraryFile', [$template_function, 'loadLibraryFile']),     
             new TwigFunction('loadComponentCssFile', [$template_function, 'loadComponentCssFile']),             
             // date and time
@@ -132,6 +131,7 @@ class Extension extends AbstractExtension implements GlobalsInterface
         ];
 
         Arikaim::cache()->save('twig.functions',$items,10);
+
         return $items;
     }
 
@@ -195,7 +195,8 @@ class Extension extends AbstractExtension implements GlobalsInterface
             new TwigTest('haveSubItems', ["\\Arikaim\\Core\\Utils\\Arrays", 'haveSubItems']),
             new TwigTest('object', ["\\Arikaim\\Core\\View\\Template\\Tests", 'isObject']),
             new TwigTest('string', ["\\Arikaim\\Core\\View\\Template\\Tests", 'isString']),
-            new TwigTest('access', ["\\Arikaim\\Core\\View\\Template\\Tests", 'hasAccess'])
+            new TwigTest('access', ["\\Arikaim\\Core\\View\\Template\\Tests", 'hasAccess']),
+            new TwigTest('versionCompare', ["\\Arikaim\\Core\\View\\Template\\Tests", 'versionCompare'])
         ];
         Arikaim::cache()->save('twig.tests',$items,10);
         return $items;
