@@ -29,8 +29,8 @@ class LibraryPackage extends Package
     {
         parent::__construct($properties);
         // create repository
-        $repositoryUrl = $this->properties->get('repository',null);
-        $this->repository = new LibraryRepository($repositoryUrl,$this->getVersion());
+        $repositoryUrl = $properties->get('repository',null);
+        $this->repository = new LibraryRepository($repositoryUrl);
     }
 
     /**

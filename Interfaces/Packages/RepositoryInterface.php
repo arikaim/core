@@ -42,4 +42,11 @@ interface RepositoryInterface
      * @return string
      */
     public function getPackageName();
+
+    /**
+     * Get repository driver
+     *
+     * @return RepositoryDriverInterface
+     */
+    public function getRepositoryDriver();    
 }

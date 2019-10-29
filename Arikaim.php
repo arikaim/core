@@ -9,11 +9,7 @@
  */
 namespace Arikaim\Core;
 
-use Http\Factory\Guzzle\StreamFactory;
 use Slim\Factory\AppFactory;
-use Slim\Middleware\ContentLengthMiddleware;
-use Slim\Middleware\OutputBufferingMiddleware;
-use Slim\Middleware\BodyParsingMiddleware;
 
 use Arikaim\Container\Container;
 use Arikaim\Core\Validator\ValidatorStrategy;
@@ -22,7 +18,7 @@ use Arikaim\Core\System\ServiceContainer;
 use Arikaim\Core\System\Routes;
 use Arikaim\Core\Interfaces\Collection\CollectionInterface;
 use Arikaim\Core\System\Path;
-use Arikaim\Core\System\ModulesMiddleware;
+use Arikaim\Core\Middleware\MiddlewareManager;
 
 /**
  * Arikaim core class
@@ -55,14 +51,14 @@ class Arikaim
      *
      * @var string
      */
-    private static $base_path;
+    private static $basePath;
 
     /**
      * Start time
      *
      * @var integer
      */
-    private static $start_time;
+    private static $startTime;
 
     /**
      * Get container service
@@ -84,20 +80,15 @@ class Arikaim
         if (isset($arguments[0]) == true) {
             $key = $arguments[0];
             if (is_array($service) == true) {
-                if (isset($service[$name]) == true) {
-                    $result = Arrays::getValue($service[$name],$key);
-                } else {
-                    $result = Arrays::getValue($service,$key);
-                } 
-                return $result;               
+                return (isset($service[$name]) == true) ? Arrays::getValue($service[$name],$key) : Arrays::getValue($service,$key);                            
             }            
             if (is_object($service) == true) {
                 if ($service instanceof CollectionInterface) {
-                    $result = Arrays::getValue($service->toArray(),$key);
-                    return $result;
+                    return Arrays::getValue($service->toArray(),$key);                  
                 }
             }            
         }
+
         return $service;
     }
     
@@ -125,13 +116,13 @@ class Arikaim
     /**
      * Create Arikaim system. Create container services, load system routes 
      * 
-     * @param boolean $load_routes - load routes 
+     * @param boolean $loadRoutes - load routes 
      * @return void
     */
-    public static function init($load_routes = true) 
+    public static function init($loadRoutes = true) 
     {        
         // set start time
-        Self::$start_time = microtime(true);
+        Self::$startTime = microtime(true);
 
         ini_set('display_errors',1);
         ini_set('display_startup_errors',1);
@@ -162,18 +153,9 @@ class Arikaim
         // create app 
         Self::$app = AppFactory::create();
         Self::$app->setBasePath(ARIKAIM_BASE_PATH);
-        // add default middleware
-        Self::$app->addRoutingMiddleware();
-        Self::$app->add(new ContentLengthMiddleware());
-        Self::$app->add(new BodyParsingMiddleware());
-        $error_middleware = Self::$app->addErrorMiddleware(true, true, true);
-        $error_middleware->setDefaultErrorHandler(new \Arikaim\Core\System\Error\ApplicationError());
 
-        Self::$app->add(new OutputBufferingMiddleware(new StreamFactory(),OutputBufferingMiddleware::APPEND));
-        // sanitize request body and client ip
-        Self::$app->add(new \Arikaim\Core\Middleware\CoreMiddleware());        
-        // add modules middlewares 
-        ModulesMiddleware::add();
+        // add default middleware
+        MiddlewareManager::init();
 
         // set router 
         Self::$app->getRouteCollector()->setDefaultInvocationStrategy(new ValidatorStrategy());
@@ -183,7 +165,7 @@ class Arikaim
         $aliases = Arikaim::config()->load('aliases.php');                   
         $loader->loadAlliases($aliases);
     
-        if ($load_routes == true) {
+        if ($loadRoutes == true) {
             // map routes                       
             Routes::mapSystemRoutes();    
             Routes::mapRoutes();          
@@ -235,14 +217,14 @@ class Arikaim
     /**
      * Return error message
      *
-     * @param string $error_code Error code
+     * @param string $errorCode Error code
      * @param array $params Erorr params
      * @param string|null $default
      * @return string
     */
-    public static function getError($error_code,array $params = [], $default = 'UNKNOWN_ERROR') 
+    public static function getError($errorCode, array $params = [], $default = 'UNKNOWN_ERROR') 
     {
-        return Self::errors()->getError($error_code,$params, $default);
+        return Self::errors()->getError($errorCode,$params, $default);
     }
 
     /**
@@ -287,12 +269,11 @@ class Arikaim
     public static function getBasePath() 
     {        
         if (Self::isConsole() == false) {
-            $path = rtrim(str_ireplace('index.php','',Self::$base_path), DIRECTORY_SEPARATOR);
-            $path = ($path == "/") ? "" : $path;               
-        } else {
-            $path = Self::getConsoleBasePath();
-        }
-        return $path;
+            $path = rtrim(str_ireplace('index.php','',Self::$basePath), DIRECTORY_SEPARATOR);
+            return ($path == "/") ? "" : $path;               
+        } 
+        
+        return Self::getConsoleBasePath();
     }
 
     /**
@@ -322,7 +303,7 @@ class Arikaim
      */
     public static function getExecutionTime() 
     {
-        return (microtime(true) - Self::$start_time);
+        return (microtime(true) - Self::$startTime);
     }
 
     /**
@@ -335,25 +316,28 @@ class Arikaim
     public static function resolveEnvironment(array $env)
     {
         // scheme
-        $is_secure = (isset($env['HTTPS']) == true) ? $env['HTTPS'] : null;
-        Self::$scheme = (empty($is_secure) || $is_secure === 'off') ? 'http' : 'https';
+        $secure = (isset($env['HTTPS']) == true) ? $env['HTTPS'] : null;
+        Self::$scheme = (empty($secure) || $secure === 'off') ? 'http' : 'https';
+
         // host
-        $server_name = (isset($env['SERVER_NAME']) == true) ? $env['SERVER_NAME'] : '';            
-        $host = (isset($env['HTTP_HOST']) == true) ? $env['HTTP_HOST'] : $server_name;         
-        if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $host, $matches) == false) {           
+        $serverName = (isset($env['SERVER_NAME']) == true) ? $env['SERVER_NAME'] : '';            
+        $host = (isset($env['HTTP_HOST']) == true) ? $env['HTTP_HOST'] : $serverName;   
+
+        if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/',$host,$matches) == false) {           
             $host = (strpos($host,':') !== false) ? strstr($host,':', true) : $host;                             
         } 
         Self::$host = $host;
+
         // path
-        $script_name = (string)parse_url($env['SCRIPT_NAME'], PHP_URL_PATH);
-        $script_dir = dirname($script_name);      
-        $request_uri = (isset($env['REQUEST_URI']) == true) ? $env['REQUEST_URI'] : '';  
-        $request_uri = (string)parse_url('http://example.com' . $request_uri, PHP_URL_PATH);
+        $scriptName = (string)parse_url($env['SCRIPT_NAME'],PHP_URL_PATH);
+        $scriptDir = dirname($scriptName);      
+        $uri = (isset($env['REQUEST_URI']) == true) ? $env['REQUEST_URI'] : '';  
+        $uri = (string)parse_url(Self::getDomain() . $uri,PHP_URL_PATH);
         
-        if (stripos($request_uri, $script_name) === 0) {
-            Self::$base_path = $script_name;
-        } elseif ($script_dir !== '/' && stripos($request_uri, $script_dir) === 0) {
-            Self::$base_path = $script_dir;
+        if (stripos($uri,$scriptName) === 0) {
+            Self::$basePath = $scriptName;
+        } elseif ($scriptDir !== '/' && stripos($uri, $scriptDir) === 0) {
+            Self::$basePath = $scriptDir;
         }       
     }
 }

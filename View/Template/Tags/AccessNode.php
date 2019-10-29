@@ -12,10 +12,7 @@ namespace Arikaim\Core\View\Template\Tags;
 use Twig\Compiler;
 use Twig\Node\Node;
 use Twig\Node\NodeOutputInterface;
-use Twig\Node\Expression\AbstractExpression;
-use Twig\Node\SetNode;
 
-use Arikaim\Core\View\Html\HtmlComponent;
 use Arikaim\Core\Arikaim;
 
 /**
@@ -45,8 +42,6 @@ class AccessNode extends Node implements NodeOutputInterface
     public function compile(Compiler $compiler)
     {
         $compiler->addDebugInfo($this);    
-        $count = count($this->getNode('body'));
-        
         $permission = $this->getAttribute('permission');
         if (Arikaim::access()->hasAccess($permission) == false) {
             $compiler->raw("echo \\Arikaim\\Core\\View\\Html\\HtmlComponent::getErrorMessage('Access denied! Permission required <b>$permission</b>');" . PHP_EOL);        

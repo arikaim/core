@@ -21,7 +21,7 @@ trait DefaultTrait
      */
     public function getDefaultAttribute()
     {       
-        return ($this->attributes['default']) == 1);
+        return ($this->attributes['default'] == 1);
     }
 
     /**

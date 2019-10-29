@@ -41,11 +41,14 @@ class Packages extends ApiController
 
         $this->onDataValid(function($data) {            
             $type = $data->get('type',null);
-            $name = $data->get('name',null);
+            $name = $data->get('package',null);
 
             $packageManager = PackageManagerFactory::create($type);
             $package = $packageManager->createPackage($name);
-            $result = $package->install();
+
+            $result = (is_object($package) == true) ? $package->getRepository()->install() : false;
+
+            exit();
 
             $this->setResponse($result,'packages.install','errors.packages.install');
         });

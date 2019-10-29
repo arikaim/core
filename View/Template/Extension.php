@@ -37,16 +37,16 @@ class Extension extends AbstractExtension implements GlobalsInterface
      */
     public function getGlobals() 
     {
-        $template_name = Template::getTemplateName();
-        $template_url = Url::getTemplateUrl($template_name);
-        $system_template_url = Url::getTemplateUrl(Template::SYSTEM_TEMPLATE_NAME);
+        $templateName = Template::getTemplateName();
+        $templateUrl = Url::getTemplateUrl($templateName);
+        $systemTemplateUrl = Url::getTemplateUrl(Template::SYSTEM_TEMPLATE_NAME);
         return [
             'base_path'             => ARIKAIM_BASE_PATH,
             'base_url'              => Url::ARIKAIM_BASE_URL,
-            'template_url'          => $template_url,
-            'current_template_name' => $template_name,
+            'template_url'          => $templateUrl,
+            'current_template_name' => $templateName,
             'ui_path'               => ARIKAIM_BASE_PATH . Path::ARIKAIM_VIEW_PATH,
-            'system_template_url'   => $system_template_url,
+            'system_template_url'   => $systemTemplateUrl,
             'system_template_name'  => Template::SYSTEM_TEMPLATE_NAME,
             'ui_library_path'       => Path::LIBRARY_PATH,
             'ui_library_url'        => Url::LIBRARY_URL      
@@ -65,71 +65,70 @@ class Extension extends AbstractExtension implements GlobalsInterface
             return $items;
         }
 
-        $template_function = new TemplateFunction();
+        $templateFunction = new TemplateFunction();
         $date = new DateTime();
         $errors = Arikaim::errors();
         $mobile = new Mobile();
         $items = [
             // html components
-            new TwigFunction('component', ["\\Arikaim\\Core\\View\\Html\\HtmlComponent", 'load'], ['needs_environment' => true,'is_safe' => ['html']]),
-            new TwigFunction('componentProperties', ["\\Arikaim\\Core\\View\\Html\\HtmlComponent", 'getProperties']),
-            new TwigFunction('componentOptions', [$template_function, 'getComponentOptions']),
+            new TwigFunction('component',["\\Arikaim\\Core\\View\\Html\\HtmlComponent",'load'], ['needs_environment' => true,'is_safe' => ['html']]),
+            new TwigFunction('componentProperties',["\\Arikaim\\Core\\View\\Html\\HtmlComponent",'getProperties']),
+            new TwigFunction('componentOptions',[$templateFunction,'getComponentOptions']),
             // page
-            new TwigFunction('getPageFiles', ["\\Arikaim\\Core\\View\\Html\\Page", 'getPageFiles']),
-            new TwigFunction('getComponentsFiles', ["\\Arikaim\\Core\\View\\Html\\Page", 'getComponentsFiles']),          
-            new TwigFunction('url', ["\\Arikaim\\Core\\View\\Html\\Page", 'getUrl']),        
-            new TwigFunction('currentUrl', ["\\Arikaim\\Core\\View\\Html\\Page", 'getCurrentUrl']),
-            new TwigFunction('isMobile', [$mobile, 'isMobile']),
+            new TwigFunction('getPageFiles',["\\Arikaim\\Core\\View\\Html\\Page",'getPageFiles']),
+            new TwigFunction('getComponentsFiles',["\\Arikaim\\Core\\View\\Html\\Page",'getComponentsFiles']),          
+            new TwigFunction('url',["\\Arikaim\\Core\\View\\Html\\Page", 'getUrl']),        
+            new TwigFunction('currentUrl',["\\Arikaim\\Core\\View\\Html\\Page",'getCurrentUrl']),
+            new TwigFunction('isMobile',[$mobile,'isMobile']),
             // paginator
-            new TwigFunction('paginate', ['Arikaim\\Core\\Paginator\\SessionPaginator','create']),
+            new TwigFunction('paginate',['Arikaim\\Core\\Paginator\\SessionPaginator','create']),
             new TwigFunction('clearPaginator',['Arikaim\\Core\\Paginator\\SessionPaginator','clearPaginator']),            
-            new TwigFunction('getPaginator', ['Arikaim\\Core\\Paginator\\SessionPaginator','getPaginator']),
-            new TwigFunction('getRowsPerPage', ['Arikaim\\Core\\Paginator\\SessionPaginator','getRowsPerPage']),
-            new TwigFunction('getViewType', ['Arikaim\\Core\\Paginator\\SessionPaginator','getViewType']),
+            new TwigFunction('getPaginator',['Arikaim\\Core\\Paginator\\SessionPaginator','getPaginator']),
+            new TwigFunction('getRowsPerPage',['Arikaim\\Core\\Paginator\\SessionPaginator','getRowsPerPage']),
+            new TwigFunction('getViewType',['Arikaim\\Core\\Paginator\\SessionPaginator','getViewType']),
             // database            
-            new TwigFunction('applySearch', ['Arikaim\\Core\\Db\\Search','apply']),
-            new TwigFunction('createSearch', ['Arikaim\\Core\\Db\\Search','setSearchCondition']),
-            new TwigFunction('searchValue', ['Arikaim\\Core\\Db\\Search','getSearchValue']),
-            new TwigFunction('getSearch', ['Arikaim\\Core\\Db\\Search','getSearch']),
-            new TwigFunction('getOrderBy', ['Arikaim\\Core\\Db\\OrderBy','getOrderBy']),
-            new TwigFunction('applyOrderBy', ['Arikaim\\Core\\Db\\OrderBy','apply']),
-            new TwigFunction('createModel', ['Arikaim\\Core\\Db\\Model','create']),
-            new TwigFunction('showSql', ['Arikaim\\Core\\Db\\Model','getSql']),
+            new TwigFunction('applySearch',['Arikaim\\Core\\Db\\Search','apply']),
+            new TwigFunction('createSearch',['Arikaim\\Core\\Db\\Search','setSearchCondition']),
+            new TwigFunction('searchValue',['Arikaim\\Core\\Db\\Search','getSearchValue']),
+            new TwigFunction('getSearch',['Arikaim\\Core\\Db\\Search','getSearch']),
+            new TwigFunction('getOrderBy',['Arikaim\\Core\\Db\\OrderBy','getOrderBy']),
+            new TwigFunction('applyOrderBy',['Arikaim\\Core\\Db\\OrderBy','apply']),
+            new TwigFunction('createModel',['Arikaim\\Core\\Db\\Model','create']),
+            new TwigFunction('showSql',['Arikaim\\Core\\Db\\Model','getSql']),
             // other
-            new TwigFunction('getConstant', ["Arikaim\\Core\\Db\\Model",'getConstant']),
-            new TwigFunction('hasExtension', [$template_function, 'hasExtension']),
-            new TwigFunction('getFileType', [$template_function, 'getFileType']),
-            new TwigFunction('execute', [$template_function, 'executeMethod']),         
-            new TwigFunction('package', ['Arikaim\\Core\\Packages\\PackageManagerFactory', 'create']),       
-            new TwigFunction('service', [$template_function, 'service']),        
-            new TwigFunction('getCurrentLanguage', [$template_function, 'getCurrentLanguage']),
-            new TwigFunction('getLanguage', ["\\Arikaim\\Core\\View\\Template\\Template","getLanguage"]),
-            new TwigFunction('getOption', [$template_function, 'getOption']),
-            new TwigFunction('getOptions', [$template_function, 'getOptions']),
-            new TwigFunction('csrfToken', [$template_function, 'csrfToken']),
-            new TwigFunction('getErrors', [$errors, 'getErrors']),
-            new TwigFunction('getConfig', ["\\Arikaim\\Core\\System\\System","getConfig"]),          
-            new TwigFunction('fetch', ["\\Arikaim\\Core\\System\\Url", 'fetch']),
-            new TwigFunction('extractArray', [$template_function, 'extractArray'],['needs_context' => true]),
+            new TwigFunction('getConstant',["Arikaim\\Core\\Db\\Model",'getConstant']),
+            new TwigFunction('hasExtension',[$templateFunction,'hasExtension']),
+            new TwigFunction('getFileType',[$templateFunction,'getFileType']),         
+            new TwigFunction('system',[$templateFunction,'system']),          
+            new TwigFunction('package',['Arikaim\\Core\\Packages\\PackageManagerFactory','create']),       
+            new TwigFunction('service',[$templateFunction,'service']),        
+            new TwigFunction('getCurrentLanguage',[$templateFunction,'getCurrentLanguage']),
+            new TwigFunction('getLanguage',["\\Arikaim\\Core\\View\\Template\\Template","getLanguage"]),
+            new TwigFunction('getOption',[$templateFunction,'getOption']),
+            new TwigFunction('getOptions',[$templateFunction,'getOptions']),
+            new TwigFunction('csrfToken',[$templateFunction,'csrfToken']),
+            new TwigFunction('getErrors',[$errors,'getErrors']),
+            new TwigFunction('getConfig',["\\Arikaim\\Core\\System\\System","getConfig"]),          
+            new TwigFunction('fetch',["\\Arikaim\\Core\\System\\Url",'fetch']),
+            new TwigFunction('extractArray',[$templateFunction,'extractArray'],['needs_context' => true]),
             // template
-            new TwigFunction('getTemplateFiles', ["\\Arikaim\\Core\\View\\Template\\Template", 'getTemplateFiles']),
-            new TwigFunction('getThemeFiles', ["\\Arikaim\\Core\\View\\Template\\Template", 'getThemeFiles']),
-            new TwigFunction('getCurrentTheme', ["\\Arikaim\\Core\\View\\Theme", 'getCurrentTheme']),
-            new TwigFunction('getLibraryFiles', ["\\Arikaim\\Core\\View\\Template\\Template", 'getLibraryFiles']),
-            new TwigFunction('currentFramework', ["\\Arikaim\\Core\\View\\Template\\Template", 'getCurrentFramework']),
-            new TwigFunction('loadLibraryFile', [$template_function, 'loadLibraryFile']),     
-            new TwigFunction('loadComponentCssFile', [$template_function, 'loadComponentCssFile']),             
+            new TwigFunction('getTemplateFiles',["\\Arikaim\\Core\\View\\Template\\Template",'getTemplateFiles']),
+            new TwigFunction('getThemeFiles',["\\Arikaim\\Core\\View\\Template\\Template",'getThemeFiles']),
+            new TwigFunction('getCurrentTheme',["\\Arikaim\\Core\\View\\Theme",'getCurrentTheme']),
+            new TwigFunction('getLibraryFiles',["\\Arikaim\\Core\\View\\Template\\Template",'getLibraryFiles']),
+            new TwigFunction('currentFramework',["\\Arikaim\\Core\\View\\Template\\Template",'getCurrentFramework']),
+            new TwigFunction('loadLibraryFile',[$templateFunction,'loadLibraryFile']),     
+            new TwigFunction('loadComponentCssFile',[$templateFunction,'loadComponentCssFile']),             
             // date and time
-            new TwigFunction('getTimeZonesList', [$date, 'getTimeZonesList']),
-            new TwigFunction('timeInterval', [$date, 'getInterval']),
-            new TwigFunction('currentYear', [$template_function, 'currentYear']),
-            new TwigFunction('today', ["\\Arikaim\\Core\\Utils\\DateTime", 'getCurrentTime']),
+            new TwigFunction('getTimeZonesList',[$date,'getTimeZonesList']),
+            new TwigFunction('timeInterval',[$date,'getInterval']),
+            new TwigFunction('currentYear',[$templateFunction,'currentYear']),
+            new TwigFunction('today',["\\Arikaim\\Core\\Utils\\DateTime",'getCurrentTime']),
             // macros
-            new TwigFunction('macro', ["\\Arikaim\\Core\\System\\Path","getMacroPath"]),
-            new TwigFunction('extensionMacro', ["\\Arikaim\\Core\\System\\Path","getExtensionMacroPath"]),
-            new TwigFunction('systemMacro', ["\\Arikaim\\Core\\System\\Path","getSystemMacroPath"])
+            new TwigFunction('macro',["\\Arikaim\\Core\\System\\Path","getMacroPath"]),
+            new TwigFunction('extensionMacro',["\\Arikaim\\Core\\System\\Path","getExtensionMacroPath"]),
+            new TwigFunction('systemMacro',["\\Arikaim\\Core\\System\\Path","getSystemMacroPath"])
         ];
-
         Arikaim::cache()->save('twig.functions',$items,10);
 
         return $items;
@@ -148,34 +147,35 @@ class Extension extends AbstractExtension implements GlobalsInterface
         }
         $items = [          
             // Html
-            new TwigFilter('attr', ["\\Arikaim\\Core\\View\\Template\\Filters", 'attr'],['is_safe' => ['html']]),
-            new TwigFilter('tag', ["\\Arikaim\\Core\\Utils\\Html", 'htmlTag'],['is_safe' => ['html']]),
-            new TwigFilter('singleTag', ["\\Arikaim\\Core\\Utils\\Html", 'htmlSingleTag'],['is_safe' => ['html']]),
-            new TwigFilter('startTag', ["\\Arikaim\\Core\\Utils\\Html", 'htmlStartTag'],['is_safe' => ['html']]),
-            new TwigFilter('getAttr', ["\\Arikaim\\Core\\Utils\\Html", 'getAttributes'],['is_safe' => ['html']]),
-            new TwigFilter('decode', ["\\Arikaim\\Core\\Utils\\Html", 'specialcharsDecode'],['is_safe' => ['html']]),
+            new TwigFilter('attr',["\\Arikaim\\Core\\View\\Template\\Filters",'attr'],['is_safe' => ['html']]),
+            new TwigFilter('tag',["\\Arikaim\\Core\\Utils\\Html",'htmlTag'],['is_safe' => ['html']]),
+            new TwigFilter('singleTag',["\\Arikaim\\Core\\Utils\\Html",'htmlSingleTag'],['is_safe' => ['html']]),
+            new TwigFilter('startTag',["\\Arikaim\\Core\\Utils\\Html",'htmlStartTag'],['is_safe' => ['html']]),
+            new TwigFilter('getAttr',["\\Arikaim\\Core\\Utils\\Html",'getAttributes'],['is_safe' => ['html']]),
+            new TwigFilter('decode',["\\Arikaim\\Core\\Utils\\Html",'specialcharsDecode'],['is_safe' => ['html']]),
             // other
-            new TwigFilter('ifthen', ["\\Arikaim\\Core\\View\\Template\\Filters", 'is']),
-            new TwigFilter('dump', ["\\Arikaim\\Core\\View\\Template\\Filters", 'dump']),
-            new TwigFilter('string', ["\\Arikaim\\Core\\View\\Template\\Filters", 'convertToString']),
-            new TwigFilter('emptyLabel', ["\\Arikaim\\Core\\View\\Template\\Filters", 'emptyLabel']),
-            new TwigFilter('sliceLabel', ["\\Arikaim\\Core\\View\\Template\\Filters", 'sliceLabel']),
-            new TwigFilter('jsonDecode', ["\\Arikaim\\Core\\Utils\\Utils", 'jsonDecode']),
-            new TwigFilter('baseClass', ["\\Arikaim\\Core\\Utils\\Utils", 'getBaseClassName']),            
+            new TwigFilter('ifthen',["\\Arikaim\\Core\\View\\Template\\Filters",'is']),
+            new TwigFilter('dump',["\\Arikaim\\Core\\View\\Template\\Filters",'dump']),
+            new TwigFilter('string',["\\Arikaim\\Core\\View\\Template\\Filters",'convertToString']),
+            new TwigFilter('emptyLabel',["\\Arikaim\\Core\\View\\Template\\Filters",'emptyLabel']),
+            new TwigFilter('sliceLabel',["\\Arikaim\\Core\\View\\Template\\Filters",'sliceLabel']),
+            new TwigFilter('jsonDecode',["\\Arikaim\\Core\\Utils\\Utils",'jsonDecode']),
+            new TwigFilter('baseClass',["\\Arikaim\\Core\\Utils\\Utils",'getBaseClassName']),            
             // date time
-            new TwigFilter('dateFormat', ["\\Arikaim\\Core\\Utils\\DateTime", 'dateFormat']),
-            new TwigFilter('dateTimeFormat', ["\\Arikaim\\Core\\Utils\\DateTime", 'dateTimeFormat']),
-            new TwigFilter('timeFormat', ["\\Arikaim\\Core\\Utils\\DateTime", 'timeFormat']),
+            new TwigFilter('dateFormat',["\\Arikaim\\Core\\Utils\\DateTime",'dateFormat']),
+            new TwigFilter('dateTimeFormat',["\\Arikaim\\Core\\Utils\\DateTime",'dateTimeFormat']),
+            new TwigFilter('timeFormat',["\\Arikaim\\Core\\Utils\\DateTime",'timeFormat']),
             // numbers
-            new TwigFilter('numberFormat', ["\\Arikaim\\Core\\Utils\\Number", 'format']),
+            new TwigFilter('numberFormat',["\\Arikaim\\Core\\Utils\\Number",'format']),
             // files
-            new TwigFilter('fileSize', ["\\Arikaim\\Core\\FileSystem\\File", 'getSizeText']),
+            new TwigFilter('fileSize',["\\Arikaim\\Core\\FileSystem\\File",'getSizeText']),
             // text
-            new TwigFilter('renderText', ["\\Arikaim\\Core\\Utils\\Text", 'render']),
-            new TwigFilter('sliceText', ["\\Arikaim\\Core\\Utils\\Text", 'sliceText']),
-            new TwigFilter('titleCase', ["\\Arikaim\\Core\\Utils\\Text", 'convertToTitleCase']),
+            new TwigFilter('renderText',["\\Arikaim\\Core\\Utils\\Text",'render']),
+            new TwigFilter('sliceText',["\\Arikaim\\Core\\Utils\\Text",'sliceText']),
+            new TwigFilter('titleCase',["\\Arikaim\\Core\\Utils\\Text",'convertToTitleCase']),
         ];
         Arikaim::cache()->save('twig.filters',$items,10);
+
         return $items;
     }
 
@@ -190,15 +190,15 @@ class Extension extends AbstractExtension implements GlobalsInterface
         if (is_array($items) == true) {
             return $items;
         }
-
         $items = [
-            new TwigTest('haveSubItems', ["\\Arikaim\\Core\\Utils\\Arrays", 'haveSubItems']),
-            new TwigTest('object', ["\\Arikaim\\Core\\View\\Template\\Tests", 'isObject']),
-            new TwigTest('string', ["\\Arikaim\\Core\\View\\Template\\Tests", 'isString']),
-            new TwigTest('access', ["\\Arikaim\\Core\\View\\Template\\Tests", 'hasAccess']),
-            new TwigTest('versionCompare', ["\\Arikaim\\Core\\View\\Template\\Tests", 'versionCompare'])
+            new TwigTest('haveSubItems',["\\Arikaim\\Core\\Utils\\Arrays",'haveSubItems']),
+            new TwigTest('object',["\\Arikaim\\Core\\View\\Template\\Tests",'isObject']),
+            new TwigTest('string',["\\Arikaim\\Core\\View\\Template\\Tests",'isString']),
+            new TwigTest('access',["\\Arikaim\\Core\\View\\Template\\Tests",'hasAccess']),
+            new TwigTest('versionCompare',["\\Arikaim\\Core\\View\\Template\\Tests",'versionCompare'])
         ];
         Arikaim::cache()->save('twig.tests',$items,10);
+
         return $items;
     }
 

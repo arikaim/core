@@ -26,32 +26,34 @@ class Theme
      * Return current template theme
      *
      * @param string $template_name
-     * @param string $default_theme
+     * @param string $defaultTheme
      * @return string
      */
-    public static function getCurrentTheme($template_name = null, $default_theme = Self::DEFAULT_THEME_NAME)
+    public static function getCurrentTheme($templateName = null, $defaultTheme = Self::DEFAULT_THEME_NAME)
     {   
-        $template_name = ($template_name == null) ? Template::getTemplateName() : $template_name;         
+        $templateName = ($templateName == null) ? Template::getTemplateName() : $templateName;         
         try {            
             if (is_object(Arikaim::options()) == false) {
-                return $default_theme;
+                return $defaultTheme;
             } 
         } catch(\Exception $e) {
-            return $default_theme;
+            return $defaultTheme;
         }
-        return Arikaim::options()->get("current.theme.$template_name",$default_theme);
+
+        return Arikaim::options()->get("current.theme.$templateName",$defaultTheme);
     }
 
     /**
      * Set current theme
      *
-     * @param string $theme_name
-     * @param string $template_name
+     * @param string $theme
+     * @param string $templateName
      * @return void
      */
-    public static function setCurrentTheme($theme_name, $template_name = null)
+    public static function setCurrentTheme($theme, $templateName = null)
     {
-        $template_name = (empty($template_name) == true) ? Template::getTemplateName() : $template_name;           
-        return Arikaim::options()->set("current.theme.$template_name",$theme_name);     
+        $templateName = (empty($templateName) == true) ? Template::getTemplateName() : $templateName; 
+
+        return Arikaim::options()->set("current.theme.$templateName",$theme);     
     }
 }

@@ -27,4 +27,11 @@ interface RepositoryDriverInterface
      * @return string
      */
     public function getLastVersion();
+
+    /**
+     * Get package name
+     *
+     * @return string
+     */
+    public function getPackageName();
 }

@@ -19,6 +19,7 @@ use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\View\Html\BaseComponent;
 use Arikaim\Core\View\Html\HtmlComponent;
 use Arikaim\Core\Access\Csrf;
+use Arikaim\Core\System\System;
 
 /**
  * Template functions
@@ -26,44 +27,22 @@ use Arikaim\Core\Access\Csrf;
 class TemplateFunction  
 {
     /**
-     * Allowed classes for execute method
-     *
-     * @var array
-     */
-    private $allowed_classes = [
-        'Arikaim\\Core\\System\\Update',
-        'Arikaim\\Core\\System\\System'
-    ];
-    
-    /**
-     * Contain all methods not allowed for execute.
-     *
-     * @var array
-     */
-    private $deny_methods;
-
-    /**
      * Constructor
      */
     public function __construct() 
     {
-        $this->deny_methods = [];
     }
 
     /**
      * Container service
      *
-     * @param string $service_name
-     * @param string $method_name
-     * @param string $params
+     * @param string $serviceName
      * @return mixed
      */
-    public function service($service_name, $method_name = null, $params = null)
+    public function service($serviceName)
     {
-        $service = Arikaim::$service_name();
-        if ($method_name != null) {
-            return $this->callMethod($service,$method_name,$params);  
-        }   
+        $service = Arikaim::$serviceName();
+       
         return $service;
     }
 
@@ -81,119 +60,25 @@ class TemplateFunction
     /**
      * Return true if extension exists
      *
-     * @param string $extension_name
+     * @param string $extension
      * @return boolean
      */
-    public function hasExtension($extension_name)
+    public function hasExtension($extension)
     {
-        $extension = Model::Extensions()->where('name','=',$extension_name)->first();     
-        return is_object($extension);          
-    }
+        $model = Model::Extensions()->where('name','=',$extension)->first();  
 
-    /**
-     * Run function in extension class
-     *
-     * @param string $extension_name
-     * @param string $class_name
-     * @param string $method_name
-     * @param mixed $params
-     * @return mixed
-     */
-    public function extensionMethod($extension_name, $class_name, $method_name, $params = null)
-    {
-        $full_class_name = Factory::getExtensionClassName($extension_name,"Classes\\$class_name");
-        $this->allowClass($full_class_name);
-        return $this->executeMethod($full_class_name,$method_name,$params);
-    }
-
-    /**
-     * Run function
-     *
-     * @param string $full_class_name
-     * @param string $method_name
-     * @param mixed $params
-     * @return mixed
-     */
-    public function executeMethod($full_class_name, $method_name, $params = null) 
-    {
-        if ($this->isAllowedClass($full_class_name) == false) {
-            $vars['class_name'] = $full_class_name;
-            return Arikaim::getError("NOT_ALLOWED_METHOD_ERROR",$vars);
-        }
-       
-        $obj = Factory::createInstance($full_class_name);       
-        $result = $this->callMethod($obj,$method_name,$params);    
-        
-        return ($result === null) ? Utils::callStatic($full_class_name,$method_name,$params) : $result;       
-    }
-
-    /**
-     * Return true if function is allowed
-     *
-     * @param string $name
-     * @return boolean
-     */
-    public function isAllowed($name)
-    {
-        return (in_array($name,$this->deny_methods) == true) ? false : true;           
-    }
-
-    /**
-     * Return true if class is allowed
-     *
-     * @param string $class_name
-     * @return boolean
-     */
-    public function isAllowedClass($class_name) 
-    {   
-        if (in_array($class_name,$this->allowed_classes) == true) {
-            return true;
-        }
-        if (in_array(Factory::getFullClassName($class_name),$this->allowed_classes) == true) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Deny function
-     *
-     * @param string $class_name
-     * @param string $method_name
-     * @return void
-     */
-    public function denyMethod($class_name, $method_name) 
-    {
-        if (is_array($this->deny_methods[$class_name]) == false) {
-            $this->deny_methods[$class_name] = [];
-        }
-        if (in_array($method_name,$this->deny_methods[$class_name]) == false) {
-            array_push($this->allowed_classes[$class_name], $method_name);
-        }
-    }
-
-    /**
-     * Addd class to allowed list
-     *
-     * @param string $class_name
-     * @return void
-     */
-    public function allowClass($class_name) 
-    {
-        if (in_array($class_name,$this->allowed_classes) == false) {
-            array_push($this->allowed_classes, $class_name);
-        }
+        return is_object($model);          
     }
 
     /**
      * Return file type
      *
-     * @param string $file_name
+     * @param string $fileName
      * @return string
      */
-    public function getFileType($file_name) 
+    public function getFileType($fileName) 
     {
-        return pathinfo($file_name, PATHINFO_EXTENSION);
+        return pathinfo($fileName, PATHINFO_EXTENSION);
     }
 
     /**
@@ -215,6 +100,7 @@ class TemplateFunction
     {
         $language = Template::getLanguage();
         $model = Model::Language()->where('code','=',$language)->first();
+
         return (is_object($model) == true) ? $model->toArray() : null;
     }
 
@@ -233,57 +119,40 @@ class TemplateFunction
     /**
      * Get options
      *
-     * @param string $search_key
+     * @param string $searchKey
      * @return array
      */
-    public function getOptions($search_key)
+    public function getOptions($searchKey)
     {
-        return Arikaim::options()->searchOptions($search_key);       
+        return Arikaim::options()->searchOptions($searchKey);       
     }
 
     /**
      * Create obj
      *
-     * @param string $class_name
-     * @param string|null $extension_name
+     * @param string $class
+     * @param string|null $extension
      * @return object|null
      */
-    public function create($class_name, $extension_name = null)
+    public function create($class, $extension = null)
     {
-        if (class_exists($class_name) == false) {
-            $class_name = (empty($extension_name) == false) ? Factory::getExtensionClassName($extension_name,$class_name) : Factory::getFullClassName($class_name);
+        if (class_exists($class) == false) {
+            $class = (empty($extension) == false) ? Factory::getExtensionClassName($extension,$class) : Factory::getFullClassName($class);
         }
      
-        if ($this->isAllowedClass($class_name) == false && $extension_name == null) {
-            $vars['class_name'] = $class_name;
-            return Arikaim::getError("NOT_ALLOWED_METHOD_ERROR",$vars);
-        }
-        return Factory::createInstance($class_name);            
+        return Factory::createInstance($class);            
     }
     
-    /**
-     * Call method
-     *
-     * @param object $obj
-     * @param string $method_name
-     * @param mixed $params
-     * @return mixed
-     */
-    private function callMethod($obj, $method_name, $params = null) 
-    {
-        return ($this->isAllowed($method_name) == false) ? null : Utils::call($obj,$method_name,$params);         
-    }   
-
     /**
      * Load Ui library file
      *
      * @param string $library
-     * @param string $file_name
+     * @param string $fileName
      * @return string
      */
-    public function loadLibraryFile($library, $file_name)
+    public function loadLibraryFile($library, $fileName)
     {
-        $file = Path::getLibraryFilePath($library,$file_name);
+        $file = Path::getLibraryFilePath($library,$fileName);
         $content = File::read($file);
 
         return ($content == null) ? '' : $content;
@@ -292,12 +161,12 @@ class TemplateFunction
     /**
      * Load component css file
      *
-     * @param string $component_name
+     * @param string $componentName
      * @return string
      */
-    public function loadComponentCssFile($component_name)
+    public function loadComponentCssFile($componentName)
     {
-        $file = BaseComponent::getComponentFiles($component_name,'css');
+        $file = BaseComponent::getComponentFiles($componentName,'css');
         $content = (empty($file[0]) == false) ? File::read($file[0]['full_path'] . $file[0]['file_name']) : '';
         
         return ($content == null) ? '' : $content;
@@ -310,7 +179,8 @@ class TemplateFunction
      */
     public function csrfToken()
     {
-        $token = Csrf::getToken(true);          
+        $token = Csrf::getToken(true);    
+
         return '<input type="hidden" name="csrf_token" value="'. $token . '">';
     }
 
@@ -323,6 +193,7 @@ class TemplateFunction
     public function fetch($url)
     {
         $response = Arikaim::http()->get($url);
+        
         return (is_object($response) == true) ? $response->getBody() : null;
     }
 
@@ -352,5 +223,15 @@ class TemplateFunction
     public function getComponentOptions($name)
     {
         return (Arikaim::access()->hasControlPanelAccess() == true) ? HtmlComponent::getOptions($name) : null;
+    }
+
+    /**
+     * Get system info ( control panel access only )
+     *
+     * @return System
+     */
+    public function system()
+    { 
+        return (Arikaim::access()->hasControlPanelAccess() == true) ? new System() : null;
     }
 }

@@ -10,28 +10,16 @@
 namespace Arikaim\Core\Packages\Drivers;
 
 use Arikaim\Core\Interfaces\Packages\RepositoryDriverInterface;
+use Arikaim\Core\Packages\Drivers\RepositoryDriver;
 use Arikaim\Core\System\Url;
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\FileSystem\File;
 
 /**
- * GitHub repository driver class // TODO
+ * GitHub repository driver class
 */
-class GitHubRepositoryDriver implements RepositoryDriverInterface
+class GitHubRepositoryDriver extends RepositoryDriver implements RepositoryDriverInterface
 {
-    /**
-     * Repository url
-     *
-     * @var string
-     */
-    protected $repositoryUrl;
-
-    /**
-     * Package name
-     *
-     * @var string
-     */
-    protected $packageName;
-
     /**
      * Constructor
      * 
@@ -39,7 +27,7 @@ class GitHubRepositoryDriver implements RepositoryDriverInterface
      */
     public function __construct($repositoryUrl)
     {
-        $this->repositoryUrl = $repositoryUrl;
+        parent::__construct($repositoryUrl);
         $this->resolvePackageName();        
     }
 
@@ -51,31 +39,11 @@ class GitHubRepositoryDriver implements RepositoryDriverInterface
     public function download($version = null)
     {
         $version = (empty($version) == true) ? $this->getLastVersion() : $version;
-        $url = "https://github.com/" . $this->getPackageName() . "/archive/" . $version . ".zip";
-        // write to storage
-        Arikkaim::http()->get($url,['sink' => $this->getPackageFileName($version)]);
+        $url = "http://github.com/" . $this->getPackageName() . "/archive/" . $version . ".zip";
+        // write to storage/repository
+        $result = Arikaim::http()->get($url,['sink' => $this->getPackageFileName($version)]);
 
-    }
-
-    /**
-     * Get package file name
-     *
-     * @param string $version
-     * @return string
-     */
-    public function getPackageFileName($version)
-    {
-        Arikiam::storage()->getStoragePath('/repository/' . $this->packageName . '-' . $version . '.zip');
-    }
-    
-    /**
-     * Get package name
-     *
-     * @return string
-     */
-    public function getPackageName()
-    {
-        return $this->packageName;
+        return File::exists($this->getPackageFileName($version));
     }
 
     /**

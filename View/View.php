@@ -45,7 +45,6 @@ class View
     {
         $this->loader = $this->createLoader($paths);       
         $this->environment = new Environment($this->loader,$settings);
-
         $this->environment->addGlobal('current_component_name','');
         
         // add template extensions
@@ -72,7 +71,7 @@ class View
      */
     public function fetch($template, $params = [])
     {       
-        return $this->environment->render($template, $params);
+        return $this->environment->render($template,$params);
     }
 
     /**
@@ -85,7 +84,7 @@ class View
      */
     public function fetchBlock($template, $block, $params = [])
     {
-        return $this->environment->loadTemplate($template)->renderBlock($block, $params);
+        return $this->environment->loadTemplate($template)->renderBlock($block,$params);
     }
 
     /**
@@ -99,20 +98,6 @@ class View
     {
         return $this->environment->createTemplate($string)->render($params);
     }
-
-    /*  DEPRECATED
-     * Render template
-     *
-     * @param string $template
-     * @param array $params
-     * @return void
-     
-    public function render($template, $params = [])
-    {
-        return Arikaim::response()->getBody()->write($this->fetch($template, $params));
-    }
-    
-    */
 
     /**
      * Get Twig loader
@@ -154,6 +139,7 @@ class View
     private function createLoader($paths)
     {
         $paths = (is_array($paths) == false) ? $paths = [$paths] : $paths;
+        
         return new FilesystemLoader($paths);
     }
 }

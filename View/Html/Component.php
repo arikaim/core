@@ -39,7 +39,7 @@ class Component implements ComponentInterface
      *
      * @var string
      */
-    protected $template_name;
+    protected $templateName;
 
     /**
      * Component path
@@ -60,14 +60,14 @@ class Component implements ComponentInterface
      *
      * @var string
      */
-    protected $full_path;
+    protected $fullPath;
 
     /**
      * File path
      *
      * @var string
      */
-    protected $file_path;
+    protected $filePath;
 
     /**
      * Language code
@@ -81,7 +81,7 @@ class Component implements ComponentInterface
      *
      * @var string
      */
-    protected $html_code;
+    protected $htmlCode;
 
     /**
      * Component render error
@@ -95,7 +95,7 @@ class Component implements ComponentInterface
      *
      * @var string
      */
-    protected $base_path;
+    protected $basePath;
 
     /**
      * UI framework name
@@ -123,7 +123,7 @@ class Component implements ComponentInterface
      *
      * @var string
      */
-    protected $options_file;
+    protected $optionsFile;
 
     /**
      * Properies
@@ -136,19 +136,19 @@ class Component implements ComponentInterface
      * Constructor
      *
      * @param string $name
-     * @param string $base_path
+     * @param string $basePath
      * @param string $language
-     * @param string $options_file
+     * @param string $optionsFile
      */
-    public function __construct($name, $base_path, $language, $options_file = null) 
+    public function __construct($name, $basePath, $language, $optionsFile = null) 
     {
         $this->language = $language;
-        $this->options_file = $options_file;
-        $this->base_path = $base_path;
+        $this->optionsFile = $optionsFile;
+        $this->basePath = $basePath;
         $this->error = "";
         $this->files['js'] = [];
         $this->files['css'] = [];
-        $this->html_code = "";
+        $this->htmlCode = "";
 
         $this->parseName($name);
         $this->resolvePath();
@@ -170,7 +170,7 @@ class Component implements ComponentInterface
      */
     public function getBasePath()
     {
-        return $this->base_path;
+        return $this->basePath;
     }
 
     /**
@@ -182,7 +182,7 @@ class Component implements ComponentInterface
     {
         switch($this->type) {
             case Self::EXTENSION_COMPONENT: 
-                $path = $this->template_name . DIRECTORY_SEPARATOR . 'view';
+                $path = $this->templateName . DIRECTORY_SEPARATOR . 'view';
                 break;
             case Self::TEMPLATE_COMPONENT: 
                 $path = "";
@@ -192,7 +192,7 @@ class Component implements ComponentInterface
                 break;
         }  
         if (isset($this->files['html'][0]['file_name']) == true) {
-            return $path . $this->file_path . $this->files['html'][0]['file_name'];
+            return $path . $this->filePath . $this->files['html'][0]['file_name'];
         }
 
         return false;
@@ -228,39 +228,42 @@ class Component implements ComponentInterface
         if (isset($this->files['properties']) == true) {
             return (count($this->files['properties']) > 0) ? true : false;
         }
+
         return false;
     }
 
     /**
      * Return true if component have files
      *
-     * @param string $file_type
+     * @param string $fileType
      * @return boolean
      */
-    public function hasFiles($file_type = null)
+    public function hasFiles($fileType = null)
     {
-        if ($file_type == null) {
-            return (isset($this->files[$file_type]) == true) ? true: false;
+        if ($fileType == null) {
+            return (isset($this->files[$fileType]) == true) ? true: false;
         }
 
-        if (isset($this->files[$file_type]) == true) {
-            return (count($this->files[$file_type]) > 0) ? true : false;
+        if (isset($this->files[$fileType]) == true) {
+            return (count($this->files[$fileType]) > 0) ? true : false;
         }
+
         return false;
     }
 
     /**
      * Return files 
      *
-     * @param string $file_type
+     * @param string $fileType
      * @return array
      */
-    public function getFiles($file_type = null)
+    public function getFiles($fileType = null)
     {
-        if ($file_type == null) {
+        if ($fileType == null) {
             return $this->files;
         }
-        return (isset($this->files[$file_type]) == true) ? (array)$this->files[$file_type] : [];          
+
+        return (isset($this->files[$fileType]) == true) ? (array)$this->files[$fileType] : [];          
     }
 
     /**
@@ -311,7 +314,7 @@ class Component implements ComponentInterface
      */
     public function getFullPath()
     {
-        return $this->full_path;
+        return $this->fullPath;
     }
 
     /**
@@ -331,7 +334,7 @@ class Component implements ComponentInterface
      */
     public function getTemplateName()
     {
-        return $this->template_name;
+        return $this->templateName;
     }
 
     /**
@@ -361,19 +364,20 @@ class Component implements ComponentInterface
      */
     public function getHtmlCode() 
     {
-        return $this->html_code;
+        return $this->htmlCode;
     }
 
     /**
      * Get option
      *
-     * @param string $option_name
+     * @param string $name
      * @param mixed $default
      * @return mixed
      */
-    public function getOption($option_name, $default = null)
+    public function getOption($name, $default = null)
     {
-        $option = Arrays::getValue($this->options,$option_name);
+        $option = Arrays::getValue($this->options,$name);
+
         return (empty($option) == true) ? $default : $option;          
     }
 
@@ -385,7 +389,7 @@ class Component implements ComponentInterface
      */
     public function setHtmlCode($code) 
     {
-        $this->html_code = $code;
+        $this->htmlCode = $code;
     }
 
     /**
@@ -411,6 +415,7 @@ class Component implements ComponentInterface
         $content += ($this->hasFiles('js') == true)  ?  1 : 0;
         $content += ($this->hasFiles('css') == true) ?  1 : 0;
         $content += ($this->hasProperties() == true) ?  1 : 0;
+
         return ($content > 0) ? true : false;
     }
 
@@ -430,63 +435,65 @@ class Component implements ComponentInterface
      * Add files
      *
      * @param string $files
-     * @param string $file_type
+     * @param string $fileType
      * @return bool
      */
-    public function addFiles($files, $file_type)
+    public function addFiles($files, $fileType)
     {
         if (is_array($files) == false) {
             return false;
         }
-        if (isset($this->files[$file_type]) == false) {
-            $this->files[$file_type] = [];
+        if (isset($this->files[$fileType]) == false) {
+            $this->files[$fileType] = [];
         }
         foreach ($files as $file) {
             if (empty($file) == false) {
-                array_push($this->files[$file_type],$file);     
+                array_push($this->files[$fileType],$file);     
             }                  
         }
+
         return true;            
     }
 
     /**
      * Add component file
      *
-     * @param string $file_ext
+     * @param string $fileExt
      * @return void
      */
-    public function addComponentFile($file_ext)
+    public function addComponentFile($fileExt)
     {
-        $file_name = $this->getComponentFile($file_ext);
-        if ($file_name === false) {
+        $fileName = $this->getComponentFile($fileExt);
+        if ($fileName === false) {
             return false;
         }
         $file = [
-            'file_name' => $file_name,
-            'path'      => $this->file_path,
+            'file_name' => $fileName,
+            'path'      => $this->filePath,
             'full_path' => $this->getFullPath(),
-            'url'       => $this->getFileUrl($file_name) 
+            'url'       => $this->getFileUrl($fileName) 
         ];
-        return $this->addFile($file,$file_ext);       
+
+        return $this->addFile($file,$fileExt);       
     }
 
     /**
      * Add file
      *
      * @param string $file
-     * @param string $file_type
+     * @param string $fileType
      * @return void
      */
-    public function addFile($file, $file_type)
+    public function addFile($file, $fileType)
     {
         if (is_array($file) == false) {
             return false;
         }
 
-        if (isset($this->files[$file_type]) == false) {
-            $this->files[$file_type] = [];
+        if (isset($this->files[$fileType]) == false) {
+            $this->files[$fileType] = [];
         }
-        array_push($this->files[$file_type],$file);
+        array_push($this->files[$fileType],$file);
     }
 
     /**
@@ -508,7 +515,6 @@ class Component implements ComponentInterface
             // resolve location
             $tokens = explode('>',$name);
             $type = Self::RESOLVE_LOCATION;
-
         } else {
             // template component
             $tokens = explode(':',$name);  
@@ -518,11 +524,11 @@ class Component implements ComponentInterface
         if (isset($tokens[1]) == false) {    
             // component location not set                     
             $this->path = str_replace('.','/',$tokens[0]);            
-            $this->template_name = Template::getTemplateName(); 
+            $this->templateName = Template::getTemplateName(); 
             $type = Self::TEMPLATE_COMPONENT;        
         } else {
             $this->path = str_replace('.','/',$tokens[1]);
-            $this->template_name = $tokens[0];          
+            $this->templateName = $tokens[0];          
         }
 
         if ($type == Self::RESOLVE_LOCATION) {
@@ -544,18 +550,19 @@ class Component implements ComponentInterface
         if (isset($this->files['properties']['file_name']) == true) {
             return $this->files['properties']['file_name'];
         }
+
         return false;
     }
 
     /**
      * Set properties file name
      *
-     * @param string $file_name
+     * @param string $fileName
      * @return void
      */
-    public function setPropertiesFileName($file_name) 
+    public function setPropertiesFileName($fileName) 
     { 
-        $this->files['properties']['file_name'] = $file_name;          
+        $this->files['properties']['file_name'] = $fileName;          
     }
 
     /**
@@ -568,18 +575,19 @@ class Component implements ComponentInterface
         if (isset($this->files['options']['file_name']) == true) {
             return $this->files['options']['file_name'];
         }
+        
         return false;
     }
 
     /**
      * Set options file name
      *
-     * @param string $file_name
+     * @param string $fileName
      * @return void
      */
-    public function setOptionsFileName($file_name)
+    public function setOptionsFileName($fileName)
     {
-        $this->files['options']['file_name'] = $file_name;
+        $this->files['options']['file_name'] = $fileName;
     }
 
     /**
@@ -588,7 +596,7 @@ class Component implements ComponentInterface
      * @return array
      */
     public function toArray()
-    {
+    {       
         return (array)$this;
     }
 
@@ -601,16 +609,17 @@ class Component implements ComponentInterface
     {
         switch ($this->type) {
             case Self::TEMPLATE_COMPONENT:
-                $url = Url::getTemplateUrl($this->template_name);
+                $url = Url::getTemplateUrl($this->templateName);
                 break;
             case Self::EXTENSION_COMPONENT:
-                $url = Url::getExtensionViewUrl($this->template_name);
+                $url = Url::getExtensionViewUrl($this->templateName);
                 break;   
             case Self::GLOBAL_COMPONENT:
                 $url = Url::ARIKAIM_VIEW_URL;
                 break;                    
         }
-        return $url . "/" . $this->base_path . "/" . $this->path . "/";
+
+        return $url . "/" . $this->basePath . "/" . $this->path . "/";
     }
 
     /**
@@ -620,7 +629,7 @@ class Component implements ComponentInterface
      */
     public function getRootComponentPath()
     {
-        return Path::getTemplatePath($this->template_name,$this->type);
+        return Path::getTemplatePath($this->templateName,$this->type);
     }
 
     /**
@@ -636,32 +645,33 @@ class Component implements ComponentInterface
     /**
      * Get component html file
      *
-     * @param string $file_ext
-     * @param string $language_code
+     * @param string $fileExt
+     * @param string $language
      * @return string|false
      */
-    public function getComponentFile($file_ext = "html", $language_code = "") 
+    public function getComponentFile($fileExt = "html", $language = "") 
     {         
-        $file_name = $this->getName() . $language_code . "." . $file_ext;
+        $fileName = $this->getName() . $language . "." . $fileExt;
         // try framework path
-        $full_file_name = $this->getFullPath() . $this->getFrameworkPath() . $file_name;
-        if (File::exists($full_file_name) == true) {
-            return $this->getFrameworkPath() . $file_name;
+        $fullFileName = $this->getFullPath() . $this->getFrameworkPath() . $fileName;
+        if (File::exists($fullFileName) == true) {
+            return $this->getFrameworkPath() . $fileName;
         }
         // try default path 
-        $full_file_name = $this->getFullPath() . DIRECTORY_SEPARATOR . $file_name;
-        return File::exists($full_file_name) ? $file_name : false;
+        $fullFileName = $this->getFullPath() . $fileName;
+
+        return File::exists($fullFileName) ? $fileName : false;
     }
 
     /**
      * Convert file path to url
      *
-     * @param string $file_name
+     * @param string $fileName
      * @return string
      */
-    public function getFileUrl($file_name)
+    public function getFileUrl($fileName)
     {
-        return $this->getUrl() . $file_name;
+        return $this->getUrl() . $fileName;
     }
 
     /**
@@ -684,13 +694,19 @@ class Component implements ComponentInterface
         return Collection::createFromFile($this->getOptionsFileName());               
     }
 
+    /**
+     * Get component full path
+     *
+     * @param integer $type
+     * @return string
+     */
     public function getComponentFullPath($type)
     {
-        $template_full_path = Path::getTemplatePath($this->template_name,$type); 
-        $base_path = (empty($this->base_path) == false) ? $this->base_path : '';
-        $path = $base_path . DIRECTORY_SEPARATOR . $this->path . DIRECTORY_SEPARATOR;   
+        $templateFullPath = Path::getTemplatePath($this->templateName,$type); 
+        $basePath = (empty($this->basePath) == false) ? $this->basePath : '';
+        $path = $basePath . DIRECTORY_SEPARATOR . $this->path . DIRECTORY_SEPARATOR;   
         
-        return $template_full_path . $path;     
+        return $templateFullPath . $path;     
     }
 
     /**
@@ -700,25 +716,25 @@ class Component implements ComponentInterface
      */
     protected function resolvePath() 
     {                 
-        $base_path = (empty($this->base_path) == false) ? DIRECTORY_SEPARATOR . $this->base_path : '';
-        $path = $base_path . DIRECTORY_SEPARATOR . $this->path . DIRECTORY_SEPARATOR;   
+        $basePath = (empty($this->basePath) == false) ? DIRECTORY_SEPARATOR . $this->basePath : '';
+        $path = $basePath . DIRECTORY_SEPARATOR . $this->path . DIRECTORY_SEPARATOR;   
       
         switch($this->type) {
             case Self::EXTENSION_COMPONENT:
-                $template_path = '';
+                $templatePath = '';
                 break;
             case Self::TEMPLATE_COMPONENT:
-                $template_path = $this->template_name . DIRECTORY_SEPARATOR;
+                $templatePath = $this->templateName . DIRECTORY_SEPARATOR;
                 break;
             case Self::GLOBAL_COMPONENT:
-                $template_path = '';               
+                $templatePath = '';               
                 $path = $this->path . DIRECTORY_SEPARATOR; 
                 break;
             default:
-                $template_path = "";      
+                $templatePath = "";      
         }
-        $this->full_path = $this->getComponentFullPath($this->type);
-        $this->file_path = $template_path  . $path;  
+        $this->fullPath = $this->getComponentFullPath($this->type);
+        $this->filePath = $templatePath  . $path;  
     }
 
     /**
@@ -728,22 +744,23 @@ class Component implements ComponentInterface
      */
     private function resolvePropertiesFileName()
     {
-        $language_code = ($this->language != "en") ? "-". $this->language : "";
-        $file_name = $this->getComponentFile("json",$language_code);
+        $language = ($this->language != "en") ? "-". $this->language : "";
+        $fileName = $this->getComponentFile("json",$language);
 
-        if ($file_name === false) {
-            $file_name = $this->getComponentFile("json");
-            if ($file_name === false) {
+        if ($fileName === false) {
+            $fileName = $this->getComponentFile("json");
+            if ($fileName === false) {
                 return false;
             }
         } 
-        $this->setPropertiesFileName($this->getFullPath() . $file_name);   
+        $this->setPropertiesFileName($this->getFullPath() . $fileName);   
     }
 
     /**
      * Resolve options file name
      *
-     * @param string|null $parent_path
+     * @param string|null $path
+     * @param integer     $iterations
      * @return bool
      */
     private function resolveOptionsFileName($path = null, $iterations = 0)
@@ -752,16 +769,16 @@ class Component implements ComponentInterface
             $path = $this->getFullPath();
         } 
       
-        $file_name = $path . $this->options_file;
-        if (File::exists($file_name) == false) {
-            $parent_path = Path::getParentPath($path) . DIRECTORY_SEPARATOR;  
+        $fileName = $path . $this->optionsFile;
+        if (File::exists($fileName) == false) {
+            $parentPath = Path::getParentPath($path) . DIRECTORY_SEPARATOR;  
     
-            if (empty($parent_path) == false && $iterations == 0) {
-                return $this->resolveOptionsFileName($parent_path,1);
+            if (empty($parentPath) == false && $iterations == 0) {
+                return $this->resolveOptionsFileName($parentPath,1);
             }      
         }
     
-        return $this->setOptionsFileName($file_name);
+        return $this->setOptionsFileName($fileName);
     }
 
     /**

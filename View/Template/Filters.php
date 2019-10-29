@@ -22,20 +22,20 @@ class Filters
      *
      * @param mixed $value
      * @param mixed $var2
-     * @param mixed $return_value
+     * @param mixed $returnValue
      * @return mixed|null
      */
-    public static function is($value, $var2, $return_value)
+    public static function is($value, $var2, $returnValue)
     {
         if (is_array($value) == true) {
             if (in_array($value,$var2) == true) {
-                return $return_value;
+                return $returnValue;
             }
         }
         if ($value === 'false') $value = false;
         if ($value === 'true')  $value = true;
 
-        return ($value == $var2) ? $return_value : null;                
+        return ($value == $var2) ? $returnValue : null;                
     }   
 
     /**
@@ -89,6 +89,7 @@ class Filters
         if (is_array($value) === true) {    
             return Arrays::toString($value,$separator);
         }
+        
         return (string)$value;
     }
 

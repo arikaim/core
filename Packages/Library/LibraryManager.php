@@ -37,6 +37,7 @@ class LibraryManager extends PackageManager
     public function createPackage($name)
     {
         $propertes = $this->loadPackageProperties($name);
+       
         return new LibraryPackage($propertes);
     }
 

@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\View\Template\Tags;
 
-use Twig\Node\Node;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
@@ -31,14 +30,15 @@ class ComponentTagParser extends AbstractTokenParser
         $line = $token->getLine();
         $stream = $this->parser->getStream();
         // tag params
-        $component_name = $stream->expect(Token::STRING_TYPE)->getValue();   
+        $componentName = $stream->expect(Token::STRING_TYPE)->getValue();   
         $params = $stream->getCurrent()->getValue(); 
         $params = (is_array($params) == false) ? [] : $params;
     
         $stream->expect(Token::BLOCK_END_TYPE);
         $body = $this->parser->subparse([$this,'decideTagEnd'],true);
         $stream->expect(Token::BLOCK_END_TYPE);
-        return new ComponentNode($body,['name' => $component_name, 'params' => $params],$line,$this->getTag());
+        
+        return new ComponentNode($body,['name' => $componentName, 'params' => $params],$line,$this->getTag());
     }
 
     /**

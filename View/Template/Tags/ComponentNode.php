@@ -12,10 +12,7 @@ namespace Arikaim\Core\View\Template\Tags;
 use Twig\Compiler;
 use Twig\Node\Node;
 use Twig\Node\NodeOutputInterface;
-use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\SetNode;
-
-use \Arikaim\Core\View\Html\HtmlComponent;
 
 /**
  * Component tag node
@@ -44,12 +41,12 @@ class ComponentNode extends Node implements NodeOutputInterface
     public function compile(Compiler $compiler)
     {
         $compiler->addDebugInfo($this);
-        $component_name = $this->getAttribute('name');
+        $componentName = $this->getAttribute('name');
         $params = $this->getAttribute('params');
-        $exported_params = var_export($params, true);
+        $exportedParams = var_export($params, true);
 
         $count = count($this->getNode('body'));
-        $compiler->write("\$params = $exported_params;")->raw(PHP_EOL);
+        $compiler->write("\$params = $exportedParams;")->raw(PHP_EOL);
         $compiler->write("\$context = array_merge(\$context,\$params);")->raw(PHP_EOL);
         $compiler->write('ob_start();')->raw(PHP_EOL);
         $compiler->subcompile($this->getNode('body'),true);
@@ -61,6 +58,6 @@ class ComponentNode extends Node implements NodeOutputInterface
                 $compiler->subcompile($item,true);
             }          
         }
-        $compiler->raw("echo \\Arikaim\\Core\\View\\Html\\HtmlComponent::loadComponent('$component_name',\$context);" . PHP_EOL);
+        $compiler->raw("echo \\Arikaim\\Core\\View\\Html\\HtmlComponent::loadComponent('$componentName',\$context);" . PHP_EOL);
     }
 }

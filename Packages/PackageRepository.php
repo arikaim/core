@@ -10,6 +10,7 @@
 namespace Arikaim\Core\Packages;
 
 use Arikaim\Core\Interfaces\Packages\RepositoryInterface;
+use Arikaim\Core\Interfaces\Packages\RepositoryDriverInterface;
 use Arikaim\Core\Packages\Drivers\GitHubRepositoryDriver;
 
 /**
@@ -47,13 +48,6 @@ abstract class PackageRepository implements RepositoryInterface
     protected $driver;
 
     /**
-     * Cyrrent package version
-     *
-     * @var string
-     */
-    protected $currentVersion;
-
-    /**
      * Install package
      *
      * @param string|null $version
@@ -64,14 +58,23 @@ abstract class PackageRepository implements RepositoryInterface
     /**
      * Constructor
      * 
-     * @param string $currentVersion
      * @param string $url  
      */
-    public function __construct($repositoryUrl, $currentVersion)
+    public function __construct($repositoryUrl)
     {
         $this->repositoryUrl = $repositoryUrl;
         $this->type = $this->resolveRepositoryUrl();
         $this->driver = $this->createDriver();
+    }
+
+    /**
+     * Get repository driver
+     *
+     * @return RepositoryDriverInterface
+     */
+    public function getRepositoryDriver()
+    {
+        return $this->driver;
     }
 
     /**
@@ -105,24 +108,13 @@ abstract class PackageRepository implements RepositoryInterface
     }
 
     /**
-     * Download package
-     *   
-     * @param string|null $version
-     * @return bool
-     */
-    public function download($version = null)
-    {
-        return (is_object($this->driver) == true) ? $this->driver->download($version) : '';
-    }
-
-    /**
      * Get package name
      *
      * @return string
      */
     public function getPackageName()
     {
-        return (is_object($this->driver) == true) ? $this->driver->getPackageName($version) : null;
+        return (is_object($this->driver) == true) ? $this->driver->getPackageName() : null;
     }
 
     /**

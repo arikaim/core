@@ -82,6 +82,7 @@ class PageHead extends Collection implements CollectionInterface, \Countable, \A
             $name = substr($name,7);
             return $this->twitter($name,$value);
         }
+
         return $this->set($name,$value);      
     }
 
@@ -120,7 +121,8 @@ class PageHead extends Collection implements CollectionInterface, \Countable, \A
      */
     public function ogTitle($title = null)
     {
-        $title = $this->get('title',$title);        
+        $title = $this->get('title',$title);   
+
         return $this->og('title',$title);
     }
     
@@ -132,7 +134,8 @@ class PageHead extends Collection implements CollectionInterface, \Countable, \A
      */
     public function ogDescription($description = null)
     {
-        $description = $this->get('description',$description);      
+        $description = $this->get('description',$description);   
+
         return $this->og('description',$description);
     }
 
@@ -154,7 +157,8 @@ class PageHead extends Collection implements CollectionInterface, \Countable, \A
      */
     public function twitterTitle($title = null)
     {
-        $title = $this->get('title',$title);      
+        $title = $this->get('title',$title); 
+
         return $this->twitter('title',$title);
     }
 
@@ -166,7 +170,8 @@ class PageHead extends Collection implements CollectionInterface, \Countable, \A
      */
     public function twitterDescription($description = null)
     {
-        $description = $this->get('description',$description);      
+        $description = $this->get('description',$description);     
+
         return $this->twitter('description',$description);
     }
 
@@ -183,6 +188,7 @@ class PageHead extends Collection implements CollectionInterface, \Countable, \A
     {
         $property = $this->createProperty($name,$value,$options);
         array_push($this->data[$key],$property);
+
         return $this;
     }
 
@@ -221,8 +227,8 @@ class PageHead extends Collection implements CollectionInterface, \Countable, \A
             $property = (is_array($value) == false) ? $this->createProperty($name,$value,[]) : $value;  
             array_push($properties,$property);            
         }
-
         $this->data[$key] = $properties;
+
         return true;
     }
 }

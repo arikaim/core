@@ -14,7 +14,7 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Utils;
 
 /**
- *Core system helper class
+ * Core system helper class
  */
 class System 
 {
@@ -27,6 +27,18 @@ class System
     const CRLF = "\r\n";
     const CR = "\r";
     const HTMLLF = "</br>";
+
+    /**
+     * Call static methods from instance
+     *
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public function __call($name, $arguments)
+    {
+        return Utils::callStatic(System::class,$name,$arguments);
+    }
 
     /**
      * Return Arikaim version

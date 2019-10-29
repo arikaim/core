@@ -60,12 +60,12 @@ class Page extends BaseComponent
      *
      * @param string $name
      * @param string|null $language
-     * @param boolean $with_options
+     * @param boolean $withOptions
      * @return ComponentInterface
      */
-    public function create($name, $language = null, $with_options = true)
+    public function create($name, $language = null, $withOptions = true)
     {       
-        return Self::createComponent($name,'pages',$language,$with_options,'page.json');
+        return Self::createComponent($name,'pages',$language,$withOptions,'page.json');
     }
 
     /**
@@ -99,7 +99,7 @@ class Page extends BaseComponent
     public function load($name, $params = [], $language = null, $response = null)
     {
         $response = ($response == null) ? Arikaim::response() : $response;
-        if (empty($name) == true || $this->has($name) == false) {          
+        if (empty($name) == true || $this->has($name) == false) {         
             $name = 'system:page-not-found';
             $response->withStatus(404);          
         }
@@ -109,7 +109,6 @@ class Page extends BaseComponent
       
         $component = $this->render($name,$params,$language);  
         $html = $component->getHtmlCode();
-    
         $response->getBody()->write($html);
 
         return $response;
@@ -126,7 +125,6 @@ class Page extends BaseComponent
     public function render($name, $params = [], $language = null)
     {
         $this->setCurrent($name);
-
         $component = $this->create($name,$language);
         $params['component_url'] = $component->getUrl();
 
@@ -134,11 +132,10 @@ class Page extends BaseComponent
             $component = $this->render('system:page-not-found',$params);
         }
         
-        $page_body = $this->getCode($component,$params);
-        $index_page = $this->getIndexFile($component);
-              
-        $params = array_merge($params,['body' => $page_body, 'head' => $this->head->toArray()]);   
-        $component->setHtmlCode(Arikaim::view()->fetch($index_page,$params));
+        $body = $this->getCode($component,$params);
+        $indexPage = $this->getIndexFile($component);              
+        $params = array_merge($params,['body' => $body, 'head' => $this->head->toArray()]);   
+        $component->setHtmlCode(Arikaim::view()->fetch($indexPage,$params));
 
         return $component;
     }
@@ -152,19 +149,20 @@ class Page extends BaseComponent
     private function getIndexFile($component)
     {
         $type = $component->getType();
-        $full_path = Path::getTemplatePath($component->getTemplateName(),$type) . $component->getBasePath() . DIRECTORY_SEPARATOR . "index.html";
+        $fullPath = Path::getTemplatePath($component->getTemplateName(),$type) . $component->getBasePath() . DIRECTORY_SEPARATOR . "index.html";
 
-        if (file_exists($full_path) == true) {
+        if (file_exists($fullPath) == true) {
             if ($type == Component::EXTENSION_COMPONENT) {
                 return $component->getTemplateName() . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . $component->getBasePath() . DIRECTORY_SEPARATOR . "index.html"; 
             } 
             return $component->getTemplateName() . DIRECTORY_SEPARATOR . $component->getBasePath() . DIRECTORY_SEPARATOR . "index.html";            
         }
         // get from current template  
-        $full_path = Path::getTemplatePath(Template::getTemplateName()) . $component->getBasePath() . DIRECTORY_SEPARATOR . "index.html";      
-        if (file_exists($full_path) == true) {          
+        $fullPath = Path::getTemplatePath(Template::getTemplateName()) . $component->getBasePath() . DIRECTORY_SEPARATOR . "index.html";      
+        if (file_exists($fullPath) == true) {          
             return Template::getTemplateName() . DIRECTORY_SEPARATOR . $component->getBasePath() . DIRECTORY_SEPARATOR . "index.html";
         }
+
         // get from system template
         return Template::SYSTEM_TEMPLATE_NAME . DIRECTORY_SEPARATOR . $component->getBasePath() . DIRECTORY_SEPARATOR . "index.html";          
     }
@@ -204,14 +202,15 @@ class Page extends BaseComponent
     /**
      * Return true if page exists
      *
-     * @param string $page_name
+     * @param string $pageName
      * @param string|null $language
      * @return boolean
      */
-    public function has($page_name, $language = null) 
+    public function has($pageName, $language = null) 
     {      
-        $page = $this->create($page_name,$language);
-        return (is_object($page) == false) ? false : $page->isValid();        
+        $page = $this->create($pageName,$language);
+
+        return $page->isValid();        
     }
 
     /**
@@ -275,13 +274,13 @@ class Page extends BaseComponent
      */
     public static function getLanguagePath($path, $language = null)
     {
-        $default_language = Model::Language()->getDefaultLanguage();
         if ($language == null) {
             $language = Template::getLanguage();
         }
-        if ($default_language == $language) {
+        if (Model::Language()->getDefaultLanguage() == $language) {
             return $path;
         } 
+
         return (substr($path,-1) == "/") ?  $path . "$language/" : "$path/$language/";
     }
 
@@ -294,6 +293,7 @@ class Page extends BaseComponent
     public static function getCurrentUrl($full = true)
     {       
         $path = Arikaim::session()->get('current.path');
+
         return ($full == true) ? Self::getFullUrl($path) : $path;
     }
 
@@ -302,15 +302,16 @@ class Page extends BaseComponent
      *
      * @param string $path
      * @param boolean $full
-     * @param boolean $with_language_path
+     * @param boolean $withLanguagePath
      * @return string
      */
-    public static function getUrl($path = null, $full = false, $with_language_path = true)
+    public static function getUrl($path = null, $full = false, $withLanguagePath = true)
     {       
         $path = (substr($path,0,1) == "/") ? substr($path, 1) : $path;           
         $url = ($full == true) ? Url::ARIKAIM_BASE_URL : ARIKAIM_BASE_PATH;        
-        $url = ($url == "/") ? $url : $url . "/";            
-        return ($with_language_path == true) ? $url . Self::getLanguagePath($path) : $url;
+        $url = ($url == "/") ? $url : $url . "/";       
+
+        return ($withLanguagePath == true) ? $url . Self::getLanguagePath($path) : $url;
     }
 
     /**
@@ -327,7 +328,7 @@ class Page extends BaseComponent
     /**
      * Include files
      *
-     * @param string $template_name
+     * @param Component $component
      * @return bool
      */
     public static function includeFiles($component) 
@@ -339,15 +340,13 @@ class Page extends BaseComponent
         Self::includeComponents($component);
 
         Arikaim::cache()->save("page.include.files." . $component->getName(),$files,3);
-    
         Arikaim::page()->properties()->set('template.files',$files);
         // include ui lib files                
         Self::includeLibraryFiles($files['library']);  
         // include theme files         
-        $template_name = (empty($files['template']) == true) ? Template::getTemplateName() : $files['template'];
-        Self::includeThemeFiles($template_name);  
-        // set loader component       
- 
+        $templateName = (empty($files['template']) == true) ? Template::getTemplateName() : $files['template'];
+        Self::includeThemeFiles($templateName);  
+      
         return true;
     }
 
@@ -369,7 +368,6 @@ class Page extends BaseComponent
         $options = $component->getOption('include',null);
       
         if (empty($options) == false) {  
-    
             // get include options from page.json file  
             $options = Arrays::setDefault($options,'template',null);   
             $options = Arrays::setDefault($options,'js',[]);  
@@ -390,7 +388,6 @@ class Page extends BaseComponent
             } elseif ($component->getType() == Component::TEMPLATE_COMPONENT) {
                 $options = array_merge($options,Self::getTemplateIncludeOptions($component->getTemplateName())); 
             }                  
-            
             // set loader from page.json
             if (isset($options['loader']) == true) {
                 Arikaim::session()->set('template.loader',$options['loader']);
@@ -433,8 +430,8 @@ class Page extends BaseComponent
     {
         $name = ($name == null) ? Template::getTemplateName() : $name;
         $manager = new TemplatesManager();
-        $template_options = $manager->createPackage($name)->getProperties();
-        $options = $template_options->getByPath("include",[]);
+        $templateOptions = $manager->createPackage($name)->getProperties();
+        $options = $templateOptions->getByPath("include",[]);
     
         $options = Arrays::setDefault($options,'js',[]);  
         $options = Arrays::setDefault($options,'css',[]);   
@@ -455,35 +452,35 @@ class Page extends BaseComponent
     /**
      * Include library files
      *
-     * @param array $library_list
+     * @param array $libraryList
      * @return bool
      */
-    public static function includeLibraryFiles(array $library_list)
+    public static function includeLibraryFiles(array $libraryList)
     {   
         $manager = new LibraryManager();
         $frameworks = [];
-        $include_lib = [];
+        $includeLib = [];
 
-        foreach ($library_list as $library_name) {
-            $library = $manager->createPackage($library_name);
+        foreach ($libraryList as $libraryName) {
+            $library = $manager->createPackage($libraryName);
             $files = $library->getFiles();
             $params = $library->getParams();
 
             foreach($files as $file) {
-                $item['file'] = (Url::isValid($file) == true) ? $file : Url::getLibraryFileUrl($library_name,$file);
-                $item['type'] = File::getExtension(Path::getLibraryFilePath($library_name,$file));
+                $item['file'] = (Url::isValid($file) == true) ? $file : Url::getLibraryFileUrl($libraryName,$file);
+                $item['type'] = File::getExtension(Path::getLibraryFilePath($libraryName,$file));
                 $item['params'] = $params;
-                $item['library'] = $library_name;
+                $item['library'] = $libraryName;
                 $item['async'] = $library->getProperties()->get('async',false);
                 $item['crossorigin'] = $library->getProperties()->get('crossorigin',null);
-                array_push($include_lib,$item);
+                array_push($includeLib,$item);
             }           
             if ($library->isFramework() == true) {
-                array_push($frameworks,$library_name);
+                array_push($frameworks,$libraryName);
             }
         }
-        Arikaim::page()->properties()->set('ui.library.files',$include_lib);       
-        Arikaim::session()->set("ui.included.libraries",json_encode($library_list));
+        Arikaim::page()->properties()->set('ui.library.files',$includeLib);       
+        Arikaim::session()->set("ui.included.libraries",json_encode($libraryList));
         Arikaim::session()->set("ui.included.frameworks",json_encode($frameworks));
 
         return true;
@@ -492,52 +489,53 @@ class Page extends BaseComponent
      /**
      * Include theme files
      *
-     * @param string $template_name
+     * @param string $templateName
      * @return bool
      */
-    public static function includeThemeFiles($template_name)
+    public static function includeThemeFiles($templateName)
     {  
         // cehck cache
-        $file_url = Arikaim::cache()->fetch('template.theme.file');
-        if (empty($file_url) == false) {
-            Arikaim::page()->properties()->add('template.theme',$file_url);
+        $fileUrl = Arikaim::cache()->fetch('template.theme.file');
+        if (empty($fileUrl) == false) {
+            Arikaim::page()->properties()->add('template.theme',$fileUrl);
             return true;
         }
 
         $manager = new TemplatesManager();
-        $properties = $manager->createPackage($template_name)->getProperties();
+        $properties = $manager->createPackage($templateName)->getProperties();
 
         $manager = new LibraryManager();
-        $default_theme = $properties->get("default-theme",null);
-        $current_theme = Theme::getCurrentTheme($template_name,$default_theme);
+        $defaultTheme = $properties->get("default-theme",null);
+        $currentTheme = Theme::getCurrentTheme($templateName,$defaultTheme);
 
-        if (empty($current_theme) == true) {
+        if (empty($currentTheme) == true) {
             return true;
         } 
         
-        $library = $properties->getByPath("themes/$current_theme/library","");
-        $library_package = $manager->createPackage($library);
+        $library = $properties->getByPath("themes/$currentTheme/library","");
+        $libraryPackage = $manager->createPackage($library);
         // get theme from other template
-        $template = $properties->getByPath("themes/$current_theme/template","");
-        $template_name = (empty($template) == false) ? $template : $template_name;
+        $template = $properties->getByPath("themes/$currentTheme/template","");
+        $templateName = (empty($template) == false) ? $template : $templateName;
            
         if (empty($library) == false) {
             // load theme from library           
-            $file = $library_package->getThemeFile($current_theme);
-            $file_url = Url::getLibraryThemeFileUrl($library,$file,$current_theme);
+            $file = $libraryPackage->getThemeFile($currentTheme);
+            $fileUrl = Url::getLibraryThemeFileUrl($library,$file,$currentTheme);
         } else {
             // load from template
-            $file = $properties->getByPath("themes/$current_theme/file","");
-            $file_url = Url::getThemeFileUrl($template_name,$current_theme,$file);
+            $file = $properties->getByPath("themes/$currentTheme/file","");
+            $fileUrl = Url::getThemeFileUrl($templateName,$currentTheme,$file);
         }
-        if (empty($file_url) == false) {
-            $theme['name'] = $current_theme;
+        if (empty($fileUrl) == false) {
+            $theme['name'] = $currentTheme;
             $theme['file'] = $file;
-            Arikaim::page()->properties()->add('template.theme',$file_url);
+            Arikaim::page()->properties()->add('template.theme',$fileUrl);
             // saev to cache
-            Arikaim::cache()->save('template.theme.file',$file_url,3);
+            Arikaim::cache()->save('template.theme.file',$fileUrl,3);
             return true;
         }
+
         return false;
     }
 }

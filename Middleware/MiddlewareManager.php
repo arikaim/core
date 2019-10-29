@@ -7,7 +7,13 @@
  * @license     http://www.arikaim.com/license.html
  * 
  */
-namespace Arikaim\Core\System;
+namespace Arikaim\Core\Middleware;
+
+use Http\Factory\Guzzle\StreamFactory;
+
+use Slim\Middleware\ContentLengthMiddleware;
+use Slim\Middleware\OutputBufferingMiddleware;
+use Slim\Middleware\BodyParsingMiddleware;
 
 use Illuminate\Database\Capsule\Manager;
 
@@ -15,18 +21,20 @@ use Arikaim\Core\Db\Model;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Packages\Module\ModulePackage;
+use Arikaim\Core\System\Error\ApplicationError;
+use Arikaim\Core\Middleware\CoreMiddleware;
 
 /**
- * Modules Middleware Loader
+ * Middleware Manager
  */
-class ModulesMiddleware 
+class MiddlewareManager 
 {
     /**
      * Add modules middleware
      *   
      * @return boolean
      */
-    public static function add()
+    public static function addModules()
     {
         $modules = Arikaim::cache()->fetch('middleware.list');
         if (is_array($modules) == false) {   
@@ -46,4 +54,23 @@ class ModulesMiddleware
         
         return true;
     }
+
+    /**
+     * Add core and module middlewares
+     */
+    public static function init()
+    {
+        Arikaim::$app->addRoutingMiddleware();
+        Arikaim::$app->add(new ContentLengthMiddleware());
+        Arikaim::$app->add(new BodyParsingMiddleware());
+        $errorMiddleware = Arikaim::$app->addErrorMiddleware(true,true,true);
+        $errorMiddleware->setDefaultErrorHandler(new ApplicationError());
+
+        Arikaim::$app->add(new OutputBufferingMiddleware(new StreamFactory(),OutputBufferingMiddleware::APPEND));
+        // sanitize request body and client ip
+        Arikaim::$app->add(new CoreMiddleware());        
+        // add modules middlewares 
+        Self::addModules();
+    }
+
 }

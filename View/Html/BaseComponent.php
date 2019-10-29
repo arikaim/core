@@ -165,9 +165,9 @@ class BaseComponent
     {
         $language = (empty($language) == true) ? Template::getLanguage() : $language;
         $component = new Component($name,$basePath,$language,$optionsFile);
-    
         if ($component->isValid() == false) {           
-            return $component->setError(Arikaim::getError("TEMPLATE_COMPONENT_NOT_FOUND",["full_component_name" => $name]));           
+            $component->setError(Arikaim::getError("TEMPLATE_COMPONENT_NOT_FOUND",["full_component_name" => $name]));  
+            return $component;         
         }
        
         return ($withOptions == true) ? Self::processOptions($component) : $component;         

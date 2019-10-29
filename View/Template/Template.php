@@ -113,32 +113,34 @@ class Template
                 $language = Arikaim::config('settings/defaultLanguage');
                 $language = (empty($language) == true) ? "en" : $language;
             }                 
-        }            
+        }       
+
         return $language;
     }
     
     /**
      * Set current language
      *
-     * @param string $language_code Language code
+     * @param string $language Language code
      * @return string
      */
-    public static function setLanguage($language_code) 
+    public static function setLanguage($language) 
     {
-        Arikaim::session()->set('language',$language_code);
-        //Arikaim::cookies()->set('language',$language_code);
-        return $language_code;
+        Arikaim::session()->set('language',$language);
+        //Arikaim::cookies()->set('language',$language);
+
+        return $language;
     }
 
     /**
      * Set current front end framework.
      *
-     * @param string $library_name UI library name
+     * @param string $library UI library name
      * @return void
      */
-    public static function setCurrentFramework($library_name)
+    public static function setCurrentFramework($library)
     {
-        Arikaim::session()->set("current.framework",$library_name);
+        Arikaim::session()->set("current.framework",$library);
     }
 
     /**
@@ -155,6 +157,7 @@ class Template
             $framework = last($frameworks);
             Self::setCurrentFramework($framework);
         }
+
         return $framework;
     }
 
@@ -178,13 +181,14 @@ class Template
                 $item['name'] = $file->getFilename();   
                 $item['path'] = $file->getPathname();
                 
-                $component_path = str_replace($path,'',$file->getRealPath());                
-                $component_path = str_replace(DIRECTORY_SEPARATOR,'.',$component_path);
+                $componentPath = str_replace($path,'',$file->getRealPath());                
+                $componentPath = str_replace(DIRECTORY_SEPARATOR,'.',$componentPath);
                
-                $item['full_name'] = $component_path;
+                $item['full_name'] = $componentPath;
                 array_push($items,$item);
             }
         }
+
         return $items;
     }
 
@@ -207,6 +211,7 @@ class Template
                 array_push($items,$item);
             }
         }
+
         return $items;
     }
 
@@ -225,12 +230,13 @@ class Template
         foreach (new \DirectoryIterator($path) as $file) {
             if ($file->isDot() == true || $file->isDir() == true) continue;
             
-            $file_ext = $file->getExtension();
-            if ($file_ext != "html" && $file_ext != "htm") continue;           
+            $fileExt = $file->getExtension();
+            if ($fileExt != "html" && $fileExt != "htm") continue;           
             
-            $item['name'] = str_replace(".$file_ext",'',$file->getFilename());
+            $item['name'] = str_replace(".$fileExt",'',$file->getFilename());
             array_push($items,$item);            
         }
+
         return $items;
     }
 }

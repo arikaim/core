@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\View\Template\Tags;
 
-use Twig\Node\Node;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
@@ -31,12 +30,12 @@ class AccessTagParser extends AbstractTokenParser
         $line = $token->getLine();
         $stream = $this->parser->getStream();
         // tag params
-        $permission_name = $stream->expect(Token::STRING_TYPE)->getValue();
+        $permissionName = $stream->expect(Token::STRING_TYPE)->getValue();
         $stream->expect(Token::BLOCK_END_TYPE);
         $body = $this->parser->subparse([$this,'decideTagEnd'],true);
         $stream->expect(Token::BLOCK_END_TYPE);
         
-        return new AccessNode($body,['permission' => $permission_name],$line,$this->getTag());
+        return new AccessNode($body,['permission' => $permissionName],$line,$this->getTag());
     }
 
     /**

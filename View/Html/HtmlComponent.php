@@ -65,6 +65,7 @@ class HtmlComponent extends BaseComponent
         if ($component->hasError() == true) {
             return Self::getErrorMessage($component->getError());
         }
+
         return $component->getHtmlCode();
     }
 
@@ -83,6 +84,7 @@ class HtmlComponent extends BaseComponent
         if (is_array($context) == true) {
             $params = array_merge($context,$params);
         }
+
         return Self::load($env,$name,$params,$language);
     }
 
@@ -91,12 +93,12 @@ class HtmlComponent extends BaseComponent
      *
      * @param string $name
      * @param string|null $language
-     * @param boolean $with_options
+     * @param boolean $withOptions
      * @return Component
      */
-    public static function create($name, $language = null, $with_options = true)
+    public static function create($name, $language = null, $withOptions = true)
     {
-        return Self::createComponent($name,'components',$language,$with_options);
+        return Self::createComponent($name,'components',$language,$withOptions);
     }
 
     /**
@@ -105,12 +107,12 @@ class HtmlComponent extends BaseComponent
      * @param string|null $name
      * @param array $params
      * @param string|null $language
-     * @param boolean $with_options
+     * @param boolean $withOptions
      * @return Component
      */
-    public static function renderComponent($name, $params = [], $language = null, $with_options = true) 
+    public static function renderComponent($name, $params = [], $language = null, $withOptions = true) 
     { 
-        return Self::render(Arikaim::view()->getEnvironment(),$name,$params,$language,$with_options);
+        return Self::render(Arikaim::view()->getEnvironment(),$name,$params,$language,$withOptions);
     }
 
     /**
@@ -120,12 +122,12 @@ class HtmlComponent extends BaseComponent
      * @param string $name
      * @param array $params
      * @param string|null $language
-     * @param boolean $with_options
+     * @param boolean $withOptions
      * @return Component
      */
-    public static function render(Environment $env, $name, $params = [], $language = null, $with_options = true) 
+    public static function render(Environment $env, $name, $params = [], $language = null, $withOptions = true) 
     {    
-        $component = Self::create($name,$language,$with_options);
+        $component = Self::create($name,$language,$withOptions);
         if (is_object($component) == false) {
             return null;               
         }
@@ -156,7 +158,7 @@ class HtmlComponent extends BaseComponent
      * @param string $key
      * @return boolean
      */
-    public static function includeComponentFiles($files,$key)
+    public static function includeComponentFiles($files, $key)
     {
         if (empty($files) == true) {
             return false;
@@ -164,6 +166,7 @@ class HtmlComponent extends BaseComponent
         foreach ($files as $item) {             
             Arikaim::page()->properties()->prepend('include.components.files',$item,$key);                    
         }
+
         return true;
     }
 
@@ -177,6 +180,7 @@ class HtmlComponent extends BaseComponent
     public static function getProperties($name, $language = null)
     {       
         $component = Self::create($name,$language);
+
         return (is_object($component) == true) ? $component->loadProperties() : null;
     }
     
@@ -189,6 +193,7 @@ class HtmlComponent extends BaseComponent
     public static function getOptions($name)
     {       
         $component = Self::create($name);
+        
         return (is_object($component) == true) ? $component->getOptions() : null;
     }
 }
