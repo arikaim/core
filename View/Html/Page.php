@@ -4,7 +4,7 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\View\Html;
@@ -479,6 +479,7 @@ class Page extends BaseComponent
                 array_push($frameworks,$libraryName);
             }
         }
+
         Arikaim::page()->properties()->set('ui.library.files',$includeLib);       
         Arikaim::session()->set("ui.included.libraries",json_encode($libraryList));
         Arikaim::session()->set("ui.included.frameworks",json_encode($frameworks));

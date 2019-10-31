@@ -4,7 +4,7 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Packages\Drivers;
@@ -32,6 +32,13 @@ abstract class RepositoryDriver implements RepositoryDriverInterface
     protected $packageName;
 
     /**
+     * Repo name
+     *
+     * @var string
+     */
+    protected $repositoryName;
+
+    /**
      * Constructor
      * 
      * @param string $repositoryUrl  
@@ -55,7 +62,6 @@ abstract class RepositoryDriver implements RepositoryDriverInterface
      */
     public abstract function getLastVersion();
 
-
     /**
      * Get package file name
      *
@@ -64,10 +70,9 @@ abstract class RepositoryDriver implements RepositoryDriverInterface
      */
     public function getPackageFileName($version)
     {
-        $packageName = $this->getPackageName();
-        $fileName = str_replace('/','_',$packageName);
-        
-        return Arikaim::storage()->getStoragePath('repository/' . $fileName . '-' . $version . '.zip');
+        $fileName = str_replace('/','_',$this->getPackageName());
+
+        return $fileName . '-' . $version . '.zip';
     }
     
     /**
@@ -78,5 +83,15 @@ abstract class RepositoryDriver implements RepositoryDriverInterface
     public function getPackageName()
     {
         return $this->packageName;
+    }
+
+    /**
+     * Get repository name
+     *
+     * @return string
+     */
+    public function getRepositoryName()
+    {
+        return $this->repositoryName;
     }
 }

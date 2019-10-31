@@ -4,7 +4,7 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Packages\Template;
@@ -38,7 +38,6 @@ class TemplatesManager extends PackageManager
     public function getPackages($cached = false, $filter = null)
     {
         $result = ($cached == true) ? Arikaim::cache()->fetch('templates.list') : null;
-        
         if (is_array($result) == false) {
             $result = $this->scan($filter);
             Arikaim::cache()->save('templates.list',$result,5);

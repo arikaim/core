@@ -4,7 +4,7 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Controllers\Api;
@@ -45,12 +45,14 @@ class Packages extends ApiController
 
             $packageManager = PackageManagerFactory::create($type);
             $package = $packageManager->createPackage($name);
-
             $result = (is_object($package) == true) ? $package->getRepository()->install() : false;
 
-            exit();
-
-            $this->setResponse($result,'packages.install','errors.packages.install');
+            $this->setResponse($result,function() use($name,$type) {                  
+                $this
+                    ->message($type . '.install')
+                    ->field('type',$type)   
+                    ->field('name',$name);                  
+            },'errors.' . $type . '.install');
         });
         $data->validate();       
     }

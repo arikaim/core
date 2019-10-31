@@ -4,11 +4,12 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Packages\Extension;
 
+use Arikaim\Core\Interfaces\Collection\CollectionInterface;
 use Arikaim\Core\Packages\Package;
 use Arikaim\Core\System\Path;
 use Arikaim\Core\Arikaim;
@@ -16,6 +17,7 @@ use Arikaim\Core\Db\Model;
 use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Utils\Factory;
+use Arikaim\Core\Packages\Extension\ExtensionRepository;
 
 /**
  * Extension Package
@@ -29,13 +31,16 @@ class ExtensionPackage extends Package
     /**
      * Constructor
      *
-     * @param \Arikaim\Core\Interfaces\Collection\CollectionInterface $properties
+     * @param CollectionInterface $properties
      */
-    public function __construct($properties) 
+    public function __construct(CollectionInterface $properties) 
     {
         // set default
         $properties->set('type',Self::getTypeID($properties->get('type')));
         parent::__construct($properties);
+
+        $repositoryUrl = $properties->get('repository',null);
+        $this->repository = new ExtensionRepository($repositoryUrl);
     }
 
     /**

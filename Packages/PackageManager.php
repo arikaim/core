@@ -4,7 +4,7 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Packages;
@@ -12,7 +12,6 @@ namespace Arikaim\Core\Packages;
 use Arikaim\Core\Interfaces\Packages\PackageManagerInterface;
 use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Collection\Collection;
-use Arikaim\Core\Arikaim;
 
 /**
  * Package managers base class
@@ -95,7 +94,7 @@ abstract class PackageManager implements PackageManagerInterface
     public function loadPackageProperties($name) 
     {         
         $fileName = $this->getPath() . $name . DIRECTORY_SEPARATOR . $this->getPropertiesFileName();
-        $data = File::readJSONFile($fileName);
+        $data = File::readJsonFile($fileName);
         $data = (is_array($data) == true) ? $data : [];
 
         $properties = new Collection($data);    
@@ -132,6 +131,7 @@ abstract class PackageManager implements PackageManagerInterface
                 array_push($items,$name);        
             }
         }  
+        
         return $items;
     }
 

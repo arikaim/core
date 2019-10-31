@@ -4,7 +4,7 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Packages;
@@ -12,6 +12,9 @@ namespace Arikaim\Core\Packages;
 use Arikaim\Core\Interfaces\Packages\RepositoryInterface;
 use Arikaim\Core\Interfaces\Packages\RepositoryDriverInterface;
 use Arikaim\Core\Packages\Drivers\GitHubRepositoryDriver;
+use Arikaim\Core\Utils\ZipFile;
+use Arikaim\Core\System\Path;
+use Arikaim\Core\Arikaim;
 
 /**
  * Package repository base class
@@ -115,6 +118,25 @@ abstract class PackageRepository implements RepositoryInterface
     public function getPackageName()
     {
         return (is_object($this->driver) == true) ? $this->driver->getPackageName() : null;
+    }
+
+    /**
+     * Extract repositry zip file to  storage/temp folder
+     *
+     * @param string $version
+     * @return string|false  Return packge folder
+     */
+    protected function extractRepository($version)
+    {
+        $repositoryName = $this->getRepositoryDriver()->getRepositoryName();
+        $repositoryFolder = $repositoryName . "-" . $version;
+        $packageFileName = $this->getRepositoryDriver()->getPackageFileName($version);
+        $zipFile = Arikaim::storage()->getStoragePath('repository/' . $packageFileName);
+    
+        Arikaim::storage()->deleteDir('temp/' . $repositoryFolder);
+        ZipFile::extract($zipFile,Path::STORAGE_TEMP_PATH);
+
+        return  (Arikaim::storage()->has('temp/' . $repositoryFolder) == true) ? $repositoryFolder : false;
     }
 
     /**

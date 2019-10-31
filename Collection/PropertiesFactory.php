@@ -4,7 +4,7 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
  */
 namespace Arikaim\Core\Collection;
@@ -43,7 +43,7 @@ class PropertiesFactory
      */
     public static function createFromFile($file_name, $resolveProperties = true)
     {
-        $data = File::readJSONFile($file_name);
+        $data = File::readJsonFile($file_name);
         $data = (is_array($data) == true) ? $data : [];
 
         return ($resolveProperties == true) ? new Properties($data) : Self::createFromArray($data);       

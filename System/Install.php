@@ -4,7 +4,7 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
  */
 namespace Arikaim\Core\System;
@@ -121,6 +121,14 @@ class Install
         Arikaim::event()->registerEvent('core.jobs.before.execute','Before run job.');
         Arikaim::event()->registerEvent('core.jobs.after.execute','After run job.');
         Arikaim::event()->registerEvent('core.jobs.queue.run','After run jobs queue.');
+        // Storage events
+        Arikaim::event()->registerEvent('core.storage.delete.file','File is deleted in storage folder.');
+        Arikaim::event()->registerEvent('core.storage.write.file','File is added to storage folder.');
+        Arikaim::event()->registerEvent('core.storage.update.file','File is updated.');
+        Arikaim::event()->registerEvent('core.storage.rename.file','Rename file.');
+        Arikaim::event()->registerEvent('core.storage.copy.file','Copy file.');
+        Arikaim::event()->registerEvent('core.storage.create.dir','Create directory');
+        Arikaim::event()->registerEvent('core.storage.delete.dir','Delete directory');
     } 
 
     /**

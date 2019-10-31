@@ -4,7 +4,7 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Packages;
@@ -87,6 +87,20 @@ class Package implements PackageInterface
     public function getProperties($full = false)
     {
         return $this->properties;
+    }
+
+    /**
+     * Get package property
+     *
+     * @param srting $name
+     * @param mixed $default
+     * @return mixed
+     */
+    public function getProperty($name, $default = null)
+    {
+        echo $this->properties->get($name,$default);
+        exit();
+        return $this->properties->get($name,$default);
     }
 
     /**

@@ -4,7 +4,7 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
  */
 namespace Arikaim\Core\System;
@@ -130,7 +130,7 @@ class Path
      */
     public static function getLibraryThemesPath($library)
     {
-        return Self::getLibraryPath($library) . DIRECTORY_SEPARATOR . "themes";
+        return Self::getLibraryPath($library) . "themes";
     }
 
     /**
@@ -197,7 +197,9 @@ class Path
                 return  Self::TEMPLATES_PATH . $template . DIRECTORY_SEPARATOR;
             case Component::GLOBAL_COMPONENT:
                 return Path::ARIKAIM_VIEW_PATH . DIRECTORY_SEPARATOR;
-        }                     
+        }           
+        
+        return  Self::TEMPLATES_PATH . $template . DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -207,8 +209,9 @@ class Path
      * @param string $fileName
      * @return string
      */
-    public static function getLibraryFilePath($library, $fileName) {
-        return Self::getLibraryPath($library) . DIRECTORY_SEPARATOR . $fileName;
+    public static function getLibraryFilePath($library, $fileName) 
+    {
+        return Self::getLibraryPath($library) . $fileName;
     }
     
     /**
@@ -219,7 +222,7 @@ class Path
      */
     public static function getLibraryPath($library)
     {
-        return Self::LIBRARY_PATH . $library;
+        return Self::LIBRARY_PATH . $library . DIRECTORY_SEPARATOR;
     }
 
     /**

@@ -4,7 +4,7 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Interfaces\Packages;
@@ -34,4 +34,11 @@ interface RepositoryDriverInterface
      * @return string
      */
     public function getPackageName();
+
+    /**
+     * Get repository name
+     *
+     * @return string
+     */
+    public function getRepositoryName();
 }

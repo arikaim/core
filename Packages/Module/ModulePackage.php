@@ -4,17 +4,19 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Packages\Module;
 
+use Arikaim\Core\Packages\Module\ModuleRepository;
 use Arikaim\Core\Packages\Package;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\System\Path;
 use Arikaim\Core\FileSystem\File;
+use Arikaim\Core\Interfaces\Collection\CollectionInterface;
 
 /**
  * Module Package class
@@ -33,9 +35,9 @@ class ModulePackage extends Package
     /**
      * Constructor
      *
-     * @param \Arikaim\Core\Interfaces\Collection\CollectionInterface $properties
+     * @param CollectionInterface $properties
      */
-    public function __construct($properties) 
+    public function __construct(CollectionInterface $properties) 
     {
         // set default values
         $properties->type = $properties->get('type','service');
@@ -43,6 +45,10 @@ class ModulePackage extends Package
         $properties->service_name = $properties->get('service_name',$properties->get('name'));
      
         parent::__construct($properties);
+
+        $repositoryUrl = $properties->get('repository',null);
+        $this->repository = new ModuleRepository($repositoryUrl);
+
     }
 
     /**

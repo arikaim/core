@@ -7,7 +7,7 @@
  * @license     http://www.arikaim.com/license
  * 
 */
-namespace Arikaim\Core\Packages\Library;
+namespace Arikaim\Core\Packages\Extension;
 
 use Arikaim\Core\Packages\PackageRepository;
 use Arikaim\Core\Interfaces\Packages\RepositoryInterface;
@@ -15,10 +15,11 @@ use Arikaim\Core\System\Path;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\FileSystem\File;
 
+
 /**
- * Package repository base class 
+ * Extension repository 
 */
-class LibraryRepository extends PackageRepository implements RepositoryInterface
+class ExtensionRepository extends PackageRepository implements RepositoryInterface
 {
     /**
      * Constructor
@@ -29,7 +30,7 @@ class LibraryRepository extends PackageRepository implements RepositoryInterface
     {
         parent::__construct($repositoryUrl);
     }
-    
+
     /**
      * Install package
      *
@@ -47,20 +48,18 @@ class LibraryRepository extends PackageRepository implements RepositoryInterface
                 // Error extracting zip repository file
                 return false;
             }
-
-            $json = Arikaim::storage()->read('temp/' . $repositoryFolder . '/library.json');
-
+            $json = Arikaim::storage()->read('temp/' . $repositoryFolder . '/template.json');
             if ($json != false) {
-                $libraryProperties = json_decode($json,true);
-                $libraryName = (isset($libraryProperties['name']) == true) ? $libraryProperties['name'] : false;
-                if ($libraryName != false) {   
+                $templateProperties = json_decode($json,true);
+                $templateName = (isset($templateProperties['name']) == true) ? $templateProperties['name'] : false;
+                if ($templateName != false) {   
                     $sourcePath = Arikaim::storage()->getStoragePath('temp/' . $repositoryFolder);
-                    $destinatinPath = Path::getLibraryPath($libraryName);
+                    $destinatinPath = Path::getTemplatePath($templateName);
                     $result = File::copy($sourcePath,$destinatinPath);
                     
                     return $result;
                 }
-                // Missing package name in library.json file.
+                // Missing package name in template.json file.
                 return false;
             }
             // Not valid package

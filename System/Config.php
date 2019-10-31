@@ -4,7 +4,7 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
  */
 namespace Arikaim\Core\System;
@@ -242,7 +242,7 @@ class Config extends Collection
      */
     public static function loadJsonConfigFile($fileName = null)
     {
-        $data = File::readJSONFile(Path::CONFIG_PATH . $fileName);
+        $data = File::readJsonFile(Path::CONFIG_PATH . $fileName);
         $data = (is_array($data) == true) ? $data : [];
 
         $items = new Collection($data);

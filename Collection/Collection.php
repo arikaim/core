@@ -4,7 +4,7 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Collection;
@@ -45,7 +45,7 @@ class Collection implements CollectionInterface, \Countable, \ArrayAccess, \Iter
      */
     public static function createFromFile($fileName, $root = null, $vars = null) 
     {
-        $data = File::readJSONFile($fileName,$vars);
+        $data = File::readJsonFile($fileName,$vars);
         $data = (is_array($data) == true) ? $data : [];
         $data = (isset($data[$root]) == true) ? $data[$root] : $data;
         

@@ -4,7 +4,7 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\FileSystem;
@@ -14,7 +14,7 @@ use Arikaim\Core\Utils\Text;
 use Arikaim\Core\System\Error\Errors;
 
 /**
- * File (todo  readJSONFile  )
+ * File
 */
 class File 
 {
@@ -26,7 +26,7 @@ class File
      * @param boolean $toArray
      * @return array|false
      */
-    public static function readJSONFile($fileName, $vars = null, $toArray = true) 
+    public static function readJsonFile($fileName, $vars = null, $toArray = true) 
     {    
         if (File::exists($fileName) == false) {
             return false;
@@ -258,5 +258,43 @@ class File
     public static function isImageMimeType($mimeType)
     {
         return (substr($mimeType,0,5) == 'image');
+    }
+
+    /**
+     * Copy file, symlink or directory
+     *
+     * @param string $from
+     * @param string $to
+     * @param boolean $overwrite
+     * @return boolean
+     */
+    public static function copy($from, $to, $overwrite = true)
+    {
+        if (is_link($from) == true) {
+            return symlink(readlink($from),$to);
+        }
+        if (is_file($from) == true) {
+            if ($overwrite == false) {
+                if (file_exists($to) == true) {
+                    return false;
+                }
+            }
+            return copy($from,$to);
+        }
+        if (is_dir($to) == false) {
+            mkdir($to);
+        }
+
+        $dir = dir($from);
+        while (false !== $item = $dir->read()) {
+            if ($item == '.' || $item == '..') {
+                continue;
+            }
+            // copy sub directories
+            Self::copy($from . DIRECTORY_SEPARATOR . $item,$to . DIRECTORY_SEPARATOR . $item);
+        }       
+        $dir->close();
+
+        return true;
     }
 }

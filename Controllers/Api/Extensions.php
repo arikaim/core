@@ -4,7 +4,7 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Controllers\Api;
@@ -48,9 +48,9 @@ class Extensions extends ApiController
 
             $this->setResponse($result,function() use($name) {
                 $this
-                    ->message('extensions.update')
+                    ->message('extension.update')
                     ->field('name',$name);
-            },'errors.extensions.update');
+            },'errors.extension.update');
         });
         $data->validate();
     }
@@ -76,14 +76,14 @@ class Extensions extends ApiController
             
             $this->setResponse($result,function() use($name,$status) {
                 if ($status == 1) {
-                    $this->message('extensions.enable');
+                    $this->message('extension.enable');
                 } else {                 
-                    $this->message('extensions.disable');
+                    $this->message('extension.disable');
                 }
                 $this
                     ->field('name',$name)
                     ->field('status',$status);
-            },'errors.extensions.status');
+            },'errors.extension.status');
         });
         $data->validate();
     }
@@ -107,9 +107,9 @@ class Extensions extends ApiController
 
             $this->setResponse($result,function() use($name) {
                 $this
-                    ->message('extensions.uninstall')
+                    ->message('extension.uninstall')
                     ->field('name',$name);
-            },'errors.extensions.uninstall');
+            },'errors.extension.uninstall');
         });
         $data
             ->addRule("exists:model=Extensions|field=name","name")
@@ -135,9 +135,9 @@ class Extensions extends ApiController
 
             $this->setResponse($result,function() use($name) {
                 $this
-                    ->message('extensions.install')
+                    ->message('extension.install')
                     ->field('name',$name);
-            },'errors.extensions.install');            
+            },'errors.extension.install');            
         });
         $data
             ->addRule("extensionPath","name")

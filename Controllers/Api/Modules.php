@@ -4,7 +4,7 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Controllers\Api;
@@ -45,7 +45,7 @@ class Modules extends ApiController
             $module->config = $data->toArray();
             $result = $module->save();
 
-            $this->setResponse($result,'modules.config','errors.modules.config');
+            $this->setResponse($result,'module.config','errors.module.config');
         });
         $data->validate();       
     }
@@ -66,7 +66,7 @@ class Modules extends ApiController
             $manager = new ModulesManager();
             $result = $manager->unInstallPackage($data['name']);
             
-            $this->setResponse($result,'modules.uninstall','errors.modules.uninstall');
+            $this->setResponse($result,'module.uninstall','errors.module.uninstall');
         });
         $data->validate();    
     }
@@ -87,7 +87,7 @@ class Modules extends ApiController
             $manager = new ModulesManager();
             $result = $manager->reInstallPackage($data['name']);
 
-            $this->setResponse($result,'modules.update','errors.modules.update');
+            $this->setResponse($result,'module.update','errors.module.update');
         });
         $data->validate();  
     }
@@ -108,7 +108,7 @@ class Modules extends ApiController
             $manager = new ModulesManager();
             $result = $manager->installPackage($data['name']);
 
-            $this->setResponse($result,'modules.install','errors.modules.install');          
+            $this->setResponse($result,'module.install','errors.module.install');          
         });
         $data->validate();  
     }
@@ -129,7 +129,7 @@ class Modules extends ApiController
             $manager = new ModulesManager();
             $result = $manager->enablePackage($data['name']);
 
-            $this->setResponse($result,'modules.enable','errors.modules.enable');       
+            $this->setResponse($result,'module.enable','errors.module.enable');       
         });
         $data->validate();         
     }
@@ -150,7 +150,7 @@ class Modules extends ApiController
             $manager = new ModulesManager();
             $result = $manager->disablePackage($data['name']);
 
-            $this->setResponse($result,'modules.disable','errors.modules.disable');       
+            $this->setResponse($result,'module.disable','errors.module.disable');       
         });
         $data->validate();         
     }

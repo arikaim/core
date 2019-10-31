@@ -4,7 +4,7 @@
  *
  * @link        http://www.arikaim.com
  * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
- * @license     http://www.arikaim.com/license.html
+ * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Packages\Library;
@@ -31,17 +31,6 @@ class LibraryPackage extends Package
         // create repository
         $repositoryUrl = $properties->get('repository',null);
         $this->repository = new LibraryRepository($repositoryUrl);
-    }
-
-    /**
-     * Return properties
-     *
-     * @param boolean $full
-     * @return Collection
-     */
-    public function getProperties($full = false)
-    {
-        return $this->properties; 
     }
 
     /**
