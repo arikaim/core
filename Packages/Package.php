@@ -12,6 +12,9 @@ namespace Arikaim\Core\Packages;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Interfaces\Packages\PackageInterface;
 use Arikaim\Core\Interfaces\Collection\CollectionInterface;
+use Arikaim\Core\System\Path;
+use Arikaim\Core\Utils\ZipFile;
+use Arikaim\Core\Arikaim;
 
 /**
  * Package base class
@@ -98,8 +101,6 @@ class Package implements PackageInterface
      */
     public function getProperty($name, $default = null)
     {
-        echo $this->properties->get($name,$default);
-        exit();
         return $this->properties->get($name,$default);
     }
 
@@ -162,5 +163,16 @@ class Package implements PackageInterface
     {        
         $this->unInstall();
         return $this->install();
+    }
+
+    /**
+     * Create zip arhive with package files and save to storage/backup/
+     *
+     * @return boolean
+     */
+    public function createBackup()
+    {
+        $fileName = $this->properties->get('name') . '-' . $this->getVersion() . '.zip';
+        $destination = Path::STORAGE_PATH . '/backup/' . $fileName;
     }
 }

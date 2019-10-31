@@ -49,12 +49,12 @@ class TemplatesManager extends PackageManager
     /**
      * Create template package
      *
-     * @param string $template_name
+     * @param string $name
      * @return TemplatePackage
      */
-    public function createPackage($template_name)
+    public function createPackage($name)
     {
-        $propertes = $this->loadPackageProperties($template_name);
+        $propertes = $this->loadPackageProperties($name);
 
         return new TemplatePackage($propertes);
     }

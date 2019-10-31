@@ -157,7 +157,7 @@ class Install
     private function initDefaultOptions()
     {
         // add date formats options
-        $items = Arikaim::config()->loadJsonConfigFile("date_format.json");      
+        $items = Arikaim::config()->loadJsonConfigFile("date-format.json");      
         Arikaim::options()->createOption('date.format.items',$items,false);
         // set default date format 
         $key = array_search(1,array_column($items,'default'));
@@ -166,7 +166,7 @@ class Install
         }
      
         // add time format options
-        $items = Arikaim::config()->loadJsonConfigFile("time_format.json");
+        $items = Arikaim::config()->loadJsonConfigFile("time-format.json");
         Arikaim::options()->createOption('time.format.items',$items,false);
         // set default time format
         $key = array_search(1,array_column($items,'default'));
@@ -175,7 +175,7 @@ class Install
         }
 
         // add number format options
-        $items = Arikaim::config()->loadJsonConfigFile("number_format.json");
+        $items = Arikaim::config()->loadJsonConfigFile("number-format.json");
         Arikaim::options()->createOption('number.format.items',$items,false);
         // set default number format
         Arikaim::options()->createOption('number.format',"default",true);
