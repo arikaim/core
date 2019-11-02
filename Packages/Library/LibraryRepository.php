@@ -54,7 +54,7 @@ class LibraryRepository extends PackageRepository implements RepositoryInterface
                 $libraryProperties = json_decode($json,true);
                 $libraryName = (isset($libraryProperties['name']) == true) ? $libraryProperties['name'] : false;
                 if ($libraryName != false) {   
-                    $sourcePath = Arikaim::storage()->getStoragePath('temp/' . $repositoryFolder);
+                    $sourcePath = Path::STORAGE_TEMP_PATH . $repositoryFolder;
                     $destinatinPath = Path::getLibraryPath($libraryName);
                     $result = File::copy($sourcePath,$destinatinPath);
                     

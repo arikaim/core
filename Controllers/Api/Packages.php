@@ -11,6 +11,11 @@ namespace Arikaim\Core\Controllers\Api;
 
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Packages\PackageManagerFactory;
+use Arikaim\Core\Packages\PackageManager;
+use Arikaim\Core\Packages\Template\TemplatesManager;
+use Arikaim\Core\Db\Model;
+use Arikaim\Core\View\Theme;
+use Arikaim\Core\View\Template\Template;
 
 /**
  * Packages controller
@@ -35,15 +40,20 @@ class Packages extends ApiController
      * @param Validator $data
      * @return Psr\Http\Message\ResponseInterface
      */
-    public function installController($request, $response, $data)
+    public function repositoryInstallController($request, $response, $data)
     {
         $this->requireControlPanelPermission();
 
         $this->onDataValid(function($data) {            
             $type = $data->get('type',null);
             $name = $data->get('package',null);
-
             $packageManager = PackageManagerFactory::create($type);
+
+            if ($type != PackageManager::LIBRARY_PACKAGE) {
+                // create package backup
+                $packageManager->createBackup($name);
+            }
+        
             $package = $packageManager->createPackage($name);
             $result = (is_object($package) == true) ? $package->getRepository()->install() : false;
 
@@ -55,5 +65,211 @@ class Packages extends ApiController
             },'errors.' . $type . '.install');
         });
         $data->validate();       
+    }
+
+    /**
+     * Uninstall package
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+     */
+    public function unInstallController($request, $response, $data)
+    {
+        $this->requireControlPanelPermission();
+
+        $this->onDataValid(function($data) { 
+            $type = $data->get('type',null);
+            $name = $data->get('name',null);
+
+            $packageManager = PackageManagerFactory::create($type);
+            $result = $packageManager->unInstallPackage($name);
+
+            $this->setResponse($result,function() use($name,$type) {                  
+                $this
+                    ->message($type . '.uninstall')
+                    ->field('type',$type)   
+                    ->field('name',$name);                  
+            },'errors.' . $type . '.uninstall');
+        });
+        $data->validate();
+    }
+
+    /**
+     * Install package
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+     */
+    public function installController($request, $response, $data)
+    {
+        $this->requireControlPanelPermission();
+
+        $this->onDataValid(function($data) { 
+            $type = $data->get('type',null);
+            $name = $data->get('name',null);
+
+            $packageManager = PackageManagerFactory::create($type);
+            $result = $packageManager->installPackage($name);
+
+            $this->setResponse($result,function() use($name,$type) {                  
+                $this
+                    ->message($type . '.install')
+                    ->field('type',$type)   
+                    ->field('name',$name);                  
+            },'errors.' . $type . '.install');
+        });
+        $data->validate();
+    }
+
+    /**
+     * Update (reinstall) package
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+     */
+    public function updateController($request, $response, $data)
+    {
+        $this->requireControlPanelPermission();
+
+        $this->onDataValid(function($data) {  
+            $type = $data->get('type',null);
+            $name = $data->get('name',null);
+
+            $packageManager = PackageManagerFactory::create($type);            
+            $package = $packageManager->createPackage($name);
+
+            $package->unInstall();
+            $result = $package->install();
+
+            $this->setResponse($result,function() use($name,$type) {
+                $this
+                    ->message($type . '.update')
+                    ->field('type',$type)   
+                    ->field('name',$name);         
+            },'errors.' . $type  . '.update');
+        });
+        $data->validate();
+    }
+
+    /**
+     * Enable/Disable package
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+     */
+    public function setStatusController($request, $response, $data)
+    {
+        $this->requireControlPanelPermission();
+        
+        $this->onDataValid(function($data) {     
+            $type = $data->get('type',null);
+            $name = $data->get('name',null);
+            $status = $data->get('status',1);
+
+            $packageManager = PackageManagerFactory::create($type);            
+          
+            $result = ($status == 1) ? $packageManager->enablePackage($name) : $packageManager->disablePackage($name);
+            $stausLabel = ($status == 1) ? 'enable' : 'disable';
+
+            $this->setResponse($result,function() use($name,$type,$status,$stausLabel) {               
+                $this
+                    ->message($type . '.' . $stausLabel)
+                    ->field('type',$type)   
+                    ->field('status',$status)
+                    ->field('name',$name);         
+            },'errors.' . $type  . '.' . $stausLabel);
+        });
+        $data->validate();
+    }
+
+    /**
+     * Save module config
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+     */
+    public function saveConfigController($request, $response, $data)
+    {
+        $this->requireControlPanelPermission();
+
+        $this->onDataValid(function($data) {            
+            $module = Model::Modules()->FindByColumn('name',$data['name']);
+            $module->config = $data->toArray();
+            $result = $module->save();
+
+            $this->setResponse($result,'module.config','errors.module.config');
+        });
+        $data->validate();       
+    }
+
+    /**
+     * Set current theme
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+     */
+    public function setCurrentThemeController($request, $response, $data)
+    {       
+        // access from contorl panel only 
+        $this->requireControlPanelPermission();
+            
+        $this->onDataValid(function($data) {
+            $themeName = $data->get('theme_name');
+            $templateName = $data->get('template_name',Template::getTemplateName());          
+            Theme::setCurrentTheme($themeName,$templateName);
+         
+            $this
+                ->message('theme.current')
+                ->field('theme',$themeName)
+                ->field('template',$templateName);
+        });
+        $data->validate();
+    }
+
+    /**
+     * Set current template
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+     */
+    public function setCurrentController($request, $response, $data)
+    {       
+        // access from contorl panel only 
+        $this->requireControlPanelPermission();
+        
+        $this->onDataValid(function($data) { 
+            $current = Template::getTemplateName();
+            $templates = new TemplatesManager();
+
+            // uninstall current template routes 
+            $result = $templates->unInstallPackage($current);
+            // install new template routes
+            $result = $templates->installPackage($data['name']);
+            if ($result == false) {
+                // roll back current template
+                $templates->installPackage($current);
+                $this->error('errors.template.current');
+            } else {                
+                $this
+                    ->message('template.current')
+                    ->field('name',$data['name']);
+            }
+            
+        });
+        $data->validate();            
     }
 }

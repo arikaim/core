@@ -56,7 +56,7 @@ class TemplatesManager extends PackageManager
     {
         $propertes = $this->loadPackageProperties($name);
 
-        return new TemplatePackage($propertes);
+        return new TemplatePackage($propertes,Self::TEMPLATE_PACKAGE);
     }
 
     /**

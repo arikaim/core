@@ -131,7 +131,7 @@ abstract class PackageRepository implements RepositoryInterface
         $repositoryName = $this->getRepositoryDriver()->getRepositoryName();
         $repositoryFolder = $repositoryName . "-" . $version;
         $packageFileName = $this->getRepositoryDriver()->getPackageFileName($version);
-        $zipFile = Arikaim::storage()->getStoragePath('repository/' . $packageFileName);
+        $zipFile = Path::STORAGE_REPOSITORY_PATH . $packageFileName;
     
         Arikaim::storage()->deleteDir('temp/' . $repositoryFolder);
         ZipFile::extract($zipFile,Path::STORAGE_TEMP_PATH);

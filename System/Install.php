@@ -124,7 +124,6 @@ class Install
         // Storage events
         Arikaim::event()->registerEvent('core.storage.delete.file','File is deleted in storage folder.');
         Arikaim::event()->registerEvent('core.storage.write.file','File is added to storage folder.');
-        Arikaim::event()->registerEvent('core.storage.update.file','File is updated.');
         Arikaim::event()->registerEvent('core.storage.rename.file','Rename file.');
         Arikaim::event()->registerEvent('core.storage.copy.file','Copy file.');
         Arikaim::event()->registerEvent('core.storage.create.dir','Create directory');

@@ -53,7 +53,7 @@ class ExtensionRepository extends PackageRepository implements RepositoryInterfa
                 $templateProperties = json_decode($json,true);
                 $templateName = (isset($templateProperties['name']) == true) ? $templateProperties['name'] : false;
                 if ($templateName != false) {   
-                    $sourcePath = Arikaim::storage()->getStoragePath('temp/' . $repositoryFolder);
+                    $sourcePath = Path::STORAGE_TEMP_PATH . $repositoryFolder;
                     $destinatinPath = Path::getTemplatePath($templateName);
                     $result = File::copy($sourcePath,$destinatinPath);
                     

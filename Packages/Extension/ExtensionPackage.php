@@ -24,7 +24,10 @@ use Arikaim\Core\Packages\Extension\ExtensionRepository;
 */
 class ExtensionPackage extends Package
 {
-    const USER = 0;
+    /**
+     *  Extension type
+     */
+    const USER   = 0;
     const SYSTEM = 1;
     const TYPE_NAME = ['user','system'];
 
@@ -32,12 +35,13 @@ class ExtensionPackage extends Package
      * Constructor
      *
      * @param CollectionInterface $properties
+     * @param string $packageType
      */
-    public function __construct(CollectionInterface $properties) 
+    public function __construct(CollectionInterface $properties, $packageType) 
     {
         // set default
-        $properties->set('type',Self::getTypeID($properties->get('type')));
-        parent::__construct($properties);
+        $properties->set('type',Self::getTypeId($properties->get('type')));
+        parent::__construct($properties,$packageType);
 
         $repositoryUrl = $properties->get('repository',null);
         $this->repository = new ExtensionRepository($repositoryUrl);
@@ -67,6 +71,7 @@ class ExtensionPackage extends Package
             $this->properties['console_commands'] = $this->getConsoleCommands();
             $this->properties['jobs'] = $this->getExtensionJobs();
         }
+        
         return $this->properties; 
     }
 
@@ -200,9 +205,9 @@ class ExtensionPackage extends Package
         Arikaim::cache()->clear();
 
         $details = $this->getProperties(true);
-        $extension = $this->getName();
+        $extensionName = $this->getName();
 
-        $extObj = Factory::createExtension($extension,$details->get('class'));
+        $extObj = Factory::createExtension($extensionName,$details->get('class'));
         if (is_object($extObj) == false) {
             Arikaim::errors()->addError("EXTENSION_CLASS_NOT_VALID");
             return false;
@@ -213,15 +218,15 @@ class ExtensionPackage extends Package
         $extObj->onBeforeInstall();
     
         // delete extension routes
-        Model::Routes()->deleteExtensionRoutes($extension);
+        Model::Routes()->deleteExtensionRoutes($extensionName);
 
         // delete jobs 
-        Arikaim::queue()->deleteExtensionJobs($extension);
+        Arikaim::queue()->deleteExtensionJobs($extensionName);
 
         // delete registered events
-        Model::Events()->deleteEvents($extension);         
+        Model::Events()->deleteEvents($extensionName);         
         // delete registered events subscribers
-        Model::EventSubscribers()->deleteExtensionSubscribers($extension);
+        Model::EventSubscribers()->deleteExtensionSubscribers($extensionName);
 
         // run install extension
         $extObj->install(); 
@@ -233,14 +238,14 @@ class ExtensionPackage extends Package
         $this->registerEventsSubscribers();
 
         // add to extensions db table
-        $extension = Model::Extensions();              
-        $details->set('status',$extension->ACTIVE());
+        $model = Model::Extensions();              
+        $details->set('status',$model->ACTIVE());
 
-        if ($extension->isInstalled($extension) == false) {            
-            $extension->create($details->toArray());
+        if ($model->isInstalled($extensionName) == false) {            
+            $model->create($details->toArray());
         } else {
-            $extension = $extension->where('name','=',$extension)->first();
-            $extension->update($details->toArray());
+            $model = $model->where('name','=',$extensionName)->first();
+            $model->update($details->toArray());
         }
 
         // trigger core.extension.after.install event
@@ -261,11 +266,11 @@ class ExtensionPackage extends Package
         Arikaim::cache()->deleteExtensionItems();
         
         $details = $this->getProperties(true);
-        $extension = $this->getName();
+        $extensionName = $this->getName();
 
-        $extension = Model::Extensions();
-        $extObj = Factory::createExtension($extension,$details->get('class'));
-    
+        $model = Model::Extensions();
+        $extObj = Factory::createExtension($extensionName,$details->get('class'));
+        
         // trigger core.extension.before.uninstall event
         Arikaim::event()->trigger('core.extension.before.uninstall',$details->toArray());
 
@@ -275,19 +280,19 @@ class ExtensionPackage extends Package
         }
         
         // delete registered routes
-        Model::Routes()->deleteExtensionRoutes($extension);
+        Model::Routes()->deleteExtensionRoutes($extensionName);
 
         // delete registered events
-        Model::Events()->deleteEvents($extension);
+        Model::Events()->deleteEvents($extensionName);
         // delete registered events subscribers
-        Model::EventSubscribers()->deleteExtensionSubscribers($extension);
+        Model::EventSubscribers()->deleteExtensionSubscribers($extensionName);
 
         // delete extension options
-        Arikaim::options()->removeExtensionOptions($extension);
-        $result = $extension->where('name','=',$extension)->delete();
+        Arikaim::options()->removeExtensionOptions($extensionName);
+        $result = $model->where('name','=',$extensionName)->delete();
 
         // delete jobs 
-        Arikaim::queue()->deleteExtensionJobs($extension);
+        Arikaim::queue()->deleteExtensionJobs($extensionName);
     
         // run extension unInstall
         $extObj->unInstall();
@@ -298,6 +303,7 @@ class ExtensionPackage extends Package
         }
         // trigger core.extension.after.uninstall event
         Arikaim::event()->trigger('core.extension.after.uninstall',$details->toArray());
+
         return $result;
     }
 
@@ -380,7 +386,7 @@ class ExtensionPackage extends Package
     }
 
     /**
-     * Return type id
+     * Return extension type id
      *
      * @param string $typeName
      * @return integer

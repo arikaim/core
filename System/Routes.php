@@ -145,29 +145,7 @@ class Routes
         Arikaim::$app->group('/core/api/jobs',function($group) use($apiNamespace) {
             $group->delete('/delete/{uuid}',"$apiNamespace\Jobs:deleteJob");
             $group->put('/status',"$apiNamespace\Jobs:setStatus");          
-        })->add($sessionAuth);
-        // Templates
-        Arikaim::$app->group('/core/api/template',function($group) use($apiNamespace) {
-            $group->put('/current',"$apiNamespace\Templates:setCurrent");
-            $group->put('/update',"$apiNamespace\Templates:update");
-            $group->put('/theme/current',"$apiNamespace\Templates:setCurrentTheme");
-        })->add($sessionAuth);
-        // Extensions
-        Arikaim::$app->group('/core/api/extension',function($group) use($apiNamespace) {
-            $group->put('/install',"$apiNamespace\Extensions:install");
-            $group->put('/status',"$apiNamespace\Extensions:setStatus");
-            $group->put('/uninstall',"$apiNamespace\Extensions:unInstall");
-            $group->put('/update',"$apiNamespace\Extensions:update");
-        })->add($sessionAuth);
-        // Modules
-        Arikaim::$app->group('/core/api/module',function($group) use($apiNamespace) {
-            $group->put('/install',"$apiNamespace\Modules:installModule");
-            $group->put('/disable',"$apiNamespace\Modules:disableModule");
-            $group->delete('/uninstall/{name}',"$apiNamespace\Modules:unInstallModule");
-            $group->put('/enable',"$apiNamespace\Modules:enableModule");
-            $group->put('/update',"$apiNamespace\Modules:updateModule");
-            $group->post('/config',"$apiNamespace\Modules:saveConfig");
-        })->add($sessionAuth);
+        })->add($sessionAuth);        
         // Drivers
         Arikaim::$app->group('/core/api/driver',function($group) use($apiNamespace) { 
             $group->put('/status',"$apiNamespace\Drivers:setStatus");          
@@ -216,7 +194,14 @@ class Routes
         })->add($sessionAuth);
         // Packages
         Arikaim::$app->group('/core/api/packages',function($group) use($apiNamespace) {
-            $group->put('/install',"$apiNamespace\Packages:install");
+            $group->put('/install',"$apiNamespace\Packages:install");    
+            $group->put('/repository/install',"$apiNamespace\Packages:repositoryInstall");         
+            $group->put('/status',"$apiNamespace\Packages:setStatus");
+            $group->put('/uninstall',"$apiNamespace\Packages:unInstall");
+            $group->put('/update',"$apiNamespace\Packages:update");
+            $group->post('/config',"$apiNamespace\Packages:saveConfig");
+            $group->put('/current',"$apiNamespace\Packages:setCurrent");
+            $group->put('/theme/current',"$apiNamespace\Packages:setCurrentTheme");
         })->add($sessionAuth);
         // Session
         Arikaim::$app->get('/core/api/session/',"$apiNamespace\Session:getInfo");

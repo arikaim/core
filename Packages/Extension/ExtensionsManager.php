@@ -35,9 +35,10 @@ class ExtensionsManager extends PackageManager
      * @return ExtensionPackage
      */
     public function createPackage($name)
-    {
+    {      
         $propertes = $this->loadPackageProperties($name);
-        return new ExtensionPackage($propertes);
+     
+        return new ExtensionPackage($propertes,Self::EXTENSION_PACKAGE);
     }
 
     /**

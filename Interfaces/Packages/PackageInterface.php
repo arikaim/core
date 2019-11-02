@@ -22,6 +22,20 @@ interface PackageInterface
     public function getName();
 
     /**
+     * Get Package version
+     *
+     * @return string
+     */
+    public function getVersion();
+
+    /**
+     * Get package type
+     *
+     * @return string
+    */
+    public function getType();
+
+    /**
      * Return package properties
      *
      * @param boolean $full
@@ -49,13 +63,6 @@ interface PackageInterface
      * @return bool
      */
     public function unInstall();
-
-    /**
-     * Reinstall package
-     *
-     * @return void
-     */
-    public function reInstall();
 
     /**
      * Enable package

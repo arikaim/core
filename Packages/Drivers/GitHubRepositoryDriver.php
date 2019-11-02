@@ -12,6 +12,7 @@ namespace Arikaim\Core\Packages\Drivers;
 use Arikaim\Core\Interfaces\Packages\RepositoryDriverInterface;
 use Arikaim\Core\Packages\Drivers\RepositoryDriver;
 use Arikaim\Core\System\Url;
+use Arikaim\Core\System\Path;
 use Arikaim\Core\Arikaim;
 
 /**
@@ -41,7 +42,7 @@ class GitHubRepositoryDriver extends RepositoryDriver implements RepositoryDrive
         $url = "http://github.com/" . $this->getPackageName() . "/archive/" . $version . ".zip";
        //$url = 'http://api.github.com/repos/' . $this->getPackageName() . '/zipball/'. $version;
         // write to storage/repository
-        $packageFileName = Arikaim::storage()->getStoragePath('repository/' . $this->getPackageFileName($version)); 
+        $packageFileName = Path::STORAGE_REPOSITORY_PATH . $this->getPackageFileName($version); 
         Arikaim::storage()->delete('repository/' . $this->getPackageFileName($version));
         try {
             Arikaim::http()->get($url,['sink' => $packageFileName]);

@@ -24,10 +24,11 @@ class LibraryPackage extends Package
      * Constructor
      *
      * @param CollectionInterface $properties
+     * @param string $packageType
      */
-    public function __construct(CollectionInterface $properties) 
+    public function __construct(CollectionInterface $properties, $packageType) 
     {
-        parent::__construct($properties);
+        parent::__construct($properties,$packageType);
         // create repository
         $repositoryUrl = $properties->get('repository',null);
         $this->repository = new LibraryRepository($repositoryUrl);

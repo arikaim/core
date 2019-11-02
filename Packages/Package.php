@@ -12,20 +12,12 @@ namespace Arikaim\Core\Packages;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Interfaces\Packages\PackageInterface;
 use Arikaim\Core\Interfaces\Collection\CollectionInterface;
-use Arikaim\Core\System\Path;
-use Arikaim\Core\Utils\ZipFile;
-use Arikaim\Core\Arikaim;
 
 /**
  * Package base class
 */
 class Package implements PackageInterface
 {
-    const EXTENSION = 'extension';
-    const TEMPLATE  = 'template';
-    const MODULE    = 'module';
-    const LIBRARY   = 'library';
-
     /**
      * Reference to package repository
      *
@@ -41,14 +33,23 @@ class Package implements PackageInterface
     protected $properties;
 
     /**
+     * Package type
+     *
+     * @var string
+     */
+    protected $packageType;
+
+    /**
      * Constructor
      *
      * @param CollectionInterface $properties
+     * @param string $packageType
      */
-    public function __construct(CollectionInterface $properties) 
+    public function __construct(CollectionInterface $properties, $packageType) 
     {
         $properties['version'] = Utils::formatversion($properties->get('version','1.0.0'));
         $this->properties = $properties;
+        $this->packageType = $packageType;
     }
 
     /**
@@ -64,11 +65,21 @@ class Package implements PackageInterface
     /**
      * Get Package version
      *
-     * @return void
+     * @return string
      */
     public function getVersion()
     {
         return $this->properties->get('version','1.0.0');
+    }
+
+    /**
+     * Get package type
+     *
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->packageType;
     }
 
     /**
@@ -153,26 +164,4 @@ class Package implements PackageInterface
     {        
         return false;
     }  
-
-    /**
-     * Reinstall package
-     *
-     * @return bool
-     */
-    public function reInstall()
-    {        
-        $this->unInstall();
-        return $this->install();
-    }
-
-    /**
-     * Create zip arhive with package files and save to storage/backup/
-     *
-     * @return boolean
-     */
-    public function createBackup()
-    {
-        $fileName = $this->properties->get('name') . '-' . $this->getVersion() . '.zip';
-        $destination = Path::STORAGE_PATH . '/backup/' . $fileName;
-    }
 }

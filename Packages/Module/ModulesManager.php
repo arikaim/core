@@ -38,7 +38,8 @@ class ModulesManager extends PackageManager
     public function createPackage($name)
     {
         $propertes = $this->loadPackageProperties($name);
-        return new ModulePackage($propertes);
+        
+        return new ModulePackage($propertes, Self::MODULE_PACKAGE);
     }
 
     /**

@@ -51,14 +51,6 @@ interface PackageManagerInterface
     public function unInstallPackage($name);
 
     /**
-     * Reinstall package
-     *
-     * @param string $name
-     * @return bool
-     */
-    public function reInstallPackage($name);
-
-    /**
      * Enable package
      *
      * @param string $name
@@ -98,4 +90,12 @@ interface PackageManagerInterface
      * @return array
      */
     public function getInstalled($status = null, $type = null);
+
+    /**
+     * Create package backup
+     *
+     * @param string $name
+     * @return boolean
+    */
+    public function createBackup($name);
 }

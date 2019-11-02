@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Packages;
 
 use Arikaim\Core\Interfaces\Packages\PackageManagerInterface;
-use Arikaim\Core\Packages\Package;
+use Arikaim\Core\Packages\PackageManager;
 use Arikaim\Core\Packages\Extension\ExtensionsManager;
 use Arikaim\Core\Packages\Library\LibraryManager;
 use Arikaim\Core\Packages\Template\TemplatesManager;
@@ -36,13 +36,13 @@ class PackageManagerFactory
         }
 
         switch ($packageType) {
-            case Package::EXTENSION:
+            case PackageManager::EXTENSION_PACKAGE:
                 return new ExtensionsManager();
-            case Package::LIBRARY:
+            case PackageManager::LIBRARY_PACKAGE:
                 return new LibraryManager();
-            case Package::TEMPLATE:
+            case PackageManager::TEMPLATE_PACKAGE:
                 return new TemplatesManager();
-            case Package::MODULE:
+            case PackageManager::MODULE_PACKAGE:
                 return new ModulesManager();
         }
         

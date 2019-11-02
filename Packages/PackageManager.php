@@ -12,12 +12,22 @@ namespace Arikaim\Core\Packages;
 use Arikaim\Core\Interfaces\Packages\PackageManagerInterface;
 use Arikaim\Core\FileSystem\File;
 use Arikaim\Core\Collection\Collection;
+use Arikaim\Core\System\Path;
+use Arikaim\Core\Utils\ZipFile;
 
 /**
  * Package managers base class
 */
 abstract class PackageManager implements PackageManagerInterface
 {
+    /**
+     *  Package type
+     */
+    const EXTENSION_PACKAGE = 'extension';
+    const TEMPLATE_PACKAGE  = 'template';
+    const MODULE_PACKAGE    = 'module';
+    const LIBRARY_PACKAGE   = 'library';
+    
     /**
      * Path to packages
      *
@@ -238,19 +248,6 @@ abstract class PackageManager implements PackageManagerInterface
     }
 
     /**
-     * Reinstall package
-     *
-     * @param string $name
-     * @return bool
-     */
-    public function reInstallPackage($name)
-    {
-        $package = $this->createPackage($name);
-        
-        return $package->reInstall();
-    }
-
-    /**
      * Get installed packages.
      *
      * @param integer|null $status
@@ -260,5 +257,23 @@ abstract class PackageManager implements PackageManagerInterface
     public function getInstalled($status = null, $type = null)
     {
         return [];
+    }
+
+    /**
+     * Create zip arhive with package files and save to storage/backup/
+     *
+     * @param string $name
+     * @return boolean
+     */
+    public function createBackup($name)
+    {
+        $package = $this->createPackage($name);
+
+        $fileName = $package->getName() . '-' . $package->getVersion() . '.zip';
+        $sourcePath = $this->getPath() . $name . DIRECTORY_SEPARATOR;
+        $destinationPath = Path::STORAGE_BACKUP_PATH . $package->getType() . DIRECTORY_SEPARATOR;
+        File::makeDir($destinationPath);
+
+        return ZipFile::create($sourcePath,$destinationPath . $fileName,['.git']);
     }
 }

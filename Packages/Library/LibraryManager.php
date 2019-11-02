@@ -38,7 +38,7 @@ class LibraryManager extends PackageManager
     {
         $propertes = $this->loadPackageProperties($name);
        
-        return new LibraryPackage($propertes);
+        return new LibraryPackage($propertes,Self::LIBRARY_PACKAGE);
     }
 
     /**
@@ -56,6 +56,7 @@ class LibraryManager extends PackageManager
             $result = $this->scan($filter);
             Arikaim::cache()->save('library.list',$result,5);
         } 
+
         return $result;
     }
 
@@ -76,6 +77,7 @@ class LibraryManager extends PackageManager
         if (empty($file) == true) {
             return false;
         }
+
         return Url::getLibraryThemeUrl($library,$theme) . $file;
     }
 }
