@@ -25,7 +25,7 @@ class ExtensionsManager extends PackageManager
      */
     public function __construct()
     {
-       parent::__construct(Path::EXTENSIONS_PATH,'extension.json');
+       parent::__construct(Path::EXTENSIONS_PATH);
     }
 
     /**

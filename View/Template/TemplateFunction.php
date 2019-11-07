@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\View\Template;
 
-use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\System\Path;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Factory;
@@ -27,10 +26,36 @@ use Arikaim\Core\System\System;
 class TemplateFunction  
 {
     /**
-     * Constructor
+     * Model classes requires control panel access 
+     *
+     * @var array
      */
-    public function __construct() 
+    protected $protectedModels = [
+        'PermissionRelations',
+        'Permissions',
+        'Routes',
+        'Modules',
+        'Events',
+        'Drivers',
+        'Extensions',
+        'Jobs',
+        'EventSubscribers'
+    ];
+
+    /**
+     * Create model 
+     *
+     * @param string $modelClass
+     * @param string|null $extension
+     * @return Model|false
+     */
+    public function createModel($modelClass, $extension = null)
     {
+        if (\in_array($modelClass,$this->protectedModels) == true) {
+            return (Arikaim::access()->hasControlPanelAccess() == true) ? Model::create($modelClass,$extension) : false;           
+        }
+        
+        return Model::create($modelClass,$extension);
     }
 
     /**
@@ -78,7 +103,7 @@ class TemplateFunction
      */
     public function getFileType($fileName) 
     {
-        return pathinfo($fileName, PATHINFO_EXTENSION);
+        return pathinfo($fileName,PATHINFO_EXTENSION);
     }
 
     /**

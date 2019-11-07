@@ -36,16 +36,15 @@ class ModulePackage extends Package
      * Constructor
      *
      * @param CollectionInterface $properties
-     * @param string $packageType
      */
-    public function __construct(CollectionInterface $properties, $packageType) 
+    public function __construct(CollectionInterface $properties) 
     {
         // set default values
         $properties->type = $properties->get('type','service');
         $properties->bootable = $properties->get('bootable',false);
         $properties->service_name = $properties->get('service_name',$properties->get('name'));
      
-        parent::__construct($properties, $packageType);
+        parent::__construct($properties);
 
         $repositoryUrl = $properties->get('repository',null);
         $this->repository = new ModuleRepository($repositoryUrl);

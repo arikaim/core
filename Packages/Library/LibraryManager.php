@@ -25,7 +25,7 @@ class LibraryManager extends PackageManager
      */
     public function __construct()
     {
-       parent::__construct(Path::LIBRARY_PATH,'library.json');
+       parent::__construct(Path::LIBRARY_PATH);
     }
 
     /**
@@ -38,7 +38,7 @@ class LibraryManager extends PackageManager
     {
         $propertes = $this->loadPackageProperties($name);
        
-        return new LibraryPackage($propertes,Self::LIBRARY_PACKAGE);
+        return new LibraryPackage($propertes);
     }
 
     /**

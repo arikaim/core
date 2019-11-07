@@ -33,23 +33,14 @@ class Package implements PackageInterface
     protected $properties;
 
     /**
-     * Package type
-     *
-     * @var string
-     */
-    protected $packageType;
-
-    /**
      * Constructor
      *
      * @param CollectionInterface $properties
-     * @param string $packageType
      */
-    public function __construct(CollectionInterface $properties, $packageType) 
+    public function __construct(CollectionInterface $properties) 
     {
-        $properties['version'] = Utils::formatversion($properties->get('version','1.0.0'));
+        $properties['version'] = Utils::formatVersion($properties->get('version','1.0.0'));
         $this->properties = $properties;
-        $this->packageType = $packageType;
     }
 
     /**
@@ -79,7 +70,7 @@ class Package implements PackageInterface
      */
     public function getType()
     {
-        return $this->packageType;
+        return $this->properties->get('package-type',null);
     }
 
     /**

@@ -21,4 +21,18 @@ interface EventListenerInterface
      * @return bool
      */
     public function execute($event);
+
+    /**
+     * Get event name
+     *
+     * @return string
+     */
+    public function getEventName();
+    
+    /**
+     * Get priority
+     *
+     * @return integer
+     */
+    public function getPriority();    
 }

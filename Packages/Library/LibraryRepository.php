@@ -48,7 +48,7 @@ class LibraryRepository extends PackageRepository implements RepositoryInterface
                 return false;
             }
 
-            $json = Arikaim::storage()->read('temp/' . $repositoryFolder . '/library.json');
+            $json = Arikaim::storage()->read('temp/' . $repositoryFolder . '/arikiam-package.json');
 
             if ($json != false) {
                 $libraryProperties = json_decode($json,true);
@@ -60,7 +60,7 @@ class LibraryRepository extends PackageRepository implements RepositoryInterface
                     
                     return $result;
                 }
-                // Missing package name in library.json file.
+                // Missing package name in arikiam-package.json file.
                 return false;
             }
             // Not valid package

@@ -25,7 +25,7 @@ class TemplatesManager extends PackageManager
      */
     public function __construct()
     {
-       parent::__construct(Path::TEMPLATES_PATH,'template.json');
+       parent::__construct(Path::TEMPLATES_PATH);
     }
 
     /**
@@ -56,7 +56,7 @@ class TemplatesManager extends PackageManager
     {
         $propertes = $this->loadPackageProperties($name);
 
-        return new TemplatePackage($propertes,Self::TEMPLATE_PACKAGE);
+        return new TemplatePackage($propertes);
     }
 
     /**

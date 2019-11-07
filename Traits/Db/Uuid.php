@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Traits\Db;
 
-use Arikaim\Core\Utils\Utils;
+use Arikaim\Core\Utils\Uuid as UuidFactory;
 
 /**
  * Update UUID field
@@ -26,7 +26,7 @@ trait Uuid
     {
         static::creating(function($model) {   
             if (empty($model->attributes[$model->getUuidAttributeName()]) == true) {  
-                $model->attributes[$model->getUuidAttributeName()] = Utils::createUUID();
+                $model->attributes[$model->getUuidAttributeName()] = UuidFactory::create();
             }
         });
     }

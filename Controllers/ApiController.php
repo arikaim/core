@@ -122,6 +122,7 @@ class ApiController extends Controller
     {
         $message = $this->getMessage($name);
         $message = (empty($message) == true) ? $name : $message;
+        
         return $this->response->setError($message);
     }
 

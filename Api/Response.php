@@ -183,7 +183,6 @@ class Response
             if (is_string($data) == true) {
                 return $this->message($data);
             }
-
         } else {
             return (is_callable($error) == true) ? $error() : $this->setError($error);          
         }
@@ -255,7 +254,6 @@ class Response
     public function getResponse($raw = false) 
     {           
         $this->raw = $raw;
-
         $json = $this->getResponseJson();
         $this->response->getBody()->write($json);
 

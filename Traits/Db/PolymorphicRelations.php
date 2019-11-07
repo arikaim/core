@@ -83,7 +83,6 @@ trait PolymorphicRelations
     public function getRelationsQuery($relationId, $type = null) 
     {      
         $query = $this->where('relation_id','=',$relationId);
-
         if (empty($type) == false) {
             $query = $query->where('relation_type','=',$type);
         }

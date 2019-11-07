@@ -106,7 +106,7 @@ class EventsManager
         if ($subscriber != false) {
             $events = $subscriber->getSubscribedEvents();
             foreach ($events as $event) {
-                $this->subscribe($event['event_name'],$class,$extension,$event['priority']);
+                $this->subscribe($event['event_name'],$class,$extension,$event['priority'],$event['handler_method']);
             }
             return true;
         }
@@ -122,13 +122,14 @@ class EventsManager
      * @param integer $priority
      * @return bool
      */
-    public function subscribe($eventName, $class, $extension, $priority = 0)
+    public function subscribe($eventName, $class, $extension, $priority = 0, $hadnlerMethod = null)
     {
         $subscriber = [
             'name'           => $eventName,
             'priority'       => $priority,
             'extension_name' => $extension,
-            'handler_class'  => Factory::getEventSubscriberClass($class,$extension)
+            'handler_class'  => Factory::getEventSubscriberClass($class,$extension),
+            'handler_method' => $hadnlerMethod
         ];
         
         return Model::EventSubscribers()->add($subscriber);
@@ -241,9 +242,10 @@ class EventsManager
         $result = [];
         foreach ($eventSubscribers as $item) {
             $subscriber = Factory::createInstance($item['handler_class']);
-
+            $handlerMethod = (empty($item['handler_method']) == true) ? 'execute' : $item['handler_method'];
+           
             if (is_object($subscriber) == true && $subscriber instanceof EventSubscriberInterface) {
-                $eventResult = $subscriber->execute($event);
+                $eventResult = $subscriber->{$handlerMethod}($event);
                 if (empty($eventResult) == false) {
                     $result[] = $eventResult;
                 }              

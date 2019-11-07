@@ -57,4 +57,23 @@ trait Tree
     {      
         return $this->getModelPath($this);
     }
+
+    /**
+     * Return true if model item have child items
+     *
+     * @param integer $id
+     * @return boolean
+     */
+    public function hasChild($id = null)
+    {
+        $id = (empty($id) == true) ? $this->id : $id;
+        $columnName = $this->getParentColumn();
+
+        $model = $this->findByColumn($this->id,$columnName);
+        if (is_object($model) == true) {
+            return ($model->count() > 0) ? true : false; 
+        }
+
+        return false;
+    }
 }

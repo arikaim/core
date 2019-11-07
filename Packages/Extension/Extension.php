@@ -121,7 +121,7 @@ abstract class Extension implements ExtensionInterface
      */
     public function registerConsoleCommand($class)
     {
-        $class = Factory::getExtensionConsoleClassName($this->getName(),Utils::getClassBaseName($class));
+        $class = Factory::getExtensionConsoleClassName($this->getName(),Utils::getBaseClassName($class));
         if (class_exists($class) == false) {
             return false;
         }

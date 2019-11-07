@@ -28,11 +28,10 @@ class TemplatePackage extends Package
      * Constructor
      *
      * @param CollectionInterface $properties
-     * @param string $packageType
      */
-    public function __construct(CollectionInterface $properties, $packageType) 
+    public function __construct(CollectionInterface $properties) 
     {
-        parent::__construct($properties,$packageType);
+        parent::__construct($properties);
 
         $repositoryUrl = $properties->get('repository',null);
         $this->repository = new TemplateRepository($repositoryUrl);

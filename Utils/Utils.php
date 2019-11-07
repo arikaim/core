@@ -46,33 +46,6 @@ class Utils
     }
 
     /**
-     * Create UUID
-     *
-     * @return string
-     */
-    public static function createUUID() 
-    {
-        return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-            mt_rand(0, 0xffff), mt_rand(0, 0xffff),
-            mt_rand(0, 0xffff),
-            mt_rand(0, 0x0fff) | 0x4000,
-            mt_rand(0, 0x3fff) | 0x8000,
-            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
-        );
-    }
-
-    /**
-     * Check uuid is valid
-     *
-     * @param string $uuid
-     * @return boolean
-     */
-    public static function isValidUUID($uuid) 
-    {
-        return preg_match('/^\{?[0-9a-f]{8}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{12}\}?$/i',$uuid) === 1;
-    }
-
-    /**
      * Return true if ip is valid.
      *
      * @param string $ip
@@ -191,17 +164,6 @@ class Utils
         $text = ($clean == true) ? Self::cleanJson($text) : $text;
 
         return json_decode($text,$toArray);
-    }
-
-    /**
-     * Return base class name
-     *
-     * @param string $class
-     * @return string
-     */
-    public static function getBaseClassName($class)
-    {
-        return last(explode('\\',$class));
     }
 
     /**
@@ -394,13 +356,13 @@ class Utils
     /**
      * Return base class name
      *
-     * @param string $class
+     * @param string|object $class
      * @return string
      */
-    public static function getClassBaseName($class)
+    public static function getBaseClassName($class)
     {
         $class = is_object($class) ? get_class($class) : $class;
 
-        return basename(str_replace('\\', '/', $class));
+        return last(explode('\\',$class));
     }
 }

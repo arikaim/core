@@ -12,16 +12,16 @@ namespace Arikaim\Core\Models\Schema;
 use Arikaim\Core\Db\Schema;
 
 /**
- * Permissions List database table schema definition.
+ * Permission relations database table schema definition.
 */
-class PermissionsListSchema extends Schema  
+class PermissionRelationsSchema extends Schema  
 {    
     /**
      * Db table name
      *
      * @var string
      */ 
-    protected $tableName = "permissions_list";
+    protected $tableName = "permission_relations";
 
     /**
      * Create table
@@ -31,16 +31,13 @@ class PermissionsListSchema extends Schema
      */
     public function create($table) 
     {            
-        // columns
-        $table->id();
-        $table->prototype('uuid');            
-        $table->string('name')->nullable(false);
-        $table->string('extension_name')->nullable(true);
-        $table->string('title')->nullable(true);
-        $table->string('description')->nullable(true);        
-        // indexes         
-        $table->unique('name');
-        $table->index('extension_name');
+        $table->tablePolymorphicRelations('permission_id','premissions',function($table) {
+             // columns                    
+            $table->integer('read')->nullable(false)->default(0);
+            $table->integer('write')->nullable(false)->default(0);
+            $table->integer('delete')->nullable(false)->default(0);
+            $table->integer('execute')->nullable(false)->default(0);              
+        });       
     }
 
     /**
@@ -50,6 +47,6 @@ class PermissionsListSchema extends Schema
      * @return void
      */
     public function update($table) 
-    {       
+    {        
     }
 }

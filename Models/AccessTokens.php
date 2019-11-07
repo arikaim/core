@@ -12,9 +12,11 @@ namespace Arikaim\Core\Models;
 use Illuminate\Database\Eloquent\Model;
 
 use Arikaim\Core\Utils\Utils;
+use Arikaim\Core\Utils\Uuid as UuidFactory;
 use Arikaim\Core\Utils\DateTime;
 
 use Arikaim\Core\Traits\Db\Uuid;
+
 use Arikaim\Core\Traits\Db\Find;
 use Arikaim\Core\Traits\Db\DateCreated;
 
@@ -84,7 +86,7 @@ class AccessTokens extends Model
     {
         $expireTime = ($expireTime < 1000) ? 1000 : $expireTime;
         $dateExpired = DateTime::getCurrentTime() + $expireTime;
-        $token = ($type == Self::LOGIN_ACCESS_TOKEN) ? Utils::createRandomKey() : Utils::createUUID();
+        $token = ($type == Self::LOGIN_ACCESS_TOKEN) ? Utils::createRandomKey() : UuidFactory::create();
 
         if ($deleteExpired == true) {          
             $result = $this->deleteExpired($userId,$type);

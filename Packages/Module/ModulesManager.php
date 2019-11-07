@@ -26,7 +26,7 @@ class ModulesManager extends PackageManager
      */
     public function __construct()
     {
-       parent::__construct(Path::MODULES_PATH,'module.json');
+       parent::__construct(Path::MODULES_PATH);
     }
 
     /**
@@ -39,7 +39,7 @@ class ModulesManager extends PackageManager
     {
         $propertes = $this->loadPackageProperties($name);
         
-        return new ModulePackage($propertes, Self::MODULE_PACKAGE);
+        return new ModulePackage($propertes);
     }
 
     /**

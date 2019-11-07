@@ -40,7 +40,7 @@ abstract class PackageManager implements PackageManagerInterface
      *
      * @var string
      */
-    protected $propertiesFileName;
+    private $propertiesFileName = 'arikaim-package.json';
 
     /**
      * Create package 
@@ -63,16 +63,10 @@ abstract class PackageManager implements PackageManagerInterface
      * Constructor
      *
      * @param string $path
-     * @param string $propertiesFileName
      */
-    public function __construct($path, $propertiesFileName = 'package.json')
+    public function __construct($path)
     {
-        if (File::exists($path) == false) {
-            throw new Exception("Package path ( $path ) not exist!");
-            return null;
-        }
         $this->path = $path;
-        $this->propertiesFileName = $propertiesFileName;
     }
 
     /**

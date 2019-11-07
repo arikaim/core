@@ -152,8 +152,8 @@ class EventSubscribers extends Model
         if ($this->hasSubscriber($subscriber['name'],$subscriber['extension_name']) == true) {
             return false;
         }
+        $subscriber['priority'] = (empty($subscriber['priority']) == true) ? 0 : $subscriber['priority']; 
 
-        $subscriber['priority'] = (empty($subscriber['priority']) == true) ? 0 : $subscriber['priority'];          
         return $this->create($subscriber);       
     }   
 

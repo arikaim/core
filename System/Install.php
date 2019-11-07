@@ -48,9 +48,10 @@ class Install
         if ($result == false) {
             return false;
         }
-        // add control panel permisison item 
-        Model::PermissionsList()->add(Access::CONTROL_PANEL,Access::CONTROL_PANEL,'Arikaim control panel access.');
 
+        // add control panel permisison item 
+        Model::Permissions()->add(Access::CONTROL_PANEL,Access::CONTROL_PANEL,'Arikaim control panel access.');
+      
         // register core events
         $this->registerCoreEvents();
 
@@ -145,7 +146,7 @@ class Install
                 return false;
             }                
         }
-        return Model::Permissions()->setUserPermission(Access::CONTROL_PANEL,Access::FULL,$user->id);
+        return Model::PermissionRelations()->setUserPermission(Access::CONTROL_PANEL,Access::FULL,$user->id);
     }
 
     /**
@@ -273,7 +274,8 @@ class Install
     {
         return [
             'UsersSchema',
-            'PermissionsListSchema',
+            'PermissionsSchema',
+            'PermissionRelationsSchema',
             'UserGroupsSchema',
             'UserGroupMembersSchema',
             'EventsSchema',
@@ -299,11 +301,11 @@ class Install
     private static function getSystemDbTableNames()
     {
         return [
-            'options',
-            'permissions_list',
+            'options',         
             'extensions',
             'modules',
             'permissions',
+            'permission_relations',
             'users',
             'user_groups',
             'user_group_members',

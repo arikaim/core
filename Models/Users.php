@@ -11,7 +11,6 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-use Arikaim\Core\Models\Permissions;
 use Arikaim\Core\Models\UserGroupMembers;
 use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Db\Schema;
@@ -65,16 +64,6 @@ class Users extends Model implements UserProviderInterface
      * @var boolean
      */
     public $timestamps = false;
-
-    /**
-     * Permissions relation
-     *
-     * @return Permissions
-     */
-    public function permissions()
-    {
-        return $this->hasMany(Permissions::class,'user_id','id');     
-    }
 
     /**
      * User groups relation
@@ -150,18 +139,23 @@ class Users extends Model implements UserProviderInterface
         if (Schema::hasTable($this) == false) {
             return false;
         }
-        $permissions = DbModel::Permissions();
-        if (Schema::hasTable($permissions) == false) {
+      //  $permissions = DbModel::Permissions();
+      //  if (Schema::hasTable($permissions) == false) {
+       //     return false;
+       // }
+        
+        $permisisonId = DbModel::Permissions()->getId(Access::CONTROL_PANEL);
+        if ($permisisonId == false) {
             return false;
         }
-        $permissionId = DbModel::PermissionsList()->getId(Access::CONTROL_PANEL);
-        $permissions = $permissions->where('permission_id','=',$permissionId)->where('user_id','>',0)->first();
-        if (is_object($permissions) == false) {
-            return false;
-        }
-        $user = $this->findById($permissions->user_id);
+        $model = DbModel::PermissionRelations();
 
-        return (is_object($user) == false) ? false : $user;         
+        $model = $model->where('permission_id','=',$permisisonId)->where('relation_type','=','user')->first();
+        if (is_object($model) == false) {
+            return false;
+        }
+
+        return $this->findById($model->relation_id);  
     }
 
     /**
@@ -173,12 +167,18 @@ class Users extends Model implements UserProviderInterface
     public function isControlPanelUser($id = null)
     {
         $id = (empty($id) == true) ? $this->id : $id;
-        $permissions = DbModel::Permissions();
-        $permissionId = DbModel::PermissionsList()->getId(Access::CONTROL_PANEL);
+        $permisisonId = DbModel::Permissions()->getId(Access::CONTROL_PANEL);
+        if ($permisisonId == false) {
+            return false;
+        }
+        $model = DbModel::PermissionRelations()->getRelationsQuery($permisisonId,'user');
+        $model = $model->where('relation_id','=',$id);
 
-        $permissions = $permissions->where('permission_id','=',$permissionId)->where('user_id','=',$id)->first();
+        if (is_object($model) == false) {
+            return false;
+        }
 
-        return is_object($permissions);
+        return is_object($model);
     }
 
     /**
@@ -188,7 +188,7 @@ class Users extends Model implements UserProviderInterface
      */
     public function hasControlPanelUser() 
     {
-        return (is_object($this->getControlPanelUser()) == false) ? false : true;
+        return is_object($this->getControlPanelUser());
     }
 
     /**

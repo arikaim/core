@@ -47,7 +47,7 @@ class TemplateRepository extends PackageRepository implements RepositoryInterfac
                 // Error extracting zip repository file
                 return false;
             }
-            $json = Arikaim::storage()->read('temp/' . $repositoryFolder . '/template.json');
+            $json = Arikaim::storage()->read('temp/' . $repositoryFolder . '/arikaim-package.json');
             if ($json != false) {
                 $templateProperties = json_decode($json,true);
                 $templateName = (isset($templateProperties['name']) == true) ? $templateProperties['name'] : false;
@@ -58,7 +58,7 @@ class TemplateRepository extends PackageRepository implements RepositoryInterfac
                     
                     return $result;
                 }
-                // Missing package name in template.json file.
+                // Missing package name in arikaim-package.json file.
                 return false;
             }
             // Not valid package

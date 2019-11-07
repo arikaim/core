@@ -93,7 +93,7 @@ class Extension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('getSearch',['Arikaim\\Core\\Db\\Search','getSearch']),
             new TwigFunction('getOrderBy',['Arikaim\\Core\\Db\\OrderBy','getOrderBy']),
             new TwigFunction('applyOrderBy',['Arikaim\\Core\\Db\\OrderBy','apply']),
-            new TwigFunction('createModel',['Arikaim\\Core\\Db\\Model','create']),
+            new TwigFunction('createModel',[$templateFunction,'createModel']),
             new TwigFunction('showSql',['Arikaim\\Core\\Db\\Model','getSql']),
             // other
             new TwigFunction('getConstant',["Arikaim\\Core\\Db\\Model",'getConstant']),

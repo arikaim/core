@@ -34,16 +34,13 @@ class PermissionsSchema extends Schema
         // columns
         $table->id();
         $table->prototype('uuid');            
-        $table->userId();
-        $table->relation('permission_id','permissions_list',false);
-        $table->relation('group_id','user_groups',true);
-        $table->integer('read')->nullable(false)->default(0);
-        $table->integer('write')->nullable(false)->default(0);
-        $table->integer('delete')->nullable(false)->default(0);
-        $table->integer('execute')->nullable(false)->default(0);
-        // unique indexes         
-        $table->unique(['permission_id','user_id']);           
-        $table->unique(['permission_id','group_id']);                     
+        $table->string('name')->nullable(false);
+        $table->string('extension_name')->nullable(true);
+        $table->string('title')->nullable(true);
+        $table->string('description')->nullable(true);        
+        // indexes         
+        $table->unique('name');
+        $table->index('extension_name');
     }
 
     /**
@@ -53,6 +50,6 @@ class PermissionsSchema extends Schema
      * @return void
      */
     public function update($table) 
-    {        
+    {       
     }
 }

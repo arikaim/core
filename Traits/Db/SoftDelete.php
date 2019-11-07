@@ -66,6 +66,16 @@ trait SoftDelete
     }
 
     /**
+     * Get not deleted query
+     *
+     * @return QueryBuilder
+     */
+    public function getNotDeletedQuery()
+    {
+        return $this->whereNull($this->getDeletedColumn());
+    }
+
+    /**
      * Get uuid attribute name
      *
      * @return string

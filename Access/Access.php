@@ -51,7 +51,7 @@ class Access
      */
     public function __construct(PermissionsInterface $provider = null) 
     {
-        $this->provider = ($this->provider == null) ? Model::Permissions() : $provider;        
+        $this->provider = ($this->provider == null) ? Model::PermissionRelations() : $provider;        
     }
 
     /**

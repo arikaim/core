@@ -35,13 +35,12 @@ class ExtensionPackage extends Package
      * Constructor
      *
      * @param CollectionInterface $properties
-     * @param string $packageType
      */
-    public function __construct(CollectionInterface $properties, $packageType) 
+    public function __construct(CollectionInterface $properties) 
     {
         // set default
         $properties->set('type',Self::getTypeId($properties->get('type')));
-        parent::__construct($properties,$packageType);
+        parent::__construct($properties);
 
         $repositoryUrl = $properties->get('repository',null);
         $this->repository = new ExtensionRepository($repositoryUrl);
@@ -59,6 +58,7 @@ class ExtensionPackage extends Package
         $this->properties['class'] = $this->properties->get('class',ucfirst($this->properties['name']));        
         $this->properties['installed'] = $extension->isInstalled($this->properties['name']);       
         $this->properties['status'] = $extension->getStatus($this->properties['name']);
+        $this->properties['admin_menu'] = $this->properties->get('admin-menu',null);
 
         if ($full == true) { 
             $this->properties['routes'] =  Model::Routes()->getRoutes(null,$this->properties['name']);
@@ -230,13 +230,13 @@ class ExtensionPackage extends Package
 
         // run install extension
         $extObj->install(); 
-
+      
         // get console commands classes
         $details->set('console_commands',$extObj->getConsoleCommands());
-
+      
         // register events subscribers        
         $this->registerEventsSubscribers();
-
+     
         // add to extensions db table
         $model = Model::Extensions();              
         $details->set('status',$model->ACTIVE());
@@ -334,7 +334,8 @@ class ExtensionPackage extends Package
         // enable extension routes
         Model::Routes()->enableExtensionRoutes($name);
         // enable extension events
-        Model::Events()->enableExtensionEvents($name);   
+        Model::Events()->enableExtensionEvents($name);  
+
         return (bool)$result;
     }
 

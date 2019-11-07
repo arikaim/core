@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Interfaces\Auth\UserProviderInterface;
+use Arikaim\Core\Utils\Uuid as UuidFactory;
 
 use Arikaim\Core\Traits\Db\Uuid;
 use Arikaim\Core\Traits\Db\Find;
@@ -101,7 +102,7 @@ class ApiCredentials extends Model implements UserProviderInterface
 
         return $this->create([
             'user_id'   => $userId,
-            'key'       => Utils::createUUID(),
+            'key'       => UuidFactory::create(),
             'secret'    => Utils::createRandomKey(),
             'date_expired' => $dateExpired,  
         ]);
