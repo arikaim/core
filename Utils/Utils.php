@@ -112,10 +112,12 @@ class Utils
      * @param string $text
      * @return boolean
      */
-    public static function isJSON($text)
-    {
-        if (is_string($text) == true) {
-            return is_array(json_decode($text,true)) ? true : false;
+    public static function isJson($jsonText)
+    {        
+        try {
+            return is_array(json_decode($jsonText,true)) ? true : false;
+        } catch(\Exception $e) {
+            return false;
         }
 
         return false;

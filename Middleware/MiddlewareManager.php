@@ -17,6 +17,7 @@ use Slim\Middleware\BodyParsingMiddleware;
 
 use Illuminate\Database\Capsule\Manager;
 
+use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Arikaim;
@@ -38,7 +39,7 @@ class MiddlewareManager
     {
         $modules = Arikaim::cache()->fetch('middleware.list');
         if (is_array($modules) == false) {   
-            if (Manager::schema()->hasTable('modules') == false) {
+            if (Schema::hasTable('modules') == false) {
                 return false;
             }            
             $modules = Model::Modules()->getList(ModulePackage::getTypeId('middleware'),1);         

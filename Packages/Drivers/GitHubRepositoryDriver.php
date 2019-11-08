@@ -40,14 +40,13 @@ class GitHubRepositoryDriver extends RepositoryDriver implements RepositoryDrive
     {
         $version = (empty($version) == true) ? $this->getLastVersion() : $version;
         $url = "http://github.com/" . $this->getPackageName() . "/archive/" . $version . ".zip";
-       //$url = 'http://api.github.com/repos/' . $this->getPackageName() . '/zipball/'. $version;
-        // write to storage/repository
+      
         $packageFileName = Path::STORAGE_REPOSITORY_PATH . $this->getPackageFileName($version); 
         Arikaim::storage()->delete('repository/' . $this->getPackageFileName($version));
         try {
             Arikaim::http()->get($url,['sink' => $packageFileName]);
         } catch (\Exception $e) {
-           //echo $e->getMessage();         
+            return false;
         }
       
         return Arikaim::storage()->has('repository/' . $this->getPackageFileName($version));

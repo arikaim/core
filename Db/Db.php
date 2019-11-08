@@ -13,6 +13,9 @@ use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
 use Arikaim\Core\Arikaim;
+use PDOException;
+use Exception;
+use PDO;
 
 /**
  * Manage database connections
@@ -27,6 +30,26 @@ class Db
     private $capsule;
 
     /**
+     * Default PDO options
+     *
+     * @var array
+     */
+    protected $default_pdo_options = [
+        PDO::ATTR_CASE => PDO::CASE_NATURAL,
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_ORACLE_NULLS => PDO::NULL_NATURAL,
+        PDO::ATTR_STRINGIFY_FETCHES => false,
+        PDO::ATTR_EMULATE_PREPARES => false,
+    ];
+
+    /**
+     * Database config
+     *
+     * @var array
+     */
+    protected $config;
+
+    /**
      * Constructor
      *
      * @param array $config
@@ -34,7 +57,9 @@ class Db
      */
     public function __construct($config, $relations = null) 
     {
+        $this->config = $config;
         $this->init($config); 
+
         // init relations morph map
         if (is_array($relations) == true) {                   
             Relation::morphMap($relations);                          
@@ -65,12 +90,13 @@ class Db
             $this->capsule->setEventDispatcher(new \Illuminate\Events\Dispatcher());
             $this->capsule->setAsGlobal();
             // schema db             
-            $this->initSchemaConnection($config);          
+            $this->initSchemaConnection($config);      
             $this->capsule->bootEloquent();
-        } catch(\Exception $e) {
+        } catch(Exception $e) {           
             Arikaim::errors()->addError('DB_CONNECTION_ERROR');
             return false;
         }      
+      
         return true;
     }
 
@@ -95,9 +121,10 @@ class Db
         try {
             $schema = $this->capsule->getConnection('schema');
             $result = $schema->select("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$databaseName'");            
-        } catch(\Exception $e) {
+        } catch(Exception $e) {
             return false;
         }
+
         return (isset($result[0]->SCHEMA_NAME) == true) ? true : false;           
     }
 
@@ -111,11 +138,29 @@ class Db
     {
         try {
             $connection = $this->capsule->getDatabaseManager()->connection($name);
-            $pdo = $connection->getPdo();
-        } catch(\Exception $e) {
+            $pdo = $connection->getPdo(false);
+        } catch(Exception $e) {
+            return false;
+        } catch(PDOException $e) {
+            return false;
+        } 
+      
+        return is_object($pdo);
+    }
+
+    public function isValidPdoConnection($config = null)
+    {
+        $config = ($config == null) ? $this->config : $config;
+        $dsn = $config['driver'] . ":dbname=" .  $config['database'] . ";host=" . $config['host'];
+        
+        try {
+            $pdo = new PDO($dsn,$config['username'],$config['password'],[
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            ]);
+        } catch(PDOException $e) {
             return false;
         }
-      
+       
         return is_object($pdo);
     }
 
@@ -137,7 +182,7 @@ class Db
             $collation = ($charset != null) ? "COLLATE $collation" : "";
 
             $result = $schema->statement("CREATE DATABASE $databaseName $charset $collation");
-        } catch(\Exception $e) {
+        } catch(PDOException $e) {
             Arikaim::errors()->addError('DB_DATABASE_ERROR');
             return false;
         }
@@ -154,7 +199,7 @@ class Db
     {
         try {
             $result = $connection->statement('SELECT 1');
-        } catch(\Exception $e) {
+        } catch(PDOException $e) {
             return false;
         }
         return true;
@@ -172,7 +217,7 @@ class Db
             $this->initSchemaConnection($config);     
             $this->capsule->getConnection('schema')->reconnect();
             $result = $this->checkConnection($this->capsule->getConnection('schema'));      
-        } catch(\Exception $e) {   
+        } catch(PDOException $e) {   
             Arikaim::errors()->addError('DB_CONNECTION_ERROR');
             return false;
         }      
@@ -183,18 +228,25 @@ class Db
      * Init db connection
      *
      * @param array $config
-     * @return void
+     * @return boolean
      */
     public function initConnection($config)
     {
-        $this->capsule->addConnection($config,'new');
-        $this->capsule->getDatabaseManager()->setDefaultConnection('new');
-        $this->capsule->setAsGlobal();
-    
-        $this->initSchemaConnection($config);
-        $this->capsule->getConnection('schema')->reconnect();
+        try {
+            $this->capsule->addConnection($config,'new');
+            $this->capsule->getDatabaseManager()->setDefaultConnection('new');
+            $this->capsule->setAsGlobal();
+        
+            $this->initSchemaConnection($config);
+            $this->capsule->getConnection('schema')->reconnect();
 
-        $this->capsule->bootEloquent();
+            $this->capsule->bootEloquent();
+        } catch(PDOException $e) {   
+            Arikaim::errors()->addError('DB_CONNECTION_ERROR');
+            return false;
+        }   
+
+        return true;
     }
 
     /**

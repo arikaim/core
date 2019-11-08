@@ -83,7 +83,7 @@ class Client
         $params['api_key'] = $api_key; 
         $response = $this->get('/api/create/token/',$params);
 
-        if (Utils::isJSON($response) == false) {
+        if (Utils::isJson($response) == false) {
             throw new \Exception("Server error or not valid requets url: " . $this->requtest_url);
         }
 

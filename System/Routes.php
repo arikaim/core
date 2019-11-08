@@ -28,16 +28,16 @@ class Routes
      */
     public static function mapRoutes()
     {
-        if (Arikaim::db()->isValidConnection() == false) {
-            return false;
-        }
-
-        if (Arikaim::errors()->hasError() == true) {
-            return false;
-        }
-
         $routes = Arikaim::cache()->fetch('routes.list');
         if (is_array($routes) == false) {
+            if (Arikaim::db()->isValidPdoConnection() == false) {
+                return false;
+            }
+    
+            if (Arikaim::errors()->hasError() == true) {
+                return false;
+            }
+
             $routes = Model::Routes()->getRoutes(Status::$ACTIVE);  
             Arikaim::cache()->save('routes.list',$routes,4);         
         }

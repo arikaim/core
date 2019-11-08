@@ -15,6 +15,7 @@ use Illuminate\Database\Schema\Builder;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\TableBlueprint;
+use PDOException;
 
 /**
  * Database schema base class
@@ -197,8 +198,12 @@ abstract class Schema
             return false;
         }
         $tableName = (is_object($model) == true) ? $model->getTable() : $model;
-        
-        return Manager::schema()->hasTable($tableName);      
+
+        try {
+            return Manager::schema()->hasTable($tableName);    
+        } catch(PDOException $e) {
+            return false;
+        }
     }
 
     /**

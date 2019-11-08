@@ -14,6 +14,7 @@ use Arikaim\Core\Interfaces\Packages\RepositoryInterface;
 use Arikaim\Core\System\Path;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\FileSystem\File;
+use Arikaim\Core\Utils\Utils;
 
 /**
  * Template package repository
@@ -48,7 +49,8 @@ class TemplateRepository extends PackageRepository implements RepositoryInterfac
                 return false;
             }
             $json = Arikaim::storage()->read('temp/' . $repositoryFolder . '/arikaim-package.json');
-            if ($json != false) {
+            
+            if (Utils::isJson($json) == true) {
                 $templateProperties = json_decode($json,true);
                 $templateName = (isset($templateProperties['name']) == true) ? $templateProperties['name'] : false;
                 if ($templateName != false) {   

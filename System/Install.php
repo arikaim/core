@@ -250,7 +250,7 @@ class Install
             // check db tables
             $tables = Self::getSystemDbTableNames();
             foreach ($tables as $tableName) {
-                $errors += Schema::schema()->hasTable($tableName) ? 0:1;
+                $errors += Schema::hasTable($tableName) ? 0:1;
             }
            
             $result = Model::Users()->hasControlPanelUser();                          

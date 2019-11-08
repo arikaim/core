@@ -40,11 +40,14 @@ class Application
         $this->application = new ConsoleApplication("\nArikaim Cli ",System::getVersion());    
         // add core commands 
         $this->addCommands($this->commands);
-        if (Arikaim::db()->isValidConnection() == true && Install::isInstalled() == true) {
-            // add extensions commands
-            $this->loadExtensionsCommands();
-            // add modules commands
-            $this->loadModulesCommands();
+       
+        if (Arikaim::db()->isValidPdoConnection() == true) {
+            if (Install::isInstalled() == true) {
+                // add extensions commands
+                $this->loadExtensionsCommands();
+                // add modules commands
+                $this->loadModulesCommands();
+            }
         }
     }
 

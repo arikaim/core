@@ -16,11 +16,12 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\Events\EventsManager;
 use Arikaim\Core\System\Session;
 use Arikaim\Core\Db\Model;
+use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Collection\Collection;
 use Arikaim\Core\System\Path;
 use Arikaim\Core\Packages\Module\ModulePackage;
-use \Arikaim\Core\System\Config;
+use Arikaim\Core\System\Config;
 
 /**
  * Create system services
@@ -34,15 +35,15 @@ class ServiceContainer
      */
     public static function registerCoreModules($container)
     {
-        if ($container->get('db')->isValidConnection() == false) {
-            return $container;
-        }
-        if (Manager::schema()->hasTable('modules') == false) {
-            return $container;
-        }
-
         $modules = $container->get('cache')->fetch('services.list');
         if (is_array($modules) == false) {
+            if ($container->get('db')->isValidPdoConnection() == false) {
+                return $container;
+            } 
+            //if (Schema::hasTable('modules') == false) {
+           //     return $container;
+           // }
+
             $modules = Model::Modules()->getList(ModulePackage::getTypeId('service'),1);
             $container->get('cache')->save('services.list',$modules,2);    
         } 
@@ -174,6 +175,7 @@ class ServiceContainer
         if (Arikaim::isConsole() == false) {
             $container->get('session');
         }
+        
         $container = Self::registerCoreModules($container);
 
         return $container;

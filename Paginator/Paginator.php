@@ -217,7 +217,7 @@ class Paginator implements PaginatorInterface
                 $paginator = new ArrayPaginator($source,$page,$perPage);
                 break;
             }
-            case Utils::isJSON($source): {
+            case Utils::isJson($source): {
                 $paginator = new JsonPaginator($source,$page,$perPage);
                 break;
             }

@@ -150,10 +150,11 @@ class Arikaim
         
         // create service container            
         AppFactory::setContainer(ServiceContainer::init(new Container()));
+    
         // create app 
         Self::$app = AppFactory::create();
         Self::$app->setBasePath(ARIKAIM_BASE_PATH);
-
+      
         // add default middleware
         MiddlewareManager::init();
 

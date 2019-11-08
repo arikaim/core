@@ -139,15 +139,12 @@ class Users extends Model implements UserProviderInterface
         if (Schema::hasTable($this) == false) {
             return false;
         }
-      //  $permissions = DbModel::Permissions();
-      //  if (Schema::hasTable($permissions) == false) {
-       //     return false;
-       // }
         
         $permisisonId = DbModel::Permissions()->getId(Access::CONTROL_PANEL);
         if ($permisisonId == false) {
             return false;
         }
+        
         $model = DbModel::PermissionRelations();
 
         $model = $model->where('permission_id','=',$permisisonId)->where('relation_type','=','user')->first();

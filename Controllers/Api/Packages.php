@@ -16,6 +16,7 @@ use Arikaim\Core\Packages\Template\TemplatesManager;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\View\Theme;
 use Arikaim\Core\View\Template\Template;
+use Arikaim\Core\Arikaim;
 
 /**
  * Packages controller
@@ -56,8 +57,10 @@ class Packages extends ApiController
         
             $package = $packageManager->createPackage($name);
             $result = (is_object($package) == true) ? $package->getRepository()->install() : false;
-
-            $this->setResponse($result,function() use($name,$type) {                  
+          
+            $this->setResponse($result,function() use($name,$type) {  
+                // clear cache    
+                Arikaim::cache()->clear();            
                 $this
                     ->message($type . '.install')
                     ->field('type',$type)   

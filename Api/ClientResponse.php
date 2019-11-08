@@ -26,7 +26,7 @@ class ClientResponse
     public function __construct($response_text) 
     {
         $this->data = null;
-        if (Utils::isJSON($response_text) == true) {
+        if (Utils::isJson($response_text) == true) {
             $this->data = json_decode($response_text,true);
         }
     }

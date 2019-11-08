@@ -14,6 +14,7 @@ use Arikaim\Core\Interfaces\Packages\RepositoryInterface;
 use Arikaim\Core\System\Path;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\FileSystem\File;
+use Arikaim\Core\Utils\Utils;
 
 /**
  * Package repository base class 
@@ -40,17 +41,17 @@ class LibraryRepository extends PackageRepository implements RepositoryInterface
     {
         $version = (empty($version) == true) ? $this->getRepositoryDriver()->getLastVersion() : $version;
         $result = $this->getRepositoryDriver()->download($version);
-
+       
         if ($result == true) {
             $repositoryFolder = $this->extractRepository($version);
-            if ($repositoryFolder == false) {
-                // Error extracting zip repository file
+            if ($repositoryFolder === false) {            
+                // Error extracting zip repository file 
                 return false;
             }
-
-            $json = Arikaim::storage()->read('temp/' . $repositoryFolder . '/arikiam-package.json');
-
-            if ($json != false) {
+    
+            $json = Arikaim::storage()->read('temp/' . $repositoryFolder . '/arikaim-package.json');
+          
+            if (Utils::isJson($json) == true) {
                 $libraryProperties = json_decode($json,true);
                 $libraryName = (isset($libraryProperties['name']) == true) ? $libraryProperties['name'] : false;
                 if ($libraryName != false) {   

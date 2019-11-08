@@ -184,7 +184,7 @@ class Options extends Model
     {
         $value = (isset($this->options[$key]) == true) ? $this->options[$key] : $this->read($key,$default);
 
-        return (Utils::isJSON($value) == true) ? json_decode($value,true) : $value;                      
+        return (Utils::isJson($value) == true) ? json_decode($value,true) : $value;                      
     }   
     
     /**
