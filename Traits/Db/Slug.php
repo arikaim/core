@@ -100,7 +100,7 @@ trait Slug
      */
     public function findBySlug($slug)
     {
-        $slugColumn = $model->getSlugColumn();
+        $slugColumn = $this->getSlugColumn();
         $model = $this->where($slugColumn,'=',$slug)->first();
 
         return (is_object($model) == true) ? $model : false;
