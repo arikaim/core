@@ -15,6 +15,7 @@
         "arikaim/installer": "*",
         "arikaim/container": "1.*",
         "arikaim/utils": "*",
+        "arikaim/collection": "*",
         "illuminate/database": "5.8.*",
         "illuminate/events": "5.8.*",      
         "slim/slim": "4.3.*",
