@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
@@ -16,14 +16,13 @@ use Arikaim\Core\View\Html\HtmlComponent;
 use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Collection\Collection;
 use Arikaim\Core\View\Html\PageHead;
-use Arikaim\Core\Db\Model;
 use Arikaim\Core\System\Url;
 use Arikaim\Core\System\Path;
 use Arikaim\Core\View\Theme;
 use Arikaim\Core\Packages\Template\TemplatesManager;
 use Arikaim\Core\Packages\Library\LibraryManager;
-use Arikaim\Core\FileSystem\File;
-use Arikaim\Core\Utils\Arrays;
+use Arikaim\Core\Utils\File;
+use Arikaim\Core\Collection\Arrays;
 use Arikaim\Core\Utils\Text;
 
 use Arikaim\Core\Interfaces\View\ComponentInterface;
@@ -33,6 +32,13 @@ use Arikaim\Core\Interfaces\View\ComponentInterface;
  */
 class Page extends BaseComponent  
 {   
+    /**
+     *  Error page names
+     */
+    const PAGE_NOT_FOUND         = 'page-not-found';
+    const SYSTEM_ERROR_PAGE      = 'system-error';
+    const APPLICATION_ERROR_PAGE = 'application-error';
+
     /**
      * Page head properties
      *
@@ -100,7 +106,7 @@ class Page extends BaseComponent
     {
         $response = ($response == null) ? Arikaim::response() : $response;
         if (empty($name) == true || $this->has($name) == false) {         
-            $name = 'system:page-not-found';
+            $name = $this->resoveErrorPageName(Self::PAGE_NOT_FOUND);
             $response->withStatus(404);          
         }
         if (is_object($params) == true) {
@@ -129,7 +135,7 @@ class Page extends BaseComponent
         $params['component_url'] = $component->getUrl();
 
         if ($component->hasContent() == false) {             
-            $component = $this->render('system:page-not-found',$params);
+            $component = $this->renderPageNotFound($params,$language);
         }
         
         $body = $this->getCode($component,$params);
@@ -277,10 +283,7 @@ class Page extends BaseComponent
         if ($language == null) {
             $language = Template::getLanguage();
         }
-        if (Model::Language()->getDefaultLanguage() == $language) {
-            return $path;
-        } 
-
+       
         return (substr($path,-1) == "/") ?  $path . "$language/" : "$path/$language/";
     }
 
@@ -305,7 +308,7 @@ class Page extends BaseComponent
      * @param boolean $withLanguagePath
      * @return string
      */
-    public static function getUrl($path = null, $full = false, $withLanguagePath = true)
+    public static function getUrl($path = null, $full = false, $withLanguagePath = false)
     {       
         $path = (substr($path,0,1) == "/") ? substr($path, 1) : $path;           
         $url = ($full == true) ? Url::ARIKAIM_BASE_URL : ARIKAIM_BASE_PATH;        
@@ -538,5 +541,84 @@ class Page extends BaseComponent
         }
 
         return false;
+    }
+
+    /**
+     * Resolve error page name
+     *
+     * @param string $type
+     * @param string|null $extension
+     * @return string
+     */
+    public function resoveErrorPageName($type, $extension = null)
+    {
+        $pageName = (empty($extension) == true) ? 'system:' . $type : $extension . ">" . $type;  
+        
+        return ($this->has($pageName) == true) ? $pageName : 'system:' . $type;
+    }
+
+    /**
+     * Load page not found error page.
+     *
+     * @param array $data
+     * @param string|null $language
+     * @param string|null $extension
+     * @return Response
+     */
+    public function loadPageNotFound($data = [], $language = null, $extension = null)
+    {        
+        $name = $this->resoveErrorPageName(Self::PAGE_NOT_FOUND,$extension);
+        $response = $this->load($name,$data,$language);   
+
+        return $response->withStatus(404); 
+    }
+
+    /**
+     * Load system error page.
+     *
+     * @param array $data
+     * @param string|null $language
+     * @param string|null $extension
+     * @return Response
+     */
+    public function loadSystemError($data = [], $language = null, $extension = null)
+    {        
+        $name = $this->resoveErrorPageName(Self::SYSTEM_ERROR_PAGE,$extension);
+        $data = array_merge([
+            'errors' => Arikaim::errors()->getErrors()
+        ],$data);
+        $response = $this->load($name,$data,$language);   
+
+        return $response->withStatus(404); 
+    }
+
+    /**
+     * Render page not found 
+     *
+     * @param array $data
+     * @param string|null $language
+     * @param string|null $extension
+     * @return Component
+     */
+    public function renderPageNotFound($data = [], $language = null, $extension = null)
+    {
+        $name = $this->resoveErrorPageName(Self::PAGE_NOT_FOUND,$extension);
+
+        return $this->render($name,$data,$language);
+    }
+
+    /**
+     * Render application error
+     *
+     * @param array $data
+     * @param string|null $language
+     * @param string|null $extension
+     * @return Component
+     */
+    public function renderApplicationError($data = [], $language = null, $extension = null)
+    {
+        $name = $this->resoveErrorPageName(Self::APPLICATION_ERROR_PAGE,$extension);
+      
+        return $this->render($name,$data,$language);
     }
 }

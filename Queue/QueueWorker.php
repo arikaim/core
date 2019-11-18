@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
@@ -71,7 +71,7 @@ class QueueWorker
         pcntl_signal(SIGINT,[$this,"handleSignals"]);
 
         // trigger event
-        Arikaim::event()->trigger('core.jobs.queue.run',[]);
+        Arikaim::event()->dispatch('core.jobs.queue.run',[]);
 
         while(true) {        
             pcntl_signal_dispatch();
@@ -122,7 +122,7 @@ class QueueWorker
         switch($this->status) {
             case Self::STOP: {
                 System::writeLine("Stop");
-                Arikaim::event()->trigger('core.jobs.queue.stop',[]);
+                Arikaim::event()->dispatch('core.jobs.queue.stop',[]);
                 exit(0);
             }
         }

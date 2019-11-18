@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
  */
@@ -17,7 +17,7 @@ use Arikaim\Core\Events\EventsManager;
 use Arikaim\Core\System\Session;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Utils\Factory;
+use Arikaim\Core\System\Factory;
 use Arikaim\Core\Collection\Collection;
 use Arikaim\Core\System\Path;
 use Arikaim\Core\Packages\Module\ModulePackage;
@@ -40,10 +40,7 @@ class ServiceContainer
             if ($container->get('db')->isValidPdoConnection() == false) {
                 return $container;
             } 
-            //if (Schema::hasTable('modules') == false) {
-           //     return $container;
-           // }
-
+    
             $modules = Model::Modules()->getList(ModulePackage::getTypeId('service'),1);
             $container->get('cache')->save('services.list',$modules,2);    
         } 

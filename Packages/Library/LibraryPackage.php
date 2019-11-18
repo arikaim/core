@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
@@ -13,7 +13,7 @@ use Arikaim\Core\Packages\Package;
 use Arikaim\Core\Packages\Library\LibraryRepository;
 use Arikaim\Core\Utils\Text;
 use Arikaim\Core\System\Url;
-use Arikaim\Core\Interfaces\Collection\CollectionInterface;
+use Arikaim\Core\Collection\Interfaces\CollectionInterface;
 
 /**
  * UI Library Package class

@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
  */
@@ -22,11 +22,6 @@ class System
     const WINDOWS = 2;
     const LINUX   = 3;
     const OSX     = 4;
-
-    const LF = "\n";
-    const CRLF = "\r\n";
-    const CR = "\r";
-    const HTMLLF = "</br>";
 
     /**
      * Call static methods from instance
@@ -303,30 +298,6 @@ class System
     {
         $eof = ($eof == null) ? Self::getEof() : $eof;
         echo $text . $eof;
-    }
-
-    /**
-     * Return EOF for current OS
-     *
-     * @return string
-     */
-    public static function getEof() 
-    { 
-        $os = Self::getOS();
-        switch ($os) {
-            case Self::WINDOWS: {
-                return Self::CRLF;
-            }
-            case Self::LINUX: {
-                return Self::LF;
-            }
-            case Self::OSX: {
-                return Self::CR;
-            }
-            default: {
-                return Self::LF;
-            }
-        }
     }
 
     /**

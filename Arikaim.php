@@ -3,22 +3,23 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
  */
 namespace Arikaim\Core;
 
 use Slim\Factory\AppFactory;
-
+use Slim\Factory\ServerRequestCreatorFactory;
 use Arikaim\Container\Container;
 use Arikaim\Core\Validator\ValidatorStrategy;
-use Arikaim\Core\Utils\Arrays;
+use Arikaim\Core\Collection\Arrays;
 use Arikaim\Core\System\ServiceContainer;
 use Arikaim\Core\System\Routes;
-use Arikaim\Core\Interfaces\Collection\CollectionInterface;
+use Arikaim\Core\Collection\Interfaces\CollectionInterface;
 use Arikaim\Core\System\Path;
 use Arikaim\Core\Middleware\MiddlewareManager;
+use Arikaim\Core\System\Error\ApplicationError;
 
 /**
  * Arikaim core class
@@ -128,6 +129,10 @@ class Arikaim
         ini_set('display_startup_errors',1);
         error_reporting(E_ALL); 
 
+        set_error_handler(function () {
+            return Self::end();
+        });
+
         Self::resolveEnvironment($_SERVER);
 
         // init constants
@@ -184,6 +189,19 @@ class Arikaim
     }
 
     /**
+     * Create request
+     *
+     * @return ServerRequestInterface
+     */
+    public static function createRequest()
+    {
+        $serverRequestCreator = ServerRequestCreatorFactory::create();
+        $request = $serverRequestCreator->createServerRequestFromGlobals();
+
+        return $request;
+    }
+
+    /**
      * Create response object
      *
      * @return ResponseInterface
@@ -200,8 +218,12 @@ class Arikaim
     */
     public static function run() 
     {       
-        Self::init();    
-        Self::$app->run();  
+        try {
+            Self::init();    
+            Self::$app->run();  
+        } catch (\Exception $exception) {          
+            ApplicationError::render($exception);          
+        }        
     }
     
     /**
@@ -210,9 +232,13 @@ class Arikaim
      * @return void
      */
     public static function end() 
-    {
-        gc_collect_cycles();            
-        exit(0);
+    {    
+        if (error_reporting() == true) {
+            $error = error_get_last();                
+            if (empty($error) == false) {
+                ApplicationError::render($error);          
+            }          
+        }
     }
 
     /**

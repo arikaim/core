@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
@@ -11,10 +11,10 @@ namespace Arikaim\Core\View\Template;
 
 use Arikaim\Core\System\Path;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Utils\Factory;
+use Arikaim\Core\System\Factory;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\View\Template\Template;
-use Arikaim\Core\FileSystem\File;
+use Arikaim\Core\Utils\File;
 use Arikaim\Core\View\Html\BaseComponent;
 use Arikaim\Core\View\Html\HtmlComponent;
 use Arikaim\Core\Access\Csrf;
@@ -41,7 +41,7 @@ class TemplateFunction
         'Jobs',
         'EventSubscribers'
     ];
-
+ 
     /**
      * Create model 
      *

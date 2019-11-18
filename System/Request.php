@@ -3,17 +3,32 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
-namespace Arikaim\Core\Utils;
+namespace Arikaim\Core\System;
+
+use Slim\Routing\RouteContext;
 
 /**
  * Request helpers
  */
 class Request 
 {  
+    /**
+     * Get current route from request
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @return Route|null
+     */
+    public static function getCurrentRoute($request)
+    {
+        $routeContext = RouteContext::fromRequest($request);
+        
+        return $routeContext->getRoute();
+    }
+
     /**
      * Return content type 
      *
@@ -22,8 +37,8 @@ class Request
      * @return void
      */
     public static function getContentType($request, $default = 'text/html')
-    {
-        $content = $request->getContentType();
+    {        
+        $content = $request->getHeaderLine('Content-Type');
         if (empty($content) == true) {
             $accept = $request->getHeaderLine('Accept');
             $tokens = \explode(',',$accept);
@@ -43,9 +58,19 @@ class Request
      */
     public static function isJsonContentType($request)
     {
-        $content = Self::getContentType($request);
-
-        return (substr($content,-4) == 'json') ? true : false;
+        // try with content type
+        $header = Self::getContentType($request);             
+        if (strpos($header,'json') !== false) {
+            return true;
+        }
+        
+        // request method
+        $method = $request->getMethod();
+        if ($method != "GET") {
+            return true;
+        }
+      
+        return false;
     }
     
     /**

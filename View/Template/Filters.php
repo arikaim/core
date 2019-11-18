@@ -3,14 +3,14 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\View\Template;
 
 use Arikaim\Core\Utils\Html;
-use Arikaim\Core\Utils\Arrays;
+use Arikaim\Core\Collection\Arrays;
 
 /**
  * Template filer functions

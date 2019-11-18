@@ -3,20 +3,20 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Packages\Extension;
 
-use Arikaim\Core\Interfaces\Collection\CollectionInterface;
+use Arikaim\Core\Collection\Interfaces\CollectionInterface;
 use Arikaim\Core\Packages\Package;
 use Arikaim\Core\System\Path;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\View\Template\Template;
-use Arikaim\Core\FileSystem\File;
-use Arikaim\Core\Utils\Factory;
+use Arikaim\Core\Utils\File;
+use Arikaim\Core\System\Factory;
 use Arikaim\Core\Packages\Extension\ExtensionRepository;
 
 /**
@@ -214,7 +214,7 @@ class ExtensionPackage extends Package
         }
        
         // trigger core.extension.before.install event
-        Arikaim::event()->trigger('core.extension.before.install',$details->toArray());
+        Arikaim::event()->dispatch('core.extension.before.install',$details->toArray());
         $extObj->onBeforeInstall();
     
         // delete extension routes
@@ -249,7 +249,7 @@ class ExtensionPackage extends Package
         }
 
         // trigger core.extension.after.install event
-        Arikaim::event()->trigger('core.extension.after.install',$details->toArray());
+        Arikaim::event()->dispatch('core.extension.after.install',$details->toArray());
         $extObj->onAfterInstall();
     
         return true;
@@ -272,7 +272,7 @@ class ExtensionPackage extends Package
         $extObj = Factory::createExtension($extensionName,$details->get('class'));
         
         // trigger core.extension.before.uninstall event
-        Arikaim::event()->trigger('core.extension.before.uninstall',$details->toArray());
+        Arikaim::event()->dispatch('core.extension.before.uninstall',$details->toArray());
 
         // on before unInstall event handler
         if (is_object($extObj) == true) {
@@ -302,7 +302,7 @@ class ExtensionPackage extends Package
             $extObj->onAfterUnInstall();
         }
         // trigger core.extension.after.uninstall event
-        Arikaim::event()->trigger('core.extension.after.uninstall',$details->toArray());
+        Arikaim::event()->dispatch('core.extension.after.uninstall',$details->toArray());
 
         return $result;
     }

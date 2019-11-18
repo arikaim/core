@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
@@ -20,7 +20,7 @@ use Arikaim\Core\View\Template\TemplateFunction;
 use Arikaim\Core\View\Template\Tags\ComponentTagParser;
 use Arikaim\Core\View\Template\Tags\AccessTagParser;
 use Arikaim\Core\View\Template\Template;
-use Arikaim\Core\Utils\DateTime;
+use Arikaim\Core\System\DateTime;
 use Arikaim\Core\Utils\Mobile;
 use Arikaim\Core\System\Path;
 use Arikaim\Core\System\Url;
@@ -66,8 +66,7 @@ class Extension extends AbstractExtension implements GlobalsInterface
         }
 
         $templateFunction = new TemplateFunction();
-        $date = new DateTime();
-        $errors = Arikaim::errors();
+        $date = new DateTime();     
         $mobile = new Mobile();
         $items = [
             // html components
@@ -77,7 +76,7 @@ class Extension extends AbstractExtension implements GlobalsInterface
             // page
             new TwigFunction('getPageFiles',["\\Arikaim\\Core\\View\\Html\\Page",'getPageFiles']),
             new TwigFunction('getComponentsFiles',["\\Arikaim\\Core\\View\\Html\\Page",'getComponentsFiles']),          
-            new TwigFunction('url',["\\Arikaim\\Core\\View\\Html\\Page", 'getUrl']),        
+            new TwigFunction('url',["\\Arikaim\\Core\\View\\Html\\Page",'getUrl']),        
             new TwigFunction('currentUrl',["\\Arikaim\\Core\\View\\Html\\Page",'getCurrentUrl']),
             new TwigFunction('isMobile',[$mobile,'isMobile']),
             // paginator
@@ -106,9 +105,7 @@ class Extension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('getLanguage',["\\Arikaim\\Core\\View\\Template\\Template","getLanguage"]),
             new TwigFunction('getOption',[$templateFunction,'getOption']),
             new TwigFunction('getOptions',[$templateFunction,'getOptions']),
-            new TwigFunction('csrfToken',[$templateFunction,'csrfToken']),
-            new TwigFunction('getErrors',[$errors,'getErrors']),
-            new TwigFunction('getConfig',["\\Arikaim\\Core\\System\\System","getConfig"]),          
+            new TwigFunction('csrfToken',[$templateFunction,'csrfToken']),                
             new TwigFunction('fetch',["\\Arikaim\\Core\\System\\Url",'fetch']),
             new TwigFunction('extractArray',[$templateFunction,'extractArray'],['needs_context' => true]),
             // template
@@ -166,7 +163,7 @@ class Extension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('dateTimeFormat',["\\Arikaim\\Core\\Utils\\DateTime",'dateTimeFormat']),
             new TwigFilter('timeFormat',["\\Arikaim\\Core\\Utils\\DateTime",'timeFormat']),
             // numbers
-            new TwigFilter('numberFormat',["\\Arikaim\\Core\\Utils\\Number",'format']),
+            new TwigFilter('numberFormat',["\\Arikaim\\Core\\System\\Number",'format']),
             // files
             new TwigFilter('fileSize',["\\Arikaim\\Core\\FileSystem\\File",'getSizeText']),
             // text

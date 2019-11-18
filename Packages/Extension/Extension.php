@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
@@ -13,7 +13,7 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\Interfaces\ExtensionInterface;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Utils\Factory;
+use Arikaim\Core\System\Factory;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Models\Routes;
 
@@ -44,6 +44,21 @@ abstract class Extension implements ExtensionInterface
     public function unInstall()
     {
         return true;
+    }
+
+    /**
+     * Add permission item
+     *
+     * @param string $name
+     * @param string|null $title
+     * @param string|null $description
+     * @return boolean
+     */
+    public function addPermission($name, $title = null, $description = null)
+    {
+        $model = Model::Permissions()->add($name,$title,$description,$this->getName());
+        
+        return is_object($model);
     }
 
     /**
@@ -99,7 +114,8 @@ abstract class Extension implements ExtensionInterface
      */
     public function getName() 
     {    
-        $class = Factory::getClassName($this);
+        $class = Utils::getBaseClassName($this);
+        
         return strtolower($class);      
     }
 

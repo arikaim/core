@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
  */
@@ -260,13 +260,13 @@ class Validator extends Collection
         $valid = $this->isValid();
         if ($valid == true) {
             // run events callback
-            Arikaim::event()->trigger('validator.valid',$this->data,true);
+            Arikaim::event()->dispatch('validator.valid',$this->data,true);
             if (empty($this->onValid) == false) {
                 $this->onValid->call($this,$this->data);
             }          
         } else {
             // run events callback
-            Arikaim::event()->trigger('validator.error',$this->getErrors(),true);
+            Arikaim::event()->dispatch('validator.error',$this->getErrors(),true);
             if (empty($this->onFail) == false) {               
                 $this->onFail->call($this,$this->getErrors());
             }           

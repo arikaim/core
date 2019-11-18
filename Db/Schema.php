@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
@@ -12,7 +12,7 @@ namespace Arikaim\Core\Db;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\Schema\Builder;
 
-use Arikaim\Core\Utils\Factory;
+use Arikaim\Core\System\Factory;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\TableBlueprint;
 use PDOException;

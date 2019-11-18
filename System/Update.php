@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
  */
@@ -31,7 +31,7 @@ class Update
       
         if ($errors == 0) {
             // trigger event core.update
-            Arikaim::event()->trigger('core.update',[]);
+            Arikaim::event()->dispatch('core.update',[]);
             return true;
         }
         return false;

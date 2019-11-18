@@ -9,7 +9,7 @@
  */
 namespace Arikaim\Core\System;
 
-use Arikaim\Core\Utils\Arrays;
+use Arikaim\Core\Collection\Arrays;
 
 /**
  * Session wrapper

@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
  */
@@ -43,6 +43,9 @@ class Routes
         }
 
         foreach($routes as $item) {
+            // controller params
+            Arikaim::getContainer()['contoller.extension']= $item['extension_name'];
+
             $methods = explode(',',$item['method']);
             $handler = $item['handler_class'] . ":" . $item['handler_method'];   
             $route = Arikaim::$app->map($methods,$item['pattern'],$handler);

@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
@@ -115,7 +115,8 @@ class ClassLoader
     {   
         $path = $this->getDocumentRoot() . $this->basePath;     
         $namespace = $this->getNamespace($class);
-        $class = class_basename($class);
+        $tokens = explode('\\',$class);
+        $class = end($tokens);
         $namespace = $this->namespaceToPath($namespace); 
 
         return $path . DIRECTORY_SEPARATOR .  $namespace . DIRECTORY_SEPARATOR . $class . ".php";       

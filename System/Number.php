@@ -3,11 +3,11 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
-namespace Arikaim\Core\Utils;
+namespace Arikaim\Core\System;
 
 use Arikaim\Core\Arikaim;
 
@@ -37,16 +37,8 @@ class Number
      */
     public static function format($number, $formatName = null)
     {
-        if (is_array($formatName) == true) {
-            $format = [
-                'decimals'             => $formatName[0],
-                'decimals_separator'   => (isset($formatName[1]) == true) ? $formatName[1] : null,
-                'thousands_separator'  => (isset($formatName[2]) == true) ? $formatName[2] : null
-            ];
-        } else {
-            $format = Self::getFormat($formatName);
-        }
-      
+        $format = (is_array($formatName) == false) ? Self::getFormat($formatName) : $formatName;
+           
         return number_format($number,$format['decimals'],$format['decimals_separator'],$format['thousands_separator']);
     }
 
@@ -91,10 +83,10 @@ class Number
     /**
      * Return 0 if variable is not number
      *
-     * @param mixed $variable
+     * @param mixed $value
      * @return integer|float
      */
-    public static function getNumericValue($variable) 
+    public static function getNumericValue($value) 
     {
         return (Self::isNumber($value) == false) ? 0 : $value;
     }

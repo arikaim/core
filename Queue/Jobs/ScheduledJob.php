@@ -3,14 +3,14 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Queue\Jobs;
 
 use Arikaim\Core\Queue\Jobs\Job;
-use Arikaim\Core\Utils\DateTime;
+use Arikaim\Core\System\DateTime;
 use Arikaim\Core\Interfaces\Queue\ScheduledJobInterface;
 use Arikaim\Core\Interfaces\Queue\JobInterface;
 

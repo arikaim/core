@@ -3,15 +3,14 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\View\Template;
 
-use Arikaim\Core\FileSystem\File;
+use Arikaim\Core\Utils\File;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Db\Model;
 
 /**
  * Html Template
@@ -103,15 +102,15 @@ class Template
     public static function getLanguage() 
     {  
         $language = Arikaim::session()->get('language');
-        if (empty($language) == true) {
-            //$language = Arikaim::cookies()->get('language');
-        }   
         if (empty($language) == true) { 
             try {
-                $language = Model::Language()->getDefaultLanguage();
-            } catch(\Exception $e) {
                 $language = Arikaim::config('settings/defaultLanguage');
                 $language = (empty($language) == true) ? "en" : $language;
+
+                Arikaim::session()->set('language',$language);
+            } catch(\Exception $e) {
+                $$language = 'en';
+                Arikaim::session()->set('language',$language);
             }                 
         }       
 
@@ -127,8 +126,7 @@ class Template
     public static function setLanguage($language) 
     {
         Arikaim::session()->set('language',$language);
-        //Arikaim::cookies()->set('language',$language);
-
+    
         return $language;
     }
 
@@ -154,7 +152,7 @@ class Template
         if (empty($framework) == true || $framework == null) {
             $frameworks = json_decode(Self::getFrameworks());
             $frameworks = (is_array($frameworks) == true) ? $frameworks : [];
-            $framework = last($frameworks);
+            $framework = end($frameworks);
             Self::setCurrentFramework($framework);
         }
 

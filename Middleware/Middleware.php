@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
@@ -95,7 +95,8 @@ class Middleware
                 }
             }         
         }
-   
-        return Arikaim::errors()->displayRequestError($request,$response,'AUTH_FAILED');
+        Arikaim::errors()->AddError('AUTH_FAILED');
+        
+        return Arikaim::errors()->displayRequestError($request,$response);
     }
 }

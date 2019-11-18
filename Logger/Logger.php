@@ -12,7 +12,7 @@ namespace Arikaim\Core\Logger;
 use Monolog\Logger as MonologLogger;
 use Monolog\Handler\StreamHandler;
 
-use Arikaim\Core\FileSystem\File;
+use Arikaim\Core\Utils\File;
 use Arikaim\Core\Logger\JsonLogsFormatter;
 use Arikaim\Core\Logger\LogsProcessor;
 use Arikaim\Core\System\Path;

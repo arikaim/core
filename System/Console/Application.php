@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
  */
@@ -11,7 +11,7 @@ namespace Arikaim\Core\System\Console;
 
 use Symfony\Component\Console\Application as ConsoleApplication;
 
-use Arikaim\Core\Utils\Factory;
+use Arikaim\Core\System\Factory;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\System\System;
 use Arikaim\Core\Arikaim;

@@ -3,13 +3,13 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Events;
 
-use Arikaim\Core\Utils\Factory;
+use Arikaim\Core\System\Factory;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Events\Event;
@@ -79,6 +79,7 @@ class EventsManager
             'title'          => $title,
             'description'    => $description
         ];
+        
         return Model::Events()->addEvent($event);
     }
 
@@ -176,7 +177,7 @@ class EventsManager
      * @param string|null $extension
      * @return array
      */
-    public function trigger($eventName, $event = [], $callbackOnly = false, $extension = null)
+    public function dispatch($eventName, $event = [], $callbackOnly = false, $extension = null)
     {       
         if (is_object($event) == false) {
             $event = new Event($event);   

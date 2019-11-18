@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
  */
@@ -26,13 +26,6 @@ class ApiController extends Controller
     protected $response;
 
     /**
-     * Extension name
-     *
-     * @var string|null
-     */
-    protected $extensionName;
-
-    /**
      * Model class name
      *
      * @var string
@@ -53,29 +46,7 @@ class ApiController extends Controller
             $this->setErrors($errors);
         });
 
-        $this->extensionName = null;
         $this->modelClass = null;
-    }
-
-    /**
-     * Get extension name
-     *
-     * @return string|null
-     */
-    public function getExtensionName()
-    {
-        return $this->extensionName;
-    }
-
-    /**
-     * Set extension name
-     *
-     * @param string $name
-     * @return void
-     */
-    public function setExtensionName($name)
-    {
-        $this->extensionName = $name;
     }
 
     /**
@@ -109,6 +80,7 @@ class ApiController extends Controller
     {
         $message = $this->getMessage($name);
         $message = (empty($message) == true) ? $name : $message;
+        
         return $this->response->message($message);       
     }
 
@@ -121,6 +93,10 @@ class ApiController extends Controller
     public function error($name)
     {
         $message = $this->getMessage($name);
+        if (empty($message) == true) {
+            // check for system error
+            $message = Arikaim::errors()->get($name,null);
+        }
         $message = (empty($message) == true) ? $name : $message;
         
         return $this->response->setError($message);

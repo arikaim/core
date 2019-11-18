@@ -3,14 +3,14 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Packages;
 
 use Arikaim\Core\Interfaces\Packages\PackageManagerInterface;
-use Arikaim\Core\FileSystem\File;
+use Arikaim\Core\Utils\File;
 use Arikaim\Core\Collection\Collection;
 use Arikaim\Core\System\Path;
 use Arikaim\Core\Utils\ZipFile;

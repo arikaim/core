@@ -1,9 +1,9 @@
 <?php
 /**
- *  Arikaim
+ * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
@@ -14,7 +14,7 @@ use Arikaim\Core\Interfaces\Events\EventSubscriberInterface;
 /**
  * Base class for event subscribers.
 */
-abstract class EventSubscriber implements EventSubscriberInterface
+class EventSubscriber implements EventSubscriberInterface
 {
     /**
      * Events subscribed
@@ -22,14 +22,6 @@ abstract class EventSubscriber implements EventSubscriberInterface
      * @var array
      */
     protected $subscribedEvents = [];
-
-    /**
-     * Subscriber code executed.
-     *
-     * @param EventInterface $event
-     * @return mixed
-     */
-    abstract public function execute($event);
 
     /**
      * Constructor
@@ -44,6 +36,16 @@ abstract class EventSubscriber implements EventSubscriberInterface
         }
     }
     
+    /**
+     * Subscriber code executed.
+     *
+     * @param EventInterface $event
+     * @return mixed
+     */
+    public function execute($event)
+    {
+    }
+
     /**
      * Subscribe to event.
      *

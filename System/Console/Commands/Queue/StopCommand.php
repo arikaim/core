@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
  */
@@ -11,8 +11,7 @@ namespace Arikaim\Core\System\Console\Commands\Queue;
 
 use Arikaim\Core\System\Console\ConsoleCommand;
 use Arikaim\Core\Queue\QueueWorker;
-use Arikaim\Core\System\System;
-use Arikaim\Core\System\Error\Errors;
+use Arikaim\Core\System\Error\PhpError;
 use Arikaim\Core\Arikaim;
 
 /**
@@ -54,7 +53,7 @@ class StopCommand extends ConsoleCommand
             Arikaim::options()->set('queue.worker.command',null);  
             $this->style->writeLn('Done ' . $result);
         } else {
-            $error = Errors::getPosixError();
+            $error = PhpError::getPosixError();
             $this->style->writeLn('Error: ' . $error);
         }
     }

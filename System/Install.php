@@ -3,13 +3,13 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
  */
 namespace Arikaim\Core\System;
 
-use Arikaim\Core\Utils\DateTime;
+use Arikaim\Core\System\DateTime;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Model;
@@ -88,7 +88,7 @@ class Install
         $cron->install();
         
         // trigger event core.install
-        Arikaim::event()->trigger('core.install',Arikaim::errors()->getErrors());
+        Arikaim::event()->dispatch('core.install',Arikaim::errors()->getErrors());
         return true;
     } 
 
@@ -125,6 +125,7 @@ class Install
         // Storage events
         Arikaim::event()->registerEvent('core.storage.delete.file','File is deleted in storage folder.');
         Arikaim::event()->registerEvent('core.storage.write.file','File is added to storage folder.');
+        Arikaim::event()->registerEvent('core.storage.update.file','Update File.');
         Arikaim::event()->registerEvent('core.storage.rename.file','Rename file.');
         Arikaim::event()->registerEvent('core.storage.copy.file','Copy file.');
         Arikaim::event()->registerEvent('core.storage.create.dir','Create directory');

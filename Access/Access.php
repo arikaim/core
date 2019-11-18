@@ -3,13 +3,13 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
  */
 namespace Arikaim\Core\Access;
 
-use Arikaim\Core\Utils\Arrays;
+use Arikaim\Core\Collection\Arrays;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Interfaces\Auth\PermissionsInterface;
@@ -78,11 +78,12 @@ class Access
     /**
      * Check if current loged user have control panel access
      *
+     * @param string|integer|null $id
      * @return boolean
      */
-    public function hasControlPanelAccess()
+    public function hasControlPanelAccess($id = null)
     {
-        return $this->hasAccess(Access::CONTROL_PANEL,ACCESS::FULL);
+        return $this->hasAccess(Access::CONTROL_PANEL,ACCESS::FULL,$id);
     }
     
     /**
@@ -90,6 +91,7 @@ class Access
      *
      * @param string $name Permission name
      * @param string|array $type PermissionType (read,write,execute,delete)
+     * @param string|integer|null $id
      * @return boolean
      */
     public function hasAccess($name, $type = null, $id = null)

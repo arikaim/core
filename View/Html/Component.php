@@ -3,15 +3,15 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\View\Html;
 
-use Arikaim\Core\Utils\Arrays;
+use Arikaim\Core\Collection\Arrays;
 use Arikaim\Core\Collection\Collection;
-use Arikaim\Core\Filesystem\File;
+use Arikaim\Core\Utils\File;
 use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\System\Url;
 use Arikaim\Core\System\Path;

@@ -1,9 +1,9 @@
 <?php
 /**
- *  Arikaim
+ * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
@@ -12,7 +12,7 @@ namespace Arikaim\Core\Controllers\Api\Ui;
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Html\HtmlComponent;
-use Arikaim\Core\Utils\Arrays;
+use Arikaim\Core\Collection\Arrays;
 
 /**
  * Component Api controller

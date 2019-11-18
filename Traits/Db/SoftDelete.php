@@ -1,15 +1,15 @@
 <?php
 /**
- *  Arikaim
+ * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Traits\Db;
 
-use Arikaim\Core\Utils\DateTime;
+use Arikaim\Core\System\DateTime;
 
 /**
  * Soft delete trait
@@ -25,6 +25,12 @@ trait SoftDelete
     public function isDeleted()
     {
         return ! is_null($this->{$this->getDeletedColumn()});
+    }
+
+    public function getDeletedCount()
+    {
+        $query = $this->softDeletedQuery();
+        return $query->count();
     }
 
     /**
@@ -44,7 +50,7 @@ trait SoftDelete
     /**
      * Restore soft deleted models
      *
-     * @param integer string $id
+     * @param integer|string|null string $id
      * @return boolean
      */
     public function restore($id = null)
@@ -53,6 +59,21 @@ trait SoftDelete
         $model->{$this->getDeletedColumn()} = null;
         
         return $model->save();
+    }
+
+    /**
+     * Restore all soft deleted rows
+     *
+     * @return boolean
+     */
+    public function restoreAll()
+    {
+        $columName = $this->getDeletedColumn();
+        $query = $this->softDeletedQuery();
+        
+        return $query->update([
+            $columName => null
+        ]);
     }
 
     /**

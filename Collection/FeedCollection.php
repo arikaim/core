@@ -3,17 +3,16 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
 namespace Arikaim\Core\Collection;
 
-use Arikaim\Core\Interfaces\Collection\CollectionInterface;
-use Arikaim\Core\Interfaces\Collection\FeedsInterface;
-
-use Arikaim\Core\System\Url;
-use Arikaim\Core\Utils\Arrays;
+use Arikaim\Core\Collection\Interfaces\CollectionInterface;
+use Arikaim\Core\Collection\Interfaces\FeedsInterface;
+use Arikaim\Core\Collection\Arrays;
+use Arikaim\Core\Utils\Curl;
 
 /**
  * Feed Collection class
@@ -187,7 +186,7 @@ class FeedCollection extends Collection implements CollectionInterface, FeedsInt
         $this->setPerPage($perPage);
 
         $url = $this->getUrl();
-        $json = Url::fetch($url);
+        $json = Curl::get($url);
         $data = json_decode($json,true);
         if (is_array($data) == true) {
             $this->data = $data;

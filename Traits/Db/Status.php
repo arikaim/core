@@ -1,9 +1,9 @@
 <?php
 /**
- *  Arikaim
+ * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
@@ -32,9 +32,9 @@ trait Status
     static $COMPLETED = 2;  
 
     /**
-     * Deleted
+     * Published
      */
-    static $DELETED = 3;  
+    static $PUBLISHED = 3;  
 
     /**
      * Pending activation
@@ -64,16 +64,6 @@ trait Status
     public function DISABLED()
     {
         return Self::$DISABLED;
-    }
-
-    /**
-     * Return deleted value
-     *
-     * @return integer
-     */
-    public function SOFTDELETED()
-    {
-        return Self::$DELETED;
     }
 
     /**
@@ -137,16 +127,6 @@ trait Status
     }
 
     /**
-     * Return deleted model query builder
-     *
-     * @return void
-     */
-    public function getDeleted()
-    {
-        return parent::where($this->getStatusColumn(),'=',Self::$DELETED);
-    }
-
-    /**
      * Set model status
      *
      * @param integer|string|null $status
@@ -154,12 +134,25 @@ trait Status
      */
     public function setStatus($status = null)
     {
-        $attribute = $this->getStatusColumn();
-        if ($status === "toggle") {     
-            $status = ($this->$attribute == 1) ? 0 : 1;
-        }
-        $this->$attribute = $status;    
+        $columnName = $this->getStatusColumn();
+        $this->$columnName = $this->resolveStatusValue($status);
 
         return $this->save();         
+    }
+
+    /**
+     * Get status value
+     *
+     * @param integer|null|string $status
+     * @return integer
+     */
+    public function resolveStatusValue($status = null)
+    {
+        $columnName = $this->getStatusColumn();
+        if ($status === "toggle") {     
+            return ($this->$columnName == 1) ? 0 : 1;
+        }
+
+        return (empty($status) == true) ? 0 : $status;
     }
 }

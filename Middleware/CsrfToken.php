@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
@@ -17,7 +17,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Access\Csrf;
 use Arikaim\Core\Api\Response;
-use Arikaim\Core\Utils\Request;
+use Arikaim\Core\System\Request;
 use Arikaim\Core\Middleware\Middleware;
 
 /**

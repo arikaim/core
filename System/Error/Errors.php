@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
  */
@@ -14,7 +14,7 @@ use Arikaim\Core\Collection\Collection;
 use Arikaim\Core\System\Config;
 use Arikaim\Core\Api\Response;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Utils\Request;
+use Arikaim\Core\System\Request;
 
 /**
  * Errors
@@ -53,10 +53,9 @@ class Errors extends Collection
      */
     public function addError($errorCode, $params = [])
     {       
-        $message = $this->getError($errorCode,$params);  
-        $message = (empty($message) == true) ? $errorCode : $message;
-         
+        $message = ($this->hasErrorCode($errorCode) == true) ? $this->getError($errorCode,$params) : $errorCode;
         array_push($this->errors,$message);
+     
         return true;
     }
     
@@ -78,6 +77,17 @@ class Errors extends Collection
     public function hasError()
     {       
         return ($this->count() > 0) ? true : false;         
+    }
+
+    /**
+     * Return true if error code exists
+     *
+     * @param string $code
+     * @return boolean
+     */
+    public function hasErrorCode($code)
+    {
+        return $this->has($code);
     }
 
     /**
@@ -132,53 +142,10 @@ class Errors extends Collection
             case UPLOAD_ERR_EXTENSION:
                 return $this->getError("UPLOAD_ERR_EXTENSION");
         }
+
         return "";
     }
     
-    /**
-     * Get posix error
-     *
-     * @return void
-     */
-    public static function getPosixError()
-    {
-        $err = posix_get_last_error();
-        return ($err > 0) ? posix_strerror($err) : '';
-    }
-
-    /**
-     * Get JSON error message
-     *
-     * @return string
-     */
-    public static function getJsonError()
-    {
-        switch (json_last_error()) {
-            case JSON_ERROR_NONE:
-                $error = null;
-                break;
-            case JSON_ERROR_DEPTH:
-                $error = 'Maximum stack depth exceeded';
-                break;
-            case JSON_ERROR_STATE_MISMATCH:
-                $error = 'Underflow or the modes mismatch';
-                break;
-            case JSON_ERROR_CTRL_CHAR:
-                $error = 'Unexpected control character found';
-                break;
-            case JSON_ERROR_SYNTAX:
-                $error = 'Syntax error, malformed JSON';
-                break;
-            case JSON_ERROR_UTF8:
-                $error = 'Malformed UTF-8 characters, possibly incorrectly encoded';
-                break;
-            default:
-                $error = 'Unknown error';
-                break;
-        }
-        return $error;
-    }
-
     /**
      * Load error messages file.
      *
@@ -192,49 +159,25 @@ class Errors extends Collection
     }
 
     /**
-     * Get error type text
-     *
-     * @param integer $errno
-     * @return string
-     */
-    public static function getErrorTypeLabel($errno)
-    {
-        switch ($errno) {
-            case E_USER_ERROR:
-                return "USER ERROR";
-            case E_USER_WARNING:
-                return "WARNING";
-            case E_USER_NOTICE:
-                return "NOTICE";
-            default:
-                return "UNKNOW";
-        }
-    }
-
-    /**
      * Show request error
      *
      * @param object $request
-     * @param object $response
-     * @param string $error
+     * @param object $response   
      * @param boolean $end
      * @return mixed
      */
-    public function displayRequestError($request, $response, $error, $end = false)
+    public function displayRequestError($request, $response, $end = false)
     {
-        Arikaim::logger()->alert($this->getError($error));   
-        $this->addError($error);
-
         if (Request::acceptJson($request) == true) {
             $response = new Response();
-            return $response->withError($error)->getResponse();           
+            return $response->withError($this->getErrors())->getResponse();           
         }       
         if ($end == true) {
-            $response = Arikaim::page()->load('system:system-error');
+            $response = Arikaim::page()->loadSystemError();
             Arikaim::$app->respond($response); 
             Arikaim::end();
         }
        
-        return Arikaim::page()->load('system:system-error'); 
+        return Arikaim::page()->loadSystemError(); 
     }
 }

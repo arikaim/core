@@ -3,7 +3,7 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
@@ -27,11 +27,12 @@ class PageLoader extends Controller
      * @return Psr\Http\Message\ResponseInterface
     */
     public function loadControlPanel($request, $response, $data) 
-    {                  
+    {          
         if (Install::isInstalled() == false) { 
             return $this->loadInstallPage($request,$response,$data);
         }   
         $data['page_name'] = 'system:admin';
+      
         return $this->loadPage($request,$response,$data);       
     }
 
@@ -51,7 +52,8 @@ class PageLoader extends Controller
             return $this->loadPage($request,$response,$data);                   
         }
         Arikaim::errors()->addError('INSTALLED_ERROR');
-        $data['page_name'] = 'system:system-error';     
+        $data['page_name'] = 'system:system-error';  
+
         return $this->loadPage($request,$response,$data);    
     }
 }

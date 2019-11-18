@@ -3,11 +3,11 @@
  * Arikaim
  *
  * @link        http://www.arikaim.com
- * @copyright   Copyright (c) 2017-2019 Konstantin Atanasov <info@arikaim.com>
+ * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
 */
-namespace Arikaim\Core\Utils;
+namespace Arikaim\Core\System;
 
 use Arikaim\Core\System\Path;
 
@@ -512,19 +512,5 @@ class Factory
     public static function getSchemaClass($baseClass, $extension)
     {
         return Self::getSchemaNamespace($extension) . $baseClass;
-    }
-
-    /**
-     * Get class name from obj ref
-     *
-     * @param object $obj
-     * @return string
-     */
-    public static function getClassName($obj) 
-    {    
-        $currentClass = get_class($obj);
-        $class = new \ReflectionClass($currentClass);      
-        
-        return last(explode("\\",$class->getNamespaceName()));       
     }
 }
