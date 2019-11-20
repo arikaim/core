@@ -9,10 +9,10 @@
 */
 namespace Arikaim\Core\Db;
 
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Db\SearchCondition;
 use Arikaim\Core\Db\Model;
+use Arikaim\Core\Http\Session;
 
 /**
  * Database search session helper
@@ -40,7 +40,7 @@ class Search
      */
     public static function getSearch($namespace = null)
     {
-        return Arikaim::session()->get(Utils::createKey('search',$namespace),[]);      
+        return Session::get(Utils::createKey('search',$namespace),[]);      
     }
 
     /**
@@ -51,7 +51,7 @@ class Search
      */
     public static function clearSearch($namespace = null)
     {
-        Arikaim::session()->remove(Utils::createKey('search',$namespace));
+        Session::remove(Utils::createKey('search',$namespace));
     }
 
     /**
@@ -63,7 +63,7 @@ class Search
      */
     public static function setSearch($searchData, $namespace = null)
     {
-        Arikaim::session()->set(Utils::createKey('search',$namespace),$searchData);      
+        Session::set(Utils::createKey('search',$namespace),$searchData);      
     }
 
     /**
@@ -87,7 +87,7 @@ class Search
      */
     public static function getSearchConditions($namespace = null)
     {
-        return Arikaim::session()->get(Utils::createKey('search.conditions',$namespace),[]); 
+        return Session::get(Utils::createKey('search.conditions',$namespace),[]); 
     }
 
     /**
@@ -113,7 +113,7 @@ class Search
      */
     public static function setSearchConditions($conditions, $namespace = null)
     {
-        Arikaim::session()->set(Utils::createKey('search.conditions',$namespace),$conditions); 
+        Session::set(Utils::createKey('search.conditions',$namespace),$conditions); 
     }
 
     /**
@@ -138,7 +138,7 @@ class Search
     /**
      * Apply search conditions and return model object
      *
-     * @param Builder|Arikaim\Core\Db\Model $builder
+     * @param Builder|Model $builder
      * @param string|null $namespace
      * @return Builder
      */
@@ -172,6 +172,7 @@ class Search
                 $builder = $builder->where($condition['field'],$condition['operator'],$condition['search_value']);
             }           
         } 
+
         return $builder;
     }
 }

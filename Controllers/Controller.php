@@ -18,7 +18,7 @@ use Arikaim\Core\Access\Access;
 use Arikaim\Core\Collection\Arrays;
 use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Validator\Validator;
-use HtmlComponent;
+use Arikaim\Core\View\Html\HtmlComponent;
 
 /**
  * Base class for all Controllers

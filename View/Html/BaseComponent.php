@@ -36,7 +36,7 @@ class BaseComponent
         if (empty($component->getTemplateFile()) == true) {
             return $component;
         }
-        $template = $env->loadTemplate($component->getTemplateFile());
+        $env->loadTemplate($component->getTemplateFile());
     
         $code = $env->render($component->getTemplateFile(),$params);
         $component->setHtmlCode($code);    

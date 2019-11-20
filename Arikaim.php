@@ -11,6 +11,8 @@ namespace Arikaim\Core;
 
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
+use Slim\Routing\RouteContext;
+
 use Arikaim\Container\Container;
 use Arikaim\Core\Validator\ValidatorStrategy;
 use Arikaim\Core\Collection\Arrays;
@@ -20,6 +22,7 @@ use Arikaim\Core\Collection\Interfaces\CollectionInterface;
 use Arikaim\Core\System\Path;
 use Arikaim\Core\Middleware\MiddlewareManager;
 use Arikaim\Core\System\Error\ApplicationError;
+use Arikaim\Core\Http\Session;
 
 /**
  * Arikaim core class
@@ -153,6 +156,10 @@ class Arikaim
          
         register_shutdown_function("\Arikaim\Core\Arikaim::end");
         
+        if (Arikaim::isConsole() == false) {
+            Session::start();
+        }
+
         // create service container            
         AppFactory::setContainer(ServiceContainer::init(new Container()));
     
@@ -167,10 +174,6 @@ class Arikaim
         Self::$app->getRouteCollector()->setDefaultInvocationStrategy(new ValidatorStrategy());
         Self::$app->getRouteCollector()->setCacheFile(Path::CACHE_PATH . "/routes.cache.php");
 
-        // load class aliases
-        $aliases = Arikaim::config()->load('aliases.php');                   
-        $loader->loadAlliases($aliases);
-    
         if ($loadRoutes == true) {
             // map routes                       
             Routes::mapSystemRoutes();    
@@ -226,6 +229,19 @@ class Arikaim
         }        
     }
     
+    /**
+     * Get current route from request
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @return Route|null
+     */
+    public static function getCurrentRoute($request)
+    {
+        $routeContext = RouteContext::fromRequest($request);
+        
+        return $routeContext->getRoute();
+    }
+
     /**
      * Force garbage collector before exit
      *

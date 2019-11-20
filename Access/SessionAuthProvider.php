@@ -9,10 +9,10 @@
  */
 namespace Arikaim\Core\Access;
 
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Interfaces\Auth\UserProviderInterface;
 use Arikaim\Core\Interfaces\Auth\AuthProviderInterface;
+use Arikaim\Core\Http\Session;
 
 /**
  * Session auth provider.
@@ -49,18 +49,20 @@ class SessionAuthProvider implements AuthProviderInterface
         $loginAttempts = $this->getLoginAttempts() + 1;
 
         if ($user === false) {
-            Arikaim::session()->set('auth.login.attempts',$loginAttempts);
+            Session::set('auth.login.attempts',$loginAttempts);
             return false;
         }
       
         if ($user->verifyPassword($password) == true) {
-            Arikaim::session()->set('auth.id',$user->getAuthId());
-            Arikaim::session()->set('auth.login.time',time());
-            Arikaim::session()->remove('auth.login.attempts');  
+            Session::set('auth.id',$user->getAuthId());
+            Session::set('auth.login.time',time());
+            Session::remove('auth.login.attempts');  
             $user->updateLoginDate();
+            
             return true;
         }
-        Arikaim::session()->set('auth.login.attempts',$loginAttempts);
+        Session::set('auth.login.attempts',$loginAttempts);
+        
         return false;
     }
   
@@ -71,10 +73,10 @@ class SessionAuthProvider implements AuthProviderInterface
      */
     public function logout()
     {
-        Arikaim::session()->remove('auth.id');
-        Arikaim::session()->remove('auth.login.time');
-        Arikaim::session()->remove('auth.login.attempts');  
-        Arikaim::session()->restart();
+       Session::remove('auth.id');
+       Session::remove('auth.login.time');
+       Session::remove('auth.login.attempts');  
+       Session::restart();
     }
 
     /**
@@ -95,7 +97,7 @@ class SessionAuthProvider implements AuthProviderInterface
      */
     public function getId()
     {
-        return Arikaim::session()->get('auth.id',null);     
+        return Session::get('auth.id',null);     
     }
 
     /**
@@ -105,6 +107,6 @@ class SessionAuthProvider implements AuthProviderInterface
      */
     public function getLoginAttempts()
     {
-        return (integer)Arikaim::session()->get('auth.login.attempts',0);  
+        return (integer)Session::get('auth.login.attempts',0);  
     }
 }

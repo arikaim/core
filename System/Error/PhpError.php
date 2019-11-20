@@ -10,7 +10,7 @@
 namespace Arikaim\Core\System\Error;
 
 use Arikaim\Core\System\System;
-use Arikaim\Core\System\Request;
+use Arikaim\Core\Http\Request;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\System\Error\ConsoleErrorRenderer;
 use Arikaim\Core\System\Error\HtmlErrorRenderer;

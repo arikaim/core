@@ -25,7 +25,13 @@ class Slug implements BlueprintPrototypeInterface
      */
     public function build($table,...$options)
     {
+        $unique = (isset($options[0]) == false) ? true : $options[0];
+
         $table->string('slug')->nullable(false);
-        $table->unique('slug');             
+        if ($unique == true) {
+            $table->unique('slug');      
+        } else {
+            $table->index('slug');     
+        }
     }
 }

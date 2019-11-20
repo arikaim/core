@@ -10,7 +10,7 @@
 namespace Arikaim\Core\System\Console\Commands\Session;
 
 use Arikaim\Core\System\Console\ConsoleCommand;
-use Arikaim\Core\Arikaim;
+use Arikaim\Core\Http\Session;
 
 /**
  * Clear session varibales and start new session
@@ -36,7 +36,7 @@ class RestartCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        Arikaim::session()->restart();
+        Session::restart();
 
         $this->showTitle('Restart session.');
         $this->showCompleted();

@@ -9,8 +9,8 @@
 */
 namespace Arikaim\Core\Db;
 
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Utils;
+use Arikaim\Core\Http\Session;
 
 /**
  * Order by 
@@ -31,7 +31,8 @@ class OrderBy
             return false;
         }
         $type = (empty($type) == true) ? 'asc' : $type;
-        Arikaim::session()->set(Utils::createKey('order.by',$namespace),[$fieldName => $type]);         
+        Session::set(Utils::createKey('order.by',$namespace),[$fieldName => $type]);  
+
         return true; 
     }
 
@@ -43,7 +44,7 @@ class OrderBy
      */
     public static function getOrderBy($namespace = null)
     {
-        return Arikaim::session()->get(Utils::createKey('order.by',$namespace),[]);
+        return Session::get(Utils::createKey('order.by',$namespace),[]);
     }
 
     /**
@@ -54,7 +55,7 @@ class OrderBy
      */
     public static function deleteOrderBy($namespace = null)
     {
-        return Arikaim::session()->remove(Utils::createKey('order.by',$namespace));
+        return Session::remove(Utils::createKey('order.by',$namespace));
     }
 
     /**

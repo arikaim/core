@@ -7,7 +7,7 @@
  * @license     http://www.arikaim.com/license
  * 
 */
-namespace Arikaim\Core\Api;
+namespace Arikaim\Core\Controllers;
 
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Arikaim;

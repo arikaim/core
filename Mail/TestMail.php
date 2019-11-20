@@ -7,7 +7,7 @@
  * @license     http://www.arikaim.com/license
  * 
  */
-namespace Arikaim\Core\System\Mails;
+namespace Arikaim\Core\Mail\Mail;
 
 use Arikaim\Core\Mail\Mail;
 
@@ -24,6 +24,7 @@ class TestMail extends Mail
     public function build()
     {
         $this->loadComponent('system:admin.emails.test');
+        
         return $this;
     }
 }

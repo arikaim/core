@@ -16,8 +16,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Access\Csrf;
-use Arikaim\Core\Api\Response;
-use Arikaim\Core\System\Request;
+use Arikaim\Core\Controllers\Response;
+use Arikaim\Core\Http\Request;
 use Arikaim\Core\Middleware\Middleware;
 
 /**

@@ -60,7 +60,7 @@ class Install
         $modulesManager->installAllPackages();
 
         // reload seystem options
-        Arikaim::options()->loadOptions();
+        Arikaim::options()->load();
 
         // create admin user if not exists 
         $this->createDefaultAdminUser();

@@ -10,7 +10,7 @@
 namespace Arikaim\Core\System\Console\Commands\Session;
 
 use Arikaim\Core\System\Console\ConsoleCommand;
-use Arikaim\Core\Arikaim;
+use Arikaim\Core\Http\Session;
 
 /**
  * Session info
@@ -39,12 +39,12 @@ class InfoCommand extends ConsoleCommand
     {
         $this->showTitle('Session info.');
         
-        $label = (Arikaim::session()->isUseCookies() == true) ? 'true' : 'false';
+        $label = (Session::isUseCookies() == true) ? 'true' : 'false';
 
-        $this->style->writeLn('Id: ' . Arikaim::session()->getId());
+        $this->style->writeLn('Id: ' . Session::getId());
         $this->style->writeLn('Use cookies: ' . $label);
         $this->style->writeLn('Save Path: ' . ini_get( 'session.save_path'));      
-        $this->style->writeLn('Lifetime: ' . Arikaim::session()->getLifetime());
+        $this->style->writeLn('Lifetime: ' . Session::getLifetime());
 
         $this->showCompleted();
     }

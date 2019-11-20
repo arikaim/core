@@ -162,8 +162,8 @@ class Routes
         })->add($sessionAuth);
         // Session
         Arikaim::$app->group('/core/api/session',function($group) use($apiNamespace) {        
-            $group->put('/recreate',"$apiNamespace\Session:recreate");
-            $group->put('/restart',"$apiNamespace\Session:restart");
+            $group->put('/recreate',"$apiNamespace\SessionApi:recreate");
+            $group->put('/restart',"$apiNamespace\SessionApi:restart");
         })->add($sessionAuth);
         // Access tokens
         Arikaim::$app->group('/core/api/tokens',function($group) use($apiNamespace) {

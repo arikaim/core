@@ -9,7 +9,7 @@
  */
 namespace Arikaim\Core\Controllers;
 
-use Arikaim\Core\Api\Response;
+use Arikaim\Core\Controllers\Response;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Controllers\Controller;
 

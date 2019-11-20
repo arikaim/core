@@ -9,6 +9,7 @@
 */
 namespace Arikaim\Core\View\Template;
 
+use ParsedownExtra;
 use Twig\TwigFilter;
 use Twig\TwigTest;
 use Twig\TwigFunction;
@@ -19,6 +20,7 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Template\TemplateFunction;
 use Arikaim\Core\View\Template\Tags\ComponentTagParser;
 use Arikaim\Core\View\Template\Tags\AccessTagParser;
+use Arikaim\Core\View\Template\Tags\MdTagParser;
 use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\System\DateTime;
 use Arikaim\Core\Utils\Mobile;
@@ -30,6 +32,14 @@ use Arikaim\Core\System\Url;
  */
 class Extension extends AbstractExtension implements GlobalsInterface
 {
+
+    /**
+     * Markdown parser
+     *
+     * @var object
+     */
+    protected $markdownParser;
+
     /**
      * Rempate engine global variables
      *
@@ -170,7 +180,9 @@ class Extension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('renderText',["\\Arikaim\\Core\\Utils\\Text",'render']),
             new TwigFilter('sliceText',["\\Arikaim\\Core\\Utils\\Text",'sliceText']),
             new TwigFilter('titleCase',["\\Arikaim\\Core\\Utils\\Text",'convertToTitleCase']),
+            new TwigFilter('md',[$this,'parseMarkdown']),
         ];
+
         Arikaim::cache()->save('twig.filters',$items,10);
 
         return $items;
@@ -208,7 +220,24 @@ class Extension extends AbstractExtension implements GlobalsInterface
     {
         return [
             new ComponentTagParser(),
-            new AccessTagParser()
+            new AccessTagParser(),
+            new MdTagParser()
         ];
+    }
+
+    /**
+     * Parse Markdown
+     *
+     * @param array $context
+     * @param string $content
+     * @return string
+     */
+    public function parseMarkdown($content, $context = [])
+    {
+        if (empty($this->markdownParser) == true) {
+            $this->markdownParser = new ParsedownExtra();
+        }
+
+        return $this->markdownParser->text($content);
     }
 }

@@ -36,7 +36,7 @@ class BasicAuthentication extends Middleware implements MiddlewareInterface
         }
         // auth
         $credentials = $this->getCredentials($request);
-        if (Arikaim::auth()->withProvider('basic')->authenticate($credentials) == false) {
+        if (Arikaim::auth()->withProvider('basic')->authenticate($credentials) == false) {            
             return $this->resolveAuthError($request);
         }
 

@@ -11,6 +11,7 @@ namespace Arikaim\Core\View\Template;
 
 use Arikaim\Core\Utils\File;
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\Http\Session;
 
 /**
  * Html Template
@@ -57,7 +58,7 @@ class Template
      */
     public static function getLibraries()    
     {
-        return Arikaim::session()->get("ui.included.libraries");
+        return Session::get("ui.included.libraries");
     }
 
     /**
@@ -67,7 +68,7 @@ class Template
      */
     public static function getLoader()
     {
-        return Arikaim::session()->get("template.loader");
+        return Session::get("template.loader");
     }
 
     /**
@@ -77,7 +78,7 @@ class Template
      */
     public static function getFrameworks()    
     {
-        return Arikaim::session()->get("ui.included.frameworks");
+        return Session::get("ui.included.frameworks");
     }
 
     /**
@@ -101,16 +102,16 @@ class Template
      */
     public static function getLanguage() 
     {  
-        $language = Arikaim::session()->get('language');
+        $language = Session::get('language');
         if (empty($language) == true) { 
             try {
                 $language = Arikaim::config('settings/defaultLanguage');
                 $language = (empty($language) == true) ? "en" : $language;
 
-                Arikaim::session()->set('language',$language);
+                Session::set('language',$language);
             } catch(\Exception $e) {
                 $$language = 'en';
-                Arikaim::session()->set('language',$language);
+                Session::set('language',$language);
             }                 
         }       
 
@@ -125,7 +126,7 @@ class Template
      */
     public static function setLanguage($language) 
     {
-        Arikaim::session()->set('language',$language);
+        Session::set('language',$language);
     
         return $language;
     }
@@ -138,7 +139,7 @@ class Template
      */
     public static function setCurrentFramework($library)
     {
-        Arikaim::session()->set("current.framework",$library);
+        Session::set("current.framework",$library);
     }
 
     /**
@@ -148,7 +149,7 @@ class Template
      */
     public static function getCurrentFramework()
     {
-        $framework = Arikaim::session()->get("current.framework");
+        $framework = Session::get("current.framework");
         if (empty($framework) == true || $framework == null) {
             $frameworks = json_decode(Self::getFrameworks());
             $frameworks = (is_array($frameworks) == true) ? $frameworks : [];

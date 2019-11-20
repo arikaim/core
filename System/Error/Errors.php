@@ -12,9 +12,9 @@ namespace Arikaim\Core\System\Error;
 use Arikaim\Core\Utils\Text;
 use Arikaim\Core\Collection\Collection;
 use Arikaim\Core\System\Config;
-use Arikaim\Core\Api\Response;
+use Arikaim\Core\Controllers\Response;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\System\Request;
+use Arikaim\Core\Http\Request;
 
 /**
  * Errors

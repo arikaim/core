@@ -71,7 +71,7 @@ class Options extends ApiController
     public function getController($request, $response, $data) 
     {                          
         $this->onDataValid(function($data) { 
-            $value = Arikaim::options()->read($data['key']);
+            $value = Arikaim::options()->get($data['key']);
             $this->setResult($value);           
         });
         $data

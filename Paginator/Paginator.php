@@ -31,7 +31,7 @@ class Paginator implements PaginatorInterface
 
     const CARD_VIEW  = 'card';
     const TABLE_VIEW = 'table';
-    const GRID_VIEW = 'grid';
+    const GRID_VIEW  = 'grid';
 
     /**
      * Paginator items

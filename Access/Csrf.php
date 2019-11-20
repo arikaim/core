@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Access;
 
-use Arikaim\Core\Arikaim;
+use Arikaim\Core\Http\Session;
 
 /**
  * Csrf token helpers
@@ -24,7 +24,7 @@ class Csrf
      */
     public static function getToken($create = false)
     {
-        $token = Arikaim::session()->get('csrf_token',null);
+        $token = Session::get('csrf_token',null);
         return ($create == true && empty($token) == true) ? Self::createToken() : $token;        
     }
 
@@ -47,7 +47,7 @@ class Csrf
     public static function createToken() 
     {
         $token = bin2hex(random_bytes(16));
-        Arikaim::session()->set('csrf_token',$token);
+        Session::set('csrf_token',$token);
 
         return $token;
     }

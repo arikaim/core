@@ -16,6 +16,7 @@
         "arikaim/container": "1.*",
         "arikaim/utils": "*",
         "arikaim/collection": "*",
+        "arikaim/options": "*",
         "illuminate/database": "5.8.*",
         "illuminate/events": "5.8.*",      
         "slim/slim": "4.3.*",
@@ -28,7 +29,8 @@
         "doctrine/cache": "1.8.0",      
         "guzzlehttp/guzzle": "6.3.*",      
         "http-interop/http-factory-guzzle" : "1.*",
-        "dragonmantank/cron-expression": "2.3.*"
+        "dragonmantank/cron-expression": "2.3.*",
+        "erusev/parsedown-extra": "^0.7"
     },
     "autoload": {       
         "psr-4": {

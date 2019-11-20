@@ -24,6 +24,7 @@ use Arikaim\Core\Packages\Library\LibraryManager;
 use Arikaim\Core\Utils\File;
 use Arikaim\Core\Collection\Arrays;
 use Arikaim\Core\Utils\Text;
+use Arikaim\Core\Http\Session;
 
 use Arikaim\Core\Interfaces\View\ComponentInterface;
 
@@ -258,7 +259,7 @@ class Page extends BaseComponent
      */
     public function setCurrent($name)
     {   
-        Arikaim::session()->set("page.name",$name);
+        Session::set("page.name",$name);
     }
 
     /**
@@ -268,7 +269,7 @@ class Page extends BaseComponent
      */
     public static function getCurrent()
     {
-        return Arikaim::session()->get("page.name");
+        return Session::get("page.name");
     }
 
     /**
@@ -295,7 +296,7 @@ class Page extends BaseComponent
      */
     public static function getCurrentUrl($full = true)
     {       
-        $path = Arikaim::session()->get('current.path');
+        $path = Session::get('current.path');
 
         return ($full == true) ? Self::getFullUrl($path) : $path;
     }
@@ -308,13 +309,13 @@ class Page extends BaseComponent
      * @param boolean $withLanguagePath
      * @return string
      */
-    public static function getUrl($path = null, $full = false, $withLanguagePath = false)
+    public static function getUrl($path = '', $full = false, $withLanguagePath = false)
     {       
-        $path = (substr($path,0,1) == "/") ? substr($path, 1) : $path;           
+        $path = (substr($path,0,1) == "/") ? substr($path,1) : $path;      
         $url = ($full == true) ? Url::ARIKAIM_BASE_URL : ARIKAIM_BASE_PATH;        
         $url = ($url == "/") ? $url : $url . "/";       
 
-        return ($withLanguagePath == true) ? $url . Self::getLanguagePath($path) : $url;
+        return ($withLanguagePath == true) ? $url . Self::getLanguagePath($path) : $url . $path;
     }
 
     /**
@@ -393,7 +394,7 @@ class Page extends BaseComponent
             }                  
             // set loader from page.json
             if (isset($options['loader']) == true) {
-                Arikaim::session()->set('template.loader',$options['loader']);
+                Session::set('template.loader',$options['loader']);
             }
            
             return $options;
@@ -484,8 +485,8 @@ class Page extends BaseComponent
         }
 
         Arikaim::page()->properties()->set('ui.library.files',$includeLib);       
-        Arikaim::session()->set("ui.included.libraries",json_encode($libraryList));
-        Arikaim::session()->set("ui.included.frameworks",json_encode($frameworks));
+        Session::set("ui.included.libraries",json_encode($libraryList));
+        Session::set("ui.included.frameworks",json_encode($frameworks));
 
         return true;
     }

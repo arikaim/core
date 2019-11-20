@@ -16,8 +16,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 use Arikaim\Core\Validator\Validator;
 use Arikaim\Core\Utils\ClientIp;
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Middleware\Middleware;
+use Arikaim\Core\Http\Session;
 
 /**
  * Core middleware
@@ -34,7 +34,7 @@ class CoreMiddleware extends Middleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         // set current path 
-        Arikaim::session()->set('current.path',$request->getUri()->getPath());
+        Session::set('current.path',$request->getUri()->getPath());
         
         // sanitize requets body
         $request = $this->sanitizeRequest($request);
@@ -42,7 +42,7 @@ class CoreMiddleware extends Middleware implements MiddlewareInterface
         // get client ip address      
         $Ip = ClientIp::getClientIpAddress($request);
         $request->withAttribute('client_ip',$Ip);   
-        Arikaim::session()->set('client_ip',$Ip);
+        Session::set('client_ip',$Ip);
 
         return $handler->handle($request);
     }

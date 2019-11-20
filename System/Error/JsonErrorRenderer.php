@@ -9,7 +9,7 @@
  */
 namespace Arikaim\Core\System\Error;
 
-use Arikaim\Core\Api\Response;
+use Arikaim\Core\Controllers\Response;
 use Arikaim\Core\Interfaces\ErrorRendererInterface;
 
 /**

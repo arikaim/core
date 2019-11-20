@@ -12,7 +12,7 @@ namespace Arikaim\Core\Controllers\Api;
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Utils;
-use Arikaim\Core\System\Mails\TestMail;
+use Arikaim\Core\Mail\TestMail;
 
 /**
  * Mailer controller (TOOD message)

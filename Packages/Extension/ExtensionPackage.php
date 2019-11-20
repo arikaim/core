@@ -288,7 +288,7 @@ class ExtensionPackage extends Package
         Model::EventSubscribers()->deleteExtensionSubscribers($extensionName);
 
         // delete extension options
-        Arikaim::options()->removeExtensionOptions($extensionName);
+        Arikaim::options()->remove(null,$extensionName);
         $result = $model->where('name','=',$extensionName)->delete();
 
         // delete jobs 

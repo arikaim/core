@@ -9,14 +9,9 @@
  */
 namespace Arikaim\Core\System;
 
-use Illuminate\Database\Capsule\Manager;
-
 use Arikaim\Container\Container;
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Events\EventsManager;
-use Arikaim\Core\System\Session;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\Db\Schema;
 use Arikaim\Core\System\Factory;
 use Arikaim\Core\Collection\Collection;
 use Arikaim\Core\System\Path;
@@ -97,10 +92,6 @@ class ServiceContainer
         $container['errors'] = function() {
             return new \Arikaim\Core\System\Error\Errors();          
         };
-        // Session 
-        $container['session'] = function() {
-            return new Session();
-        };
         // Access
         $container['access'] = function() {
             return new \Arikaim\Core\Access\Access();
@@ -135,8 +126,8 @@ class ServiceContainer
         $container->get('db');       
 
         // Options
-        $container['options'] = function() { 
-            return Model::Options()->loadOptions();         
+        $container['options'] = function($container) { 
+            return new \Arikaim\Core\Options\Options(null,$container->get('cache'));          
         };
         // Events manager 
         $container['event'] = function() {
@@ -169,10 +160,6 @@ class ServiceContainer
         }; 
 
         $container->get('view');
-        if (Arikaim::isConsole() == false) {
-            $container->get('session');
-        }
-        
         $container = Self::registerCoreModules($container);
 
         return $container;

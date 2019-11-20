@@ -11,11 +11,12 @@ namespace Arikaim\Core\Controllers\Api;
 
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\Http\Session;
 
 /**
  * Session controller
 */
-class Session extends ApiController
+class SessionApi extends ApiController
 {
     /**
      * Get session info
@@ -27,7 +28,7 @@ class Session extends ApiController
      */
     public function getInfo($request, $response, $data) 
     {           
-        $sessionInfo = Arikaim::session()->getParams();   
+        $sessionInfo = Session::getParams();   
         $sessionInfo['recreate'] = Arikaim::options()->get('session.recreation.interval');
         
         return $this->setResult($sessionInfo)->getResponse();       
@@ -44,9 +45,9 @@ class Session extends ApiController
     public function recreate($request, $response, $data) 
     {             
         $lifetime = $data->get('$lifetime',null);
-        Arikaim::session()->recrete($lifetime);
+        Session::recrete($lifetime);
 
-        $sessionInfo = Arikaim::session()->getParams();  
+        $sessionInfo = Session::getParams();  
         $sessionInfo['recreate'] = Arikaim::options()->get('session.recreation.interval');     
         
         return $this->setResult($sessionInfo)->getResponse();       
@@ -65,9 +66,9 @@ class Session extends ApiController
         $this->requireControlPanelPermission();
         
         $lifetime = $data->get('$lifetime',null);
-        Arikaim::session()->restart($lifetime);
+        Session::restart($lifetime);
 
-        $sessionInfo = Arikaim::session()->getParams();  
+        $sessionInfo = Session::getParams();  
         return $this->setResult($sessionInfo)->getResponse();       
     }
 }

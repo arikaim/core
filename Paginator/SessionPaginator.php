@@ -9,9 +9,9 @@
 */
 namespace Arikaim\Core\Paginator;
 
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Paginator\Paginator;
+use Arikaim\Core\Http\Session;
 
 /**
  * Paginator session helper
@@ -27,7 +27,7 @@ class SessionPaginator
      */
     public static function getViewType($namespace = null, $default = Paginator::TABLE_VIEW)
     {
-        return Arikaim::session()->get(Utils::createKey('paginator.view.type',$namespace),$default);
+        return Session::get(Utils::createKey('paginator.view.type',$namespace),$default);
     }
 
     /**
@@ -40,7 +40,7 @@ class SessionPaginator
     public static function setViewType($type, $namespace = null)
     {
         $type = (empty($type) == true) ? Paginator::TABLE_VIEW : $type;
-        return Arikaim::session()->set(Utils::createKey('paginator.view.type',$namespace),$type);
+        return Session::set(Utils::createKey('paginator.view.type',$namespace),$type);
     }
 
     /**
@@ -51,7 +51,7 @@ class SessionPaginator
      */ 
     public static function getRowsPerPage($namespace = null)
     {
-        return Arikaim::session()->get(Utils::createKey('paginator.page',$namespace),Paginator::DEFAULT_PER_PAGE);
+        return Session::get(Utils::createKey('paginator.page',$namespace),Paginator::DEFAULT_PER_PAGE);
     }
 
     /**
@@ -64,7 +64,7 @@ class SessionPaginator
     public static function setRowsPerPage($rows, $namespace = null)
     {
         $rows = ($rows < 1) ? 1 : $rows;          
-        Arikaim::session()->set(Utils::createKey('paginator.page',$namespace),$rows);
+        Session::set(Utils::createKey('paginator.page',$namespace),$rows);
     }
 
     /**
@@ -75,7 +75,7 @@ class SessionPaginator
      */
     public static function getCurrentPage($namespace = null)
     {
-        $page = (integer)Arikaim::session()->get(Utils::createKey('paginator.current.page',$namespace),1);     
+        $page = (integer)Session::get(Utils::createKey('paginator.current.page',$namespace),1);     
         return ($page < 1) ? 1 : $page;        
     }
 
@@ -89,7 +89,7 @@ class SessionPaginator
     public static function setCurrentPage($page, $namespace = null)
     {
         $page = ($page < 1 || empty($page) == true) ? 1 : $page;       
-        Arikaim::session()->set(Utils::createKey('paginator.current.page',$namespace),$page);       
+        Session::set(Utils::createKey('paginator.current.page',$namespace),$page);       
     }
 
     /**
@@ -127,7 +127,7 @@ class SessionPaginator
      */
     public static function savePaginator($namespace, $data)
     {
-        Arikaim::session()->set(Utils::createKey('paginator',$namespace),$data);          
+        Session::set(Utils::createKey('paginator',$namespace),$data);          
     } 
 
     /**
@@ -138,7 +138,7 @@ class SessionPaginator
      */
     public static function getPaginator($namespace)
     {
-        $paginator = Arikaim::session()->get(Utils::createKey('paginator',$namespace),[]);  
+        $paginator = Session::get(Utils::createKey('paginator',$namespace),[]);  
         $paginator['current_page'] = Self::getCurrentPage($namespace);
      
         return $paginator;    
@@ -152,7 +152,7 @@ class SessionPaginator
      */
     public static function clearPaginator($namespace)
     {
-        Arikaim::session()->remove(Utils::createKey('paginator',$namespace)); 
+        Session::remove(Utils::createKey('paginator',$namespace)); 
         Self::setCurrentPage(1,$namespace); 
     }
 }

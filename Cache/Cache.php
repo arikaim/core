@@ -17,7 +17,7 @@ use Arikaim\Core\System\Path;
 /**
  * Cache 
 */
-class Cache 
+class Cache implements CacheInterface
 {
     /**
      * Cache driver
