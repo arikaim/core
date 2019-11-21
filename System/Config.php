@@ -11,7 +11,6 @@ namespace Arikaim\Core\System;
 
 use Arikaim\Core\Utils\File;
 use Arikaim\Core\Collection\Collection;
-use Arikaim\Core\System\Path;
 use Arikaim\Core\Utils\Utils;
 
 /**
@@ -41,23 +40,42 @@ class Config extends Collection
     private $cache;
 
     /**
+     * Config files directory
+     *
+     * @var string
+     */
+    private static $configDir;
+
+    /**
      * Constructor
      *
      * @param string $fileName
      * @param array|null $cache
      */
-    public function __construct($fileName = null, $cache = null) 
+    public function __construct($fileName = null, $cache = null, $dir) 
     {       
         $this->cache = $cache;
         $this->fileName = (empty($fileName) == true) ? 'config.php' : $fileName;
         $data = $this->load($this->fileName);   
-       
+        Self::$configDir = $dir;
+
         parent::__construct($data);   
 
         $this->setComment('database settings','db');
         $this->setComment('application settings','settings');
     }
     
+    /**
+     * Set config dir
+     *
+     * @param string $dir
+     * @return void
+     */
+    public static function setConfigDir($dir) 
+    {
+        Self::$configDir = $dir;
+    }
+
     /**
      * Read config file
      *
@@ -66,7 +84,8 @@ class Config extends Collection
      */
     public static function read($fileName) 
     {
-        $instance = new Self();
+        $instance = new Self(null,null,Self::$configDir);
+
         return $instance->load($fileName);
     }
 
@@ -85,7 +104,7 @@ class Config extends Collection
             }
         }
       
-        $fullFileName = Path::CONFIG_PATH . $fileName;
+        $fullFileName = Self::$configDir . $fileName;
        
         $result = (File::exists($fullFileName) == true) ? include($fullFileName) : [];    
         if (is_null($this->cache) == false && (empty($result) == false)) {
@@ -224,7 +243,7 @@ class Config extends Collection
             $this->cache->delete(strtolower($fileName));
         }
        
-        $fileName = Path::CONFIG_PATH . $fileName;
+        $fileName = Self::$configDir . $fileName;
 
         if (File::isWritable($fileName) == false) {
             File::setWritable($fileName);
@@ -238,11 +257,13 @@ class Config extends Collection
      * Load json config file
      *
      * @param string $fileName
+     * @param string|null $dir
      * @return array
      */
-    public static function loadJsonConfigFile($fileName = null)
+    public static function loadJsonConfigFile($fileName = null, $dir = null)
     {
-        $data = File::readJsonFile(Path::CONFIG_PATH . $fileName);
+        $dir = (empty($dir) == true) ? Self::$configDir : $dir;
+        $data = File::readJsonFile($dir . $fileName);
         $data = (is_array($data) == true) ? $data : [];
 
         $items = new Collection($data);

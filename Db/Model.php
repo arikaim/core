@@ -9,8 +9,8 @@
 */
 namespace Arikaim\Core\Db;
 
-use Arikaim\Core\System\Factory;
-use Arikaim\Core\Utils\FunctionArguments;
+use Arikaim\Core\App\Factory;
+use Exception;
 
 /**
  * Database Model Factory 
@@ -23,20 +23,22 @@ class Model
      * @param string $className Base model class name
      * @param string $extensionName
      * @param Closure|null $callback
+     * @throws Exception
      * @return object|null
      */ 
     public static function create($className, $extensionName = null, $callback = null) 
-    {  
-        try {
-            $className = (class_exists($className) == false) ? Self::getFullClassName($className,$extensionName) : $className; 
-            $instance = Factory::createInstance($className);
-            if (is_callable($callback) == true) {
-                return $callback($instance);
-            }
-            return (Self::isValidModel($instance) == true) ? $instance : null;              
-        } catch(\Exception $e) {           
+    {         
+        $fullClass = (class_exists($className) == false) ? Factory::getModelClass($className,$extensionName) : $className; 
+        $instance = Factory::createInstance($fullClass);
+
+        if (is_callable($callback) == true) {
+            return $callback($instance);
         }
-        return null;
+        if (is_object($instance) == false){
+            throw new Exception("Not valid db model class: $fullClass", 1);
+        }
+        
+        return $instance;
     }
 
     /**
@@ -49,18 +51,6 @@ class Model
     public static function hasAttribute($model, $name)
     {
         return array_key_exists($name, $model->attributes);
-    }
-
-    /**
-     * Get model full calss name
-     *
-     * @param string $className
-     * @param string|null $extensionName
-     * @return string
-     */
-    public static function getFullClassName($className, $extensionName = null)
-    {
-        return (empty($extensionName) == true) ? Factory::getModelClass($className) : Factory::getExtensionModelClass($extensionName,$className);         
     }
 
     /**
@@ -112,6 +102,6 @@ class Model
      */
     public static function isValidModel($instance)
     {
-        return is_subclass_of($instance,"\\Illuminate\\Database\\Eloquent\\Model");
+        return is_subclass_of($instance,"Illuminate\\Database\\Eloquent\\Model");
     }
 }

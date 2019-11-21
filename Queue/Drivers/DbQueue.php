@@ -10,8 +10,8 @@
 namespace Arikaim\Core\Queue\Drivers;
 
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\System\DateTime;
-use Arikaim\Core\System\Factory;
+use Arikaim\Core\Utils\DateTime;
+use Arikaim\Core\App\Factory;
 
 use Arikaim\Core\Interfaces\Queue\QueueInterface;
 use Arikaim\Core\Interfaces\Queue\JobInterface;

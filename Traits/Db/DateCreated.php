@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Traits\Db;
 
-use Arikaim\Core\System\DateTime;
+use Arikaim\Core\Utils\DateTime;
 
 /**
  * Set current time for date created.
@@ -28,7 +28,7 @@ trait DateCreated
     {
         static::creating(function($model) {  
             $name = $model->getDateCreatedAttributeName();   
-            $model->attributes[$name] = DateTime::getCurrentTime();                   
+            $model->attributes[$name] = DateTime::getTimestamp();                   
         });
     }
     

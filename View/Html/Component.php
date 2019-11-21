@@ -13,8 +13,8 @@ use Arikaim\Core\Collection\Arrays;
 use Arikaim\Core\Collection\Collection;
 use Arikaim\Core\Utils\File;
 use Arikaim\Core\View\Template\Template;
-use Arikaim\Core\System\Url;
-use Arikaim\Core\System\Path;
+use Arikaim\Core\App\Url;
+use Arikaim\Core\App\Path;
 use Arikaim\Core\Interfaces\View\ComponentInterface;
 
 /**

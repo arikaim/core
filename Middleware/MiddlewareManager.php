@@ -15,11 +15,9 @@ use Slim\Middleware\ContentLengthMiddleware;
 use Slim\Middleware\OutputBufferingMiddleware;
 use Slim\Middleware\BodyParsingMiddleware;
 
-use Illuminate\Database\Capsule\Manager;
-
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\System\Factory;
+use Arikaim\Core\App\Factory;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Packages\Module\ModulePackage;
 use Arikaim\Core\System\Error\ApplicationError;
@@ -62,7 +60,9 @@ class MiddlewareManager
     public static function init()
     {
         $errorMiddleware = Arikaim::$app->addErrorMiddleware(true,true,true);
-        $errorMiddleware->setDefaultErrorHandler(new ApplicationError());
+        $applicationError = new ApplicationError(Arikaim::response(),Arikaim::page());
+        
+        $errorMiddleware->setDefaultErrorHandler($applicationError);
         Arikaim::$app->add(new ContentLengthMiddleware());
         Arikaim::$app->add(new BodyParsingMiddleware());
         Arikaim::$app->add(new OutputBufferingMiddleware(new StreamFactory(),OutputBufferingMiddleware::APPEND));

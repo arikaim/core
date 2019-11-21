@@ -12,7 +12,7 @@ namespace Arikaim\Core\Db;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\Schema\Builder;
 
-use Arikaim\Core\System\Factory;
+use Arikaim\Core\App\Factory;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\TableBlueprint;
 use PDOException;

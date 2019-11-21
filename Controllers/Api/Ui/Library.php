@@ -13,7 +13,7 @@ use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Html\HtmlComponent;
 use Arikaim\Core\Packages\Library\LibraryRepository;
-use Arikaim\Core\System\Path;
+use Arikaim\Core\App\Path;
 
 /**
  * Ui library upload Api controller

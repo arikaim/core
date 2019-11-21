@@ -9,8 +9,8 @@
 */
 namespace Arikaim\Core\Packages\Library;
 
-use Arikaim\Core\System\Path;
-use Arikaim\Core\System\Url;
+use Arikaim\Core\App\Path;
+use Arikaim\Core\App\Url;
 use Arikaim\Core\Packages\PackageManager;
 use Arikaim\Core\Packages\Library\LibraryPackage;
 use Arikaim\Core\Arikaim;

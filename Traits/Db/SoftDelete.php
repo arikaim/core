@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Traits\Db;
 
-use Arikaim\Core\System\DateTime;
+use Arikaim\Core\Utils\DateTime;
 
 /**
  * Soft delete trait
@@ -42,7 +42,7 @@ trait SoftDelete
     public function softDelete($id = null)
     {
         $model = (empty($id) == true) ? $this : $this->findById($id);
-        $model->{$this->getDeletedColumn()} = DateTime::getCurrentTime();
+        $model->{$this->getDeletedColumn()} = DateTime::getTimestamp();
         
         return $model->save();
     }

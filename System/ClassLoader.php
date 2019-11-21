@@ -33,21 +33,14 @@ class ClassLoader
      *
      * @var string
      */
-    private $corePath;
-
-    /**
-     * Arikaim extensions path.
-     *
-     * @var string
-     */
-    private $extensionsPath;
+    private $coreNamespace;
 
     /**
      * Namepaces
      *
      * @var array
      */
-    private $namespaces = ['Extensions','Modules'];
+    private $packagesNamespace;
 
     /**
      * Constructor
@@ -55,14 +48,13 @@ class ClassLoader
      * @param string $basePath
      * @param string $rootPath
      * @param string $corePath
-     * @param string $extensionsPath
      */
-    public function __construct($basePath, $rootPath = null, $corePath = null, $extensionsPath = null) 
+    public function __construct($basePath, $rootPath = null, $coreNamespace = null, $packagesNamespace = []) 
     {   
         $this->rootPath = $rootPath;
-        $this->corePath = $corePath;
-        $this->extensionsPath = $extensionsPath;
+        $this->coreNamespace = $coreNamespace;
         $this->basePath = $basePath;
+        $this->packagesNamespace = $packagesNamespace;
     }
     
     /**
@@ -102,6 +94,7 @@ class ClassLoader
         if ($this->rootPath != null) {
             return $this->rootPath;
         }
+
         return (php_sapi_name() == "cli") ? __DIR__ : $_SERVER['DOCUMENT_ROOT'];         
     }
 
@@ -113,12 +106,13 @@ class ClassLoader
      */
     public function getClassFileName($class) 
     {   
-        $path = $this->getDocumentRoot() . $this->basePath;     
+        $path = $this->getDocumentRoot() . $this->basePath;  
+       
         $namespace = $this->getNamespace($class);
         $tokens = explode('\\',$class);
         $class = end($tokens);
         $namespace = $this->namespaceToPath($namespace); 
-
+     
         return $path . DIRECTORY_SEPARATOR .  $namespace . DIRECTORY_SEPARATOR . $class . ".php";       
     }
 
@@ -142,14 +136,17 @@ class ClassLoader
      */
     public function namespaceToPath($namespace, $full = false) 
     {  
+        $namespace = ltrim($namespace,'\\');
+        $namespace = str_replace($this->coreNamespace,strtolower($this->coreNamespace),$namespace);
+    
+        foreach ($this->packagesNamespace as $value) {
+            if (strpos($namespace,$value) !== false) {
+                $namespace = strtolower($namespace);
+                break;
+            }            
+        }
         $namespace = str_replace("\\",DIRECTORY_SEPARATOR,$namespace);
         
-        if ($this->isExtensionsNamespace($namespace) == true) {
-            $namespace = strtolower($namespace);
-        } else {
-            $namespace = str_replace($this->corePath,strtolower($this->corePath),$namespace);
-        }
-
         if ($full == true) {
             $path = $this->getDocumentRoot() . $this->basePath;
             $namespace = $path . DIRECTORY_SEPARATOR .  $namespace;
@@ -157,24 +154,6 @@ class ClassLoader
        
         return $namespace;   
     } 
-
-    /**
-     * Return true if namespace is extension namespace
-     *
-     * @param string $namespace
-     * @return boolean
-     */
-    private function isExtensionsNamespace($namespace)
-    {
-        $parts = explode(DIRECTORY_SEPARATOR,$namespace);       
-        if (isset($parts[1]) == true) {
-            if ($parts[0] == "Arikaim" && in_array($parts[1],$this->namespaces) == true) {
-                return true;
-            }
-        }        
-
-        return false;
-    }
 
     /**
      *  Load class alias

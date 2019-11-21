@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Controllers;
 
-use Arikaim\Core\System\Install;
+use Arikaim\Core\App\Install;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Controllers\Controller;
 

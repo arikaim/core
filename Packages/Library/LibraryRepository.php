@@ -11,7 +11,7 @@ namespace Arikaim\Core\Packages\Library;
 
 use Arikaim\Core\Packages\PackageRepository;
 use Arikaim\Core\Interfaces\Packages\RepositoryInterface;
-use Arikaim\Core\System\Path;
+use Arikaim\Core\App\Path;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\File;
 use Arikaim\Core\Utils\Utils;

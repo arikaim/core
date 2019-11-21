@@ -9,12 +9,12 @@
 */
 namespace Arikaim\Core\Packages\Module;
 
-use Arikaim\Core\System\Path;
+use Arikaim\Core\App\Path;
 use Arikaim\Core\Packages\PackageManager;
 use Arikaim\Core\Packages\Module\ModulePackage;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\System\Factory;
+use Arikaim\Core\App\Factory;
 
 /**
  * Modules package manager

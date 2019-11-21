@@ -17,6 +17,8 @@
         "arikaim/utils": "*",
         "arikaim/collection": "*",
         "arikaim/options": "*",
+        "arikaim/http": "*",
+        "arikaim/system": "*",
         "illuminate/database": "5.8.*",
         "illuminate/events": "5.8.*",      
         "slim/slim": "4.3.*",

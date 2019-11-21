@@ -11,12 +11,12 @@ namespace Arikaim\Core\Packages\Extension;
 
 use Arikaim\Core\Collection\Interfaces\CollectionInterface;
 use Arikaim\Core\Packages\Package;
-use Arikaim\Core\System\Path;
+use Arikaim\Core\App\Path;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Utils\File;
-use Arikaim\Core\System\Factory;
+use Arikaim\Core\App\Factory;
 use Arikaim\Core\Packages\Extension\ExtensionRepository;
 
 /**

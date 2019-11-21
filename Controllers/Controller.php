@@ -12,7 +12,7 @@ namespace Arikaim\Core\Controllers;
 use Psr\Http\Message\ResponseInterface;
 
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\System\Url;
+use Arikaim\Core\App\Url;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Access\Access;
 use Arikaim\Core\Collection\Arrays;

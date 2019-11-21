@@ -12,7 +12,7 @@ namespace Arikaim\Core\Models;
 use Illuminate\Database\Eloquent\Model;
 
 use Arikaim\Core\Models\UserGroupMembers;
-use Arikaim\Core\System\DateTime;
+use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Access\Access;
 use Arikaim\Core\Interfaces\Auth\UserProviderInterface;
@@ -95,7 +95,7 @@ class Users extends Model implements UserProviderInterface
      */
     public function updateLoginDate()
     {
-        $this->date_login = DateTime::getCurrentTime();
+        $this->date_login = DateTime::getTimestamp();
 
         return $this->save();
     }

@@ -9,7 +9,7 @@
  */
 namespace Arikaim\Core\Controllers;
 
-use Arikaim\Core\Controllers\Response;
+use Arikaim\Core\Http\ApiResponse;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Controllers\Controller;
 
@@ -39,7 +39,7 @@ class ApiController extends Controller
     {
         parent::__construct();
         $this->type = Controller::API;
-        $this->response = new Response(Arikaim::settings('debug'));  
+        $this->response = new ApiResponse(Arikaim::settings('debug'),Arikaim::response());  
            
         // set default validator error callback
         $this->onValidationError(function ($errors) {

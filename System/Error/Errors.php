@@ -12,9 +12,6 @@ namespace Arikaim\Core\System\Error;
 use Arikaim\Core\Utils\Text;
 use Arikaim\Core\Collection\Collection;
 use Arikaim\Core\System\Config;
-use Arikaim\Core\Controllers\Response;
-use Arikaim\Core\Arikaim;
-use Arikaim\Core\Http\Request;
 
 /**
  * Errors
@@ -156,28 +153,5 @@ class Errors extends Collection
         $list = Config::loadJsonConfigFile('errors.json');         
         $this->data = $list['errors'];
         $this->prefix = $list['prefix'];   
-    }
-
-    /**
-     * Show request error
-     *
-     * @param object $request
-     * @param object $response   
-     * @param boolean $end
-     * @return mixed
-     */
-    public function displayRequestError($request, $response, $end = false)
-    {
-        if (Request::acceptJson($request) == true) {
-            $response = new Response();
-            return $response->withError($this->getErrors())->getResponse();           
-        }       
-        if ($end == true) {
-            $response = Arikaim::page()->loadSystemError();
-            Arikaim::$app->respond($response); 
-            Arikaim::end();
-        }
-       
-        return Arikaim::page()->loadSystemError(); 
     }
 }

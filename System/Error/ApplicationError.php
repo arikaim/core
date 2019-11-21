@@ -12,16 +12,37 @@ namespace Arikaim\Core\System\Error;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Throwable;
 
 use Arikaim\Core\System\Error\PhpError;
-use Arikaim\Core\Arikaim;
+use Throwable;
 
 /**
  * Application error handler
  */
 class ApplicationError extends PhpError implements ErrorHandlerInterface
 {  
+    /**
+     * Response
+     *
+     * @var ResponseInterface
+     */
+    protected $response;
+
+    /**
+     * Constructor
+     *
+     * @param ResponseInterface $response
+     * @param ErrorRendererInterface $htmlRenderer
+     * @param boolean $displayErrorDetails
+     * @param boolean $displayErrorTrace
+     */
+    public function __construct(ResponseInterface $response, $htmlRenderer = null, $displayErrorDetails = true, $displayErrorTrace = true)
+    {
+        $this->response = $response->withStatus(400);   
+        
+        parent::__construct($htmlRenderer,$displayErrorDetails,$displayErrorTrace);
+    }
+
     /**
      * Invoke error handler
      *
@@ -34,7 +55,10 @@ class ApplicationError extends PhpError implements ErrorHandlerInterface
      */
     public function __invoke(ServerRequestInterface $request, Throwable $exception, bool $displayDetails, bool $logErrors, bool $logErrorDetails): ResponseInterface
     {
-        return $this->renderError($request,$exception,$displayDetails,$logErrors,$logErrorDetails);
+        $output = $this->renderError($request,$exception,$displayDetails,$logErrors,$logErrorDetails);
+        $this->response->getBody()->write($output);
+
+        return $this->response;
     }
 
     /**
@@ -46,11 +70,10 @@ class ApplicationError extends PhpError implements ErrorHandlerInterface
      * @param bool          $logErrorDetails
      * @return string    
      */
-    public static function render($exception, $displayDetails = true, $logErrors = false, $logErrorDetails = false)
+    public static function render($exception, $request, $displayDetails = true, $logErrors = false, $logErrorDetails = false)
     {
         $obj = new Self($displayDetails,true);
-        $request = Arikaim::createRequest();
-    
-        return $obj->renderErrorOutput($request,$exception,$displayDetails,$logErrors,$logErrorDetails);
+
+        return $obj->renderError($request,$exception,$displayDetails,$logErrors,$logErrorDetails);
     }
 }

@@ -12,7 +12,7 @@ namespace Arikaim\Core\Packages\Library;
 use Arikaim\Core\Packages\Package;
 use Arikaim\Core\Packages\Library\LibraryRepository;
 use Arikaim\Core\Utils\Text;
-use Arikaim\Core\System\Url;
+use Arikaim\Core\App\Url;
 use Arikaim\Core\Collection\Interfaces\CollectionInterface;
 
 /**

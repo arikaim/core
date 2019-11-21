@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Queue\Jobs;
 
 use Arikaim\Core\Queue\Jobs\Job;
-use Arikaim\Core\System\DateTime;
+use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Interfaces\Queue\ScheduledJobInterface;
 use Arikaim\Core\Interfaces\Queue\JobInterface;
 
@@ -84,6 +84,6 @@ abstract class ScheduledJob extends Job implements ScheduledJobInterface, JobInt
             return false;
         }
 
-        return ($this->scheduleTime < DateTime::create()->getTimestamp()) ? true : false;
+        return ($this->scheduleTime < DateTime::getTimestamp()) ? true : false;
     }
 }

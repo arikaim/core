@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Traits\Db;
 
-use Arikaim\Core\System\DateTime;
+use Arikaim\Core\Utils\DateTime;
 
 /**
  * Set current time for date updated.
@@ -28,7 +28,7 @@ trait DateUpdated
     {
         static::updating(function($model) {   
             $name = $model->getDateUpdatedAttributeName();             
-            $model->attributes[$name] = DateTime::getCurrentTime();             
+            $model->attributes[$name] = DateTime::getTimestamp();             
         });
     }
     

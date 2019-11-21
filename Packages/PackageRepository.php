@@ -13,7 +13,7 @@ use Arikaim\Core\Interfaces\Packages\RepositoryInterface;
 use Arikaim\Core\Interfaces\Packages\RepositoryDriverInterface;
 use Arikaim\Core\Packages\Drivers\GitHubRepositoryDriver;
 use Arikaim\Core\Utils\ZipFile;
-use Arikaim\Core\System\Path;
+use Arikaim\Core\App\Path;
 use Arikaim\Core\Arikaim;
 
 /**

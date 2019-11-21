@@ -15,7 +15,7 @@ use Monolog\Handler\StreamHandler;
 use Arikaim\Core\Utils\File;
 use Arikaim\Core\Logger\JsonLogsFormatter;
 use Arikaim\Core\Logger\LogsProcessor;
-use Arikaim\Core\System\Path;
+use Arikaim\Core\App\Path;
 
 /**
  * Logger

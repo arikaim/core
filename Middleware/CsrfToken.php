@@ -16,8 +16,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Access\Csrf;
-use Arikaim\Core\Controllers\Response;
 use Arikaim\Core\Http\Request;
+use Arikaim\Core\Http\ApiResponse;
 use Arikaim\Core\Middleware\Middleware;
 
 /**
@@ -36,6 +36,7 @@ class CsrfToken extends Middleware implements MiddlewareInterface
     {
         if (in_array($request->getMethod(),['POST', 'PUT', 'DELETE', 'PATCH']) == true) {
             $token = $this->getToken($request);
+
             if (Csrf::validateToken($token) == false) {    
                 $request = $this->generateToken($request);                                    
                 // token error
@@ -64,7 +65,7 @@ class CsrfToken extends Middleware implements MiddlewareInterface
     }
 
     /**
-     * Show token error // TODO
+     * Show token error
      *
      * @param \Psr\Http\Message\ResponseInterface $response
      * @return void
@@ -75,12 +76,13 @@ class CsrfToken extends Middleware implements MiddlewareInterface
         Arikaim::errors()->addError('ACCESS_DENIED');
 
         if (Request::acceptJson($request) == true) {
-            $response = new Response();
+            $response = new ApiResponse();
             $response->setError('ACCESS_DENIED');
+
             return $response->getResponse();
         } 
         
-        return Arikaim::page()->load('system:system-error');      
+        return Arikaim::page()->loadSystemError();      
     }
 
     /**

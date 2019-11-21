@@ -12,7 +12,7 @@ namespace Arikaim\Core\Queue\Jobs;
 use Cron\CronExpression;
 
 use Arikaim\Core\Queue\Jobs\RecuringJob;
-use Arikaim\Core\System\DateTime;
+use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Interfaces\Queue\RecuringJobInterface;
 use Arikaim\Core\Interfaces\Queue\JobInterface;
 

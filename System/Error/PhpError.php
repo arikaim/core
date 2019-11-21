@@ -11,10 +11,9 @@ namespace Arikaim\Core\System\Error;
 
 use Arikaim\Core\System\System;
 use Arikaim\Core\Http\Request;
-use Arikaim\Core\Arikaim;
-use Arikaim\Core\System\Error\ConsoleErrorRenderer;
-use Arikaim\Core\System\Error\HtmlErrorRenderer;
-use Arikaim\Core\System\Error\JsonErrorRenderer;
+use Arikaim\Core\System\Error\Renderer\ConsoleErrorRenderer;
+use Arikaim\Core\System\Error\Renderer\HtmlErrorRenderer;
+use Arikaim\Core\System\Error\Renderer\JsonErrorRenderer;
 use Arikaim\Core\Utils\Utils;
 
 /**
@@ -51,14 +50,24 @@ class PhpError
     protected $logErrorDetails;
 
     /**
+     * Html renderer
+     *
+     * @var ErrorRendererInterface
+     */
+    protected $htmlRenderer;
+
+    /**
      * Constructor
      *
+     * @param ErrorRendererInterface $htmlRenderer
      * @param boolean $displayErrorDetails
+     * @param boolean $displayErrorTrace
      */
-    public function __construct($displayErrorDetails = true, $displayErrorTrace = true)
+    public function __construct($htmlRenderer = null, $displayErrorDetails = true, $displayErrorTrace = true)
     {
         $this->displayErrorDetails = $displayErrorDetails;
-        $this->displayErrorTrace = $displayErrorTrace;        
+        $this->displayErrorTrace = $displayErrorTrace;   
+        $this->htmlRenderer = ($htmlRenderer == null) ? new HtmlErrorRenderer() : $htmlRenderer;
     }
 
     /**
@@ -69,29 +78,9 @@ class PhpError
      * @param bool $displayDetails
      * @param bool $logErrors
      * @param bool $logErrorDetails
-     * @return ResponseInterface   
-     */
-    public function renderError($request, $exception, $displayDetails, $logErrors, $logErrorDetails)
-    {
-        $output = $this->renderErrorOutput($request,$exception,$displayDetails,$logErrors,$logErrorDetails);
-    
-        $response = Arikaim::response()->withStatus(400);
-        $response->getBody()->write($output);   
-        
-        return $response;              
-    }
-
-    /**
-     * Render error output
-     *
-     * @param ServerRequestInterface $request   The most recent Request object    
-     * @param \Throwable             $exception The caught Throwable object
-     * @param bool $displayDetails
-     * @param bool $logErrors
-     * @param bool $logErrorDetails
      * @return string   
      */
-    public function renderErrorOutput($request, $exception, $displayDetails, $logErrors, $logErrorDetails)
+    public function renderError($request, $exception, $displayDetails, $logErrors, $logErrorDetails)
     {
         $this->logErrors = $logErrors;
         $this->displayErrorDetails = $displayDetails;
@@ -102,10 +91,10 @@ class PhpError
         } elseif (Request::isJsonContentType($request) == true) {
             $render = new JsonErrorRenderer();
         } else {
-            $render = new HtmlErrorRenderer();
+            $render = $this->htmlRenderer;
         }
 
-        return $render->render(Self::toArray($exception));
+        return $render->render(Self::toArray($exception));      
     }
 
     /**

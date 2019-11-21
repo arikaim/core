@@ -12,9 +12,9 @@ namespace Arikaim\Core\Packages\Module;
 use Arikaim\Core\Packages\Module\ModuleRepository;
 use Arikaim\Core\Packages\Package;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\System\Factory;
+use Arikaim\Core\App\Factory;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\System\Path;
+use Arikaim\Core\App\Path;
 use Arikaim\Core\Utils\File;
 use Arikaim\Core\Collection\Interfaces\CollectionInterface;
 

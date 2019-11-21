@@ -9,10 +9,8 @@
  */
 namespace Arikaim\Core\System;
 
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\System\System;
-use Arikaim\Core\System\ComposerApplication;
-use Arikaim\Core\System\Url;
+use Arikaim\Core\System\Composer;
 
 /**
  * Update Arikaim core
@@ -27,14 +25,9 @@ class Update
     public function update()
     {
         $errors = 0;
-        $output = ComposerApplication::updatePackage(System::getCorePackageName(),true);
+        $output = Composer::updatePackage(System::getCorePackageName(),true);
       
-        if ($errors == 0) {
-            // trigger event core.update
-            Arikaim::event()->dispatch('core.update',[]);
-            return true;
-        }
-        return false;
+        return ($errors == 0); 
     }
 
     /**
@@ -44,7 +37,7 @@ class Update
      */
     public function getCoreInfo()
     {
-        return ComposerApplication::runCommand('show ' . System::getCorePackageName());
+        return Composer::runCommand('show ' . System::getCorePackageName());
     }
 
     /**
@@ -55,7 +48,7 @@ class Update
      */
     public function getCorePackagesList($resultLength = null)
     {
-        $packageInfo = Self::getPackageInfo("arikaim","core");
+        $packageInfo = Composer::getPackageInfo("arikaim","core");
         $list = $packageInfo['package']['versions'];
         unset($list['dev-master']);
         $packages = [];
@@ -72,19 +65,5 @@ class Update
         }
 
         return $packages;
-    }
-
-    /**
-     * Get package info
-     *
-     * @param string $vendor Package vendor name
-     * @param string $package Package name
-     * @return array
-     */
-    public static function getPackageInfo($vendor, $package)
-    {       
-        $info = Url::fetch("https://packagist.org/packages/$vendor/$package.json");
-
-        return (empty($info) == true) ? null : json_decode($info,true);
     }
 }

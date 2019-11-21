@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Access\Authenticate;
-use Arikaim\Core\System\Url;
+use Arikaim\Core\App\Url;
 use Arikaim\Core\System\Routes as SystemRoutes;
 use Arikaim\Core\View\Html\HtmlComponent;
 use Arikaim\Core\Traits\Db\Find;

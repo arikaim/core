@@ -13,7 +13,7 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\Interfaces\ExtensionInterface;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\System\Factory;
+use Arikaim\Core\App\Factory;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Models\Routes;
 
@@ -71,7 +71,7 @@ abstract class Extension implements ExtensionInterface
     public function addRelationMap($type, $modelClass)
     {
         $relations = Arikaim::config()->load('relations.php');       
-        $relations[$type] = Model::getFullClassName($modelClass,$this->getName());
+        $relations[$type] = Factory::getModelClass($modelClass,$this->getName());
         $relations = array_unique($relations);
       
         return Arikaim::config()->save('relations.php',$relations);

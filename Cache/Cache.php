@@ -12,7 +12,7 @@ namespace Arikaim\Core\Cache;
 use Doctrine\Common\Cache\Cache as CacheInterface;
 use Doctrine\Common\Cache\FilesystemCache;
 use Arikaim\Core\Utils\File;
-use Arikaim\Core\System\Path;
+use Arikaim\Core\App\Path;
 
 /**
  * Cache 

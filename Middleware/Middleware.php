@@ -97,6 +97,6 @@ class Middleware
         }
         Arikaim::errors()->AddError('AUTH_FAILED');
         
-        return Arikaim::errors()->displayRequestError($request,$response);
+        return Arikaim::page()->loadSystemError();       
     }
 }

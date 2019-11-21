@@ -16,13 +16,15 @@ use Slim\Routing\RouteContext;
 use Arikaim\Container\Container;
 use Arikaim\Core\Validator\ValidatorStrategy;
 use Arikaim\Core\Collection\Arrays;
-use Arikaim\Core\System\ServiceContainer;
-use Arikaim\Core\System\Routes;
+use Arikaim\Core\App\ServiceContainer;
+use Arikaim\Core\App\Routes;
 use Arikaim\Core\Collection\Interfaces\CollectionInterface;
-use Arikaim\Core\System\Path;
+use Arikaim\Core\App\Path;
 use Arikaim\Core\Middleware\MiddlewareManager;
 use Arikaim\Core\System\Error\ApplicationError;
 use Arikaim\Core\Http\Session;
+use Arikaim\Core\Utils\Number;
+use Arikaim\Core\Utils\DateTime;
 
 /**
  * Arikaim core class
@@ -148,11 +150,14 @@ class Arikaim
         define('ARIKAIM_PATH',ARIKAIM_ROOT_PATH . ARIKAIM_BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');  
         define('ARIKAIM_DOMAIN',Self::getDomain());
 
-        $loader = new \Arikaim\Core\System\ClassLoader(ARIKAIM_BASE_PATH,ARIKAIM_ROOT_PATH,'Arikaim' . DIRECTORY_SEPARATOR . 'Core','Arikaim' . DIRECTORY_SEPARATOR . 'Extensions');
+        $loader = new \Arikaim\Core\System\ClassLoader(ARIKAIM_BASE_PATH,ARIKAIM_ROOT_PATH,'Arikaim\Core',[
+            'Arikaim\Extensions',
+            'Arikaim\Modules'
+        ]);
         $loader->register();
         
         // load global functions
-        $loader->LoadClassFile('\\Arikaim\\Core\\System\\Globals');
+        $loader->LoadClassFile('\\Arikaim\\Core\\App\\Globals');
          
         register_shutdown_function("\Arikaim\Core\Arikaim::end");
         
@@ -178,7 +183,12 @@ class Arikaim
             // map routes                       
             Routes::mapSystemRoutes();    
             Routes::mapRoutes();          
-        }       
+        }      
+        
+        // DatTime and numbers format
+        Number::setFormats(Self::options()->get('number.format.items'));
+        DateTime::setTimeZone(Arikaim::options()->get('time.zone'));
+        DateTime::setFormats(Arikaim::options()->get('date.format.items'),Arikaim::options()->get('time.format.items'));      
     }
     
     /**
@@ -224,8 +234,8 @@ class Arikaim
         try {
             Self::init();    
             Self::$app->run();  
-        } catch (\Exception $exception) {          
-            ApplicationError::render($exception);          
+        } catch (\Exception $exception) {               
+            ApplicationError::render($exception,Arikaim::createRequest());          
         }        
     }
     
@@ -252,7 +262,7 @@ class Arikaim
         if (error_reporting() == true) {
             $error = error_get_last();                
             if (empty($error) == false) {
-                ApplicationError::render($error);          
+                ApplicationError::render($error,Arikaim::createRequest());          
             }          
         }
     }
@@ -382,5 +392,15 @@ class Arikaim
         } elseif ($scriptDir !== '/' && stripos($uri, $scriptDir) === 0) {
             Self::$basePath = $scriptDir;
         }       
+    }
+
+    /**
+     * Return composer core package name
+     *
+     * @return string
+     */
+    public static function getCorePackageName()
+    {
+        return "arikaim/core";
     }
 }

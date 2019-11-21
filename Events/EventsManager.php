@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Events;
 
-use Arikaim\Core\System\Factory;
+use Arikaim\Core\App\Factory;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Events\Event;

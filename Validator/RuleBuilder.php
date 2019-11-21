@@ -9,7 +9,7 @@
  */
 namespace Arikaim\Core\Validator;
 
-use Arikaim\Core\System\Factory;
+use Arikaim\Core\App\Factory;
 use Arikaim\Core\Validator\Rule;
 use Arikaim\Core\Collection\Arrays;
 

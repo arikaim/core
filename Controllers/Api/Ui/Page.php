@@ -13,7 +13,7 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\System\Url;
+use Arikaim\Core\App\Url;
 use Arikaim\Core\View\Html\HtmlComponent;
 
 /**

@@ -11,7 +11,7 @@ namespace Arikaim\Core\Queue\Jobs;
 
 use Cron\CronExpression;
 
-use Arikaim\Core\System\DateTime;
+use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Queue\Jobs\Job;
 use Arikaim\Core\Interfaces\Queue\RecuringJobInterface;
 
@@ -48,8 +48,7 @@ abstract class RecuringJob extends Job implements RecuringJobInterface
      */
     public static function getNextRunDate($interval)
     {
-        $date = DateTime::create();
-        return CronExpression::factory($interval)->getNextRunDate('now',0,false,$date->getTimeZoneName())->getTimestamp();
+        return CronExpression::factory($interval)->getNextRunDate('now',0,false,DateTime::getTimeZoneName())->getTimestamp();
     }
     
     /**

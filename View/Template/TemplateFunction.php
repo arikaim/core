@@ -9,9 +9,9 @@
 */
 namespace Arikaim\Core\View\Template;
 
-use Arikaim\Core\System\Path;
+use Arikaim\Core\App\Path;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\System\Factory;
+use Arikaim\Core\App\Factory;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Utils\File;
@@ -54,7 +54,7 @@ class TemplateFunction
         if (\in_array($modelClass,$this->protectedModels) == true) {
             return (Arikaim::access()->hasControlPanelAccess() == true) ? Model::create($modelClass,$extension) : false;           
         }
-        
+     
         return Model::create($modelClass,$extension);
     }
 

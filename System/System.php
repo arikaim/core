@@ -9,7 +9,6 @@
  */
 namespace Arikaim\Core\System;
 
-use Illuminate\Database\Capsule\Manager;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Utils;
 
@@ -53,33 +52,26 @@ class System
     public static function getSystemInfo() 
     {  
         $os = posix_uname();   
-        $info = [
+        
+        return [
             'cms_version' => Self::getVersion(), 
             'php_version' => Self::getPhpVersion(),       
             'os_name'     => explode(' ',$os['sysname'])[0],
             'os_version'  => $os['release'],
             'os_machine'  => $os['machine'],
-            'os_node'     => $os['nodename'],
-            'database'    => Self::getDatabaseInfo()
-        ];
-
-        return $info;
+            'os_node'     => $os['nodename']
+        ];       
     }
 
     /**
      * Set script execution tile limit (0 - unlimited)
      *
      * @param integer $time
-     * @return boolean
+     * @return void
      */
     public static function setTimeLimit($time)
     {
-        if (is_numeric($time) == true) {
-            set_time_limit($time);
-            return true;
-        }
-
-        return false;
+        set_time_limit($time);       
     }
 
     /**
@@ -133,33 +125,7 @@ class System
         return extension_loaded($phpExtensionName);
     }
 
-    /**
-     * Get database info
-     *
-     * @return array
-     */
-    public static function getDatabaseInfo() 
-    {        
-        if (Self::hasPhpExtension('PDO') == true) {
-            $pdo = Manager::connection()->getPdo();
-            $driverName = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
-            $serverInfo = $pdo->getAttribute(\PDO::ATTR_SERVER_INFO); 
-            $version = substr($pdo->getAttribute(\PDO::ATTR_SERVER_VERSION),0,6); 
-        } else {
-            $driverName = "";
-            $serverInfo = "";
-            $version = "";
-        }
-        
-        $info = [
-            'driver'      => $driverName,
-            'server_info' => $serverInfo,
-            'version'     => $version,
-            'name'        => Arikaim::config('db/database')
-        ];
-
-        return $info;
-    }
+   
     
     /**
      * Return true if PDO driver is installed
@@ -323,16 +289,6 @@ class System
         }
     }
  
-    /**
-     * Return composer core package name
-     *
-     * @return string
-     */
-    public static function getCorePackageName()
-    {
-        return "arikaim/core";
-    }
-
     /**
      * Get default output
      *

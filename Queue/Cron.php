@@ -11,7 +11,7 @@ namespace Arikaim\Core\Queue;
 
 use Arikaim\Core\System\Process;
 use Arikaim\Core\Collection\Arrays;
-use Arikaim\Core\System\StaticFacade;
+use Arikaim\Core\Utils\StaticFacade;
 
 /**
  * Cron jobs 

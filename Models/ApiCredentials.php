@@ -12,7 +12,7 @@ namespace Arikaim\Core\Models;
 use Illuminate\Database\Eloquent\Model;
 
 use Arikaim\Core\Utils\Utils;
-use Arikaim\Core\System\DateTime;
+use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Interfaces\Auth\UserProviderInterface;
 use Arikaim\Core\Utils\Uuid as UuidFactory;
 
@@ -98,7 +98,7 @@ class ApiCredentials extends Model implements UserProviderInterface
      */
     public function createCredintails($userId, $expireTime = null)
     {
-        $dateExpired = (empty($expireTime) == true) ? null : DateTime::getCurrentTime() + $expireTime;
+        $dateExpired = (empty($expireTime) == true) ? null : DateTime::getTimestamp() + $expireTime;
 
         return $this->create([
             'user_id'   => $userId,

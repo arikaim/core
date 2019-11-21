@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Packages\Extension;
 
-use Arikaim\Core\System\Path;
+use Arikaim\Core\App\Path;
 use Arikaim\Core\Packages\PackageManager;
 use Arikaim\Core\Packages\Extension\ExtensionPackage;
 use Arikaim\Core\Arikaim;

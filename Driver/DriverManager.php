@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Driver;
 
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\System\Factory;
+use Arikaim\Core\App\Factory;
 use Arikaim\Core\Collection\Properties;
 use Arikaim\Core\Collection\PropertiesFactory;
 use Arikaim\Core\Interfaces\DriverInterface;

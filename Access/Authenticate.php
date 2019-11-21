@@ -9,7 +9,7 @@
  */
 namespace Arikaim\Core\Access;
 
-use Arikaim\Core\System\Factory;
+use Arikaim\Core\App\Factory;
 use Arikaim\Core\Access\SessionAuthProvider;
 use Arikaim\Core\Interfaces\Auth\UserProviderInterface;
 use Arikaim\Core\Interfaces\Auth\AuthProviderInterface;

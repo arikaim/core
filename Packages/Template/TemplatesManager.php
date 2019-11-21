@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Packages\Template;
 
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\System\Path;
+use Arikaim\Core\App\Path;
 use Arikaim\Core\Packages\PackageManager;
 use Arikaim\Core\Packages\Template\TemplatePackage;
 use Arikaim\Core\Arikaim;

@@ -260,4 +260,21 @@ class Db
         $config['database'] = 'information_schema';             
         $this->capsule->addConnection($config,"schema");
     }
+
+    /**
+     * Get database info
+     *
+     * @return array
+     */
+    public function getInfo() 
+    {        
+        $pdo = (Self::hasPhpExtension('PDO') == true) ? $this->capsule->connection()->getPdo() : null;
+
+        return [
+            'driver'      => is_object($pdo) ? $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME) : "",
+            'server_info' => is_object($pdo) ? $pdo->getAttribute(\PDO::ATTR_SERVER_INFO) : "",
+            'version'     => is_object($pdo) ? substr($pdo->getAttribute(\PDO::ATTR_SERVER_VERSION),0,6) : "",
+            'name'        => Arikaim::config('db/database')
+        ];      
+    }
 }

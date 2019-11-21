@@ -15,7 +15,7 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Utils\Mobile;
 use Arikaim\Core\View\Html\Component;
-use Arikaim\Core\System\Url;
+use Arikaim\Core\App\Url;
 use Arikaim\Core\Interfaces\View\ComponentInterface;
 
 /**

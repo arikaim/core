@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Utils\Uuid as UuidFactory;
-use Arikaim\Core\System\DateTime;
+use Arikaim\Core\Utils\DateTime;
 
 use Arikaim\Core\Traits\Db\Uuid;
 
@@ -71,7 +71,7 @@ class AccessTokens extends Model
         if ($this->date_expired == -1) {
             return false;
         }
-        return (DateTime::getCurrentTime() > $this->date_expired || empty($this->date_expired) == true) ? true : false;
+        return (DateTime::getTimestamp() > $this->date_expired || empty($this->date_expired) == true) ? true : false;
     }
 
     /**
@@ -85,7 +85,7 @@ class AccessTokens extends Model
     public function createToken($userId, $type = AccessTokens::PAGE_ACCESS_TOKEN, $expireTime = 1800, $deleteExpired = true)
     {
         $expireTime = ($expireTime < 1000) ? 1000 : $expireTime;
-        $dateExpired = DateTime::getCurrentTime() + $expireTime;
+        $dateExpired = DateTime::getTimestamp() + $expireTime;
         $token = ($type == Self::LOGIN_ACCESS_TOKEN) ? Utils::createRandomKey() : UuidFactory::create();
 
         if ($deleteExpired == true) {          
@@ -151,7 +151,7 @@ class AccessTokens extends Model
             return false;
         }
 
-        return (DateTime::getCurrentTime() > $model->date_expired || empty($model->date_expired) == true) ? true : false;
+        return (DateTime::getTimestamp() > $model->date_expired || empty($model->date_expired) == true) ? true : false;
     }
 
     /**
@@ -187,7 +187,7 @@ class AccessTokens extends Model
      */
     public function deleteExpired($userId, $type = AccessTokens::PAGE_ACCESS_TOKEN)
     {
-        $model = $this->where('date_expired','<',DateTime::getCurrentTime())
+        $model = $this->where('date_expired','<',DateTime::getTimestamp())
             ->where('date_expired','<>',-1)
             ->where('user_id','=', $userId);
         
@@ -204,7 +204,7 @@ class AccessTokens extends Model
      */
     public function deleteExpiredTokens()
     {
-        return $this->where('date_expired','<',DateTime::getCurrentTime())->where('date_expired','<>',-1)->delete();
+        return $this->where('date_expired','<',DateTime::getTimestamp())->where('date_expired','<>',-1)->delete();
     }
 
     /**

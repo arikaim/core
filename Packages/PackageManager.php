@@ -12,7 +12,7 @@ namespace Arikaim\Core\Packages;
 use Arikaim\Core\Interfaces\Packages\PackageManagerInterface;
 use Arikaim\Core\Utils\File;
 use Arikaim\Core\Collection\Collection;
-use Arikaim\Core\System\Path;
+use Arikaim\Core\App\Path;
 use Arikaim\Core\Utils\ZipFile;
 
 /**
