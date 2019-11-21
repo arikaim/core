@@ -13,11 +13,10 @@ use Twig\Environment;
 use Twig\Extension\ExtensionInterface;
 use Twig\Loader\FilesystemLoader;
 
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Template\Extension;
 
 /**
- * Twig View
+ * View class
  */
 class View
 {
