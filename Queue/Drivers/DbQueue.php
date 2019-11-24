@@ -13,10 +13,10 @@ use Arikaim\Core\Db\Model;
 use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\App\Factory;
 
-use Arikaim\Core\Interfaces\Queue\QueueInterface;
-use Arikaim\Core\Interfaces\Queue\JobInterface;
-use Arikaim\Core\Interfaces\Queue\RecuringJobInterface;
-use Arikaim\Core\Interfaces\Queue\ScheduledJobInterface;
+use Arikaim\Core\Interfaces\QueueInterface;
+use Arikaim\Core\Interfaces\Job\JobInterface;
+use Arikaim\Core\Interfaces\Job\RecuringJobInterface;
+use Arikaim\Core\Interfaces\Job\ScheduledJobInterface;
 
 use Arikaim\Core\Traits\Db\Status;
 

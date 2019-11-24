@@ -9,15 +9,15 @@
  */
 namespace Arikaim\Core\Access;
 
+use Arikaim\Core\Interfaces\AccessInterface;
+use Arikaim\Core\Access\Interfaces\PermissionsInterface;
+
 use Arikaim\Core\Collection\Arrays;
-use Arikaim\Core\Arikaim;
-use Arikaim\Core\Db\Model;
-use Arikaim\Core\Interfaces\Auth\PermissionsInterface;
 
 /**
- * Manage access.
+ * Manage permissions.
  */
-class Access 
+class Access implements AccessInterface
 {
     /**
      *  Full permissions
@@ -49,9 +49,9 @@ class Access
      * 
      * @param PermissionsInterface $provider
      */
-    public function __construct(PermissionsInterface $provider = null) 
+    public function __construct(PermissionsInterface $provider) 
     {
-        $this->provider = ($this->provider == null) ? Model::PermissionRelations() : $provider;        
+        $this->provider = $provider;         
     }
 
     /**
@@ -78,53 +78,30 @@ class Access
     /**
      * Check if current loged user have control panel access
      *
-     * @param string|integer|null $id
      * @return boolean
      */
-    public function hasControlPanelAccess($id = null)
+    public function hasControlPanelAccess($authId = null)
     {
-        return $this->hasAccess(Access::CONTROL_PANEL,ACCESS::FULL,$id);
+        return $this->hasAccess(Access::CONTROL_PANEL,ACCESS::FULL,$authId);
     }
     
     /**
      * Check access 
      *
      * @param string $name Permission name
-     * @param string|array $type PermissionType (read,write,execute,delete)
-     * @param string|integer|null $id
+     * @param string|array $type PermissionType (read,write,execute,delete)   
+     * @param mixed $authId 
      * @return boolean
      */
-    public function hasAccess($name, $type = null, $id = null)
-    {
-        $id = (empty($id) == true) ? Arikaim::auth()->getId() : $id; 
-        if (empty($id) == true) {
-            return false;
-        }
+    public function hasAccess($name, $type = null, $authId = null)
+    {       
         list($name, $permissionType) = $this->resolvePermissionName($name);
        
         if (is_array($permissionType) == false) {
             $permissionType = $this->resolvePermissionType($type);
         }
     
-        return $this->getProvider()->hasPermissions($name,$id,$permissionType);            
-    }
-
-    /**
-     * Resolve permission type
-     *
-     * @param string|array $type
-     * @return array|null
-     */
-    public function resolvePermissionType($type)
-    {
-        if (is_array($type) == true) {
-            return $type;
-        }
-    
-        if (is_string($type) == true) {
-            $type = Arrays::toArray($type,",");
-        }
-        return null;
+        return $this->getProvider()->hasPermissions($name,$authId,$permissionType);            
     }
 
     /**
@@ -142,6 +119,26 @@ class Access
         if (is_string($type) == true) {
             $type = (strtolower($type) == 'full') ? Self::FULL : Arrays::toArray($type,",");
         }
+        
         return [$name,$type];
+    }
+
+    /**
+     * Resolve permission type
+     *
+     * @param string|array $type
+     * @return array|null
+     */
+    protected function resolvePermissionType($type)
+    {
+        if (is_array($type) == true) {
+            return $type;
+        }
+    
+        if (is_string($type) == true) {
+            $type = Arrays::toArray($type,",");
+        }
+
+        return null;
     }
 }   

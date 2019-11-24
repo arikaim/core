@@ -11,8 +11,8 @@ namespace Arikaim\Core\App;
 
 use Arikaim\Core\App\Path;
 
-use Arikaim\Core\Interfaces\Queue\JobInterface;
-use Arikaim\Core\Interfaces\Events\EventSubscriberInterface;
+use Arikaim\Core\Interfaces\Job\JobInterface;
+use Arikaim\Core\Events\Interfaces\EventSubscriberInterface;
 use Arikaim\Core\Interfaces\ExtensionInterface;
 
 /**
@@ -29,7 +29,6 @@ class Factory
      */
     public static function createInstance($class, $args = null)
     {
-        //$class = (class_exists($class) == false) ? Self::getFullClassName($class) : $class;    
         if (class_exists($class) == false) {
             return null;
         }       
@@ -44,7 +43,7 @@ class Factory
      *
      * @param string $name
      * @param array|null $args
-     * @return Arikaim\Core\Interfaces\RuleInterface
+     * @return Arikaim\Core\Validator\Interfaces\RuleInterface
      */
     public static function createRule($name, $args = null)
     {              

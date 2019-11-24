@@ -40,7 +40,7 @@ class Path
     const ACCESS_NAMESPACE          = Self::CORE_NAMESPACE . "\\Access";
     const EXTENSIONS_NAMESPACE      = "Arikaim\\Extensions";
     const CONTROLLERS_NAMESPACE     = Self::CORE_NAMESPACE . "\\Controllers";
-    const API_CONTROLLERS_NAMESPACE = Self::CONTROLLERS_NAMESPACE . "\\Api";
+    const API_CONTROLLERS_NAMESPACE = Self::CORE_NAMESPACE . "\\Api";
     const INTERFACES_NAMESPACE      = Self::CORE_NAMESPACE . "\\Interfaces";
 
     /**
@@ -196,7 +196,7 @@ class Path
             case Component::EXTENSION_COMPONENT:
                 return Self::getExtensionViewPath($template);
             case Component::TEMPLATE_COMPONENT:
-                return  Self::TEMPLATES_PATH . $template . DIRECTORY_SEPARATOR;
+                return Self::TEMPLATES_PATH . $template . DIRECTORY_SEPARATOR;
             case Component::GLOBAL_COMPONENT:
                 return Path::ARIKAIM_VIEW_PATH . DIRECTORY_SEPARATOR;
         }           

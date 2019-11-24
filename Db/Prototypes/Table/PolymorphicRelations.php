@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Db\Prototypes\Table;
 
-use Arikaim\Core\Interfaces\BlueprintPrototypeInterface;
+use Arikaim\Core\Db\BlueprintPrototypeInterface;
 
 /**
  * PolymorphicRelations (Many to Many) table prototype class

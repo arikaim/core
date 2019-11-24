@@ -9,8 +9,8 @@
 */
 namespace Arikaim\Core\Packages;
 
-use Arikaim\Core\Interfaces\Packages\RepositoryInterface;
-use Arikaim\Core\Interfaces\Packages\RepositoryDriverInterface;
+use Arikaim\Core\Packages\Interfaces\RepositoryInterface;
+use Arikaim\Core\Packages\Interfaces\RepositoryDriverInterface;
 use Arikaim\Core\Packages\Drivers\GitHubRepositoryDriver;
 use Arikaim\Core\Utils\ZipFile;
 use Arikaim\Core\App\Path;

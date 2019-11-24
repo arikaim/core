@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Packages\Template;
 
 use Arikaim\Core\Packages\PackageRepository;
-use Arikaim\Core\Interfaces\Packages\RepositoryInterface;
+use Arikaim\Core\Packages\Interfaces\RepositoryInterface;
 use Arikaim\Core\App\Path;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\File;

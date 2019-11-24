@@ -9,7 +9,7 @@
  */
 namespace Arikaim\Core\Validator;
 
-use Arikaim\Core\Interfaces\FilterInterface;
+use Arikaim\Core\Validator\Interfaces\FilterInterface;
 
 /**
  * Base class for all filters

@@ -12,8 +12,8 @@ namespace Arikaim\Core\Queue;
 use Arikaim\Core\Collection\Arrays;
 use Arikaim\Core\Utils\Utils;
 
-use Arikaim\Core\Interfaces\Queue\QueueInterface;
-use Arikaim\Core\Interfaces\Queue\JobInterface;
+use Arikaim\Core\Interfaces\QueueInterface;
+use Arikaim\Core\Interfaces\Job\JobInterface;
 
 use Arikaim\Core\Queue\Drivers\DbQueue;
 use Arikaim\Core\Arikaim;

@@ -21,7 +21,7 @@ class FilterBuilder
      *
      * @param string $class
      * @param mixed $args
-     * @return \Arikaim\Core\Interfaces\FilterInterface
+     * @return Arikaim\Core\Interfaces\FilterInterface
      */
     public static function createFilter($class, $args = null)
     {              
@@ -33,7 +33,7 @@ class FilterBuilder
      *
      * @param string $name
      * @param mixed $args
-     * @return \Arikaim\Core\Interfaces\FilterInterface
+     * @return Arikaim\Core\Validator\Interfaces\FilterInterface
      */
     public static function __callStatic($name, $args)
     {  
@@ -45,7 +45,7 @@ class FilterBuilder
      *
      * @param string $name
      * @param mixed $args
-     * @return \Arikaim\Core\Interfaces\FilterInterface
+     * @return Arikaim\Core\Validator\Interfaces\FilterInterface
      */
     public function __call($name, $args)
     {  

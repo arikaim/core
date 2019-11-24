@@ -148,6 +148,12 @@ class Db
         return is_object($pdo);
     }
 
+    /**
+     * Return true if connection is valid
+     *
+     * @param array $config
+     * @return boolean
+     */
     public function isValidPdoConnection($config = null)
     {
         $config = ($config == null) ? $this->config : $config;

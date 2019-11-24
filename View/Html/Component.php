@@ -15,7 +15,7 @@ use Arikaim\Core\Utils\File;
 use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\App\Url;
 use Arikaim\Core\App\Path;
-use Arikaim\Core\Interfaces\View\ComponentInterface;
+use Arikaim\Core\View\Html\ComponentInterface;
 
 /**
  * Html component

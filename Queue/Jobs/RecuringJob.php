@@ -13,7 +13,7 @@ use Cron\CronExpression;
 
 use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Queue\Jobs\Job;
-use Arikaim\Core\Interfaces\Queue\RecuringJobInterface;
+use Arikaim\Core\Interfaces\Job\RecuringJobInterface;
 
 /**
  * Base class for all Recurring jobs

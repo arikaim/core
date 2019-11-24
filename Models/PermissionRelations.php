@@ -11,7 +11,7 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-use Arikaim\Core\Interfaces\Auth\PermissionsInterface;
+use Arikaim\Core\Access\Interfaces\PermissionsInterface;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Model as DbModel;
 use Arikaim\Core\Arikaim;
@@ -181,7 +181,7 @@ class PermissionRelations extends Model implements PermissionsInterface
         if (Schema::hasTable($this) == false) {          
             return false;
         }
-        $id = ($id == null && $type == Self::USER) ? Arikaim::auth()->getId() : $id;
+        $id = ($id == null && $type == Self::USER) ? Arikaim::access()->getId() : $id;
         $permissionId = (is_string($name) == true) ? DbModel::Permissions()->getId($name) : $name;
 
         $query = $this->getRelationsQuery($permissionId,$type);
@@ -202,7 +202,7 @@ class PermissionRelations extends Model implements PermissionsInterface
     public function setPermission($name, $access, $id = null, $type = Self::USER) 
     {
         $permissions = $this->resolvePermissions($access); 
-        $id = ($id == null && $type == Self::USER) ? Arikaim::auth()->getId() : $id;
+        $id = ($id == null && $type == Self::USER) ? Arikaim::access()->getId() : $id;
         $relationId =  DbModel::Permissions()->getId($name);       
         if (empty($relationId) == true) {
             return false;

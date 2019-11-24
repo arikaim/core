@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Events;
 
-use Arikaim\Core\Interfaces\Events\EventInterface;
+use Arikaim\Core\Events\Interfaces\EventInterface;
 use Arikaim\Core\Collection\Collection;
 
 /**

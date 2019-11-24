@@ -13,7 +13,7 @@ use Arikaim\Core\System\Process;
 use Arikaim\Core\System\System;
 use Arikaim\Core\Queue\QueueManager;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Interfaces\Queue\QueueInterface;
+use Arikaim\Core\Interfaces\QueueInterface;
 
 /**
  * Queue worker

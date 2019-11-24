@@ -28,7 +28,7 @@ trait UserRelation
         static::creating(function($model) {
             $userId = $model->getUserIdAttributeName();   
             if (empty($model->attributes[$userId]) == true) {  
-                $authId = Arikaim::auth()->getId();
+                $authId = Arikaim::access()->getId();
                 $model->attributes[$userId] = (empty($authId) == true) ? null : $authId;
             }
         });

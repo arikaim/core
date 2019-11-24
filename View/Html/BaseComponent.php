@@ -16,7 +16,7 @@ use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Utils\Mobile;
 use Arikaim\Core\View\Html\Component;
 use Arikaim\Core\App\Url;
-use Arikaim\Core\Interfaces\View\ComponentInterface;
+use Arikaim\Core\View\Html\ComponentInterface;
 
 /**
  *  Base html component
@@ -56,7 +56,7 @@ class BaseComponent
         // check auth access 
         $auth = $component->getOption('access/auth');
         if (empty($auth) == false && strtolower($auth) != 'none') {
-            if (Arikaim::auth()->isLogged() == false) {
+            if (Arikaim::access()->isLogged() == false) {
                 $error = Arikaim::errors()->getError("ACCESS_DENIED");
             }
         }

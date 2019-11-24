@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\Access;
 
-use Arikaim\Core\Arikaim;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -38,8 +37,9 @@ class Jwt
      *
      * @param int|null $expireTime Expire time stamp, default value 1 month
      */
-    public function __construct($expireTime = null)
+    public function __construct($expireTime = null, $key)
     {
+        $this->key = $key;
         $this->init($expireTime);
     }
 
@@ -51,7 +51,6 @@ class Jwt
      */
     private function init($expireTime = null) 
     {
-        $this->key = Arikaim::config('settings/jwt_key');
         $expireTime = ($expireTime == null) ? strtotime("+1 week") : $expireTime;
         $tokenId = base64_encode(random_bytes(32));
        

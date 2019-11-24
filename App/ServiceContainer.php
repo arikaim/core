@@ -81,8 +81,9 @@ class ServiceContainer
         };
         // Cache 
         $container['cache'] = function($container) {            
-            $enabled = $container->get('settings')->get('cache',false);     
-            return new \Arikaim\Core\Cache\Cache($enabled);
+            $enabled = $container->get('settings')->get('cache',false);   
+            $routeCacheFile = Path::CACHE_PATH . "/routes.cache.php";            
+            return new \Arikaim\Core\Cache\Cache(Path::CACHE_PATH,$routeCacheFile,null,$enabled);
         };
         // Config
         $container['config'] = function($container) {    
@@ -90,17 +91,21 @@ class ServiceContainer
             $config = new \Arikaim\Core\System\Config("config.php",$cache,Path::CONFIG_PATH);         
             return $config;
         }; 
+        // Init page components.
+        $container['page'] = function($container) {           
+            return new \Arikaim\Core\View\Html\Page($container['view']);
+        }; 
         // Errors  
-        $container['errors'] = function() {
-            return new \Arikaim\Core\System\Error\Errors();          
+        $container['errors'] = function($container) {
+            return new \Arikaim\Core\System\Error\Errors($container['page']);          
         };
         // Access
-        $container['access'] = function() {
-            return new \Arikaim\Core\Access\Access();
-        };
-        // Auth
-        $container['auth'] = function() {
-            return new \Arikaim\Core\Access\Authenticate();
+        $container['access'] = function($container) {
+            $user = Model::Users();  
+            $permissins = Model::PermissionRelations();    
+            $access = new \Arikaim\Core\Access\Access($permissins);
+
+            return new \Arikaim\Core\Access\Authenticate($user,$access,$container['errors']);
         };
         // Init template view. 
         $container['view'] = function ($container) {   
@@ -110,10 +115,6 @@ class ServiceContainer
              
             return new \Arikaim\Core\View\View($paths,['cache' => $cache,'debug' => $debug,'autoescape' => false]);           
         };    
-        // Init page components.
-        $container['page'] = function() {           
-            return new \Arikaim\Core\View\Html\Page();
-        };        
         // Init Eloquent ORM
         $container['db'] = function($container) {  
             try {  

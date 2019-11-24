@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Packages\Drivers;
 
-use Arikaim\Core\Interfaces\Packages\RepositoryDriverInterface;
+use Arikaim\Core\Packages\Interfaces\RepositoryDriverInterface;
 
 /**
  * Repository driver base class

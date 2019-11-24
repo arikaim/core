@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\Traits\Auth;
 
-use Arikaim\Core\Utils\Utils;
 
 /**
  *  Auth trait

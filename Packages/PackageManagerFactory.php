@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Packages;
 
-use Arikaim\Core\Interfaces\Packages\PackageManagerInterface;
+use Arikaim\Core\Interfaces\PackageManagerInterface;
 use Arikaim\Core\Packages\PackageManager;
 use Arikaim\Core\Packages\Extension\ExtensionsManager;
 use Arikaim\Core\Packages\Library\LibraryManager;

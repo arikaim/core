@@ -11,6 +11,7 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Arikaim\Core\Access\Interfaces\UserProviderInterface;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Utils\Uuid as UuidFactory;
 use Arikaim\Core\Utils\DateTime;
@@ -19,11 +20,13 @@ use Arikaim\Core\Traits\Db\Uuid;
 
 use Arikaim\Core\Traits\Db\Find;
 use Arikaim\Core\Traits\Db\DateCreated;
+use Arikaim\Core\Traits\Auth\Auth;
+use Arikaim\Core\Traits\Auth\UserRelation;
 
 /**
  * Access tokens database model
 */
-class AccessTokens extends Model 
+class AccessTokens extends Model implements UserProviderInterface
 {
     /**
      * Token access type
@@ -33,6 +36,8 @@ class AccessTokens extends Model
 
     use Uuid,
         Find,
+        Auth,
+        UserRelation,
         DateCreated;
 
     /**
@@ -60,6 +65,41 @@ class AccessTokens extends Model
      * @var boolean
      */
     public $timestamps = false;
+
+    /**
+     * Get user credentials
+     *
+     * @param array $credential
+     * @return mixed|false
+     */
+    public function getUserByCredentials(array $credentials)
+    {
+        $token = (isset($credentials['token']) == true) ? $credentials['token'] : null;
+        
+        if (empty($token) == true) {
+            return false;
+        }
+        if ($this->isExpired($token) == true) {
+            return false;
+        }
+
+        $model = $this->findByColumn($token,'token');
+
+        return is_object($model) ? $model->user() : false;
+    }
+
+    /**
+     * Return true token is correct.
+     *
+     * @param string $password
+     * @return bool
+     */
+    public function verifyPassword($password)
+    {
+        $model = $this->findByColumn($password,'token'); 
+
+        return is_object($model);
+    }
 
     /**
      * Expired mutator attribute

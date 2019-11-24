@@ -10,8 +10,8 @@
 namespace Arikaim\Core\Mail;
 
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Interfaces\Mail\MailInterface;
-use Arikaim\Core\Interfaces\Mail\MailerInterface;
+use Arikaim\Core\Mail\Interfaces\MailInterface;
+use Arikaim\Core\Interfaces\MailerInterface;
 
 /**
  * Send emails
@@ -74,7 +74,7 @@ class Mailer implements MailerInterface
      * @param MailInterface $message
      * @return bool
      */
-    public function send(MailInterface $message)
+    public function send($message)
     {
         $this->error = null;
 

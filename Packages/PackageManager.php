@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Packages;
 
-use Arikaim\Core\Interfaces\Packages\PackageManagerInterface;
+use Arikaim\Core\Interfaces\PackageManagerInterface;
 use Arikaim\Core\Utils\File;
 use Arikaim\Core\Collection\Collection;
 use Arikaim\Core\App\Path;

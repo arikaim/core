@@ -9,16 +9,20 @@
  */
 namespace Arikaim\Core\Access;
 
-use Arikaim\Core\App\Factory;
-use Arikaim\Core\Access\SessionAuthProvider;
-use Arikaim\Core\Interfaces\Auth\UserProviderInterface;
-use Arikaim\Core\Interfaces\Auth\AuthProviderInterface;
+use Arikaim\Core\Access\Provider\SessionAuthProvider;
+use Arikaim\Core\Access\Interfaces\UserProviderInterface;
+use Arikaim\Core\Access\Interfaces\AuthProviderInterface;
+use Arikaim\Core\Interfaces\AccessInterface;
+use Arikaim\Core\Interfaces\SystemErrorInterface;
+use Arikaim\Core\Interfaces\AuthInterface;
 
 /**
  * Manage auth.
  */
-class Authenticate 
+class Authenticate implements AuthInterface, AccessInterface
 {
+    const ACCESS_NAMESPACE = "Arikaim\\Core\\Access\\";
+   
     // auth type id
     const AUTH_BASIC        = 1;
     const AUTH_SESSION      = 2;
@@ -40,13 +44,76 @@ class Authenticate
     private $provider;
 
     /**
+     * Auth user
+     *
+     * @var UserProviderInterface
+     */
+    private $user;
+
+    /**
+     * Permissins manager
+     *
+     * @var AccessInterface
+     */
+    private $access;
+
+    /**
+     * System error renderer
+     *
+     * @var SystemErrorInterface
+     */
+    private $errorRenderer;
+
+    /**
      * Constructor
      *
      * @param UserProviderInterface $user
+     * @param AccessInterface $access
+     * @param AuthProviderInterface $provider
      */
-    public function __construct(UserProviderInterface $user = null,AuthProviderInterface $provider = null)
+    public function __construct(UserProviderInterface $user, AccessInterface $access , SystemErrorInterface $errorRenderer, AuthProviderInterface $provider = null)
     {       
+        $this->user = $user;
         $this->provider = ($provider == null) ? new SessionAuthProvider($user) : $provider;   
+        $this->access = $access;
+        $this->errorRenderer = $errorRenderer;
+    }
+
+    /**
+     * Check if current loged user have control panel access
+     *
+     * @return boolean
+     */
+    public function hasControlPanelAccess($authId = null)
+    {
+        $authId = (empty($authId) == true) ? $this->getId() : $authId;
+
+        return (empty($authId) == true) ? false : $this->access->hasControlPanelAccess($authId);
+    }
+
+    /**
+     * Check access 
+     *
+     * @param string $name Permission name
+     * @param string|array $type PermissionType (read,write,execute,delete)    
+     * @return boolean
+    */
+    public function hasAccess($name, $type = null, $authId = null)
+    {
+        $authId = (empty($authId) == true) ? $this->getId() : $authId;
+      
+        return (empty($authId) == true) ? false : $this->access->hasAccess($name,$type,$authId);
+    }
+    
+    /**
+     * Resolve permission full name  name:type
+     *
+     * @param string $name
+     * @return array
+     */
+    public function resolvePermissionName($name)
+    {
+        return $this->access->resolvePermissionName($name);
     }
 
     /**
@@ -74,15 +141,17 @@ class Authenticate
      * Change auth provider
      *
      * @param AuthProviderInterface|string $provider
+     * @param UserProviderInterface|null $user
+     * @param array $params
      * @return Authenticate
      */
-    public function withProvider($provider)
+    public function withProvider($provider, $user = null, $params = [])
     {
         if (is_string($provider) == true) {
-            $provider = $this->provider($provider);
+            $provider = $this->createProvider($provider,$user,$params);
         }
-
         $this->setProvider($provider);
+
         return $this;
     }
 
@@ -90,14 +159,32 @@ class Authenticate
      * Create auth provider
      *
      * @param string $name
+     * @param UserProviderInterface|null $user
+     * @param array $params
      * @return object|null
      */
-    public function provider($name)
+    protected function createProvider($name, UserProviderInterface $user = null, $params = [])
     {
-        $id = $this->resolveAuthType($name);
-        $className = $this->getAuthProviderClass($id);
+        $className = (class_exists($name) == true) ? $name : $this->getAuthProviderClass($this->resolveAuthType($name));
+        $fullClassName = Self::ACCESS_NAMESPACE . "Provider\\" . $className;
+        $user = (empty($user) == true) ? $this->user : $user;
+
+        return (class_exists($fullClassName) == true) ? new $fullClassName($user,$params) : null;
+    }
+
+    /**
+     * Create auth middleware
+     *
+     * @param string $authName
+     * @param array $args
+     * @return object|null
+     */
+    public function middleware($authName, $args = null)
+    {       
+        $className = (class_exists($authName) == true) ? $authName : $this->getAuthMiddlewareClass($this->resolveAuthType($authName));
+        $fullClassName = Self::ACCESS_NAMESPACE . "Middleware\\" . $className;
         
-        return Factory::createAuthProvider($className);
+        return (class_exists($fullClassName) == true) ? new $fullClassName($this->provider, $this->errorRenderer) : null;
     }
 
     /**
@@ -205,22 +292,8 @@ class Authenticate
         if (is_string($type) == true) {
             return $this->getTypeId($type);
         }
-        return (is_integer($type) == true) ? $type : null;
-    }
 
-    /**
-     * Create auth middleware
-     *
-     * @param string $auth
-     * @param array $args
-     * @return object|null
-     */
-    public function middleware($auth, $args = null)
-    {
-        $id = $this->resolveAuthType($auth);
-        $className = $this->getAuthMiddlewareClass($id);
-       
-        return Factory::createMiddleware($className,$args);
+        return (is_integer($type) == true) ? $type : null;
     }
 
     /**

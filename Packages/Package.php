@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Packages;
 
 use Arikaim\Core\Utils\Utils;
-use Arikaim\Core\Interfaces\Packages\PackageInterface;
+use Arikaim\Core\Packages\Interfaces\PackageInterface;
 use Arikaim\Core\Collection\Interfaces\CollectionInterface;
 
 /**

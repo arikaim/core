@@ -263,7 +263,7 @@ class ExtensionPackage extends Package
     public function unInstall() 
     {
         // clear extension cache
-        Arikaim::cache()->deleteExtensionItems();
+        Arikaim::cache()->clear();
         
         $details = $this->getProperties(true);
         $extensionName = $this->getName();
@@ -327,7 +327,7 @@ class ExtensionPackage extends Package
     public function enable() 
     {
         // clear extension cache
-        Arikaim::cache()->deleteExtensionItems();
+        Arikaim::cache()->clear();
 
         $name = $this->getName();
         $result = Model::Extensions()->enable($name);
@@ -347,7 +347,7 @@ class ExtensionPackage extends Package
     public function disable() 
     {
         // clear extension cache
-        Arikaim::cache()->deleteExtensionItems();
+        Arikaim::cache()->clear();
         
         $name = $this->getName();
         $result = Model::Extensions()->disable($name);

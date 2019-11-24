@@ -9,7 +9,7 @@
  */
 namespace Arikaim\Core\Mail;
 
-use Arikaim\Core\Interfaces\Mail\MailInterface;
+use Arikaim\Core\Mail\Interfaces\MailInterface;
 
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Utils;

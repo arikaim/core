@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Queue\Jobs;
 
-use Arikaim\Core\Interfaces\Queue\JobInterface;
+use Arikaim\Core\Interfaces\Job\JobInterface;
 
 /**
  * Base class for all jobs

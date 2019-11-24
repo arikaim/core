@@ -10,6 +10,7 @@
 namespace Arikaim\Core\View\Html;
 
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\View\View;
 use Arikaim\Core\View\Html\Component;
 use Arikaim\Core\View\Html\BaseComponent;
 use Arikaim\Core\View\Html\HtmlComponent;
@@ -19,19 +20,21 @@ use Arikaim\Core\View\Html\PageHead;
 use Arikaim\Core\App\Url;
 use Arikaim\Core\App\Path;
 use Arikaim\Core\View\Theme;
-use Arikaim\Core\Packages\Template\TemplatesManager;
-use Arikaim\Core\Packages\Library\LibraryManager;
 use Arikaim\Core\Utils\File;
 use Arikaim\Core\Collection\Arrays;
 use Arikaim\Core\Utils\Text;
 use Arikaim\Core\Http\Session;
 
-use Arikaim\Core\Interfaces\View\ComponentInterface;
+use Arikaim\Core\Packages\Template\TemplatesManager;
+use Arikaim\Core\Packages\Library\LibraryManager;
+
+use Arikaim\Core\View\Html\ComponentInterface;
+use Arikaim\Core\Interfaces\HtmlPageInterface;
 
 /**
  * Html page
  */
-class Page extends BaseComponent  
+class Page extends BaseComponent implements HtmlPageInterface
 {   
     /**
      *  Error page names
@@ -55,11 +58,21 @@ class Page extends BaseComponent
     protected $properties;
 
     /**
-     * Constructor
+     * Twig view
+     *
+     * @var Arikaim\Core\View\View
      */
-    public function __construct() {  
+    protected $view;
+
+    /**
+     * Constructor
+     * 
+     * @param Arikaim\Core\View\View $view
+     */
+    public function __construct(View $view) {  
         $this->head = new PageHead();
         $this->properties = new Collection();  
+        $this->view = $view;
     }
 
     /**
@@ -101,7 +114,7 @@ class Page extends BaseComponent
      * @param string $name
      * @param array|object $params
      * @param string|null $language
-     * @return object
+     * @return Response
      */
     public function load($name, $params = [], $language = null, $response = null)
     {
@@ -142,7 +155,7 @@ class Page extends BaseComponent
         $body = $this->getCode($component,$params);
         $indexPage = $this->getIndexFile($component);              
         $params = array_merge($params,['body' => $body, 'head' => $this->head->toArray()]);   
-        $component->setHtmlCode(Arikaim::view()->fetch($indexPage,$params));
+        $component->setHtmlCode($this->view->fetch($indexPage,$params));
 
         return $component;
     }
@@ -184,9 +197,9 @@ class Page extends BaseComponent
     public function getCode(ComponentInterface $component, $params = [])
     {     
         // include component files
-        Arikaim::page()->properties()->merge('include.page.files',$component->getFiles());
-            
-        Self::includeFiles($component);
+        $this->properties->merge('include.page.files',$component->getFiles());
+        $this->includeFiles($component);
+
         $properties = $component->getProperties();
         
         if (isset($properties['head']) == true) {
@@ -203,7 +216,7 @@ class Page extends BaseComponent
         }
         $params = array_merge_recursive($params,(array)$properties);
 
-        return Arikaim::view()->fetch($component->getTemplateFile(),$params);
+        return $this->view->fetch($component->getTemplateFile(),$params);
     }
     
     /**
@@ -236,9 +249,9 @@ class Page extends BaseComponent
      *
      * @return array
      */
-    public static function getPageFiles()
+    public function getPageFiles()
     {
-        return Arikaim::page()->properties()->get('include.page.files');        
+        return $this->properties->get('include.page.files');        
     }
 
     /**
@@ -246,9 +259,9 @@ class Page extends BaseComponent
      *
      * @return array
      */
-    public static function getComponentsFiles()
+    public function getComponentsFiles()
     {    
-        return Arikaim::page()->properties()->get('include.components.files');
+        return $this->properties->get('include.components.files');
     }
 
     /**
@@ -335,7 +348,7 @@ class Page extends BaseComponent
      * @param Component $component
      * @return bool
      */
-    public static function includeFiles($component) 
+    public function includeFiles($component) 
     {
         $files = Self::getPageIncludeOptions($component);
         $files = Arrays::setDefault($files,'library',[]);            
@@ -344,12 +357,12 @@ class Page extends BaseComponent
         Self::includeComponents($component);
 
         Arikaim::cache()->save("page.include.files." . $component->getName(),$files,3);
-        Arikaim::page()->properties()->set('template.files',$files);
+        $this->properties->set('template.files',$files);
         // include ui lib files                
-        Self::includeLibraryFiles($files['library']);  
+        $this->includeLibraryFiles($files['library']);  
         // include theme files         
         $templateName = (empty($files['template']) == true) ? Template::getTemplateName() : $files['template'];
-        Self::includeThemeFiles($templateName);  
+        $this->includeThemeFiles($templateName);  
       
         return true;
     }
@@ -363,7 +376,7 @@ class Page extends BaseComponent
     public static function getPageIncludeOptions($component)
     {
         // from cache 
-        $options = Arikaim::cache()->fetchPageIncludeFiles($component->getName());
+        $options = Arikaim::cache()->fetch("page.include.files." .$component->getName());
         if (is_array($options) == true) {
             return $options;
         }
@@ -459,7 +472,7 @@ class Page extends BaseComponent
      * @param array $libraryList
      * @return bool
      */
-    public static function includeLibraryFiles(array $libraryList)
+    public function includeLibraryFiles(array $libraryList)
     {   
         $manager = new LibraryManager();
         $frameworks = [];
@@ -484,7 +497,7 @@ class Page extends BaseComponent
             }
         }
 
-        Arikaim::page()->properties()->set('ui.library.files',$includeLib);       
+        $this->properties->set('ui.library.files',$includeLib);       
         Session::set("ui.included.libraries",json_encode($libraryList));
         Session::set("ui.included.frameworks",json_encode($frameworks));
 
@@ -497,12 +510,12 @@ class Page extends BaseComponent
      * @param string $templateName
      * @return bool
      */
-    public static function includeThemeFiles($templateName)
+    public function includeThemeFiles($templateName)
     {  
         // cehck cache
         $fileUrl = Arikaim::cache()->fetch('template.theme.file');
         if (empty($fileUrl) == false) {
-            Arikaim::page()->properties()->add('template.theme',$fileUrl);
+            $this->page->properties->add('template.theme',$fileUrl);
             return true;
         }
 
@@ -535,9 +548,10 @@ class Page extends BaseComponent
         if (empty($fileUrl) == false) {
             $theme['name'] = $currentTheme;
             $theme['file'] = $file;
-            Arikaim::page()->properties()->add('template.theme',$fileUrl);
+            $this->page->properties->add('template.theme',$fileUrl);
             // saev to cache
             Arikaim::cache()->save('template.theme.file',$fileUrl,3);
+
             return true;
         }
 

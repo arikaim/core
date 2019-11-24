@@ -15,7 +15,7 @@ use Arikaim\Core\Models\UserGroupMembers;
 use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Access\Access;
-use Arikaim\Core\Interfaces\Auth\UserProviderInterface;
+use Arikaim\Core\Access\Interfaces\UserProviderInterface;
 use Arikaim\Core\Db\Model as DbModel;
 
 use Arikaim\Core\Traits\Db\Uuid;

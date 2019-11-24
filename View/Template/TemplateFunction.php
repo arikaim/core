@@ -43,6 +43,26 @@ class TemplateFunction
     ];
  
     /**
+     * Get page fles
+     *
+     * @return array
+     */
+    public function getPageFiles()
+    {
+        return Arikaim::page()->getPageFiles();        
+    }
+
+    /**
+     * Get page fles
+     *
+     * @return array
+     */
+    public function getComponentsFiles()
+    {
+        return Arikaim::page()->getComponentsFiles();        
+    }
+
+    /**
      * Create model 
      *
      * @param string $modelClass

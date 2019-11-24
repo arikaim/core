@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Db\Prototypes\Column;
 
-use Arikaim\Core\Interfaces\BlueprintPrototypeInterface;
+use Arikaim\Core\Db\BlueprintPrototypeInterface;
 
 /**
  * Id column prototype class

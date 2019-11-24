@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Packages\Module;
 
 use Arikaim\Core\Packages\PackageRepository;
-use Arikaim\Core\Interfaces\Packages\RepositoryInterface;
+use Arikaim\Core\Packages\Interfaces\RepositoryInterface;
 
 /**
  * Module package repository

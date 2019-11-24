@@ -51,17 +51,17 @@ trait Password
     /**
      * Return true if password is correct.
      *
-     * @param string $password
-     * @param string|null $hash
+     * @param string $password   
      * @return bool
      */
-    public function verifyPassword($password, $hash = null) 
+    public function verifyPassword($password) 
     {
-        if (empty($password) == true ) {
+        if (empty($password) == true) {
             return false;
         }
-        $hash = (empty($hash) == true) ? $this->getPassword() : $hash;
+        $hash = $this->getPassword();
         $algo = $this->getEncryptPasswordAlgo();
+
         return (empty($algo) == true) ? ($password == $hash) : password_verify($password,$hash);      
     }
 

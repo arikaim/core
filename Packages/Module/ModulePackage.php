@@ -121,7 +121,7 @@ class ModulePackage extends Package
     public function install()
     {
         // clear cached items
-        Arikaim::cache()->deleteModuleItems();
+        Arikaim::cache()->clear();
         $data = $this->properties->toArray();
 
         $module = Factory::createModule($this->getName(),$this->getClass());
@@ -161,7 +161,7 @@ class ModulePackage extends Package
     public function unInstall() 
     {
         // clear cached items
-        Arikaim::cache()->deleteModuleItems();
+        Arikaim::cache()->clear();
         $model = Model::Modules()->findByColumn($this->getName(),'name');
 
         return (is_object($model) == false) ? false : $model->delete();
@@ -175,7 +175,7 @@ class ModulePackage extends Package
     public function enable() 
     {
         // clear cached items
-        Arikaim::cache()->deleteModuleItems();
+        Arikaim::cache()->clear();
 
         return Model::Modules()->enable($this->getName());
     }
@@ -188,8 +188,8 @@ class ModulePackage extends Package
     public function disable() 
     {
         // clear cached items
-        Arikaim::cache()->deleteModuleItems();
-        
+        Arikaim::cache()->clear();
+
         return Model::Modules()->disable($this->getName());        
     }   
 

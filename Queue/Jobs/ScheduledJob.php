@@ -11,8 +11,8 @@ namespace Arikaim\Core\Queue\Jobs;
 
 use Arikaim\Core\Queue\Jobs\Job;
 use Arikaim\Core\Utils\DateTime;
-use Arikaim\Core\Interfaces\Queue\ScheduledJobInterface;
-use Arikaim\Core\Interfaces\Queue\JobInterface;
+use Arikaim\Core\Interfaces\Job\ScheduledJobInterface;
+use Arikaim\Core\Interfaces\Job\JobInterface;
 
 /**
  * Base class for all scheduled jobs

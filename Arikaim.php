@@ -134,9 +134,9 @@ class Arikaim
         ini_set('display_startup_errors',1);
         error_reporting(E_ALL); 
 
-        set_error_handler(function () {
-            return Self::end();
-        });
+      //  set_error_handler(function () {
+      //      return Self::end();
+    //    });
 
         Self::resolveEnvironment($_SERVER);
 
@@ -167,7 +167,7 @@ class Arikaim
 
         // create service container            
         AppFactory::setContainer(ServiceContainer::init(new Container()));
-    
+        
         // create app 
         Self::$app = AppFactory::create();
         Self::$app->setBasePath(ARIKAIM_BASE_PATH);
@@ -231,12 +231,13 @@ class Arikaim
     */
     public static function run() 
     {       
-        try {
+     //   try {
             Self::init();    
             Self::$app->run();  
-        } catch (\Exception $exception) {               
-            ApplicationError::render($exception,Arikaim::createRequest());          
-        }        
+      //  } catch (\Exception $exception) {    
+     //    //   $applicationError = new ApplicationError(Self::response(),Self::page());    
+           // $applicationError->renderError(Self::createRequest(),$exception);         
+    //    }        
     }
     
     /**
@@ -262,7 +263,8 @@ class Arikaim
         if (error_reporting() == true) {
             $error = error_get_last();                
             if (empty($error) == false) {
-                ApplicationError::render($error,Arikaim::createRequest());          
+                $applicationError = new ApplicationError(Self::response(),Self::page());  
+                $applicationError->renderError(Self::createRequest(),$error);                        
             }          
         }
     }

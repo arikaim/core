@@ -41,7 +41,7 @@ class RuleBuilder
      * 
      * @param string $descriptor
      * @param string|null $error
-     * @return Arikaim\Core\Interfaces\RuleInterface
+     * @return Arikaim\Core\Validator\Interfaces\RuleInterface
      */
     public function createRule($descriptor, $error = null)
     {
@@ -117,7 +117,7 @@ class RuleBuilder
      *
      * @param string $name
      * @param array|null $args
-     * @return Arikaim\Core\Interfaces\RuleInterface
+     * @return Arikaim\Core\Validator\Interfaces\RuleInterface
      */
     public function __call($name, $args)
     {  

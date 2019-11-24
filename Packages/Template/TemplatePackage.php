@@ -107,7 +107,7 @@ class TemplatePackage extends Package
     public function unInstall() 
     {
         // clear cached items
-        Arikaim::cache()->deleteTemplateItems();
+        Arikaim::cache()->clear();
         $result = Model::Routes()->deleteTemplateRoutes($this->getName());
         // trigger core.template.uninstall event
         Arikaim::event()->dispatch('core.template.uninstall',$this->getProperties()->toArray());
@@ -123,7 +123,7 @@ class TemplatePackage extends Package
     public function enable() 
     {
         // clear cached items
-        Arikaim::cache()->deleteTemplateItems();
+        Arikaim::cache()->clear();
 
         return true;
     }
@@ -136,7 +136,7 @@ class TemplatePackage extends Package
     public function disable() 
     {
         // clear cached items
-        Arikaim::cache()->deleteTemplateItems();
+        Arikaim::cache()->clear();
 
         return true;
     }   

@@ -13,8 +13,8 @@ use Cron\CronExpression;
 
 use Arikaim\Core\Queue\Jobs\RecuringJob;
 use Arikaim\Core\Utils\DateTime;
-use Arikaim\Core\Interfaces\Queue\RecuringJobInterface;
-use Arikaim\Core\Interfaces\Queue\JobInterface;
+use Arikaim\Core\Interfaces\Job\RecuringJobInterface;
+use Arikaim\Core\Interfaces\Job\JobInterface;
 
 /**
  * Cron job

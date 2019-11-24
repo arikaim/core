@@ -62,7 +62,7 @@ class MiddlewareManager
         $errorMiddleware = Arikaim::$app->addErrorMiddleware(true,true,true);
         $applicationError = new ApplicationError(Arikaim::response(),Arikaim::page());
         
-        $errorMiddleware->setDefaultErrorHandler($applicationError);
+       // $errorMiddleware->setDefaultErrorHandler($applicationError);
         Arikaim::$app->add(new ContentLengthMiddleware());
         Arikaim::$app->add(new BodyParsingMiddleware());
         Arikaim::$app->add(new OutputBufferingMiddleware(new StreamFactory(),OutputBufferingMiddleware::APPEND));

@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Packages\Drivers;
 
-use Arikaim\Core\Interfaces\Packages\RepositoryDriverInterface;
+use Arikaim\Core\Packages\Interfaces\RepositoryDriverInterface;
 use Arikaim\Core\Packages\Drivers\RepositoryDriver;
 use Arikaim\Core\App\Url;
 use Arikaim\Core\App\Path;

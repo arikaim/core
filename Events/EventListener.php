@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Events;
 
-use Arikaim\Core\Interfaces\Events\EventListenerInterface;
+use Arikaim\Core\Events\Interfaces\EventListenerInterface;
 
 /**
  * Base class for event listener.

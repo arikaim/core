@@ -221,7 +221,7 @@ abstract class Extension implements ExtensionInterface
             'pattern'           => $pattern,
             'handler_class'     => $this->getControllerClassName($class),
             'handler_method'    => $handlerMethod,
-            'auth'              => Arikaim::auth()->resolveAuthType($auth),
+            'auth'              => Arikaim::access()->resolveAuthType($auth),
             'type'              => $type,
             'extension_name'    => $this->getName(),
             'page_name'         => $pageName,
@@ -248,7 +248,7 @@ abstract class Extension implements ExtensionInterface
         $routes = Model::Routes();
         $class = ($class == null) ? Factory::getControllerClass("PageLoader") : $this->getControllerClassName($class);
         $handlerMethod = ($handlerMethod == null) ? "loadPage" : $handlerMethod;
-        $auth = Arikaim::auth()->resolveAuthType($auth);
+        $auth = Arikaim::access()->resolveAuthType($auth);
 
         return $routes->addPageRoute($pattern,$class,$handlerMethod,$this->getName(),null,$auth,$redirectUrl,$routeName,$withLanguage);
     }
@@ -268,7 +268,7 @@ abstract class Extension implements ExtensionInterface
     public function addShowPageRoute($pattern, $pageName, $auth = null, $redirectUrl = null, $routeName = null, $withLanguage = true)
     {
         $routes = Model::Routes();       
-        $auth = Arikaim::auth()->resolveAuthType($auth);
+        $auth = Arikaim::access()->resolveAuthType($auth);
 
         return $routes->addPageRoute($pattern,Factory::getControllerClass("PageLoader"),"loadPage",$this->getName(),$pageName,$auth,$redirectUrl,$routeName,$withLanguage);
     }

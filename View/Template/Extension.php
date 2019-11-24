@@ -82,8 +82,8 @@ class Extension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('componentProperties',["Arikaim\\Core\\View\\Html\\HtmlComponent",'getProperties']),
             new TwigFunction('componentOptions',[$templateFunction,'getComponentOptions']),
             // page
-            new TwigFunction('getPageFiles',["Arikaim\\Core\\View\\Html\\Page",'getPageFiles']),
-            new TwigFunction('getComponentsFiles',["Arikaim\\Core\\View\\Html\\Page",'getComponentsFiles']),          
+            new TwigFunction('getPageFiles',[$templateFunction,'getPageFiles']),
+            new TwigFunction('getComponentsFiles',[$templateFunction,'getComponentsFiles']),          
             new TwigFunction('url',["Arikaim\\Core\\View\\Html\\Page",'getUrl']),        
             new TwigFunction('currentUrl',["Arikaim\\Core\\View\\Html\\Page",'getCurrentUrl']),
             new TwigFunction('isMobile',[$mobile,'isMobile']),

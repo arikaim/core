@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Db;
 
 use Illuminate\Database\Schema\Blueprint;
-use Arikaim\Core\Interfaces\BlueprintPrototypeInterface;
+use Arikaim\Core\Db\BlueprintPrototypeInterface;
 
 /**
  * Extended Blueprint with column prototypes

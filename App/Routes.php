@@ -51,7 +51,7 @@ class Routes
             $route = Arikaim::$app->map($methods,$item['pattern'],$handler);
             // auth middleware
             if ($item['auth'] > 0) {
-                $middleware = Arikaim::auth()->middleware($item['auth']);    
+                $middleware = Arikaim::access()->middleware($item['auth']);    
                 if ($middleware != null) {
                     $route->add($middleware);
                 }
@@ -69,7 +69,7 @@ class Routes
     public static function mapSystemRoutes()
     {
         $apiNamespace = Path::API_CONTROLLERS_NAMESPACE;
-        $sessionAuth = Arikaim::auth()->middleware('session');
+        $sessionAuth = Arikaim::access()->middleware('session');
 
         // Control Panel
         Arikaim::$app->get('/admin/[{language:[a-z]{2}}/]',Path::CONTROLLERS_NAMESPACE . "\PageLoader:loadControlPanel");    
@@ -78,9 +78,11 @@ class Routes
         Arikaim::$app->post('/core/api/verify/request/',"$apiNamespace\Client:verifyRequest");      
         // UI Component
         Arikaim::$app->get('/core/api/ui/component/properties/{name}[/{params:.*}]',"$apiNamespace\Ui\Component:componentProperties");
+
         Arikaim::$app->get('/core/api/ui/component/details/{name}[/{params:.*}]',"$apiNamespace\Ui\Component:componentDetails")->add($sessionAuth);
         Arikaim::$app->get('/core/api/ui/component/{name}[/{params:.*}]',"$apiNamespace\Ui\Component:loadComponent");      
         Arikaim::$app->post('/core/api/ui/library/upload',"$apiNamespace\Ui\Library:upload")->add($sessionAuth);
+
         // UI Page  
         Arikaim::$app->get('/core/api/ui/page/{name}',"$apiNamespace\Ui\Page:loadPage");
         Arikaim::$app->get('/core/api/ui/page/properties/',"$apiNamespace\Ui\Page:loadPageProperties");  
@@ -212,7 +214,7 @@ class Routes
         Arikaim::$app->post('/core/api/install/',"$apiNamespace\Install:install");
         // Install page
         Arikaim::$app->get('/install/',Path::CONTROLLERS_NAMESPACE . "\PageLoader:loadInstallPage");
-            
+                   
         return true;      
     }
 

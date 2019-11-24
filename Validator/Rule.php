@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Validator;
 
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Interfaces\RuleInterface;
+use Arikaim\Core\Validator\Interfaces\RuleInterface;
 use Arikaim\Core\Collection\Collection;
 
 /**

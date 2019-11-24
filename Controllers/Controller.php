@@ -148,7 +148,7 @@ class Controller
      */
     public function user()
     {
-        return Arikaim::auth()->getUser();
+        return Arikaim::access()->getUser();
     }
 
     /**

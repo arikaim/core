@@ -13,8 +13,8 @@ use Arikaim\Core\App\Factory;
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Events\Event;
-use Arikaim\Core\Interfaces\Events\EventInterface;
-use Arikaim\Core\Interfaces\Events\EventSubscriberInterface;
+use Arikaim\Core\Events\Interfaces\EventInterface;
+use Arikaim\Core\Events\Interfaces\EventSubscriberInterface;
 
 /**
  * Dispatch and manage events and event subscribers.
