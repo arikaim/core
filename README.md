@@ -3,6 +3,6 @@
 ![license: GPL3](https://img.shields.io/badge/License-GPLv3-blue.svg)
 
 
-### Requirements 
+#### Requirements 
   * PHP 7.1
   * [Arikaim CMS](https://github.com/arikaim/arikaim)
