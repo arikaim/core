@@ -9,40 +9,29 @@
 */
 namespace Arikaim\Core\View\Html;
 
-use Arikaim\Core\Arikaim;
-use Arikaim\Core\View\View;
+use Arikaim\Core\View\Html\ComponentData;
 use Arikaim\Core\View\Html\Component;
-use Arikaim\Core\View\Html\BaseComponent;
 use Arikaim\Core\View\Html\HtmlComponent;
 use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Collection\Collection;
+use Arikaim\Core\Collection\Arrays;
 use Arikaim\Core\View\Html\PageHead;
-use Arikaim\Core\App\Url;
-use Arikaim\Core\App\Path;
 use Arikaim\Core\View\Theme;
 use Arikaim\Core\Utils\File;
-use Arikaim\Core\Collection\Arrays;
+use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Utils\Text;
 use Arikaim\Core\Http\Session;
-
-use Arikaim\Core\Packages\Template\TemplatesManager;
-use Arikaim\Core\Packages\Library\LibraryManager;
-
-use Arikaim\Core\View\Html\ComponentInterface;
-use Arikaim\Core\Interfaces\HtmlPageInterface;
+use Arikaim\Core\Http\Url;
+use Arikaim\Core\View\Interfaces\ComponentDataInterface;
+use Arikaim\Core\Interfaces\View\HtmlPageInterface;
+use Arikaim\Core\Interfaces\View\ViewInterface;
+use Arikaim\Core\Interfaces\Packages\PackageFactoryInterface;
 
 /**
  * Html page
  */
-class Page extends BaseComponent implements HtmlPageInterface
+class Page extends Component implements HtmlPageInterface
 {   
-    /**
-     *  Error page names
-     */
-    const PAGE_NOT_FOUND         = 'page-not-found';
-    const SYSTEM_ERROR_PAGE      = 'system-error';
-    const APPLICATION_ERROR_PAGE = 'application-error';
-
     /**
      * Page head properties
      *
@@ -51,51 +40,37 @@ class Page extends BaseComponent implements HtmlPageInterface
     protected $head;
     
     /**
-     *Page properties
+     * Package factory
      *
-     * @var Collection
+     * @var PackageFactoryInterface
      */
-    protected $properties;
-
-    /**
-     * Twig view
-     *
-     * @var Arikaim\Core\View\View
-     */
-    protected $view;
+    protected $packageFactroy;
 
     /**
      * Constructor
      * 
-     * @param Arikaim\Core\View\View $view
+     * @param ViewInterface $view
      */
-    public function __construct(View $view) {  
+    public function __construct(ViewInterface $view, PackageFactoryInterface $packageFactroy,$params = [], $language = null, $basePath = 'pages', $withOptions = true) 
+    {  
+        parent::__construct($view,null,$params,$language,$basePath,'page.json',$withOptions);
+
+        $this->packageFactroy = $packageFactroy;       
         $this->head = new PageHead();
-        $this->properties = new Collection();  
-        $this->view = $view;
     }
 
     /**
-     * Create pgae
+     * Create html component
      *
      * @param string $name
+     * @param array $params
      * @param string|null $language
      * @param boolean $withOptions
-     * @return ComponentInterface
+     * @return HtmlComponent
      */
-    public function create($name, $language = null, $withOptions = true)
-    {       
-        return Self::createComponent($name,'pages',$language,$withOptions,'page.json');
-    }
-
-    /**
-     * Get properties
-     *
-     * @return Collection
-     */
-    public function properties()
+    public function createHtmlComponent($name, $params = [], $language = null, $withOptions = true)
     {
-        return $this->properties;
+        return new HtmlComponent($this->view,$name,$params,$language,'components','component.json',$withOptions);      
     }
 
     /**
@@ -111,17 +86,16 @@ class Page extends BaseComponent implements HtmlPageInterface
     /**
      * Load page
      *
+     * @param Response $response
      * @param string $name
      * @param array|object $params
      * @param string|null $language
-     * @return Response
+     * @return Response|false
      */
-    public function load($name, $params = [], $language = null, $response = null)
+    public function load($response, $name, $params = [], $language = null)
     {
-        $response = ($response == null) ? Arikaim::response() : $response;
         if (empty($name) == true || $this->has($name) == false) {         
-            $name = $this->resoveErrorPageName(Self::PAGE_NOT_FOUND);
-            $response->withStatus(404);          
+            return false;     
         }
         if (is_object($params) == true) {
             $params = $params->toArray();
@@ -140,18 +114,14 @@ class Page extends BaseComponent implements HtmlPageInterface
      * @param string $name
      * @param array $params
      * @param string|null $language
-     * @return ComponentInterface
-     */
+     * @return ComponentDataInterface
+    */
     public function render($name, $params = [], $language = null)
     {
         $this->setCurrent($name);
-        $component = $this->create($name,$language);
+        $component = $this->createComponentData($name,$language);
         $params['component_url'] = $component->getUrl();
-
-        if ($component->hasContent() == false) {             
-            $component = $this->renderPageNotFound($params,$language);
-        }
-        
+ 
         $body = $this->getCode($component,$params);
         $indexPage = $this->getIndexFile($component);              
         $params = array_merge($params,['body' => $body, 'head' => $this->head->toArray()]);   
@@ -169,16 +139,16 @@ class Page extends BaseComponent implements HtmlPageInterface
     private function getIndexFile($component)
     {
         $type = $component->getType();
-        $fullPath = Path::getTemplatePath($component->getTemplateName(),$type) . $component->getBasePath() . DIRECTORY_SEPARATOR . "index.html";
+        $fullPath = $component->getRootComponentPath() . $component->getBasePath() . DIRECTORY_SEPARATOR . "index.html";
 
         if (file_exists($fullPath) == true) {
-            if ($type == Component::EXTENSION_COMPONENT) {
+            if ($type == ComponentData::EXTENSION_COMPONENT) {
                 return $component->getTemplateName() . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . $component->getBasePath() . DIRECTORY_SEPARATOR . "index.html"; 
             } 
             return $component->getTemplateName() . DIRECTORY_SEPARATOR . $component->getBasePath() . DIRECTORY_SEPARATOR . "index.html";            
         }
         // get from current template  
-        $fullPath = Path::getTemplatePath(Template::getTemplateName()) . $component->getBasePath() . DIRECTORY_SEPARATOR . "index.html";      
+        $fullPath = ComponentData::getTemplatePath(Template::getTemplateName(),ComponentData::TEMPLATE_COMPONENT,$this->view->getViewPath(),$this->view->getExtensionsPath()) . $component->getBasePath() . DIRECTORY_SEPARATOR . "index.html";      
         if (file_exists($fullPath) == true) {          
             return Template::getTemplateName() . DIRECTORY_SEPARATOR . $component->getBasePath() . DIRECTORY_SEPARATOR . "index.html";
         }
@@ -190,14 +160,14 @@ class Page extends BaseComponent implements HtmlPageInterface
     /**
      * Get page code
      *
-     * @param ComponentInterface $component
+     * @param ComponentDataInterface $component
      * @param array $params
      * @return string
      */
-    public function getCode(ComponentInterface $component, $params = [])
+    public function getCode(ComponentDataInterface $component, $params = [])
     {     
         // include component files
-        $this->properties->merge('include.page.files',$component->getFiles());
+        $this->view->properties()->merge('include.page.files',$component->getFiles());
         $this->includeFiles($component);
 
         $properties = $component->getProperties();
@@ -228,7 +198,7 @@ class Page extends BaseComponent implements HtmlPageInterface
      */
     public function has($pageName, $language = null) 
     {      
-        $page = $this->create($pageName,$language);
+        $page = $this->createComponentData($pageName,$language);
 
         return $page->isValid();        
     }
@@ -251,7 +221,7 @@ class Page extends BaseComponent implements HtmlPageInterface
      */
     public function getPageFiles()
     {
-        return $this->properties->get('include.page.files');        
+        return $this->view->properties()->get('include.page.files');        
     }
 
     /**
@@ -261,7 +231,7 @@ class Page extends BaseComponent implements HtmlPageInterface
      */
     public function getComponentsFiles()
     {    
-        return $this->properties->get('include.components.files');
+        return $this->view->properties()->get('include.components.files');
     }
 
     /**
@@ -295,10 +265,10 @@ class Page extends BaseComponent implements HtmlPageInterface
     public static function getLanguagePath($path, $language = null)
     {
         if ($language == null) {
-            $language = Template::getLanguage();
+            $language = HtmlComponent::getLanguage();
         }
        
-        return (substr($path,-1) == "/") ?  $path . "$language/" : "$path/$language/";
+        return (substr($path,-1) == "/") ? $path . "$language/" : "$path/$language/";
     }
 
     /**
@@ -325,7 +295,7 @@ class Page extends BaseComponent implements HtmlPageInterface
     public static function getUrl($path = '', $full = false, $withLanguagePath = false)
     {       
         $path = (substr($path,0,1) == "/") ? substr($path,1) : $path;      
-        $url = ($full == true) ? Url::ARIKAIM_BASE_URL : ARIKAIM_BASE_PATH;        
+        $url = ($full == true) ? Url::BASE_URL : BASE_PATH;        
         $url = ($url == "/") ? $url : $url . "/";       
 
         return ($withLanguagePath == true) ? $url . Self::getLanguagePath($path) : $url . $path;
@@ -350,14 +320,14 @@ class Page extends BaseComponent implements HtmlPageInterface
      */
     public function includeFiles($component) 
     {
-        $files = Self::getPageIncludeOptions($component);
+        $files = $this->getPageIncludeOptions($component);
         $files = Arrays::setDefault($files,'library',[]);            
         $files = Arrays::setDefault($files,'loader',false);       
               
-        Self::includeComponents($component);
+        $this->includeComponents($component);
 
-        Arikaim::cache()->save("page.include.files." . $component->getName(),$files,3);
-        $this->properties->set('template.files',$files);
+        $this->view->getCache()->save("page.include.files." . $component->getName(),$files,3);
+        $this->view->properties()->set('template.files',$files);
         // include ui lib files                
         $this->includeLibraryFiles($files['library']);  
         // include theme files         
@@ -368,15 +338,45 @@ class Page extends BaseComponent implements HtmlPageInterface
     }
 
     /**
+     * Return template files
+     *
+     * @return array
+     */
+    public function getTemplateFiles()
+    {
+        return $this->view->properties()->get('template.files');
+    }
+
+    /**
+     * Return theme files
+     *
+     * @return array
+     */
+    public function getThemeFiles()
+    {      
+        return $this->view->properties()->get('template.theme');
+    }
+
+    /**
+     * Return library files
+     *
+     * @return array
+     */
+    public function getLibraryFiles()
+    {
+        return $this->view->properties()->get('ui.library.files',[]);
+    }
+
+    /**
      * Get page include options
      *
      * @param Component $component
      * @return array
      */
-    public static function getPageIncludeOptions($component)
+    public function getPageIncludeOptions($component)
     {
         // from cache 
-        $options = Arikaim::cache()->fetch("page.include.files." .$component->getName());
+        $options = $this->view->getCache()->fetch("page.include.files." . $component->getName());
         if (is_array($options) == true) {
             return $options;
         }
@@ -401,9 +401,9 @@ class Page extends BaseComponent implements HtmlPageInterface
             },$options['css']);
 
             if (empty($options['template']) == false) {
-                $options = array_merge($options,Self::getTemplateIncludeOptions($options['template']));              
-            } elseif ($component->getType() == Component::TEMPLATE_COMPONENT) {
-                $options = array_merge($options,Self::getTemplateIncludeOptions($component->getTemplateName())); 
+                $options = array_merge($options,$this->getTemplateIncludeOptions($options['template']));              
+            } elseif ($component->getType() == ComponentData::TEMPLATE_COMPONENT) {
+                $options = array_merge($options,$this->getTemplateIncludeOptions($component->getTemplateName())); 
             }                  
             // set loader from page.json
             if (isset($options['loader']) == true) {
@@ -414,7 +414,7 @@ class Page extends BaseComponent implements HtmlPageInterface
         }
 
         // from current template 
-        return Self::getTemplateIncludeOptions();
+        return $this->getTemplateIncludeOptions();
     }
 
     /**
@@ -423,18 +423,20 @@ class Page extends BaseComponent implements HtmlPageInterface
      * @param Component $component
      * @return void
      */
-    public static function includeComponents($component)
+    protected function includeComponents($component)
     {
         // include component files
-        $components = $component->getOption('include/components',null);         
+        $components = $component->getOption('include/components',null);        
         if (empty($components) == true) {
             return;
         }  
-        foreach ($components as $item) {                   
-            $files = Self::getComponentFiles($item);      
-            HtmlComponent::includeComponentFiles($files['js'],'js');
-            HtmlComponent::includeComponentFiles($files['css'],'css');              
-        }
+       
+        foreach ($components as $item) {                        
+            $files = $this->getComponentFiles($item);      
+        
+            $this->includeComponentFiles($files['js'],'js');
+            $this->includeComponentFiles($files['css'],'css');              
+        }      
     }
 
     /**
@@ -443,11 +445,12 @@ class Page extends BaseComponent implements HtmlPageInterface
      * @param string $name
      * @return array
      */
-    public static function getTemplateIncludeOptions($name = null)
+    public function getTemplateIncludeOptions($name = null)
     {
         $name = ($name == null) ? Template::getTemplateName() : $name;
-        $manager = new TemplatesManager();
-        $templateOptions = $manager->createPackage($name)->getProperties();
+    
+        $templateOptions = $this->packageFactroy->createPackage('template',$name)->getProperties();
+
         $options = $templateOptions->getByPath("include",[]);
     
         $options = Arrays::setDefault($options,'js',[]);  
@@ -473,23 +476,25 @@ class Page extends BaseComponent implements HtmlPageInterface
      * @return bool
      */
     public function includeLibraryFiles(array $libraryList)
-    {   
-        $manager = new LibraryManager();
+    {          
         $frameworks = [];
         $includeLib = [];
 
         foreach ($libraryList as $libraryName) {
-            $library = $manager->createPackage($libraryName);
-            $files = $library->getFiles();
-            $params = $library->getParams();
+            $library = $this->packageFactroy->createPackage('library',$libraryName);
+            $files = $library->getFiles();       
+            $params = $this->resolveLibraryParams($library->getParams());
 
             foreach($files as $file) {
-                $item['file'] = (Url::isValid($file) == true) ? $file : Url::getLibraryFileUrl($libraryName,$file);
-                $item['type'] = File::getExtension(Path::getLibraryFilePath($libraryName,$file));
-                $item['params'] = $params;
-                $item['library'] = $libraryName;
-                $item['async'] = $library->getProperties()->get('async',false);
-                $item['crossorigin'] = $library->getProperties()->get('crossorigin',null);
+                $libraryFile = $this->view->getViewPath() . 'library' . DIRECTORY_SEPARATOR . $libraryName . DIRECTORY_SEPARATOR . $file;
+                $item = [
+                    'file'        => (Utils::isValidUrl($file) == true) ? $file : Url::getLibraryFileUrl($libraryName,$file),
+                    'type'        => File::getExtension($libraryFile),
+                    'params'      => $params,
+                    'library'     => $libraryName,
+                    'async'       => $library->getProperties()->get('async',false),
+                    'crossorigin' => $library->getProperties()->get('crossorigin',null)
+                ];
                 array_push($includeLib,$item);
             }           
             if ($library->isFramework() == true) {
@@ -497,14 +502,30 @@ class Page extends BaseComponent implements HtmlPageInterface
             }
         }
 
-        $this->properties->set('ui.library.files',$includeLib);       
+        $this->view->properties()->set('ui.library.files',$includeLib);       
         Session::set("ui.included.libraries",json_encode($libraryList));
         Session::set("ui.included.frameworks",json_encode($frameworks));
 
         return true;
     }
 
-     /**
+    /**
+     * Resolev library params
+     *
+     * @param array $params
+     * @return array
+     */
+    protected function resolveLibraryParams(array $params)
+    {      
+        $vars = [
+            'domian'    => DOMAIN,
+            'base_url'  => Url::BASE_URL
+        ];
+
+        return Text::renderMultiple($params,$vars);    
+    }
+
+    /**
      * Include theme files
      *
      * @param string $templateName
@@ -513,16 +534,13 @@ class Page extends BaseComponent implements HtmlPageInterface
     public function includeThemeFiles($templateName)
     {  
         // cehck cache
-        $fileUrl = Arikaim::cache()->fetch('template.theme.file');
+        $fileUrl = $this->view->getCache()->fetch('template.theme.file');
         if (empty($fileUrl) == false) {
             $this->page->properties->add('template.theme',$fileUrl);
             return true;
         }
-
-        $manager = new TemplatesManager();
-        $properties = $manager->createPackage($templateName)->getProperties();
-
-        $manager = new LibraryManager();
+      
+        $properties = $this->packageFactroy->createPackage('template',$templateName)->getProperties();
         $defaultTheme = $properties->get("default-theme",null);
         $currentTheme = Theme::getCurrentTheme($templateName,$defaultTheme);
 
@@ -531,7 +549,7 @@ class Page extends BaseComponent implements HtmlPageInterface
         } 
         
         $library = $properties->getByPath("themes/$currentTheme/library","");
-        $libraryPackage = $manager->createPackage($library);
+        $libraryPackage = $this->packageFactroy->createPackage('library',$library);
         // get theme from other template
         $template = $properties->getByPath("themes/$currentTheme/template","");
         $templateName = (empty($template) == false) ? $template : $templateName;
@@ -550,90 +568,11 @@ class Page extends BaseComponent implements HtmlPageInterface
             $theme['file'] = $file;
             $this->page->properties->add('template.theme',$fileUrl);
             // saev to cache
-            Arikaim::cache()->save('template.theme.file',$fileUrl,3);
+            $this->view->getCache()->save('template.theme.file',$fileUrl,3);
 
             return true;
         }
 
         return false;
-    }
-
-    /**
-     * Resolve error page name
-     *
-     * @param string $type
-     * @param string|null $extension
-     * @return string
-     */
-    public function resoveErrorPageName($type, $extension = null)
-    {
-        $pageName = (empty($extension) == true) ? 'system:' . $type : $extension . ">" . $type;  
-        
-        return ($this->has($pageName) == true) ? $pageName : 'system:' . $type;
-    }
-
-    /**
-     * Load page not found error page.
-     *
-     * @param array $data
-     * @param string|null $language
-     * @param string|null $extension
-     * @return Response
-     */
-    public function loadPageNotFound($data = [], $language = null, $extension = null)
-    {        
-        $name = $this->resoveErrorPageName(Self::PAGE_NOT_FOUND,$extension);
-        $response = $this->load($name,$data,$language);   
-
-        return $response->withStatus(404); 
-    }
-
-    /**
-     * Load system error page.
-     *
-     * @param array $data
-     * @param string|null $language
-     * @param string|null $extension
-     * @return Response
-     */
-    public function loadSystemError($data = [], $language = null, $extension = null)
-    {        
-        $name = $this->resoveErrorPageName(Self::SYSTEM_ERROR_PAGE,$extension);
-        $data = array_merge([
-            'errors' => Arikaim::errors()->getErrors()
-        ],$data);
-        $response = $this->load($name,$data,$language);   
-
-        return $response->withStatus(404); 
-    }
-
-    /**
-     * Render page not found 
-     *
-     * @param array $data
-     * @param string|null $language
-     * @param string|null $extension
-     * @return Component
-     */
-    public function renderPageNotFound($data = [], $language = null, $extension = null)
-    {
-        $name = $this->resoveErrorPageName(Self::PAGE_NOT_FOUND,$extension);
-
-        return $this->render($name,$data,$language);
-    }
-
-    /**
-     * Render application error
-     *
-     * @param array $data
-     * @param string|null $language
-     * @param string|null $extension
-     * @return Component
-     */
-    public function renderApplicationError($data = [], $language = null, $extension = null)
-    {
-        $name = $this->resoveErrorPageName(Self::APPLICATION_ERROR_PAGE,$extension);
-      
-        return $this->render($name,$data,$language);
     }
 }

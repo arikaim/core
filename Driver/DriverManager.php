@@ -9,66 +9,73 @@
 */
 namespace Arikaim\Core\Driver;
 
-use Arikaim\Core\Db\Model;
-use Arikaim\Core\App\Factory;
+use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Collection\Properties;
 use Arikaim\Core\Collection\PropertiesFactory;
-use Arikaim\Core\Interfaces\DriverInterface;
+use Arikaim\Core\Interfaces\Driver\DriverInterface;
+use Arikaim\Core\Interfaces\Driver\DriverRegistryInterface;
+use Arikaim\Core\Interfaces\Driver\DriverManagerInterface;
 
 /**
  * Driver manager
 */
-class DriverManager
+class DriverManager implements DriverManagerInterface
 {
     /**
-     * Constructor
+     * Driver registry adapter
+     *
+     * @var DriverRegistryInterface
      */
-    public function __construct()
+    protected $driverRegistry;
+
+    /**
+     * Constructor
+     * 
+     * @param DriverRegistryInterface $driverRegistry
+     */
+    public function __construct(DriverRegistryInterface $driverRegistry)
     {
+        $this->driverRegistry = $driverRegistry;
     }
 
     /**
      * Create driver
      *
-     * @param string|integer $name Driver name, id or uuid 
-     * @param string|null $category
-     * @return Driver|false
+     * @param string $name Driver name 
+     * @return DriverInterface|false
      */
-    public function create($name, $category = null)
+    public function create($name)
     {
-        list($name,$category) = $this->resolveName($name,$category);
-       
-        $model = $this->getDriver($name,$category);
-        if (is_object($model) == false) {
+        $driverInfo = $this->driverRegistry->getDriver($name);
+        if ($driverInfo === false) {
             return false;
         }
-       
-        $properties = PropertiesFactory::createFromArray($model->config);       
-        $driver = Factory::createInstance($model->class); 
-            
+        $properties = PropertiesFactory::createFromArray($driverInfo['config']); 
+        $driver = Factory::createInstance($driverInfo['class']); 
+
         if ($driver instanceof DriverInterface) {               
             $driver->initDriver($properties);
             return $driver->getInstance();
         } 
+
         return $driver;
     }
 
     /**
       * Install driver
       *
-      * @param string|object $name Driver name, full class name or driver object ref
-      * @param string|null $class
+      * @param string|object $name Driver name
+      * @param string|null $class full class name or driver object ref
       * @param string|null $category
       * @param string|null $title
       * @param string|null $description
       * @param string|null $version
       * @param array $config
       * @param string|null $extension
-      * @return boolean|Model
+      * @return boolean
     */
     public function install($name, $class = null, $category = null, $title = null, $description = null, $version = null, $config = [], $extension = null)
-    {
-        list($name,$category) = $this->resolveName($name,$category);
+    {      
         $info = $this->getDriverParams($name);
 
         if ($info == false) {
@@ -85,7 +92,7 @@ class DriverManager
             ];
         }
 
-        return Model::Drivers()->add($info);
+        return $this->driverRegistry->addDriver($info['name'],$info);
     }
 
     /**
@@ -94,172 +101,123 @@ class DriverManager
      * @param string|object $driver Driver obj ref or driver class
      * @return array|false
      */
-    public function getDriverParams($driver)
+    protected function getDriverParams($driver)
     {
         $driver = (is_string($driver) == true && class_exists($driver) == true) ? Factory::createInstance($driver) : $driver;   
-      
-        if (is_subclass_of($driver,'Arikaim\\Core\\Interfaces\\DriverInterface') == true) {  
-            $properties = new Properties();   
-            $callback = function() use($driver,$properties) {
-                $driver->createDriverConfig($properties);   
-                return $properties;
-            };
-            $config = $callback()->toArray();     
-                       
-            return [
-                'name'        => $driver->getDriverName(),
-                'category'    => $driver->getDriverCategory(),
-                'title'       => $driver->getDriverTitle(),
-                'class'       => $driver->getDriverClass(),
-                'description' => $driver->getDriverDescription(),
-                'version'     => $driver->getDriverVersion(),
-                'config'      => $config
-            ];
+        
+        if (is_object($driver) == false) {
+            return false;
         }
-        return false;
+
+        $properties = new Properties();   
+        $callback = function() use($driver,$properties) {
+            $driver->createDriverConfig($properties);   
+            return $properties;
+        };
+        $config = $callback()->toArray();     
+                    
+        return [
+            'name'        => $driver->getDriverName(),
+            'category'    => $driver->getDriverCategory(),
+            'title'       => $driver->getDriverTitle(),
+            'class'       => $driver->getDriverClass(),
+            'description' => $driver->getDriverDescription(),
+            'version'     => $driver->getDriverVersion(),
+            'config'      => $config
+        ];        
     }
 
     /**
      * Uninstall driver
      *
-     * @param string|integer $name Driver name, id or uuid 
-     * @param string|null $category
+     * @param string $name Driver name   
      * @return boolean
      */
-    public function unInstall($name, $category = null)
+    public function unInstall($name)
     {
-        list($name,$category) = $this->resolveName($name,$category);
-
-        return Model::Drivers()->remove($name,$category);       
+        return $this->driverRegistry->removeDriver($name);       
     }
     
     /**
      * Return true if driver exsits
      *
-     * @param string|integer $name Driver name, id or uuid 
-     * @param string|null $category
-     * @return object|null
+     * @param string $name Driver name
+     * @return boolean
      */
-    public function has($name, $category = null)
+    public function has($name)
     {
-        list($name,$category) = $this->resolveName($name,$category);
-
-        return Model::Drivers()->has($name,$category);
+        return $this->driverRegistry->hasDriver($name);
     }
 
     /**
      * Get driver
      *
-     * @param string|integer $name Driver name, id or uuid 
-     * @param string|null $category
+     * @param string $name Driver name
      * @return object|false
      */
-    public function getDriver($name, $category = null)
+    public function getDriver($name)
     {
-        list($name,$category) = $this->resolveName($name,$category);
-
-        return Model::Drivers()->getDriver($name,$category);
+        return $this->driverRegistry->getDriver($name);
     }
 
     /**
      * Save driver config
      *
-     * @param string|integer $name Driver name, id or uuid 
+     * @param string $name Driver name
      * @param array|object $config
-     * @param string|null $category
      * @return boolean
      */
-    public function saveConfig($name, $config, $category = null)
+    public function saveConfig($name, $config)
     {            
-        list($name,$category) = $this->resolveName($name,$category);
         $config = (is_object($config) == true) ? $config->toArray() : $config;
 
-        $model = Model::Drivers()->getDriver($name,$category);
-        if ($model !== false) {        
-            $model->config = $config;
-            return $model->save();        
-        }
-
-        return false;
+        return $this->driverRegistry->saveConfig($name,$config);
     }
 
     /**
      * Get driver config
      *
-     * @param string|integer $name Driver name, id or uuid $name
-     * @param string|null $category
+     * @param string $name Driver name
      * @return Properties
      */
-    public function getConfig($name, $category = null)
+    public function getConfig($name)
     {
-        list($name,$category) = $this->resolveName($name,$category);
-
-        $model = $this->getDriver($name,$category);
-        $config = (is_object($model) == true) ? $model->config : [];
-
+        $config = $this->driverRegistry->getDriverConfig($name);
+    
         return PropertiesFactory::createFromArray($config);         
     }
 
     /**
      * Get drivers list
      *
-     * @param string|null $category
-     * @param integer $status
-     * @return Model
+     * @param string|null   $category
+     * @param integer|null  $status
+     * @return array
      */
-    public function getList($category = null, $status = 1)
+    public function getList($category = null, $status = null)
     {
-        $model = Model::Drivers();
-
-        $model->where('status','=',$status);
-        if (empty($category) == false) {
-            $model = $model->where('category','=',$category);
-        }
-
-        return $model->get();
+        return $this->driverRegistry->getDriversList($category,$status);
     }
 
     /**
      * Enable driver
      *
      * @param string $name
-     * @param string|null $category
      * @return boolean
      */
-    public function enable($name, $category = null)
+    public function enable($name)
     {
-        list($name,$category) = $this->resolveName($name,$category);
-
-        return Model::Drivers()->setStatus($name,1,$category);
+        return $this->driverRegistry->setDriverStatus($name,1);
     }
 
     /**
      * Disable driver
      *
      * @param string $name
-     * @param string|null $category
      * @return boolean
      */
-    public function disable($name, $category = null)
+    public function disable($name)
     {
-        list($name,$category) = $this->resolveName($name,$category);
-
-        return Model::Drivers()->setStatus($name,0,$category);
-    }
-
-    /**
-     * Resolve driver name ( split to name and category )
-     *
-     * @param string $name
-     * @param string|null $category
-     * @return array
-     */
-    protected function resolveName($name, $category = null)
-    {
-        $tokens = explode(':',$name);
-        if (isset($tokens[1]) == true) {
-            return (empty($category) == true) ? $tokens : [$tokens[0],$category];          
-        }
-        return [$name,$category];
+        return $this->driverRegistry->setDriverStatus($name,0);
     }
 }

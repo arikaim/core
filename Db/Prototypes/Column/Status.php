@@ -10,7 +10,6 @@
 namespace Arikaim\Core\Db\Prototypes\Column;
 
 use Arikaim\Core\Db\BlueprintPrototypeInterface;
-use Arikaim\Core\Traits\Db\Status as StatusTrait;
 
 /**
  * Status column prototype class
@@ -26,7 +25,7 @@ class Status implements BlueprintPrototypeInterface
      */
     public function build($table,...$options)
     {
-        $default = (isset($options[0]) == false) ? StatusTrait::$ACTIVE : $options[0];
+        $default = (isset($options[0]) == false) ? 1 : $options[0];
 
         $table->integer('status')->nullable(false)->default($default); 
         $table->index('status');   

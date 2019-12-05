@@ -10,7 +10,6 @@
 namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ApiController;
-use Arikaim\Core\Arikaim;
 
 /**
  * Cache controller
@@ -39,9 +38,8 @@ class Cache extends ApiController
     {
         $this->requireControlPanelPermission();
         
-        $result = Arikaim::cache()->clear();
+        $result = $this->get('cache')->clear();
         $this->setResponse($result,'cache.clear','errors.cache.clear');
-
     }
 
     /**
@@ -56,13 +54,12 @@ class Cache extends ApiController
     {
         $this->requireControlPanelPermission();
         
-        $debug = $data->get('debug',false);
-       
-        Arikaim::config()->setBooleanValue('settings/cache',true);
-        $result = Arikaim::config()->save();
+        $this->get('config')->setBooleanValue('settings/cache',true);
+        $result = $this->get('config')->save();
 
-        Arikaim::cache()->clear();
-
+        $this->get('cache')->clear();
+        $this->get('config')->reloadConfig();
+        
         $this->setResponse($result,'cache.enable','errors.cache.enable');
     }
 
@@ -78,13 +75,12 @@ class Cache extends ApiController
     {
         $this->requireControlPanelPermission();
         
-        Arikaim::cache()->clear();
+        $this->get('config')->setBooleanValue('settings/cache',false);
+        $result = $this->get('config')->save();
+        
+        $this->get('cache')->clear();
+        $this->get('config')->reloadConfig();
 
-        $debug = $data->get('debug',false);
-       
-        Arikaim::config()->setBooleanValue('settings/cache',false);
-        $result = Arikaim::config()->save();
-     
         $this->setResponse($result,'cache.disable','errors.cache.disable');
     }
 }

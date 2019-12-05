@@ -38,7 +38,6 @@ class UsersSchema extends Schema
         $table->string('email')->nullable(true);
         $table->string('user_name')->nullable(true);
         $table->string('password')->nullable(false);                     
-        $table->integer('email_status')->nullable(true);
         // date time
         $table->dateCreated();
         $table->dateUpdated();

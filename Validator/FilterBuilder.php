@@ -9,7 +9,7 @@
  */
 namespace Arikaim\Core\Validator;
 
-use Arikaim\Core\App\Factory;
+use Arikaim\Core\Utils\Factory;
 
 /**
  * Filter factory class

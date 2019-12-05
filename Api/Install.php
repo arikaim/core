@@ -11,7 +11,6 @@ namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\System\Install as SystemInstall;
-use Arikaim\Core\Arikaim;
 
 /**
  * Install controller
@@ -38,17 +37,17 @@ class Install extends ApiController
     */
     public function installController($request, $response, $data) 
     {           
-        Arikaim::access()->logout();
+        $this->get('access')->logout();
         
         $this->onDataValid(function($data) { 
             $install = new SystemInstall();
             // save config file               
-            Arikaim::config()->setValue('db/username',$data->get('username'));
-            Arikaim::config()->setValue('db/password',$data->get('password'));
-            Arikaim::config()->setValue('db/database',$data->get('database'));         
-            Arikaim::config()->save();
+           $this->get('config')->setValue('db/username',$data->get('username'));
+           $this->get('config')->setValue('db/password',$data->get('password'));
+           $this->get('config')->setValue('db/database',$data->get('database'));         
+           $this->get('config')->save();
              
-            $result = Arikaim::db()->testConnection(Arikaim::config('db'));
+            $result = $this->get('db')->testConnection($this->get('config')->get('db'));
             if ($result == true) {          
                 // do install
                 $result = $install->install();   

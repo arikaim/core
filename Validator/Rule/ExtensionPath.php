@@ -11,7 +11,7 @@ namespace Arikaim\Core\Validator\Rule;
 
 use Arikaim\Core\Validator\Rule;
 use Arikaim\Core\Utils\File;
-use Arikaim\Core\App\Path;
+use Arikaim\Core\Utils\Path;
 
 /**
  *  Extension path rule. Check if extension path exists

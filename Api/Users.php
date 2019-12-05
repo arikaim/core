@@ -11,7 +11,6 @@ namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\Arikaim;
 
 /**
  * Users controller login, logout, change password api controller. // TODO
@@ -43,12 +42,12 @@ class Users extends ApiController
                     'user_name' => $data->get('user_name'),
                     'password' => $data->get('password')
             ];
-            $result = Arikaim::access()->authenticate($credentials);
+            $result = $this->get('access')->authenticate($credentials);
       
             if ($result === false) {           
                 $this->error('errors.login');   
             } else {        
-                $access = Arikaim::access()->hasControlPanelAccess();
+                $access = $this->get('access')->hasControlPanelAccess();
                 if ($access == false) {
                     $this->setError('errors.login');   
                 } 
@@ -72,7 +71,7 @@ class Users extends ApiController
     */
     public function logoutController($request, $response, $data) 
     {    
-        Arikaim::access()->logout();        
+        $this->get('access')->logout();        
     }   
 
     /**
@@ -91,19 +90,28 @@ class Users extends ApiController
         $this->onDataValid(function($data) { 
            
             $userName = $data->get('user_name');
-            $logedUser = Arikaim::access()->getUser();
+            $email = $data->get('email',null);
+            $logedUser = $this->get('access')->getUser();
             $user = Model::Users();
 
             // check if user name is changed           
-            if ($logedUser->user_name != $userName) {
-                // check if user name exists 
-                if ($user->userNameExist($userName) == true) {
-                    return $this->error('errors.username');                                              
+            if ($logedUser['user_name'] != $userName) {
+                // check if user name exists              
+                if ($user->verifyUserName($userName,$logedUser['id']) == false) {                   
+                    return $this->error('errors.username');                                                                                   
                 }
             }
-            $logedUser->user_name = $userName;
-            $logedUser->email = $data->get('email');
-            $result = $logedUser->update(); 
+            if (empty($email) == false) {
+                if ($user->verifyEmail($email,$logedUser['id']) == false) {                   
+                    return $this->error('errors.email');                                                                                   
+                }
+            }
+            $info = [
+                'user_name' => $userName,
+                'email'     => $email
+            ];
+          
+            $result = $user->findById($logedUser['id'])->update($info);
             if ($result == false) {
                 return $this->error('errors.update');                    
             }
@@ -113,8 +121,9 @@ class Users extends ApiController
              if (empty($password) == false) {
                 $newPassword = $data->get('new_password');
                 $repeatPassword = $data->get('repeat_password');
-
-                if ($logedUser->verifyPassword($password) == false) {                  
+                $user = $user->findById($logedUser['id']);
+                
+                if ($user->verifyPassword($password) == false) {                  
                     return $this->error('errors.invalid');                  
                 } 
                 if ($newPassword != $repeatPassword) {
@@ -122,11 +131,9 @@ class Users extends ApiController
                     return $this->error('errors.password');                                   
                 }
               
-                $result = $user->changePassword($logedUser->id,$newPassword);
-                $this->setResponse($result,'update','errors.update');   
-            } else {
-                $this->setResponse($result,'update','errors.update'); 
-            }
+                $result = $user->changePassword($logedUser['id'],$newPassword);
+            } 
+            $this->setResponse($result,'update','errors.update'); 
         });
         $data 
             ->addRule("text:min=2|required","user_name") 

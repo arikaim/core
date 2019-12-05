@@ -99,20 +99,10 @@ class Install
      */
     private function registerCoreEvents()
     {
-        // Extensions
-        Arikaim::event()->registerEvent('core.extension.before.install','Before install extension.');
-        Arikaim::event()->registerEvent('core.extension.after.install','After install extension.');
-        Arikaim::event()->registerEvent('core.extension.before.uninstall','Before uninstall extension.');
-        Arikaim::event()->registerEvent('core.extension.after.uninstall','After uninstall extension.');
         Arikaim::event()->registerEvent('core.extension.update','After update extension.');
         Arikaim::event()->registerEvent('core.extension.download','After download extension.');
         // Routes
-        Arikaim::event()->registerEvent('core.route.register','After register route.');
         Arikaim::event()->registerEvent('core.route.disable','After disable route.');
-        // Templates
-        Arikaim::event()->registerEvent('core.template.install','After install template.');
-        Arikaim::event()->registerEvent('core.template.uninstall','After uninstall template.');
-        Arikaim::event()->registerEvent('core.template.download','After download template.');
         // UI Library
         Arikaim::event()->registerEvent('core.library.download','After download UI Library.');
         // System

@@ -9,9 +9,11 @@
  */
 namespace Arikaim\Core\Mail;
 
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Mail\Interfaces\MailInterface;
 use Arikaim\Core\Interfaces\MailerInterface;
+use Arikaim\Core\Interfaces\OptionsInterface;
+use Arikaim\Core\Interfaces\View\HtmlPageInterface;
+use Arikaim\Core\Mail\Mail;
 
 /**
  * Send emails
@@ -33,17 +35,47 @@ class Mailer implements MailerInterface
     private $error;
 
     /**
+     * Options storage
+     *
+     * @var OptionsInterface
+     */
+    private $options;
+
+    /**
      * Constructor
      * 
      * @param \Swift_Transport $transportDriver
      */
-    public function __construct($transportDriver = null) 
+    public function __construct(OptionsInterface $options, HtmlPageInterface $page = null, $transportDriver = null) 
     {
         $this->error = null;
+        $this->options = $options;
+        $this->page = $page;
+
         if ($transportDriver == null) {
             $transport = $this->createDefaultTransportDriver();
         }
         $this->mailer = new \Swift_Mailer($transport);
+    }
+
+    /**
+     * Return options
+     *
+     * @return OptionsInterface
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
+
+    /**
+     * Create message
+     *
+     * @return MailInterface
+     */
+    public function create()
+    {
+        return new Mail($this,$this->page);
     }
 
     /**
@@ -53,14 +85,14 @@ class Mailer implements MailerInterface
      */
     private function createDefaultTransportDriver()
     {
-        if (Arikaim::options()->get('mailer.use.sendmail') === true) {
+        if ($this->options->get('mailer.use.sendmail') === true) {
             $transport = new \Swift_SendmailTransport('/usr/sbin/sendmail -bs');
         } else {           
-            $transport = new \Swift_SmtpTransport(Arikaim::options()->get('mailer.smpt.host'),Arikaim::options()->get('mailer.smpt.port'));
-            $transport->setUsername(Arikaim::options()->get('mailer.username'));
-            $transport->setPassword(Arikaim::options()->get('mailer.password'));   
+            $transport = new \Swift_SmtpTransport($this->options->get('mailer.smpt.host'),$this->options->get('mailer.smpt.port'));
+            $transport->setUsername($this->options->get('mailer.username'));
+            $transport->setPassword($this->options->get('mailer.password'));   
            
-            if (Arikaim::options()->get('mailer.smpt.ssl') == true) {
+            if ($this->options->get('mailer.smpt.ssl') == true) {
                 $transport->setEncryption('ssl');    
             }              
         }

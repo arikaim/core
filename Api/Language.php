@@ -9,9 +9,9 @@
 */
 namespace Arikaim\Core\Api;
 
-use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Controllers\ApiController;
+use Arikaim\Core\View\Html\Page;
 
 /**
  * Languages controller
@@ -196,7 +196,7 @@ class Language extends ApiController
         
         $this->onDataValid(function($data) {
             $language = $data->get("language_code"); 
-            Template::setLanguage($language);
+            Page::setLanguage($language);
 
             $this->field('language','language');
         });

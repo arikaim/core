@@ -45,7 +45,7 @@ class JobsSchema extends Schema
         $table->dateColumn('schedule_time');
         $table->dateColumn('date_executed');                     
         // indexes         
-        $table->unique(['name','extension_name']);
+        $table->unique('name');
         $table->index('recuring_interval');  
     }
 

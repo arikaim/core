@@ -11,12 +11,11 @@ namespace Arikaim\Core\Queue;
 
 use Arikaim\Core\System\Process;
 use Arikaim\Core\Collection\Arrays;
-use Arikaim\Core\Utils\StaticFacade;
 
 /**
  * Cron jobs 
  */
-class Cron extends StaticFacade
+class Cron
 {
     /**
      * Cron command 
@@ -24,16 +23,6 @@ class Cron extends StaticFacade
      * @var string
      */
     private static $command = 'cli scheduler >> /dev/null 2>&1';
-
-    /**
-     * Return facade class name
-     *
-     * @return string
-     */
-    public static function getInstanceClass()
-    {
-        return 'Arikaim\Core\Queue\Cron';
-    }
 
     /**
      * Get cron command
@@ -45,7 +34,7 @@ class Cron extends StaticFacade
     {
         $php = (Process::findPhp() === false) ? 'php' : Process::findPhp();
         
-        return "*/$minutes * * * * " . $php . " " . ARIKAIM_ROOT_PATH . ARIKAIM_BASE_PATH . "/". Self::$command;
+        return "*/$minutes * * * * " . $php . " " . ROOT_PATH . BASE_PATH . "/". Self::$command;
     }
     
     /**

@@ -24,8 +24,8 @@ class Text extends Filter
      */
     public function filterValue($value) 
     {      
-        $value = trim($value);      
-        $result = filter_var($value,FILTER_SANITIZE_STRING);     
+        $result = filter_var(trim($value),FILTER_SANITIZE_STRING);     
+        
         return ($result == false) ? $value : $result;
     } 
 

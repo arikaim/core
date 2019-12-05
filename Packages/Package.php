@@ -11,20 +11,15 @@ namespace Arikaim\Core\Packages;
 
 use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Packages\Interfaces\PackageInterface;
+use Arikaim\Core\Packages\Interfaces\PackageRegistryInterface;
 use Arikaim\Core\Collection\Interfaces\CollectionInterface;
+use Arikaim\Core\Interfaces\CacheInterface;
 
 /**
  * Package base class
 */
 class Package implements PackageInterface
 {
-    /**
-     * Reference to package repository
-     *
-     * @var RepositoryInterface
-     */
-    protected $repository;
-
     /**
      * Package properties
      *
@@ -33,24 +28,48 @@ class Package implements PackageInterface
     protected $properties;
 
     /**
+     * Cache
+     *
+     * @var CacheInterface
+     */
+    protected $cache;
+
+    /**
+     * Package Registry Interface
+     *
+     * @var PackageRegistryInterface
+     */
+    protected $packageRegistry;
+
+    /**
+     * Package root path
+     *
+     * @var string
+     */
+    protected $path;
+
+    /**
      * Constructor
      *
      * @param CollectionInterface $properties
      */
-    public function __construct(CollectionInterface $properties) 
+    public function __construct($path, CollectionInterface $properties, CacheInterface $cache, PackageRegistryInterface $packageRegistry = null) 
     {
+        $this->path = $path;
         $properties['version'] = Utils::formatVersion($properties->get('version','1.0.0'));
         $this->properties = $properties;
+        $this->cache = $cache;
+        $this->packageRegistry = $packageRegistry;
     }
 
     /**
-     * Get package repository
+     * Get package root path
      *
-     * @return RepositoryInterface
+     * @return string
      */
-    public function getRepository()
+    public function getPath()
     {
-        return $this->repository;
+        return $this->path;
     }
 
     /**

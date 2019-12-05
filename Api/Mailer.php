@@ -10,9 +10,7 @@
 namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ApiController;
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\Utils;
-use Arikaim\Core\Mail\TestMail;
 
 /**
  * Mailer controller (TOOD message)
@@ -43,15 +41,16 @@ class Mailer extends ApiController
 
         $this->onDataValid(function($data) { 
             
-            $user = Arikaim::access()->getUser();
+            $user = $this->get('access')->getUser();
             if (Utils::isEmail($user->email) == false) {
                 $this->setError('Control panel user email not valid!');
                 return $this->getResponse();
             }       
     
-            $result = TestMail::create()
+            $result = $this->get('mailer')->create()
                 ->to($user->email,'Admin User')
                 ->from($user->email,'Arikaim CMS')
+                ->loadComponent('system:admin.emails.test')
                 ->send();
             
             $this->setResponse($result,'mailer.send','errors.mailer.test');           

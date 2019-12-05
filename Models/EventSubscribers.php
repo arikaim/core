@@ -11,14 +11,16 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-use Arikaim\Core\Traits\Db\Uuid;
-use Arikaim\Core\Traits\Db\Find;
-use Arikaim\Core\Traits\Db\Status;
+use Arikaim\Core\Interfaces\Events\SubscriberRegistryInterface;
+use Arikaim\Core\Db\Traits\Uuid;
+use Arikaim\Core\Db\Traits\Find;
+use Arikaim\Core\Db\Traits\Status;
+use Arikaim\Core\Utils\Factory;
 
 /**
  * EventSubscribers database model
  */
-class EventSubscribers extends Model  
+class EventSubscribers extends Model implements SubscriberRegistryInterface  
 {
     use Uuid,
         Find,
@@ -45,42 +47,35 @@ class EventSubscribers extends Model
     public $timestamps = false;
 
     /**
-     * Get all extension subscribers.
+     * Get subscribers list
      *
-     * @param string $extension
-     * @param integer $status
-     * @param string|null $eventName
+     * @param array $filter
      * @return array
      */
-    public function getExtensionSubscribers($extension, $status = null, $eventName = null) 
-    {           
-        $model = $this->where('extension_name','=',$extension);
-        if ($status != null) {
-            $model = $model->where('status','=',$status);
-        }
-        if ($eventName != null) {
-            $model = $model->where('name','=',$eventName);
+    public function getSubscribers(array $filter = [])
+    {
+        $model = $this;
+        foreach ($filter as $key => $value) {
+            $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
         }
 
-        $model = $model->orderBy('priority')->get();
-        return (is_object($model) == true) ? $model->toArray() : [];
+        return (is_object($model) == true) ? $model->get()->toArray() : [];
     }
 
     /**
-     * Get subscribers
+     * Delete subscribers.
      *
-     * @param string $eventName
-     * @param integer $status
-     * @return array
+     * @param array $filter
+     * @return bool
      */
-    public function getSubscribers($eventName, $status = null) 
-    {           
-        $model = $this->where('name','=',$eventName);
-        if ($status != null) {
-            $model = $model->where('status','=',$status);
+    public function deleteSubscribers(array $filter)
+    {
+        $model = $this;
+        foreach ($filter as $key => $value) {
+            $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
         }
-        $model = $model->orderBy('priority')->get();
-        return (is_object($model) == true) ? $model->toArray() : [];           
+
+        return (is_object($model) == true) ? $model->delete() : false;
     }
 
     /**
@@ -92,9 +87,9 @@ class EventSubscribers extends Model
      */
     public function hasSubscriber($eventName, $extension)
     {
-        $model = $this->getSubscribersQuery($eventName,$extension);
-        $model = $model->get();
-        return ($model->isEmpty() == true) ? false : true;           
+        $model = $this->getSubscribersQuery($eventName,$extension)->get();
+    
+        return ($model->isEmpty() == false);   
     }
 
     /**
@@ -110,50 +105,31 @@ class EventSubscribers extends Model
         return $model->where('extension_name','=',$extension);       
     }
 
-    /**
-     * Delete extension subscribers.
-     *
-     * @param string $extension
-     * @return bool
-     */
-    public function deleteExtensionSubscribers($extension)
-    {
-        if (empty($extension) == true) {
-            return false;
-        }
-        $model = $this->where('extension_name','=',$extension);
-        return (is_object($model) == true) ? $model->delete() : true;         
-    }
+    
+    
 
     /**
-     * Delete all subscribers for event
+     * Save subscriber info to db table. 
      *
-     * @param string $extension
      * @param string $eventName
+     * @param string $class
+     * @param string|null $extension
+     * @param integer $priority
      * @return bool
      */
-    public function deleteSubscribers($extension, $eventName)
+    public function addSubscriber($eventName, $class, $extension = null, $priority = 0, $hadnlerMethod = null)
     {
-        $model = $this->getSubscribersQuery($eventName,$extension);
-        return (is_object($model) == false) ? true : $model->delete();         
-    }
-
-    /**
-     * Add subscriber
-     *
-     * @param array $subscriber
-     * @return bool
-     */
-    public function add(array $subscriber)
-    {
-        if (empty($subscriber['name']) == true) {
+        if ($this->hasSubscriber($eventName,$extension) == true) {
             return false;
         }
-        if ($this->hasSubscriber($subscriber['name'],$subscriber['extension_name']) == true) {
-            return false;
-        }
-        $subscriber['priority'] = (empty($subscriber['priority']) == true) ? 0 : $subscriber['priority']; 
-
+        $subscriber = [
+            'name'           => $eventName,
+            'priority'       => (empty($priority) == true) ? 0 : $priority, 
+            'extension_name' => $extension,
+            'handler_class'  => Factory::getEventSubscriberClass($class,$extension),
+            'handler_method' => $hadnlerMethod
+        ];
+      
         return $this->create($subscriber);       
     }   
 

@@ -9,17 +9,19 @@
 */
 namespace Arikaim\Core\Events;
 
-use Arikaim\Core\App\Factory;
+use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Utils\Utils;
-use Arikaim\Core\Db\Model;
 use Arikaim\Core\Events\Event;
-use Arikaim\Core\Events\Interfaces\EventInterface;
-use Arikaim\Core\Events\Interfaces\EventSubscriberInterface;
+use Arikaim\Core\Interfaces\Events\EventInterface;
+use Arikaim\Core\Interfaces\Events\EventSubscriberInterface;
+use Arikaim\Core\Interfaces\Events\EventDispatcherInterface;
+use Arikaim\Core\Interfaces\Events\EventRegistryInterface;
+use Arikaim\Core\Interfaces\Events\SubscriberRegistryInterface;
 
 /**
  * Dispatch and manage events and event subscribers.
 */
-class EventsManager 
+class EventsManager implements EventDispatcherInterface
 {
     /**
      * Subscribers
@@ -29,22 +31,83 @@ class EventsManager
     protected $subscribers;
 
     /**
+     * Event Registry
+     *
+     * @var EventRegistryInterface
+     */
+    protected $eventRegistry;
+
+    /**
+     * Subscriber Registry
+     *
+     * @var SubscriberRegistryInterface
+     */
+    protected $subscriberRegistry;
+
+    /**
      * Constructor
      */
-    public function __construct()
+    public function __construct(EventRegistryInterface $eventRegistry, SubscriberRegistryInterface $subscriberRegistry)
     {
         $this->subscribers = [];
+        $this->eventRegistry = $eventRegistry;
+        $this->subscriberRegistry = $subscriberRegistry;
     }
     
     /**
-     * Unregister events for extension (removes events from db table)
+     * Set events status
      *
-     * @param string $extension
-     * @return void
+     * @param array $filter
+     * @param integer $status
+     * @return boolean
      */
-    public function unregisterEvents($extension)
+    public function setEventsStatus(array $filter = [], $status)
     {
-        return Model::Events()->deleteEvents($extension);       
+        return $this->eventRegistry->setEventsStatus($filter,$status);
+    }
+
+    /**
+     * Delete events.
+     *
+     * @param array $filter
+     * @return bool
+     */
+    public function deleteEvents(array $filter)
+    {
+        return $this->eventRegistry->deleteEvents($filter);
+    }
+
+    /**
+     * Delete subscribers.
+     *
+     * @param array $filter
+     * @return bool
+     */
+    public function deleteSubscribers(array $filter)
+    {
+        return $this->subscriberRegistry->deleteSubscribers($filter);
+    }
+
+    /**
+     * Get events list
+     *
+     * @param array $filter
+     * @return array
+     */
+    public function getEvents(array $filter = [])
+    {
+        return $this->eventRegistry->getEvents($filter);
+    }
+
+    /**
+     * Get subscribers list
+     *
+     * @param array $filter
+     * @return array
+     */
+    public function getSubscribers(array $filter = [])
+    {
+        return $this->subscriberRegistry->getSubscribers($filter);
     }
 
     /**
@@ -55,7 +118,7 @@ class EventsManager
      */
     public function unregisterEvent($eventName)
     {
-        return Model::Events()->deleteEvent($eventName);
+        return $this->eventRegistry->deleteEvent($eventName);
     }
 
     /**
@@ -73,14 +136,8 @@ class EventsManager
             // core events can't be registered from extension
             return false;
         }
-        $event = [
-            'name'           => $name,
-            'extension_name' => $extension,
-            'title'          => $title,
-            'description'    => $description
-        ];
         
-        return Model::Events()->addEvent($event);
+        return $this->eventRegistry->registerEvent($name,$title,$extension,$description);
     }
 
     /**
@@ -111,6 +168,7 @@ class EventsManager
             }
             return true;
         }
+
         return false;
     }
 
@@ -119,21 +177,13 @@ class EventsManager
      *
      * @param string $eventName
      * @param string $class
-     * @param string $extension
+     * @param string|null $extension
      * @param integer $priority
      * @return bool
      */
-    public function subscribe($eventName, $class, $extension, $priority = 0, $hadnlerMethod = null)
+    public function subscribe($eventName, $class, $extension = null, $priority = 0, $hadnlerMethod = null)
     {
-        $subscriber = [
-            'name'           => $eventName,
-            'priority'       => $priority,
-            'extension_name' => $extension,
-            'handler_class'  => Factory::getEventSubscriberClass($class,$extension),
-            'handler_method' => $hadnlerMethod
-        ];
-        
-        return Model::EventSubscribers()->add($subscriber);
+        return $this->subscriberRegistry->addSubscriber($eventName,$class,$extension,$priority,$hadnlerMethod);
     }
 
     /**
@@ -157,18 +207,6 @@ class EventsManager
     }
 
     /**
-     * Remove event subscribers
-     *
-     * @param string $eventName
-     * @param string $extension
-     * @return bool
-     */
-    public function unsubscribe($eventName, $extension)
-    {
-        return Model::EventSubscribers()->deleteSubscribers($eventName,$extension);
-    }
-
-    /**
      * Fire event, dispatch event data to all subscribers
      *
      * @param string $eventName
@@ -182,6 +220,7 @@ class EventsManager
         if (is_object($event) == false) {
             $event = new Event($event);   
         }
+
         if (($event instanceof EventInterface) == false) {
             throw new \Exception("Not valid event object.", 1);
         }
@@ -192,9 +231,16 @@ class EventsManager
         if ($callbackOnly != true) {
             // get all subscribers for event
             if (empty($extension) == false) {
-                $subscribers = Model::EventSubscribers()->getExtensionSubscribers($extension,1,$eventName);   
+                $subscribers = $this->getSubscribers([
+                    'extension_name' => $extension,
+                    'status'         => 1,
+                    'name'           => $eventName
+                ]);   
             } else {
-                $subscribers = Model::EventSubscribers()->getSubscribers($eventName,1);       
+                $subscribers = $this->getSubscribers([                   
+                    'status'         => 1,
+                    'name'           => $eventName
+                ]);       
             }            
             $result = $this->executeEventHandlers($subscribers,$event);  
         }

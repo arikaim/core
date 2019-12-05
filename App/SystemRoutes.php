@@ -9,58 +9,14 @@
  */
 namespace Arikaim\Core\App;
 
-use FastRoute\RouteParser\Std;
-
-use Arikaim\Core\Db\Model;
-use Arikaim\Core\Traits\Db\Status;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\App\Path;
+use Arikaim\Core\Utils\Factory;
 
 /**
  * Routes
  */
-class Routes 
+class SystemRoutes 
 {
-    /**
-     * Map routes
-     *     
-     * @return boolean
-     */
-    public static function mapRoutes()
-    {
-        $routes = Arikaim::cache()->fetch('routes.list');
-        if (is_array($routes) == false) {
-            if (Arikaim::db()->isValidPdoConnection() == false) {
-                return false;
-            }
-    
-            if (Arikaim::errors()->hasError() == true) {
-                return false;
-            }
-
-            $routes = Model::Routes()->getRoutes(Status::$ACTIVE);  
-            Arikaim::cache()->save('routes.list',$routes,4);         
-        }
-
-        foreach($routes as $item) {
-            // controller params
-            Arikaim::getContainer()['contoller.extension']= $item['extension_name'];
-
-            $methods = explode(',',$item['method']);
-            $handler = $item['handler_class'] . ":" . $item['handler_method'];   
-            $route = Arikaim::$app->map($methods,$item['pattern'],$handler);
-            // auth middleware
-            if ($item['auth'] > 0) {
-                $middleware = Arikaim::access()->middleware($item['auth']);    
-                if ($middleware != null) {
-                    $route->add($middleware);
-                }
-            }                                
-        }          
-
-        return true;
-    }
-
     /**
      * Map core routes
      *   
@@ -68,11 +24,11 @@ class Routes
      */
     public static function mapSystemRoutes()
     {
-        $apiNamespace = Path::API_CONTROLLERS_NAMESPACE;
+        $apiNamespace = Factory::API_CONTROLLERS_NAMESPACE;
         $sessionAuth = Arikaim::access()->middleware('session');
 
         // Control Panel
-        Arikaim::$app->get('/admin/[{language:[a-z]{2}}/]',Path::CONTROLLERS_NAMESPACE . "\PageLoader:loadControlPanel");    
+        Arikaim::$app->get('/admin/[{language:[a-z]{2}}/]',"Arikaim\Core\App\ControlPanel:loadControlPanel");    
         // Api Access
         Arikaim::$app->post('/core/api/create/token/',"$apiNamespace\Client:createToken");
         Arikaim::$app->post('/core/api/verify/request/',"$apiNamespace\Client:verifyRequest");      
@@ -121,7 +77,7 @@ class Routes
             $group->get('/logout/',"$apiNamespace\Users:logout");
         });
         // Change password page
-        Arikaim::$app->get('/admin/change-password/{code}/[{language}/]',Path::CONTROLLERS_NAMESPACE. "\PageLoader:loadChangePassword");
+        Arikaim::$app->get('/admin/change-password/{code}/[{language}/]',"Arikaim\Core\App\ControlPanel:loadChangePassword");
         Arikaim::$app->post('/core/api/user/',"$apiNamespace\Users:changeDetails")->add($sessionAuth);
         // Languages  
         Arikaim::$app->group('/core/api/language',function($group) use($apiNamespace) {      
@@ -213,65 +169,8 @@ class Routes
         // Install
         Arikaim::$app->post('/core/api/install/',"$apiNamespace\Install:install");
         // Install page
-        Arikaim::$app->get('/install/',Path::CONTROLLERS_NAMESPACE . "\PageLoader:loadInstallPage");
+        Arikaim::$app->get('/install/',"Arikaim\Core\App\Installpage:loadInstallPage");
                    
         return true;      
-    }
-
-    /**
-     * Get route url
-     *
-     * @param string $pattern
-     * @param array $data
-     * @param array $queryParams
-     * @return string
-     */
-    public static function getRouteUrl($pattern, array $data = [], array $queryParams = []): string
-    {      
-        $segments = [];
-        $segmentName = '';
-        $parser = new Std();
-        $expressions = array_reverse($parser->parse($pattern));
-
-        foreach ($expressions as $expression) {
-
-            foreach ($expression as $segment) {               
-                if (is_string($segment)) {
-                    $segments[] = $segment;
-                    continue;
-                }
-                if (!array_key_exists($segment[0], $data)) {
-                    $segments = [];
-                    $segmentName = $segment[0];
-                    break;
-                }
-                $segments[] = $data[$segment[0]];
-            }            
-            
-            if (!empty($segments)) {
-                break;
-            }
-        }
-
-        if (empty($segments) == true) {
-            return $pattern;
-        }
-
-        $url = implode('', $segments);
-        if ($queryParams) {
-            $url .= '?' . http_build_query($queryParams);
-        }
-
-        return $url;
-    }
-
-     /**
-     * Return true if route pattern have placeholder
-     *
-     * @return boolean
-     */
-    public static function hasPlaceholder($pattern)
-    {
-        return preg_match("/\{(.*?)\}/",$pattern);
     }
 }

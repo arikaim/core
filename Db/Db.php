@@ -12,7 +12,6 @@ namespace Arikaim\Core\Db;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
-use Arikaim\Core\Arikaim;
 use PDOException;
 use Exception;
 use PDO;
@@ -93,7 +92,6 @@ class Db
             $this->initSchemaConnection($config);      
             $this->capsule->bootEloquent();
         } catch(Exception $e) {           
-            Arikaim::errors()->addError('DB_CONNECTION_ERROR');
             return false;
         }      
       
@@ -189,7 +187,6 @@ class Db
 
             $result = $schema->statement("CREATE DATABASE $databaseName $charset $collation");
         } catch(PDOException $e) {
-            Arikaim::errors()->addError('DB_DATABASE_ERROR');
             return false;
         }
         return $result;
@@ -224,7 +221,6 @@ class Db
             $this->capsule->getConnection('schema')->reconnect();
             $result = $this->checkConnection($this->capsule->getConnection('schema'));      
         } catch(PDOException $e) {   
-            Arikaim::errors()->addError('DB_CONNECTION_ERROR');
             return false;
         }      
         return $result;
@@ -248,7 +244,6 @@ class Db
 
             $this->capsule->bootEloquent();
         } catch(PDOException $e) {   
-            Arikaim::errors()->addError('DB_CONNECTION_ERROR');
             return false;
         }   
 
@@ -280,7 +275,7 @@ class Db
             'driver'      => is_object($pdo) ? $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME) : "",
             'server_info' => is_object($pdo) ? $pdo->getAttribute(\PDO::ATTR_SERVER_INFO) : "",
             'version'     => is_object($pdo) ? substr($pdo->getAttribute(\PDO::ATTR_SERVER_VERSION),0,6) : "",
-            'name'        => Arikaim::config('db/database')
+            'name'        => null
         ];      
     }
 }

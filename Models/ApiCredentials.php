@@ -16,12 +16,12 @@ use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Access\Interfaces\UserProviderInterface;
 use Arikaim\Core\Utils\Uuid as UuidFactory;
 
-use Arikaim\Core\Traits\Db\Uuid;
-use Arikaim\Core\Traits\Db\Find;
-use Arikaim\Core\Traits\Db\Status;
-use Arikaim\Core\Traits\Db\DateCreated;
-use Arikaim\Core\Traits\Auth\Auth;
-use Arikaim\Core\Traits\Auth\Password;
+use Arikaim\Core\Db\Traits\Uuid;
+use Arikaim\Core\Db\Traits\Find;
+use Arikaim\Core\Db\Traits\Status;
+use Arikaim\Core\Db\Traits\DateCreated;
+use Arikaim\Core\Access\Traits\Auth;
+use Arikaim\Core\Access\Traits\Password;
 
 /**
  * Api Credentials database model

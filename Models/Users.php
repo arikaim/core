@@ -18,12 +18,12 @@ use Arikaim\Core\Access\Access;
 use Arikaim\Core\Access\Interfaces\UserProviderInterface;
 use Arikaim\Core\Db\Model as DbModel;
 
-use Arikaim\Core\Traits\Db\Uuid;
-use Arikaim\Core\Traits\Db\Find;
-use Arikaim\Core\Traits\Db\Status;
-use Arikaim\Core\Traits\Db\DateCreated;
-use Arikaim\Core\Traits\Auth\Auth;
-use Arikaim\Core\Traits\Auth\Password;
+use Arikaim\Core\Db\Traits\Uuid;
+use Arikaim\Core\Db\Traits\Find;
+use Arikaim\Core\Db\Traits\Status;
+use Arikaim\Core\Db\Traits\DateCreated;
+use Arikaim\Core\Access\Traits\Auth;
+use Arikaim\Core\Access\Traits\Password;
 
 /**
  * Users database model
@@ -45,7 +45,6 @@ class Users extends Model implements UserProviderInterface
     protected $fillable = [
         'user_name',
         'email',
-        'email_status',
         'password',      
         'date_login',
         'date_deleted'
@@ -76,16 +75,39 @@ class Users extends Model implements UserProviderInterface
     }
 
     /**
-     * Return true if user name exist
+     * Verify user naem
      *
      * @param string $userName
-     * @return void
+     * @param integer $id
+     * @return array|false
      */
-    public function userNameExist($userName) 
+    public function verifyUserName($userName, $id) 
     {
         $model = $this->where("user_name","=",trim($userName))->first();
 
-        return (is_object($model) == true) ? true : false;           
+        if (is_object($model) == true) {
+            return ($model->id == $id);
+        } 
+        
+        return true;
+    }
+
+    /**
+     * Get user by email
+     *
+     * @param string $email
+     * @param integer $id
+     * @return array|false
+     */
+    public function verifyEmail($email, $id) 
+    {
+        $model = $this->where("email","=",trim($email))->first();
+
+        if (is_object($model) == true) {
+            return ($model->id == $id);
+        } 
+        
+        return true;  
     }
 
     /**
@@ -127,6 +149,19 @@ class Users extends Model implements UserProviderInterface
         $user = $user->first();
       
         return (is_object($user) == false) ? false : $user;
+    }
+
+    /**
+     * Return user details by auth id
+     *
+     * @param string|integer $id
+     * @return array|false
+     */
+    public function getUserById($id)
+    {
+        $model = $this->findById($id);
+
+        return (is_object($model) == true) ? $model->toArray() : false;
     }
 
     /**

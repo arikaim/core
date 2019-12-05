@@ -10,7 +10,6 @@
 namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ApiController;
-use Arikaim\Core\Arikaim;
 
 /**
  * Drivers controller
@@ -41,12 +40,11 @@ class Drivers extends ApiController
             $driverName = $data->get('name');           
             $data->offsetUnset('name');
 
-            $config = Arikaim::driver()->getConfig($driverName);
+            $config = $this->get('driver')->getConfig($driverName);
             // change config valus
             $config->setPropertyValues($data->toArray());
-            Arikaim::driver()->saveConfig($driverName,$config);
-            $result = true;
-
+            $result = $this->get('driver')->saveConfig($driverName,$config);
+        
             $this->setResponse($result,'drivers.config','errors.drivers.config');
         });
         $data->validate();       
@@ -63,9 +61,8 @@ class Drivers extends ApiController
     public function readConfigController($request, $response, $data)
     {
         $this->onDataValid(function($data) {            
-            $name = $data->get('name');
-            $category = $data->get('category',null);
-            $result = Arikaim::driver()->getConfig($name,$category);
+            $driverName = $data->get('name'); 
+            $result = $this->get('driver')->getConfig($driverName);
 
             $this->setResponse($result,'drivers.config','errors.drivers.config');
         });
@@ -87,16 +84,10 @@ class Drivers extends ApiController
 
         $this->onDataValid(function($data) {    
             $name = $data->get('name');
-            $category = $data->get('category',null);
             $status = $data->get('status');
-
-            if ($status == 0) {
-                $result = Arikaim::driver()->disable($name,$category);
-                $this->setResponse($result,'drivers.disable','errors.drivers.disable');       
-            } else {
-                $result = Arikaim::driver()->enable($name,$category);
-                $this->setResponse($result,'drivers.enable ','errors.drivers.enable');    
-            }
+            $result = ($status == 0) ? $this->get('driver')->disable($name) : $this->get('driver')->enable($name);
+        
+            $this->setResponse($result,'drivers.enable','errors.drivers.enable');    
         });
         $data->validate();         
     }

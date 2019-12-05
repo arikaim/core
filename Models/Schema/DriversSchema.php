@@ -47,7 +47,7 @@ class DriversSchema extends Schema
         $table->text('config')->nullable(true);
         // indexes           
         $table->unique('class');
-        $table->unique(['name','category']);           
+        $table->unique('name');           
         $table->index('extension_name');
         $table->index('module_name');
     }

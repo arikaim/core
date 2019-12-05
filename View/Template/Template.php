@@ -9,8 +9,6 @@
 */
 namespace Arikaim\Core\View\Template;
 
-use Arikaim\Core\Utils\File;
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Http\Session;
 
 /**
@@ -21,36 +19,6 @@ class Template
     const SYSTEM_TEMPLATE_NAME = 'system';
     const DEFAULT_TEMPLATE_NAME = 'blog';
     
-    /**
-     * Return template files
-     *
-     * @return array
-     */
-    public static function getTemplateFiles()
-    {
-        return  Arikaim::page()->properties()->get('template.files');
-    }
-    
-    /**
-     * Return theme files
-     *
-     * @return array
-     */
-    public static function getThemeFiles()
-    {      
-        return Arikaim::page()->properties()->get('template.theme');
-    }
-    
-    /**
-     * Return library files
-     *
-     * @return array
-     */
-    public static function getLibraryFiles()
-    {
-        return Arikaim::page()->properties()->get('ui.library.files',[]);
-    }
-
     /**
      * Return libraries
      *
@@ -87,48 +55,18 @@ class Template
      * @return void
      */
     public static function getTemplateName()     
-    {           
-        try {            
-            return Arikaim::options()->get('current.template',Self::DEFAULT_TEMPLATE_NAME);               
-        } catch(\Exception $e) {
-            return Self::DEFAULT_TEMPLATE_NAME;
-        }
+    {                            
+        return Session::get('current.template',Self::DEFAULT_TEMPLATE_NAME);               
     }
-    
-    /**
-     * Return current language
-     *
-     * @return string
-     */
-    public static function getLanguage() 
-    {  
-        $language = Session::get('language');
-        if (empty($language) == true) { 
-            try {
-                $language = Arikaim::config('settings/defaultLanguage');
-                $language = (empty($language) == true) ? "en" : $language;
 
-                Session::set('language',$language);
-            } catch(\Exception $e) {
-                $$language = 'en';
-                Session::set('language',$language);
-            }                 
-        }       
-
-        return $language;
-    }
-    
     /**
-     * Set current language
+     * Set current template name
      *
-     * @param string $language Language code
-     * @return string
+     * @return void
      */
-    public static function setLanguage($language) 
-    {
-        Session::set('language',$language);
-    
-        return $language;
+    public static function setTemplateName($name)     
+    {                            
+        return Session::set('current.template',$name);               
     }
 
     /**
@@ -161,81 +99,27 @@ class Template
     }
 
     /**
-     * Scan directory and return components list
+     * Get macro path
      *
-     * @param string $path
-     * @return array
+     * @param string $macroName
+     * @param string $template
+     * @return string
      */
-    public static function getComponents($path)
-    {       
-        if (File::exists($path) == false) {
-            return [];
-        }
-        $items = [];
-        $dir = new \RecursiveDirectoryIterator($path,\RecursiveDirectoryIterator::SKIP_DOTS);
-        $iterator = new \RecursiveIteratorIterator($dir,\RecursiveIteratorIterator::SELF_FIRST);
-
-        foreach ($iterator as $file) {
-            if ($file->isDir() == true) {
-                $item['name'] = $file->getFilename();   
-                $item['path'] = $file->getPathname();
-                
-                $componentPath = str_replace($path,'',$file->getRealPath());                
-                $componentPath = str_replace(DIRECTORY_SEPARATOR,'.',$componentPath);
-               
-                $item['full_name'] = $componentPath;
-                array_push($items,$item);
-            }
-        }
-
-        return $items;
-    }
-
-    /**
-     * Scan directory and return pages list
-     *
-     * @param string $path
-     * @return array
-     */
-    public static function getPages($path)
+    public static function getMacroPath($macroName, $template = null)
     {
-        if (File::exists($path) == false) {
-            return [];
-        }
-        $items = [];
-        foreach (new \DirectoryIterator($path) as $file) {
-            if ($file->isDot() == true) continue;
-            if ($file->isDir() == true) {
-                $item['name'] = $file->getFilename();
-                array_push($items,$item);
-            }
-        }
+        $template = (empty($template) == true) ? Self::getTemplateName() : $template; 
 
-        return $items;
+        return DIRECTORY_SEPARATOR . $template . DIRECTORY_SEPARATOR . "macros" . DIRECTORY_SEPARATOR . $macroName;
     }
 
     /**
-     * Scan directory and return macros list
+     * Get system macro path
      *
-     * @param string $path
-     * @return array
+     * @param string $macroName
+     * @return string
      */
-    public static function getMacros($path)
-    {       
-        if (File::exists($path) == false) {
-            return [];
-        }
-        $items = [];
-        foreach (new \DirectoryIterator($path) as $file) {
-            if ($file->isDot() == true || $file->isDir() == true) continue;
-            
-            $fileExt = $file->getExtension();
-            if ($fileExt != "html" && $fileExt != "htm") continue;           
-            
-            $item['name'] = str_replace(".$fileExt",'',$file->getFilename());
-            array_push($items,$item);            
-        }
-
-        return $items;
+    public static function getSystemMacroPath($macroName)
+    {
+        return Self::getMacroPath($macroName,Self::SYSTEM_TEMPLATE_NAME);
     }
 }

@@ -44,7 +44,7 @@ class ListCommand extends ConsoleCommand
         $table->setHeaders(['Status','Name','Display Name','Category','Full Name','Version']);
         $table->setStyle('compact');
 
-        $items = Arikaim::driver()->getList();
+        $items = Arikaim::driver()->getDriversList();
 
         $rows = [];
         foreach ($items as $driver) {

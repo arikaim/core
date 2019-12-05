@@ -9,7 +9,6 @@
 */
 namespace Arikaim\Core\Api;
 
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Controllers\ApiController;
 
 /**
@@ -46,7 +45,7 @@ class Options extends ApiController
             $key = $data->get('key');
             $value = $data->get('value');
 
-            $result = Arikaim::options()->set($key,$value,$autoLoad,$extensionName);
+            $result = $this->get('options')->set($key,$value,$autoLoad,$extensionName);
 
             $this->setResponse($result,function() use($key,$value) {
                 $this
@@ -71,7 +70,7 @@ class Options extends ApiController
     public function getController($request, $response, $data) 
     {                          
         $this->onDataValid(function($data) { 
-            $value = Arikaim::options()->get($data['key']);
+            $value = $this->get('options')->get($data['key']);
             $this->setResult($value);           
         });
         $data
@@ -97,7 +96,7 @@ class Options extends ApiController
             $autoLoad = $data->get('auto_load',false);
 
             foreach ($data as $key => $value) {
-                Arikaim::options()->set($key,$value,$autoLoad,$extensionName);
+                $this->get('options')->set($key,$value,$autoLoad,$extensionName);
             }
             $this->message('options.save');
         });

@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Db;
 
-use Arikaim\Core\App\Factory;
+use Arikaim\Core\Utils\Factory;
 use Exception;
 
 /**

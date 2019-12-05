@@ -10,7 +10,6 @@
 namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ApiController;
-use Arikaim\Core\Arikaim;
 
 /**
  * Logger controller
@@ -40,7 +39,7 @@ class Logger extends ApiController
         $this->requireControlPanelPermission();
 
         $this->onDataValid(function($data) {            
-            $result = Arikaim::logger()->deleteSystemLogs();
+            $result = $this->get('logger')->deleteSystemLogs();
             $this->setResponse($result,'logs.clear','errors.logs.clear');
         });
         $data->validate();

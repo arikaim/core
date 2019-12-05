@@ -17,9 +17,9 @@ use Arikaim\Core\Db\Model as DbModel;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Models\Permissions;
 
-use Arikaim\Core\Traits\Db\Uuid;
-use Arikaim\Core\Traits\Db\Find;
-use Arikaim\Core\Traits\Db\PolymorphicRelations;
+use Arikaim\Core\Db\Traits\Uuid;
+use Arikaim\Core\Db\Traits\Find;
+use Arikaim\Core\Db\Traits\PolymorphicRelations;
 
 /**
  * Permissions database model
@@ -203,7 +203,7 @@ class PermissionRelations extends Model implements PermissionsInterface
     {
         $permissions = $this->resolvePermissions($access); 
         $id = ($id == null && $type == Self::USER) ? Arikaim::access()->getId() : $id;
-        $relationId =  DbModel::Permissions()->getId($name);       
+        $relationId = DbModel::Permissions()->getId($name);       
         if (empty($relationId) == true) {
             return false;
         }
@@ -254,6 +254,33 @@ class PermissionRelations extends Model implements PermissionsInterface
         }
      
         return true;
+    }
+
+    /**
+     * Add permission item.
+     *
+     * @param string $name    
+     * @param string|null $title
+     * @param string|null $description
+     * @param string|null $extension
+     * @return boolean
+     */
+    public function addPermission($name, $title = null, $description = null, $extension = null)
+    {
+        $model = DbModel::Permissions();
+
+        if ($model->has($name) == true) {
+            return false;
+        }
+        $item = [
+            'name'           => $name,
+            'extension_name' => $extension,
+            'title'          => $title,
+            'description'    => $description
+        ];
+        $permission = $model->create($item);
+
+        return is_object($permission);
     }
 
     /**

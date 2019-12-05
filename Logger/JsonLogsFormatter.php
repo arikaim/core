@@ -10,6 +10,7 @@
 namespace Arikaim\Core\Logger;
 
 use Monolog\Formatter\FormatterInterface;
+
 use Arikaim\Core\Utils\Utils;
 
 /**

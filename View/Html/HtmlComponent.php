@@ -9,16 +9,14 @@
 */
 namespace Arikaim\Core\View\Html;
 
-use Twig\Environment;
-
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Collection\Arrays;
-use Arikaim\Core\View\Html\BaseComponent;
+use Arikaim\Core\View\Html\Component;
+use Arikaim\Core\Interfaces\View\HtmlComponentInterface;
 
 /**
  * Render html component
  */
-class HtmlComponent extends BaseComponent
+class HtmlComponent extends Component implements HtmlComponentInterface
 {
     /**
      * Rnder component error mesage
@@ -26,174 +24,100 @@ class HtmlComponent extends BaseComponent
      * @param string $message
      * @return string
      */
-    public static function getErrorMessage($message)
-    {      
-        return Self::loadComponent('components:message.error',['message' => $message]);
-    }
+    public function getErrorMessage($message)
+    {        
+        $componentData = $this->createComponentData('components:message.error');
 
-    /**
-     * Load 
-     *
-     * @param string $name
-     * @param array $params
-     * @param string|null $language
-     * @return string
-     */
-    public static function loadComponent($name, $params = [], $language = null)
-    {
-        return Self::load(Arikaim::view()->getEnvironment(),$name,$params,$language);
+        return $this->renderComponentData($componentData,['message' => $message]);
     }
 
     /**
      * Load component from template
      *
-     * @param Environment $env
-     * @param string $name
-     * @param array $params
-     * @param string|null $language
      * @return string
      */
-    public static function load(Environment $env, $name, $params = [], $language = null)
-    {              
-        $component = Self::render($env,$name,$params,$language);
+    public function load()
+    {      
+        $component = $this->render($this->name,$this->params,$this->language);
         if ($component == null) {
-            if (Arrays::getDefaultValue($params,'show_error') !== false) {              
-                return Self::getErrorMessage('Not valid component name ' .  $name);
+            if (Arrays::getDefaultValue($this->params,'show_error') !== false) {              
+                return $this->getErrorMessage('Not valid component name ' .  $this->name);
             }
             return '';
         }
         if ($component->hasError() == true) {
-            return Self::getErrorMessage($component->getError());
+            return $this->getErrorMessage($component->getError());
         }
 
         return $component->getHtmlCode();
     }
 
     /**
-     * Load component with conetext array
-     *
-     * @param array $context
-     * @param Environment $env
-     * @param string $name
-     * @param array $params
-     * @param string|null $language
-     * @return void
-     */
-    public static function loadWithContext(&$context, Environment $env, $name, $params = [], $language = null)
-    {
-        if (is_array($context) == true) {
-            $params = array_merge($context,$params);
-        }
-
-        return Self::load($env,$name,$params,$language);
-    }
-
-    /**
-     * Create
-     *
-     * @param string $name
-     * @param string|null $language
-     * @param boolean $withOptions
-     * @return Component
-     */
-    public static function create($name, $language = null, $withOptions = true)
-    {
-        return Self::createComponent($name,'components',$language,$withOptions);
-    }
-
-    /**
      * Render component
      *
-     * @param string|null $name
-     * @param array $params
-     * @param string|null $language
-     * @param boolean $withOptions
-     * @return Component
+     * @return ComponentData
      */
-    public static function renderComponent($name, $params = [], $language = null, $withOptions = true) 
+    public function renderComponent() 
     { 
-        return Self::render(Arikaim::view()->getEnvironment(),$name,$params,$language,$withOptions);
+        return $this->render($this->name,$this->params,$this->language);
     }
 
     /**
-     * Render component html code from template
+     * Render component data
      *
-     * @param Environment $env
-     * @param string $name
+     * @param ComponentData $component
      * @param array $params
-     * @param string|null $language
-     * @param boolean $withOptions
-     * @return Component
+     * @return ComponentData
      */
-    public static function render(Environment $env, $name, $params = [], $language = null, $withOptions = true) 
-    {    
-        $component = Self::create($name,$language,$withOptions);
+    public function renderComponentData($component,$params = [])
+    {
         if (is_object($component) == false) {
             return null;               
         }
-      
         if ($component->hasError() == true) {
             return $component;
         }
+        
         // default params      
         $params['component_url'] = $component->getUrl();
 
         $params = Arrays::merge($component->getProperties(),$params);
         $component->setHtmlCode("");  
-        if ($component->getOption('render') !== false) {                 
-            $component = Self::fetch($env,$component,$params);
+        if ($component->getOption('render') !== false) {      
+
+            $component = $this->fetch($component,$params);
             // include files
-            Self::includeComponentFiles($component->getFiles('js'),'js');
-            Self::includeComponentFiles($component->getFiles('css'),'css');
+            $this->includeComponentFiles($component->getFiles('js'),'js');
+            $this->includeComponentFiles($component->getFiles('css'),'css');
         }
-        $env->addGlobal('current_component_name',$name);
-        
+        $this->view->getEnvironment()->addGlobal('current_component_name',$component->getName());
+
         return $component;
     }
 
     /**
-     * Inlcude componnent files
+     * Render component html code from template
      *
-     * @param array $files
-     * @param string $key
-     * @return boolean
+     * @param string $name
+     * @param array $params
+     * @param string|null $language
+     * @param boolean $withOptions
+     * @return ComponentData
      */
-    public static function includeComponentFiles($files, $key)
-    {
-        if (empty($files) == true) {
-            return false;
-        }       
-        foreach ($files as $item) {             
-            Arikaim::page()->properties()->prepend('include.components.files',$item,$key);                    
-        }
+    public function render($name, $params = [], $language = null, $withOptions = true) 
+    {    
+        $component = $this->createComponentData($name,$language,$withOptions);
 
-        return true;
+        return $this->renderComponentData($component,$params);
     }
 
     /**
      * Get properties
-     *
-     * @param string $name
-     * @param string|null $language
+     *    
      * @return Properties|null
      */
-    public static function getProperties($name, $language = null)
-    {       
-        $component = Self::create($name,$language);
-
-        return (is_object($component) == true) ? $component->loadProperties() : null;
-    }
-    
-    /**
-     * Get component options
-     *
-     * @param string $name   
-     * @return array|null
-     */
-    public static function getOptions($name)
-    {       
-        $component = Self::create($name);
-        
-        return (is_object($component) == true) ? $component->getOptions() : null;
+    public function getProperties()
+    {             
+        return $this->componentData->loadProperties();
     }
 }

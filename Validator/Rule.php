@@ -9,7 +9,6 @@
  */
 namespace Arikaim\Core\Validator;
 
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Validator\Interfaces\RuleInterface;
 use Arikaim\Core\Collection\Collection;
 
@@ -160,22 +159,15 @@ abstract class Rule implements RuleInterface
     }
 
     /**
-     * Return error message
+     * Get error params
      *
-     * @param array $params Error message params
-     * @return string|null
+     * @return array
      */
-    public function getErrorMessage($params = []) 
+    public function getErrorParams()
     {
-        if (empty($this->error) == true) {
-            return "";
-        }
-        $this->errorParams = array_merge($this->errorParams,$this->params->toArray());              
-        $errorMessage = Arikaim::getError($this->error,$this->errorParams,null);
-
-        return (empty($errorMessage) == true) ? $this->error : $errorMessage;              
+        return array_merge($this->errorParams,$this->params->toArray());   
     }
-    
+
     /**
      * Set error params
      *

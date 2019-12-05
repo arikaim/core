@@ -13,12 +13,14 @@ use Twig\Environment;
 use Twig\Extension\ExtensionInterface;
 use Twig\Loader\FilesystemLoader;
 
-use Arikaim\Core\View\Template\Extension;
+use Arikaim\Core\Collection\Collection;
+use Arikaim\Core\Interfaces\View\ViewInterface;
+use Arikaim\Core\Interfaces\CacheInterface;
 
 /**
  * View class
  */
-class View
+class View implements ViewInterface
 {
     /**
      * Template loader
@@ -35,19 +37,115 @@ class View
     private $environment;
 
     /**
+     * Cache
+     *
+     * @var CacheInterface
+     */
+    private $cache;
+
+    /**
+     * Vie wpath
+     *
+     * @var string
+     */
+    private $viewPath; 
+
+    /**
+     * Extensions Path
+     *
+     * @var string
+     */
+    private $extensionsPath;
+
+    /**
+     * Templates path
+     *
+     * @var string
+     */
+    private $templatesPath;
+
+    /**
+     * Components path
+     *
+     * @var string
+     */
+    private $componentsPath;
+
+    /**
+     * Page properties collection
+     *
+     * @var Collection
+     */
+    private $pageProperties;
+
+    /**
      * Constructor
      *
-     * @param array $paths
+     * @param CacheInterface $cache
+     * @param string $viewPath
+     * @param string $extensionsPath
+     * @param string $templatesPath
+     * @param string $componentsPath
      * @param array $settings
      */
-    public function __construct($paths, $settings = [])
+    public function __construct(CacheInterface $cache, $viewPath, $extensionsPath, $templatesPath, $componentsPath, $settings = [])
     {
-        $this->loader = $this->createLoader($paths);       
+        $this->pageProperties = new Collection();
+        $this->viewPath = $viewPath;
+        $this->extensionsPath = $extensionsPath;
+        $this->templatesPath = $templatesPath;
+        $this->componentsPath = $componentsPath;
+      
+        $paths = [
+            $extensionsPath,
+            $templatesPath,
+            $componentsPath
+        ];
+
+        $this->loader = $this->createLoader($paths);  
+        $this->cache = $cache;      
         $this->environment = new Environment($this->loader,$settings);
         $this->environment->addGlobal('current_component_name','');
-        
-        // add template extensions
-        $this->addExtension(new Extension());
+    }
+
+    /**
+     * Get page properties
+     *
+     * @return Collection
+     */
+    public function properties()
+    {
+        return $this->pageProperties;
+    }
+
+    /**
+     * Gte extensions path
+     *
+     * @return string
+     */
+    public function getExtensionsPath()
+    {
+        return $this->extensionsPath;
+    }
+
+    /**
+     * Get view path
+     *
+     * @return string
+     */
+    public function getViewPath()
+    {
+        return $this->viewPath;
+    }
+
+    /**
+     * Get cache
+     *
+     * @return CacheInterface
+     */
+    public function getCache()
+    {
+        return $this->cache;
     }
 
     /**
@@ -96,6 +194,16 @@ class View
     public function fetchFromString($string, $params = [])
     {
         return $this->environment->createTemplate($string)->render($params);
+    }
+
+    /**
+     * Get twig extension
+     *
+     * @return ExtensionInterface
+     */
+    public function getExtension($class)
+    {
+        return $this->environment->getExtension($class);
     }
 
     /**

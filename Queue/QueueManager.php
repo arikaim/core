@@ -10,13 +10,16 @@
 namespace Arikaim\Core\Queue;
 
 use Arikaim\Core\Collection\Arrays;
-use Arikaim\Core\Utils\Utils;
-
-use Arikaim\Core\Interfaces\QueueInterface;
+use Arikaim\Core\Utils\Factory;
+use Arikaim\Core\Interfaces\Events\EventDispatcherInterface;
+use Arikaim\Core\Interfaces\Job\QueueStorageInterface;
 use Arikaim\Core\Interfaces\Job\JobInterface;
-
-use Arikaim\Core\Queue\Drivers\DbQueue;
-use Arikaim\Core\Arikaim;
+use Arikaim\Core\Interfaces\Job\RecuringJobInterface;
+use Arikaim\Core\Interfaces\Job\ScheduledJobInterface;
+use Arikaim\Core\Interfaces\OptionsInterface;
+use Arikaim\Core\Queue\Cron;
+use Arikaim\Core\Queue\QueueWorker;
+use Arikaim\Core\System\Process;
 
 /**
  * Queue manager
@@ -24,25 +27,36 @@ use Arikaim\Core\Arikaim;
 class QueueManager 
 {
     /**
-     * Queue driver
+     * Queue storage driver
      *
-     * @var QueueInterface
+     * @var QueueStorageInterface
      */
     protected $driver;
 
     /**
+     * Event Dispatcher
+     *
+     * @var EventDispatcherInterface
+     */
+    protected $eventDispatcher;
+
+    /**
+     * Options
+     *
+     * @var OptionsInterface
+     */
+    protected $options;
+
+    /**
      * Constructor
      *
-     * @param QueueInterface $driver
+     * @param QueueStorageInterface $driver
      */
-    public function __construct(QueueInterface $driver = null)
+    public function __construct(QueueStorageInterface $driver, EventDispatcherInterface $eventDispatcher, OptionsInterface $options)
     {       
-        if ($driver == null) {
-            // set default queue provider
-            $this->setDriver(new DbQueue());
-        } else {
-            $this->setDriver($driver);
-        }
+        $this->setDriver($driver);
+        $this->eventDispatcher = $eventDispatcher;
+        $this->options = $options;
     }
 
     /**
@@ -52,7 +66,7 @@ class QueueManager
      */
     public function createScheduler()
     {
-        return new \Arikaim\Core\Queue\Cron();
+        return new Cron();
     }
 
     /**
@@ -62,29 +76,103 @@ class QueueManager
      */
     public function createWorker()
     {
-        return new \Arikaim\Core\Queue\QueueWorker();
+        return new QueueWorker();
     }
 
-
     /**
-     * Set queue provider
+     * Set queue storage driver
      *
-     * @param QueueInterface $driver
+     * @param QueueStorageInterface $driver
      * @return void
      */
-    public function setDriver(QueueInterface $driver)
+    public function setDriver(QueueStorageInterface $driver)
     {
         $this->driver = $driver;
     }
 
     /**
-     * Get queue provider
+     * Get queue storage driver
      *
-     * @return QueueInterface
+     * @return QueueStorageInterface
      */
     public function getQueue()
     {
         return $this->driver;
+    }
+
+    /**
+     * Return tru if job exist
+     *
+     * @param mixed $id
+     * @return boolean
+     */
+    public function has($id)
+    {
+        return $this->driver->hasJob($id);
+    }
+
+    /**
+     * Delete jobs
+     *
+     * @param array $filter
+     * @return boolean
+     */
+    public function deleteJobs($filter = [])
+    {
+        return $this->driver->deleteJobs($filter);
+    }
+
+    /**
+     * Create job obj from jobs queue
+     *
+     * @param string $name
+     * @return JobInterface|false
+     */
+    public function create($name)
+    {
+        $model = $this->findJobNyName($name);
+        if (is_object($model) == false) {
+            return false;
+        }
+
+        return Factory::createJobFromArray($model->toArray(),$model->handler_class);
+    }
+
+    /**
+     * Get job
+     *
+     * @param string|integer $id Job id, uiid or name
+     * @return array|false
+     */
+    public function getJob($id)
+    {
+        return $this->driver->getJob($id);    
+    }
+
+    /**
+     * Get recurring jobs
+     *
+     * @param string|null $extension
+     * @return array
+     */
+    public function getRecuringJobs($extension = null)
+    {   
+        $filter = [
+            'recuring_interval' => '*',
+            'extension_name'    => (empty($extension) == true) ? '*' : $extension    
+        ];       
+
+        return $this->driver->getJobs($filter);        
+    }
+
+    /**
+     * Get all jobs due
+     * 
+     * @return array
+     */
+    public function getJobsDue()
+    {
+        return $this->driver->getJobsDue();
     }
 
     /**
@@ -96,30 +184,39 @@ class QueueManager
      */
     public function addJob(JobInterface $job, $extension = null)
     {       
-        return $this->driver->add($job,$extension);      
+        $info = [
+            'priority'          => $job->getPriority(),
+            'name'              => $job->getName(),
+            'handler_class'     => get_class($job),         
+            'extension_name'    => (empty($extension) == true) ? $job->getExtensionName() : $extension,    
+            'status'            => 1,
+            'recuring_interval' => ($job instanceof RecuringJobInterface) ? $job->getRecuringInterval() : null,
+            'schedule_time'     => ($job instanceof ScheduledJobInterface) ? $job->getScheduleTime() : null,
+            'uuid'              => $job->getId()
+        ];
+
+        return $this->driver->addJob($info);      
     }
 
     /**
      * Delete job
      *
-     * @param JobInterface $job
+     * @param string|integer $id Job id, uiid
      * @return bool
      */
-    public function removeJob(JobInterface $job)
+    public function deleteJob($id)
     {
-        return $this->driver->remove($job);
+        return $this->driver->deleteJob($id);
     }
 
     /**
      * Delete all jobs
-     *
-     * @param boolean $completed
-     * @param  dtring|null $extension
-     * @return void
+     *    
+     * @return boolean
      */
-    public function clear($completed = true, $extension = null)
+    public function clear()
     {
-        $this->driver->clear($completed,$extension);
+        return $this->driver->deleteJobs();
     }
 
     /**
@@ -127,51 +224,60 @@ class QueueManager
      *
      * @return JobInterface|null
      */
-    public function getNextJob()
+    public function getNext()
     {
-        return $this->driver->getNext();
+        $jobData = $this->driver->getNext();
+        if ($jobData === false) {
+            return false;
+        }
+
+        return Factory::createJob($jobData['handler_class'],$jobData['extension_name'],$jobData['name'],$jobData['priority']);     
     }
 
     /**
      * Run job
      *
-     * @param JobInterface $job
+     * @param JobInterface|string|integer $job
      * @return void
      */
-    public function executeJob(JobInterface $job)
+    public function executeJob($job)
     {
+        if (is_string($job) == true || is_numeric($job) == true) {
+
+        }
         // before run job event
-        Arikaim::event()->dispatch('core.jobs.before.execute',Arrays::convertToArray($job));
+        if ($this->eventDispatcher != null) {
+            $this->eventDispatcher->dispatch('core.jobs.before.execute',Arrays::convertToArray($job));
+        }
+      
         try {
-            $result = $this->driver->execute($job);
+            $job->execute();
+            $this->driver->updateExecutionStatus($job);
         } catch (\Exception $e) {
             return false;
         }
+
         // after run job event
-        Arikaim::event()->dispatch('core.jobs.after.execute',Arrays::convertToArray($job));
-        return $result;
-    }
-    
-    /**
-     * Call other methods on driver
-     *
-     * @param string $name
-     * @param array $arguments
-     * @return mixed
-     */
-    public function __call($name, $arguments)
-    {
-        return Utils::call($this->driver,$name,$arguments);
+        if ($this->eventDispatcher != null) {
+            $this->eventDispatcher->dispatch('core.jobs.after.execute',Arrays::convertToArray($job));
+        }
+
+        return true;
     }
 
-   /**
-     * Delete all extension jobs
+    /**
+     * Get worker process info
      *
-     * @param string $extension
-     * @return boolean
+     * @return array
      */
-    public function deleteExtensionJobs($extension)
-    { 
-        return $this->driver->deleteExtensionJobs($extension);
-    } 
+    public function getQueueWorkerInfo()
+    {      
+        $pid = $this->options->get('queue.worker.pid',null);
+
+        return [
+            'pid'     => $pid,
+            'command' => $this->options->get('queue.worker.command',null),
+            'running' => (empty($pid) == true) ? false : Process::isRunning($pid)
+        ];
+    }
 }

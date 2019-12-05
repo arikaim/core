@@ -12,8 +12,8 @@ namespace Arikaim\Core\Queue;
 use Arikaim\Core\System\Process;
 use Arikaim\Core\System\System;
 use Arikaim\Core\Queue\QueueManager;
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Interfaces\QueueInterface;
+use Arikaim\Core\Interfaces\OptionsInterface;
 
 /**
  * Queue worker
@@ -46,15 +46,24 @@ class QueueWorker
     private $status;
 
     /**
+     * Options
+     *
+     * @var OptionsInterface
+     */
+    private $options;
+
+    /**
      * Constructor
      * 
      * @param QueueInterface|null $driver
      */
-    public function __construct(QueueInterface $driver = null)
+    public function __construct(QueueInterface $driver, OptionsInterface $options, $logger)
     {
         $this->manager = new QueueManager($driver);
         $this->process = null;
         $this->status = Self::RUN;
+        $this->options = $options;
+        $this->logger = $logger;
     }
 
     /**
@@ -70,19 +79,16 @@ class QueueWorker
         pcntl_signal(15,[$this,"handleSignals"]);
         pcntl_signal(SIGINT,[$this,"handleSignals"]);
 
-        // trigger event
-        Arikaim::event()->dispatch('core.jobs.queue.run',[]);
-
         while(true) {        
             pcntl_signal_dispatch();
             $this->checkStatus();
 
-            $job = $this->manager->getNextJob();
+            $job = $this->manager->getNext();
             if (is_object($job) == true) {
                 try {
                     $result = $this->manager->executeJob($job);
                 } catch (\Exception $e) {
-                    Arikaim::logger()->error('Job execution error! Job Id: ' . $job->getId());
+                    $this->logger->error('Job execution error! Job Id: ' . $job->getId());
                 }
             }
         }
@@ -121,8 +127,7 @@ class QueueWorker
     {
         switch($this->status) {
             case Self::STOP: {
-                System::writeLine("Stop");
-                Arikaim::event()->dispatch('core.jobs.queue.stop',[]);
+                System::writeLine("Stop");               
                 exit(0);
             }
         }
@@ -135,7 +140,7 @@ class QueueWorker
      */
     public function isRunning()
     {
-        $pid = Arikaim::options()->get('queue.worker.pid',null);
+        $pid = $this->options->get('queue.worker.pid',null);
 
         return (empty($pid) == false) ? Process::isRunning($pid) : false;          
     }
@@ -147,7 +152,7 @@ class QueueWorker
      */
     public function getPid()
     {
-        $pid = Arikaim::options()->get('queue.worker.pid',null);
+        $pid = $this->options->get('queue.worker.pid',null);
         
         return $pid;    
     }
@@ -161,8 +166,6 @@ class QueueWorker
     {
         Process::run('php cli queue:stop');
         sleep(2);
-        
-        return !$this->isRunning();
     }
 
     /**
@@ -174,7 +177,7 @@ class QueueWorker
     public function setPid($pid = null)
     {
         $pid = (empty($pid) == true) ? getmypid() : $pid;
-        Arikaim::options()->set('queue.worker.pid',$pid,false);
+        $this->options->set('queue.worker.pid',$pid,false);
     }
 
     /**
@@ -185,7 +188,7 @@ class QueueWorker
      */
     public function saveCommand($command)
     {
-        Arikaim::options()->set('queue.worker.command',$command);
+       $this->options->set('queue.worker.command',$command);
     }
 
     /**
@@ -207,19 +210,6 @@ class QueueWorker
         }
 
         return false;
-    }
-
-    /**
-     * Get worker process info
-     *
-     * @return array
-     */
-    public function getProcessInfo()
-    {      
-        return [
-            'pid' =>  Arikaim::options()->get('queue.worker.pid',null),
-            'command' => Arikaim::options()->get('queue.worker.command',null)
-        ];
     }
 
     /**

@@ -10,8 +10,6 @@
 namespace Arikaim\Core\Api\Ui;
 
 use Arikaim\Core\Controllers\ApiController;
-use Arikaim\Core\Arikaim;
-use Arikaim\Core\View\Html\HtmlComponent;
 use Arikaim\Core\Collection\Arrays;
 
 /**
@@ -29,7 +27,7 @@ class Component extends ApiController
      */
     public function componentProperties($request, $response, $data)
     {
-        $component = HtmlComponent::create($data['name']);
+        $component = $this->get('page')->createHtmlComponent($data['name'])->renderComponent();
         if (is_object($component) == false) {
             return $this->withError('Not valid component nane.')->getResponse();  
         }
@@ -56,7 +54,7 @@ class Component extends ApiController
         // control panel only
         $this->requireControlPanelPermission();
 
-        $component = HtmlComponent::create($data['name']);
+        $component = $this->get('page')->createHtmlComponent($data['name'])->renderComponent();
         if (is_object($component) == false) {
             return $this->withError('Not valid component nane.')->getResponse();  
         }
@@ -100,7 +98,7 @@ class Component extends ApiController
      */
     public function load($name, $params = [])
     {   
-        $component = HtmlComponent::renderComponent($name,$params);
+        $component = $this->get('page')->createHtmlComponent($name,$params)->renderComponent();
         if (is_object($component) == false) {
             return $this->withError('Not valid component nane.')->getResponse();  
         }
@@ -112,7 +110,7 @@ class Component extends ApiController
         if ($component->getOption('access/deny-request') == true) {
             return $this->withError('ACCESS_DENIED')->getResponse();           
         }
-        $files = Arikaim::page()->properties()->get('include.components.files');
+        $files = $this->get('view')->properties()->get('include.components.files');
         
         $result = [
             'html'       => $component->getHtmlCode(),

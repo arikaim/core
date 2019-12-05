@@ -11,7 +11,7 @@ namespace Arikaim\Core\Validator\Rule;
 
 use Arikaim\Core\Validator\Rule;
 use Arikaim\Core\Utils\File;
-use Arikaim\Core\App\Path;
+use Arikaim\Core\Utils\Path;
 
 /**
  *  Check if template file exist.
@@ -36,7 +36,7 @@ class TemplatePath extends Rule
      */
     public function validate($value) 
     {                  
-        return (File::exists(Path::getTemplatePath($value)) == false) ? false : true;
+        return (File::exists(Path::TEMPLATES_PATH . $value) == false) ? false : true;
     } 
 
     /**

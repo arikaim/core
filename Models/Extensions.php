@@ -11,19 +11,23 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-use Arikaim\Core\Traits\Db\Uuid;
-use Arikaim\Core\Traits\Db\Position;
-use Arikaim\Core\Traits\Db\Status;
-use Arikaim\Core\Traits\Db\Find;
+use Arikaim\Core\Packages\Interfaces\PackageRegistryInterface;
+
+use Arikaim\Core\Db\Traits\Uuid;
+use Arikaim\Core\Db\Traits\Position;
+use Arikaim\Core\Db\Traits\Status;
+use Arikaim\Core\Db\Traits\Find;
+use Arikaim\Core\Db\Traits\PackageRegistry;
 
 /**
  * Extensions database model
  */
-class Extensions extends Model  
+class Extensions extends Model implements PackageRegistryInterface
 {
     use Uuid,
         Find,
         Position,
+        PackageRegistry,
         Status;
 
     /**
@@ -94,53 +98,5 @@ class Extensions extends Model
     public function getAdminMenuAttribute()
     {
         return json_decode($this->attributes['admin_menu'],true);
-    }
-
-    /**
-     * Return true if extension record exist.
-     *
-     * @param string $extension
-     * @return boolean
-     */
-    public function isInstalled($extension)
-    {
-        $model = $this->where('name','=',$extension)->first();       
-        return (is_object($model) == true) ? true : false;   
-    }
-
-    /**
-     * Return extension status (0 - disabled, 1 - enabled)
-     *
-     * @param string $extension
-     * @return integer
-     */
-    public function getStatus($extension)
-    {
-        $model = $this->where('name','=',$extension)->first();       
-        return (is_object($model) == false) ? 0 : $model->status;            
-    }
-
-    /**
-     * Disable extension
-     *
-     * @param string $extension
-     * @return bool
-     */
-    public function disable($extension)
-    {        
-        $model = $this->findByColumn($extension,'name');       
-        return (is_object($model) == true) ? $model->setStatus(Status::$DISABLED) : false;     
-    }
-
-    /**
-     * Enable extension
-     *
-     * @param string $extension
-     * @return bool
-     */
-    public function enable($extension)
-    {
-        $model = $this->findByColumn($extension,'name');
-        return (is_object($model) == true) ? $model->setStatus(Status::$ACTIVE) : false;     
     }
 }

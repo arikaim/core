@@ -40,7 +40,6 @@ class MdNode extends Node implements NodeOutputInterface
     public function compile(Compiler $compiler)
     {
         $compiler->addDebugInfo($this)    
-            ->addDebugInfo($this)
             ->write('ob_start();' . PHP_EOL)
             ->subcompile($this->getNode('body'))
             ->write('$content = ob_get_clean();' . PHP_EOL)

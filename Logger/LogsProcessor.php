@@ -23,6 +23,7 @@ class LogsProcessor
     public function __invoke(array $record)
     {
         $record['timestamp'] = time();
+        
         return $record;
     }
 }

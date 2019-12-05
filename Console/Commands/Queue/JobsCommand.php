@@ -59,7 +59,7 @@ class JobsCommand extends ConsoleCommand
         $table->render();
 
         // Scheduled jobs
-        $items = Arikaim::queue()->getScheduledJobs();
+        $items = Arikaim::queue()->getJobs(['schedule_time' => '*']);
         $rows = [];
         foreach ($items as $item) {                  
             $row = ['',DateTime::dateTimeFormat($item->schedule_time),$item->handler_class];

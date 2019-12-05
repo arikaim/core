@@ -44,14 +44,12 @@ class RunJobCommand extends ConsoleCommand
             return;
         }
         $this->style->writeLn('Name: ' . $name);
-
-        $model = Arikaim::queue()->findJobNyName($name);
-        if (is_object($model) == false) {
+      
+        if (Arikaim::queue()->has($name) == false) {
             $this->showError("Not valid job name!");
             return;
-        }
-        $job = Arikaim::queue()->create($name);
-        $result = Arikaim::queue()->execute($job);
+        } 
+        $result = Arikaim::queue()->execute($name);
         
         if ($result === false) {
             $this->showError("Error execution job!");

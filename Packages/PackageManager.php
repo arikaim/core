@@ -9,16 +9,22 @@
 */
 namespace Arikaim\Core\Packages;
 
-use Arikaim\Core\Interfaces\PackageManagerInterface;
-use Arikaim\Core\Utils\File;
+use Arikaim\Core\Interfaces\Packages\PackageManagerInterface;
+use Arikaim\Core\Interfaces\StorageInterface;
+use Arikaim\Core\Interfaces\HttpClientInterface;
+use Arikaim\Core\Interfaces\CacheInterface;
 use Arikaim\Core\Collection\Collection;
-use Arikaim\Core\App\Path;
+use Arikaim\Core\Packages\Interfaces\PackageRegistryInterface;
+use Arikaim\Core\Packages\Repository\GitHubRepository;
+use Arikaim\Core\Packages\Repository\GitHubPrivateRepository;
+use Arikaim\Core\Utils\File;
+use Arikaim\Core\Utils\Path;
 use Arikaim\Core\Utils\ZipFile;
 
 /**
  * Package managers base class
 */
-abstract class PackageManager implements PackageManagerInterface
+class PackageManager implements PackageManagerInterface
 {
     /**
      *  Package type
@@ -29,6 +35,22 @@ abstract class PackageManager implements PackageManagerInterface
     const LIBRARY_PACKAGE   = 'library';
     
     /**
+     *  Repository type
+    */
+    const GITHUB_REPOSITORY         = 'github';
+    const GITHUB_PRIVATE_REPOSITORY = 'private-github';
+    const ARIKAIM_REPOSITORY        = 'arikaim';
+    const BITBUCKET_REPOSITORY      = 'bitbucket';
+    const COMPOSER_REPOSITORY       = 'composer';
+
+    /**
+     * Package type
+     *
+     * @var string
+     */
+    protected $packageType;
+
+    /**
      * Path to packages
      *
      * @var string
@@ -36,37 +58,119 @@ abstract class PackageManager implements PackageManagerInterface
     protected $path;
     
     /**
-     * Package properites file name
+     * Cache
      *
-     * @var string
+     * @var CacheInterface
      */
-    private $propertiesFileName = 'arikaim-package.json';
+    protected $cache;
+
+    /**
+     * Local Storage
+     *
+     * @var StorageInterface
+     */
+    protected $storage;
+
+    /**
+     * Http client
+     *
+     * @var HttpClientInterface
+     */
+    protected $httpClient;
+    
+    /**
+     * Package Registry
+     *
+     * @var PackageRegistryInterface
+     */
+    protected $packageRegistry;
+
+    /**
+     * Constructor
+     *
+     * @param string $path
+     * @param CacheInterface $cache
+     * @param object $storage
+     * @param object $httpClient
+     */
+    public function __construct(
+        $packagePath, 
+        $packageType, 
+        $packageClass, 
+        CacheInterface $cache, 
+        StorageInterface $storage, 
+        HttpClientInterface $httpClient, 
+        PackageRegistryInterface $packageRegistry = null
+    )
+    {
+        $this->path = $packagePath;
+        $this->packageType = $packageType;
+        $this->cache = $cache;
+        $this->storage = $storage;
+        $this->httpClient = $httpClient;
+        $this->packageClass = $packageClass;
+      
+        $this->packageRegistry = $packageRegistry;
+    }
+
+    /**
+     * Get packages registry
+     *
+     * @return PackageRegistryInterface
+     */
+    public function getPackgesRegistry()
+    {
+        return $this->packageRegistry;
+    } 
 
     /**
      * Create package 
      *
      * @param string $name
      * @return PackageInterface
-     */
-    abstract public function createPackage($name);
+    */
+    public function createPackage($name)
+    {      
+        $propertes = Self::loadPackageProperties($name,$this->path);
+        if (empty($propertes->get('name')) == true) {
+            $propertes->set('name',$name);
+        }
+        $class = $this->packageClass;
+
+        return new $class($this->path,$propertes,$this->cache,$this->packageRegistry);
+    }
 
     /**
-     * Return packages list
+     * Get package repository
+     *
+     * @param string $packageName
+     * @return RepositoryInterface
+     */
+    public function getRepository($packageName)
+    {
+        $properties = Self::loadPackageProperties($packageName,$this->path);
+        $repositoryUrl = $properties->get('repository',null);
+        $private = $properties->get('private-repository',false);
+       
+        return $this->createRepository($repositoryUrl,$private);
+    }
+
+    /**
+     * Get packages list
      *
      * @param boolean $cached
      * @param mixed $filter
      * @return array
      */
-    abstract public function getPackages($cached = false, $filter = null);
-
-    /**
-     * Constructor
-     *
-     * @param string $path
-     */
-    public function __construct($path)
+    public function getPackages($cached = false, $filter = null)
     {
-        $this->path = $path;
+        $result = ($cached == true) ? $this->cache->fetch($this->packageType . '.list') : null;
+        if (is_array($result) == false) {
+            $result = $this->scan($filter);
+            $this->cache->save($this->packageType . '.list',$result,5);
+        } 
+        
+        return $result;
     }
 
     /**
@@ -80,24 +184,14 @@ abstract class PackageManager implements PackageManagerInterface
     }
 
     /**
-     * Gte properties file name
-     *
-     * @return string
-     */
-    public function getPropertiesFileName()
-    {
-        return $this->propertiesFileName;
-    }
-
-    /**
      * Load package properties file 
      *
      * @param string $name
      * @return Collection
      */
-    public function loadPackageProperties($name) 
+    public static function loadPackageProperties($name, $path) 
     {         
-        $fileName = $this->getPath() . $name . DIRECTORY_SEPARATOR . $this->getPropertiesFileName();
+        $fileName = $path . $name . DIRECTORY_SEPARATOR . 'arikaim-package.json';
         $data = File::readJsonFile($fileName);
         $data = (is_array($data) == true) ? $data : [];
 
@@ -164,7 +258,7 @@ abstract class PackageManager implements PackageManagerInterface
     {
         $packages = $this->getPackages();
         foreach ($packages as $name) {
-            $properties = $this->loadPackageProperties($name);
+            $properties = Self::loadPackageProperties($name,$this->path);
             if ($properties->get($param) == $value) {
                 return $this->createPackage($name);
             }
@@ -270,4 +364,55 @@ abstract class PackageManager implements PackageManagerInterface
 
         return ZipFile::create($sourcePath,$destinationPath . $fileName,['.git']);
     }
+
+    /**
+     * Create repository driver
+     *
+     * @param string $repositoryUrl
+     * @param boolean $private
+     * @return void
+     */
+    protected function createRepository($repositoryUrl, $private)
+    {
+        $type = $this->resolveRepositoryType($repositoryUrl,$private);
+        switch ($type) {
+            case Self::GITHUB_REPOSITORY:           
+                return new GitHubRepository($repositoryUrl,$private,Path::STORAGE_REPOSITORY_PATH,$this->storage,$this->httpClient);
+            case Self::GITHUB_PRIVATE_REPOSITORY:
+                return new GitHubPrivateRepository($repositoryUrl,$private,Path::STORAGE_REPOSITORY_PATH,$this->storage,$this->httpClient);
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve package repository type
+     *   
+     * @param string $repositoryUrl
+     * @param boolean $private
+     * @return string|null
+     */
+    protected function resolveRepositoryType($repositoryUrl, $private)
+    {
+        if (empty($repositoryUrl) == true) {
+            return null;
+        }
+        if ($repositoryUrl == 'arikaim') {
+            return Self::ARIKAIM_REPOSITORY;
+        }
+        if (substr($repositoryUrl,0,8) == 'composer') {
+            return Self::COMPOSER_REPOSITORY;
+        }
+        $url = parse_url($repositoryUrl);
+
+        if ($url['host'] == 'github.com' || $url['host'] == 'www.github.com') {
+            return ($private == false) ? Self::GITHUB_REPOSITORY : Self::GITHUB_PRIVATE_REPOSITORY;
+        }
+
+        if ($url['host'] == 'bitbucket.org' || $url['host'] == 'www.bitbucket.org') {
+            return Self::BITBUCKET_REPOSITORY;
+        }
+
+        return null;       
+    }   
 }

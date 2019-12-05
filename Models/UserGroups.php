@@ -10,8 +10,8 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Arikaim\Core\Traits\Db\Uuid;
-use Arikaim\Core\Traits\Db\Find;
+use Arikaim\Core\Db\Traits\Uuid;
+use Arikaim\Core\Db\Traits\Find;
 use Arikaim\Core\Models\UserGroupMembers;
 
 /**

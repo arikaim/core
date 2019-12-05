@@ -11,15 +11,16 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Arikaim\Core\Interfaces\Events\EventRegistryInterface;
 use Arikaim\Core\Db\Model as DbModel;
-use Arikaim\Core\Traits\Db\Uuid;
-use Arikaim\Core\Traits\Db\Status;
-use Arikaim\Core\Traits\Db\Find;
+use Arikaim\Core\Db\Traits\Uuid;
+use Arikaim\Core\Db\Traits\Status;
+use Arikaim\Core\Db\Traits\Find;
 
 /**
  * Events database model
  */
-class Events extends Model  
+class Events extends Model implements EventRegistryInterface
 {
     use Uuid,
         Status,
@@ -52,18 +53,6 @@ class Events extends Model
     public $timestamps = false;
 
     /**
-     * Return extension events list.
-     *
-     * @param string $extension
-     * @return array
-     */
-    public function getEvents($extension)
-    {
-        $model = $this->where('extension_name','=',$extension)->get();
-        return (is_object($model) == true) ? $model->toArray() : [];        
-    }
-
-    /**
      * Deleet event
      *
      * @param string $name
@@ -72,6 +61,7 @@ class Events extends Model
     public function deleteEvent($name) 
     {           
         $model = $this->where('name','=',$name);
+
         return ($model->isEmpty() == false) ? $model->delete() : true;           
     }
 
@@ -84,111 +74,94 @@ class Events extends Model
     {
         $model = DbModel::create('EventSubscribers');
         $items = $model->where('name','=',$this->name)->get();
+        
         return (is_object($model) == true) ? $items : $model;
     }
 
     /**
-     * Delete extensions event.
+     * Delete events.
      *
-     * @param string $extension
+     * @param array $filter
      * @return bool
      */
-    public function deleteEvents($extension)
+    public function deleteEvents(array $filter)
     {
-        $model = $this->where('extension_name','=',$extension);
+        $model = $this;
+        foreach ($filter as $key => $value) {
+            $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
+        }
 
-        return (is_object($model) == true) ? $model->delete() : true;       
+        return (is_object($model) == true) ? $model->delete() : false;             
     }
 
     /**
      * Return true if event exist
      *
      * @param string $name
-     * @param integer $status
      * @return boolean
      */
-    public function hasEvent($name, $status = null)
+    public function hasEvent($name)
     {
-        $model = $this->where('name','=',$name);
-        if ($status != null) {
-            $model = $model->where('status','=',$status);
-        }
-        $model = $model->get();
-
+        $model = $this->where('name','=',$name)->get();
+      
         return !($model->isEmpty() == true);    
     }
 
     /**
-     * Add event.
+     * Add event to events db table.
      *
-     * @param array $event
+     * @param string $name
+     * @param string $title
+     * @param string $extension
+     * @param string $description
      * @return bool
      */
-    public function addEvent(array $event)
+    public function registerEvent($name, $title, $extension = null, $description = null)
     {
-        return ($this->hasEvent($event['name']) == true) ? false : $this->create($event);          
+        if ($this->hasEvent($name) == true) {
+            return false;
+        } 
+        $info = [
+            'name'           => $name,
+            'extension_name' => $extension,
+            'title'          => $title,
+            'description'    => $description
+        ];
+        $model = $this->create($info);
+         
+        return is_object($model);
     }   
 
     /**
-     * Disable all extension events. 
+     * Get events list
      *
-     * @param string $extension
-     * @return bool
+     * @param array $filter
+     * @return array
      */
-    public function disableExtensionEvents($extension) 
-    {  
-        return $this->changeEventStatus(null,$extension,Status::$DISABLED);
-    }
-
-    /**
-     * Enable all extension events.
-     *
-     * @param string $extension
-     * @return bool
-     */
-    public function enableExtensionEvents($extension) 
-    {  
-       return $this->changeEventStatus(null,$extension,Status::$ACTIVE);
-    }
-
-    /**
-     * Enable event
-     *
-     * @param string $eventName
-     * @return bool
-     */
-    public function enableEvent($eventName)
+    public function getEvents(array $filter = [])
     {
-        return $this->changeEventStatus($eventName,null,Status::$ACTIVE);
+        $model = $this;
+        foreach ($filter as $key => $value) {
+            $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
+        }
+
+        return (is_object($model) == true) ? $model->get()->toArray() : [];
     }
 
     /**
-     * Disable event
+     * Set events status
      *
-     * @param string $eventName
-     * @return bool
-     */
-    public function disableEvent($eventName)
-    {
-        return $this->changeEventStatus($eventName,null,Status::$DISABLED);
-    }
-
-    /**
-     * Change event status
-     *
-     * @param string $eventName
-     * @param string $extension
+     * @param array $filter
      * @param integer $status
-     * @return bool
+     * @return boolean
      */
-    private function changeEventStatus($eventName = null, $extension = null, $status) 
+    public function setEventsStatus(array $filter = [], $status)
     {
-        if ($eventName != null) {
-            $this->where('name','=',$eventName);
+        $model = $this;
+        foreach ($filter as $key => $value) {
+            $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
         }
-        if ($extension != null) {
-            $this->where('extension_name','=',$extension);
-        }
-        return $this->update(['status' => $status]);       
+
+        return (is_object($model) == true) ? $model->update(['status' => $status]) : false;
     }
 }

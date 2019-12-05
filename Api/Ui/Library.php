@@ -11,7 +11,7 @@ namespace Arikaim\Core\Api\Ui;
 
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Packages\Library\LibraryRepository;
-use Arikaim\Core\App\Path;
+use Arikaim\Core\Utils\Path;
 
 /**
  * Ui library upload Api controller

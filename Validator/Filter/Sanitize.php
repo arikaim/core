@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Validator\Filter;
 
 use Arikaim\Core\Validator\Filter;
-use  Arikaim\Core\Utils\Html;
+use Arikaim\Core\Utils\Html;
 
 /**
  * SanitizeRequest filter

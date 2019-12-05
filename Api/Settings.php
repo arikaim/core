@@ -10,7 +10,6 @@
 namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ApiController;
-use Arikaim\Core\Arikaim;
 
 /**
  * Settings controller
@@ -41,9 +40,9 @@ class Settings extends ApiController
         
         $debug = $data->get('debug',false);
        
-        Arikaim::config()->setBooleanValue('settings/debug',$debug);
+        $this->get('config')->setBooleanValue('settings/debug',$debug);
         // save and reload config file
-        $result = Arikaim::config()->save();
+        $result = $this->get('config')->save();
         $this->setResponse($result,'settings.save','errors.settings.save');
 
         return $this->getResponse();

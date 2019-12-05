@@ -9,8 +9,6 @@
 */
 namespace Arikaim\Core\View\Template;
 
-use Arikaim\Core\Arikaim;
-
 /**
  * Tmplate tests functions
  */
@@ -36,18 +34,6 @@ class Tests
     public static function isString($var)
     {
         return is_string($var);
-    }
-
-    /**
-     * Return true if current auth user have permission 
-     *
-     * @param string $name
-     * @param null|string|array $type
-     * @return boolean
-     */
-    public static function hasAccess($name, $type = null)
-    {
-        return Arikaim::access()->hasAccess($name,$type);
     }
 
     /**

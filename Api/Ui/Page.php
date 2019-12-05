@@ -9,11 +9,10 @@
 */
 namespace Arikaim\Core\Api\Ui;
 
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\App\Url;
+use Arikaim\Core\Http\Url;
 use Arikaim\Core\View\Html\HtmlComponent;
 
 /**
@@ -34,8 +33,8 @@ class Page extends ApiController
     {        
         $pageName = (empty($pageName) == true) ? $this->resolvePageName($request,$data) : $pageName;
 
-        $component = Arikaim::page()->render($pageName);
-        $files = Arikaim::page()->properties()->get('include.page.files',[]);
+        $component = $this->get('page')->render($pageName);
+        $files = $this->get('view')->properties()->get('include.page.files',[]);
 
         $result = [
             'html'       => $component->getHtmlCode(),
@@ -57,10 +56,10 @@ class Page extends ApiController
      */
     public function loadPageProperties($request, $response, $data)
     {       
-        $pageName = $data->get('name',Arikaim::page()->getCurrent());    
+        $pageName = $data->get('name',$this->get('page')->getCurrent());    
     
         $loader = Template::getLoader(); 
-        $loaderCode = (empty($loader) == false) ? HtmlComponent::loadComponent($loader) : "";
+        $loaderCode = (empty($loader) == false) ? $this->get('page')->createHtmlComponent($loader)->load() : "";
 
         $result['properties'] = [
             'name'              => $pageName,            
@@ -68,9 +67,9 @@ class Page extends ApiController
             'loader'            => $loaderCode,  
             'loader_name'       => $loader,
             'library'           => Template::getLibraries(),
-            'language'          => Template::getLanguage(),     
+            'language'          => HtmlComponent::getLanguage(),     
             'default_language'  => Model::Language()->getDefaultLanguage(),   
-            'site_url'          => Url::ARIKAIM_BASE_URL
+            'site_url'          => Url::BASE_URL
         ];
 
         return $this->setResult($result)->getResponse();       

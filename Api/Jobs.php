@@ -10,7 +10,6 @@
 namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ApiController;
-use Arikaim\Core\Arikaim;
 
 /**
  * Jobs controller
@@ -42,7 +41,7 @@ class Jobs extends ApiController
         $this->onDataValid(function($data) {       
             $uuid = $data->get('uuid');
 
-            $job = Arikaim::queue()->findById($uuid);
+            $job = $this->get('queue')->findById($uuid);
             $result = (is_object($job) == true) ? $job->delete() : false;
 
             $this->setResponse($result,function() use($uuid) {                  
@@ -70,7 +69,7 @@ class Jobs extends ApiController
             $uuid = $data->get('uuid');  
             $status = $data->get('status',1);
 
-            $job = Arikaim::queue()->findById($uuid);
+            $job = $this->get('queue')->findById($uuid);
             $result = (is_object($job) == true) ? $job->setStatus($status) : false;
           
             $this->setResponse($result,function() use($job) {                  

@@ -14,8 +14,8 @@ use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Models\Users;
 use Arikaim\Core\Models\UserGroups;
 
-use Arikaim\Core\Traits\Db\Uuid;
-use Arikaim\Core\Traits\Db\DateCreated;
+use Arikaim\Core\Db\Traits\Uuid;
+use Arikaim\Core\Db\Traits\DateCreated;
 
 /**
  * User groups details database model

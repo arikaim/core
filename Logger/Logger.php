@@ -11,11 +11,12 @@ namespace Arikaim\Core\Logger;
 
 use Monolog\Logger as MonologLogger;
 use Monolog\Handler\StreamHandler;
+use Monolog\Handler\AbstractHandler;
+use Monolog\Formatter\FormatterInterface;
 
 use Arikaim\Core\Utils\File;
 use Arikaim\Core\Logger\JsonLogsFormatter;
 use Arikaim\Core\Logger\LogsProcessor;
-use Arikaim\Core\App\Path;
 
 /**
  * Logger
@@ -44,36 +45,86 @@ class Logger
     private $fileName;
 
     /**
+     * Logs directory
+     *
+     * @var string
+     */
+    private $logsDir;
+
+    /**
+     * Logs Formatter
+     *
+     * @var FormatterInterface
+     */
+    private $formatter;
+
+    /**
+     * Logs handler
+     *
+     * @var AbstractHandler
+     */
+    private $handler;
+
+    /**
      * Constructor
      *
-     * @param boolean $enabled
+     * @param string $logsDir
+     * @param AbstractHandler $handler
+     * @param FormatterInterface $formatter
      * @param string $fileName
      */
-    public function __construct($enabled = false, $fileName = null) 
+    public function __construct($logsDir, AbstractHandler $handler = null, FormatterInterface $formatter = null, $fileName = null) 
     {         
-        $fileName = (empty($fileName) == true) ? "errors.log" : $fileName;
-        $this->fileName = Path::LOGS_PATH . "errors.log"; 
-        $this->enabled = $enabled;
+        $this->fileName = (empty($fileName) == true) ? "errors.log" : $fileName;
+        $this->logsDir = $logsDir;      
+        $this->enabled = true;
+        $this->handler = (empty($handler) == true) ? new StreamHandler($this->getLogsFileName(), MonologLogger::DEBUG) : $handler;
+        $this->formatter = (empty($formatter) == true) ? new JsonLogsFormatter() : $formatter;
+        $this->handler->setFormatter($this->formatter); 
 
-        $this->init();
+        $this->logger = new MonologLogger('system');                
+        $this->logger->pushHandler($this->handler);
+        $this->logger->pushProcessor(new LogsProcessor());         
     }
 
     /**
-     * Create logger
+     * Disable logger
      *
      * @return void
      */
-    protected function init()
+    public function disable()
     {
-        // init
-        $this->logger = new MonologLogger('system');            
-        $handler = new StreamHandler($this->fileName, MonologLogger::DEBUG);
-        $jsonFormat = new JsonLogsFormatter();            
-        $handler->setFormatter($jsonFormat); 
+        $this->enabled = false;
+    }
 
-        $proccesssor = new LogsProcessor();
-        $this->logger->pushHandler($handler);
-        $this->logger->pushProcessor($proccesssor);   
+    /**
+     * Get formatter
+     *
+     * @return FormatterInterface
+     */
+    public function getFrmatter()
+    {
+        return $this->formatter;
+    }
+
+    /**
+     * Get handler
+     *
+     * @return AbstractHandler
+     */
+    public function getHandler()
+    {
+        return $this->handler;
+    }
+
+    /**
+     * Get logs file name
+     *
+     * @return string
+     */
+    public function getLogsFileName()
+    {
+        return $this->logsDir . $this->fileName;
     }
 
     /**
@@ -83,7 +134,7 @@ class Logger
      */
     public function deleteSystemLogs()
     {
-        return (File::exists($this->fileName) == false) ? true : File::delete($this->fileName);
+        return (File::exists($this->getLogsFileName()) == false) ? true : File::delete($this->getLogsFileName());
     }
 
     /**
@@ -93,7 +144,7 @@ class Logger
      */
     public function readSystemLogs()
     {       
-        $text ="[" . File::read($this->fileName);      
+        $text ="[" . File::read($this->getLogsFileName());      
         $text = rtrim($text,",\n");
         $text .="]\n";
 

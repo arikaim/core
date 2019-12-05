@@ -9,9 +9,6 @@
 */
 namespace Arikaim\Core\Middleware;
 
-use Arikaim\Core\Db\Model;
-use Arikaim\Core\Arikaim;
-
 /**
  *  Middleware base class
  */
@@ -68,35 +65,5 @@ class Middleware
     {
         $this->setParam($name,$value);
         return $this;
-    }
-
-    /**
-     * Resolve auth error,  redirect or show error page
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @param \Psr\Http\Message\ResponseInterface|null $response
-     * @return void
-     */
-    protected function resolveAuthError($request, $response = null)
-    {
-        $response = ($response == null) ? Arikaim::$app->handle($request) : $response;
-        $route = $request->getAttribute('route');  
-        if (is_object($route) == true) {
-            $pattern = $route->getPattern();
-            $routeModel = Model::Routes()->getRoute('GET',$pattern);
-
-            if (is_object($routeModel) == true) {
-                $model = Model::Routes()->getAuthErrorRoute($routeModel->extension_name,$routeModel->auth);
-                if (is_object($model) == true) {
-                    if (empty($model->redirect_url) == false) {                       
-                        return $response->withRedirect($model->getRedirectUrl());
-                    }                    
-                    return Arikaim::page()->load($model->getPageName());
-                }
-            }         
-        }
-        Arikaim::errors()->AddError('AUTH_FAILED');
-        
-        return Arikaim::page()->loadSystemError();       
     }
 }

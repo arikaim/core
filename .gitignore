@@ -7,3 +7,15 @@ System/
 Access/
 Interfaces/
 Cache/
+View/
+Storage/
+Db/
+Events/
+Validator/
+Controllers/
+Logger/
+Driver/
+Packages/
+Queue/
+Mail/
+Routes/

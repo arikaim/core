@@ -11,11 +11,11 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-use Arikaim\Core\Traits\Db\Uuid;
-use Arikaim\Core\Traits\Db\Position;
-use Arikaim\Core\Traits\Db\Find;
-use Arikaim\Core\Traits\Db\Status;
-use Arikaim\Core\Traits\Db\DefaultTrait;
+use Arikaim\Core\Db\Traits\Uuid;
+use Arikaim\Core\Db\Traits\Position;
+use Arikaim\Core\Db\Traits\Find;
+use Arikaim\Core\Db\Traits\Status;
+use Arikaim\Core\Db\Traits\DefaultTrait;
 
 /**
  * Language database model

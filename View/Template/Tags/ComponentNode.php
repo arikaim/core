@@ -46,6 +46,7 @@ class ComponentNode extends Node implements NodeOutputInterface
         $exportedParams = var_export($params, true);
 
         $count = count($this->getNode('body'));
+        $compiler->write("\$componentName = '$componentName';")->raw(PHP_EOL);
         $compiler->write("\$params = $exportedParams;")->raw(PHP_EOL);
         $compiler->write("\$context = array_merge(\$context,\$params);")->raw(PHP_EOL);
         $compiler->write('ob_start();')->raw(PHP_EOL);
@@ -58,6 +59,6 @@ class ComponentNode extends Node implements NodeOutputInterface
                 $compiler->subcompile($item,true);
             }          
         }
-        $compiler->raw("echo \\Arikaim\\Core\\View\\Html\\HtmlComponent::loadComponent('$componentName',\$context);" . PHP_EOL);
+        $compiler->write('echo $this->env->getExtension("Arikaim\\Core\\View\\Template\\Extension")->loadComponent($componentName,$context);' . PHP_EOL);
     }
 }

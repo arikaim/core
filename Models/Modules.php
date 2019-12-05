@@ -11,18 +11,21 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-use Arikaim\Core\Traits\Db\Uuid;
-use Arikaim\Core\Traits\Db\Status;
-use Arikaim\Core\Traits\Db\Find;
-use Arikaim\Core\Packages\Module\ModulePackage;
+use Arikaim\Core\Packages\Interfaces\PackageRegistryInterface;
+
+use Arikaim\Core\Db\Traits\Uuid;
+use Arikaim\Core\Db\Traits\Status;
+use Arikaim\Core\Db\Traits\Find;
+use Arikaim\Core\Db\Traits\PackageRegistry;
 
 /**
  * Modules database model
  */
-class Modules extends Model  
+class Modules extends Model implements PackageRegistryInterface
 {
     use Uuid,
         Find,
+        PackageRegistry,
         Status;
 
     /**
@@ -97,88 +100,5 @@ class Modules extends Model
     public function getConfigAttribute()
     {
         return (empty($this->attributes['config']) == true) ? [] : json_decode($this->attributes['config'],true);
-    }
-
-    /**
-     * Return true if module record exist.
-     *
-     * @param string $name
-     * @return boolean
-     */
-    public function isInstalled($name)
-    {
-        $model = $this->where('name','=',$name); 
-        return is_object($model->first());
-    }
-
-    /**
-     * Get module status
-     *
-     * @param string $name
-     * @return integer
-     */
-    public function getStatus($name)
-    {
-        $model = $this->where('name','=',$name)->first();       
-        return (is_object($model) == false) ? 0 : $model->status;            
-    }
-
-    /**
-     * Set module status
-     *
-     * @param string $name
-     * @param integer $status
-     * @return bool
-     */
-    public function setStatus($name, $status)
-    {
-        $model = $this->findByColumn($name,'name');
-        return (is_object($model) == true) ? $model->update(['status' => $status]) : false;         
-    }
-
-    /**
-     * Return modules list
-     *
-     * @param integer|string $type
-     * @param integer $status
-     * @return array
-     */
-    public function getList($type = null, $status = null)
-    {          
-        if (is_string($type) == true) {
-            $type = ModulePackage::getTypeId($type);
-        }
-        $model = $this;
-        if ($type !== null) {
-            $model = $model->where('type','=',$type);
-        }  
-        if ($status !== null) {
-            $model = $model->where('status','=',$status);
-        }
-        $model = $model->get();
-        
-        return (is_object($model) == true) ? $model->toArray() : [];
-    }
-
-    /**
-     * Disable module
-     *
-     * @param string $name
-     * @return bool
-     */
-    public function disable($name)
-    {        
-        return $this->setStatus($name,Status::$DISABLED);
-    }
-
-    /**
-     * Enable module
-     *
-     * @param string $name
-     * @return bool
-     */
-    public function enable($name)
-    {
-        return $this->setStatus($name,Status::$ACTIVE);
     }
 }

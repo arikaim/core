@@ -7,7 +7,7 @@
  * @license     http://www.arikaim.com/license
  * 
  */
-namespace Arikaim\Core\Packages\Module;
+namespace Arikaim\Core\Extension;
 
 use Arikaim\Core\Interfaces\ModuleInterface;
 use Arikaim\Core\Db\Model;

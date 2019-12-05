@@ -10,7 +10,6 @@
 namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ApiController;
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Queue\Cron;
 use Arikaim\Core\Queue\QueueWorker;
 

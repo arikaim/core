@@ -11,13 +11,8 @@ namespace Arikaim\Core\Controllers;
 
 use Psr\Http\Message\ResponseInterface;
 
-use Arikaim\Core\Arikaim;
-use Arikaim\Core\App\Url;
-use Arikaim\Core\Db\Model;
-use Arikaim\Core\Access\Access;
+use Arikaim\Core\Http\Url;
 use Arikaim\Core\Collection\Arrays;
-use Arikaim\Core\View\Template\Template;
-use Arikaim\Core\Validator\Validator;
 use Arikaim\Core\View\Html\HtmlComponent;
 
 /**
@@ -25,22 +20,12 @@ use Arikaim\Core\View\Html\HtmlComponent;
 */
 class Controller
 {
-    const PAGE = 1;
-    const API  = 2;
-
     /**
      * Extension name
      *
      * @var string|null
      */
     protected $extensionName;   
-
-    /**
-     * Controller type API or PAGE
-     *
-     * @var integer
-     */
-    protected $type;
 
     /**
      * Response messages
@@ -50,14 +35,52 @@ class Controller
     protected $messages;
 
     /**
+     * Container
+     *
+     * @var Container
+     */
+    protected $container;
+
+    /**
+     * Undocumented variable
+     *
+     * @var Model
+     */
+    protected $routes;
+
+    /**
      * Constructor
      */
-    public function __construct()
+    public function __construct($container)
     { 
-        $this->extensionName = Arikaim::getContainer()->getItem('contoller.extension');
-        $this->type = Controller::PAGE;
+        $this->extensionName = $container->getItem('contoller.extension');
         $this->messages = [];
+        $this->container = $container;
+        $this->routes = ($container->has('routes') == true) ? $container->get('routes') : null;
+
         $this->init();
+    }
+
+    /**
+     * Get item from container
+     *
+     * @param string $id
+     * @return mixed
+     */
+    public function get($id)
+    {
+        return $this->container->get($id);
+    }
+
+    /**
+     * Return tru if container item esist
+     *
+     * @param string $id
+     * @return mixed
+     */
+    public function has($id)
+    {
+        return $this->container->has($id);
     }
 
     /**
@@ -92,7 +115,11 @@ class Controller
         $message = $this->getMessage($name);
         $message = (empty($message) == true) ? $name : $message;
         
-        return Arikaim::errors()->addError($message);
+        if ($this->has('errors') == true) {
+            return $this->get('errors')->addError($message);
+        }
+        
+        return false;
     }
 
     /**
@@ -105,7 +132,7 @@ class Controller
     public function getUrl($request, $relative = false)
     {
         $path = $request->getUri()->getPath();
-        return ($relative == true ) ? $path : Url::ARIKAIM_BASE_URL . '/' . $path;
+        return ($relative == true ) ? $path : Url::BASE_URL . '/' . $path;
     }
 
     /**
@@ -126,7 +153,7 @@ class Controller
      */
     public function loadMessages($componentName, $language = null)
     {
-        $messages = HtmlComponent::getProperties($componentName,$language);
+        $messages = $this->get('page')->createHtmlComponent($componentName,[],$language)->getProperties();
         $this->messages = (is_object($messages) == true) ? $messages->toArray() : [];
     }
 
@@ -148,7 +175,7 @@ class Controller
      */
     public function user()
     {
-        return Arikaim::access()->getUser();
+        return ($this->has('access') == true) ? $this->get('access')->getUser() : false;         
     }
 
     /**
@@ -162,7 +189,9 @@ class Controller
         $function = function($event) use(&$callback) {
             return $callback($event->toArray());
         };
-        Arikaim::event()->subscribeCallback('validator.error',$function,true);
+        if ($this->has('event') == true) {
+            $this->get('event')->subscribeCallback('validator.error',$function,true);
+        }   
     }
     
     /**
@@ -176,7 +205,9 @@ class Controller
         $function = function($event) use(&$callback) {
             return $callback($event->toCollection());
         };
-        Arikaim::event()->subscribeCallback('validator.valid',$function,true);
+        if ($this->has('event') == true) {
+            $this->get('event')->subscribeCallback('validator.valid',$function,true);
+        }
     }
 
     /**
@@ -190,6 +221,7 @@ class Controller
         $params = explode('/', $request->getAttribute('params'));
         $params = array_filter($params);
         $vars = $request->getQueryParams();
+
         return array_merge($params, $vars);       
     }
 
@@ -200,7 +232,11 @@ class Controller
      */
     public function requireControlPanelPermission()
     {
-        return $this->requireAccess(Access::CONTROL_PANEL,Access::FULL);
+        if ($this->has('access') == false) {
+            return false;
+        }
+
+        return $this->requireAccess($this->get('access')->getControlPanelPermission(),$this->get('access')->getFullPermissions());
     }
     
     /**
@@ -211,26 +247,18 @@ class Controller
      * @return bool
      */
     public function requireAccess($name, $type = null)
-    {
-        $result = Arikaim::access()->hasAccess($name,$type);  
-        if ($result == true) {
+    {       
+        if ($this->has('access') == false) {
+            return false;
+        }
+
+        if ($this->get('access')->hasAccess($name,$type) == true) {
             return true;
         }
-        
-        // access denied response
-        switch ($this->type) {
-            case Controller::API: {    
-                $this->setError(Arikaim::getError("AUTH_FAILED"));                        
-                Arikaim::$app->respond($this->getResponse()); 
-                Arikaim::end();       
-            }   
-            default: {
-                $response = Arikaim::page()->loadSystemError();
-                Arikaim::$app->respond($response); 
-                Arikaim::end(); 
-            }         
-        }
-        return false;
+        $response = $this->get('errors')->loadSystemError($this->response);
+        Response::emit($response); 
+          
+        exit();
     }
 
     /**
@@ -241,14 +269,7 @@ class Controller
     */
     public function getPageLanguage($data)
     {
-        if (isset($data['language']) == true) {
-            $language = $data['language'];
-            if (Model::Language()->has($language,true) == false) {
-                return false;
-            }
-            Template::setLanguage($language);
-        }     
-        return Template::getLanguage();
+        return (isset($data['language']) == true) ? $data['language'] : HtmlComponent::getLanguage();           
     }
 
     /**
@@ -256,7 +277,7 @@ class Controller
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param \Psr\Http\Message\ResponseInterface $response
-     * @param Validator $data   
+     * @param CollectionInterface $data   
      * @param string|null $name Page name  
      * @return Psr\Http\Message\ResponseInterface
     */
@@ -264,62 +285,62 @@ class Controller
     {       
         $language = $this->getPageLanguage($data);
         if (empty($pageName) == true) {
-            $pageName = (isset($data['page_name']) == true) ? $data['page_name'] : $this->resolvePageName($request,$data);
+            $pageName = (isset($data['page_name']) == true) ? $data['page_name'] : $this->resolvePageName($request);
         } 
       
         $data = (is_object($data) == true) ? $data->toArray() : $data;
         if (empty($pageName) == true) {
-            return Arikaim::page()->loadPageNotFound($data,$language);    
+            return $this->get('errors')->loadPageNotFound($response,$data,$language);    
         } 
         
-        return Arikaim::page()->load($pageName,$data,$language,$response);
+        return $this->get('page')->load($response,$pageName,$data,$language);
     }
 
     /**
      * Resolve page name
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @param Validator $data    
+     * @param \Psr\Http\Message\ServerRequestInterface $request 
      * @return string|null
      */
-    protected function resolvePageName($request, $data)
+    protected function resolvePageName($request)
     {            
         // try from reutes db table
         $route = $request->getAttribute('route');  
-        $pageName = null;
-        if (is_object($route) == true) {
+        if ((is_object($route) == true) && ($this->has('routes') == true)) {
             $pattern = $route->getPattern();          
-            $model = Model::Routes()->getRoute('GET',$pattern);            
-            $pageName = (is_object($model) == false) ? null : $model->getPageName();             
+            $routeData = $this->get('routes')->getRoute('GET',$pattern);            
+            return (is_array($routeData) == true) ? $routeData['page_name'] : null;             
         } 
 
-        return $pageName;
+        return null;
     }
 
     /**
      * Display page not found
      *    
+     * @param ResponseInterface $response
      * @param array $data
      * @return Psr\Http\Message\ResponseInterface
      */
-    public function pageNotFound($data = [])
+    public function pageNotFound($response, $data = [])
     {     
         $language = $this->getPageLanguage($data);
 
-        return Arikaim::page()->loadPageNotFound($data,$language,$this->getExtensionName());    
+        return $this->get('errors')->loadPageNotFound($response,$data,$language,$this->getExtensionName());    
     }
 
     /**
      * Display system error page
      *    
+     * @param ResponseInterface $response
      * @param array $data
      * @return Psr\Http\Message\ResponseInterface
      */
-    public function systemErrorPage($data = [])
+    public function systemErrorPage($response, $data = [])
     {     
         $language = $this->getPageLanguage($data);
 
-        return Arikaim::page()->loadSystemError($data,$language,$this->getExtensionName());    
+        return $this->get('errors')->loadSystemError($response,$data,$language,$this->getExtensionName());    
     }
 
     /**
@@ -332,6 +353,7 @@ class Controller
     public function writeXml(ResponseInterface $response, $xml)
     {
         $response->getBody()->write($xml);
+
         return $response->withHeader('Content-Type','text/xml');
     }
 }

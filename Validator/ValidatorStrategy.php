@@ -19,6 +19,31 @@ use Slim\Interfaces\InvocationStrategyInterface;
 class ValidatorStrategy implements InvocationStrategyInterface
 {
     /**
+     * Events dispacher
+     *
+     * @var EventDispatcherInterfaceype
+     */
+    private $eventDispatcher; 
+
+    /**
+     * System Errors
+     *
+     * @var SystemErrorInterface
+     */
+    private $systemErrors;
+
+    /**
+     * Constructor
+     *
+     * @param EventDispatcherInterfaceype $eventDispatcher
+     */
+    public function __construct($eventDispatcher = null, $systemErrors = null)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+        $this->systemErrors = $systemErrors;
+    }
+
+    /**
      * Invoke a route callable with request, response, Validator with rote parameters.
      * 
      * @param array|callable         $callable
@@ -36,7 +61,7 @@ class ValidatorStrategy implements InvocationStrategyInterface
         $body = $request->getParsedBody();
         $body = (is_array($body) == false) ? [] : $body;
         $data = array_merge($routeArguments,$body);
-        $validator = new Validator($data);
+        $validator = new Validator($data,$this->eventDispatcher,$this->systemErrors);
 
         return $callable($request, $response, $validator, $routeArguments);
     }

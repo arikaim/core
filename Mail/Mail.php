@@ -10,10 +10,9 @@
 namespace Arikaim\Core\Mail;
 
 use Arikaim\Core\Mail\Interfaces\MailInterface;
-
-use Arikaim\Core\Arikaim;
+use Arikaim\Core\Interfaces\MailerInterface;
+use Arikaim\Core\Interfaces\View\HtmlPageInterface;
 use Arikaim\Core\Utils\Utils;
-use Arikaim\Core\View\Html\HtmlComponent;
 
 /**
  * Mail base class
@@ -28,10 +27,26 @@ class Mail implements MailInterface
     protected $message;
 
     /**
+     * Mailer
+     *
+     * @var MailerInterface
+     */
+    private $mailer;
+
+    /**
+     * Html page
+     *
+     * @var HtmlPageInterface
+     */
+    private $page;
+
+    /**
      * Constructor
      */
-    public function __construct()
+    public function __construct(MailerInterface $mailer, HtmlPageInterface $page = null)
     {
+        $this->mailer = $mailer;
+        $this->page = $page;
         $this->message = new \Swift_Message();
         $this->setDefaultFrom();
     } 
@@ -43,11 +58,12 @@ class Mail implements MailInterface
      */
     public function setDefaultFrom()
     {
-        $from = Arikaim::options()->get('mailer.from.email',null);
-        $fromName = Arikaim::options()->get('mailer.from.name',null);
+        $from = $this->mailer->getOptions()->get('mailer.from.email',null);
+        $fromName = $this->mailer->getOptions()->get('mailer.from.name',null);
         if (empty($from) == false) {
             $this->from($from,$fromName);
         }
+
         return $this;
     }
 
@@ -75,19 +91,9 @@ class Mail implements MailInterface
     }
 
     /**
-     * Return facade class name
-     *
-     * @return string
-     */
-    public static function getInstanceClass()
-    {
-        return "Arikaim\Core\Mail\Mail";
-    }
-
-    /**
      * Build email
      *
-     * @return Mial
+     * @return Mail
      */
     public function build()
     {
@@ -103,6 +109,7 @@ class Mail implements MailInterface
     public function subject($subject)
     {
         $this->message->setSubject($subject);
+
         return $this;
     }
 
@@ -116,6 +123,7 @@ class Mail implements MailInterface
     {
         $attachment = Swift_Attachment::fromPath($file);
         $this->message->attach($attachment);
+
         return $this;
     }
 
@@ -141,7 +149,8 @@ class Mail implements MailInterface
      */
     public function to($email, $name = null)
     {        
-        $this->message->setTo($email,$name);        
+        $this->message->setTo($email,$name);   
+
         return $this;
     }
 
@@ -155,6 +164,7 @@ class Mail implements MailInterface
     public function replyTo($email, $name = null)
     {
         $this->message->setReplyTo($email,$name);
+
         return $this;
     }
 
@@ -168,6 +178,7 @@ class Mail implements MailInterface
     public function cc($email, $name = null)
     {
         $this->message->setCc($email,$name);
+
         return $this;
     }
 
@@ -181,6 +192,7 @@ class Mail implements MailInterface
     public function bcc($email, $name = null)
     {
         $this->message->setBcc($email,$name);
+
         return $this;
     }
 
@@ -193,6 +205,7 @@ class Mail implements MailInterface
     public function priority($priority = 3)
     {
         $this->message->setPriority($priority);
+
         return $this;
     }
     
@@ -217,6 +230,7 @@ class Mail implements MailInterface
     public function contentType($type = "text/plain")
     {
         $this->message->setContentType($type);
+
         return $this;
     }
 
@@ -249,7 +263,11 @@ class Mail implements MailInterface
      */
     public function loadComponent($componentName, $params = [])
     {
-        $component = HtmlComponent::renderComponent($componentName,$params,null,false);
+        if (is_object($this->page) == false) {
+            return $this;
+        }
+
+        $component = $this->page->createHtmlComponent($componentName,$params,null,false)->renderComponent();
         $properties = $component->getProperties();
         $body = $component->getHtmlCode();
 
@@ -277,7 +295,7 @@ class Mail implements MailInterface
      */
     public function send() 
     {
-        return Arikaim::mailer()->send($this);
+        return $this->mailer->send($this);
     }
 
     /**
@@ -285,8 +303,8 @@ class Mail implements MailInterface
      *
      * @return string
      */
-    public static function getError()
+    public function getError()
     {
-        return  Arikaim::mailer()->getErrorMessage();
+        return $this->mailer->getErrorMessage();
     }
 }

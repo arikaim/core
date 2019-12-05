@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Controllers;
 
 use Arikaim\Core\Http\ApiResponse;
-use Arikaim\Core\Arikaim;
+use Arikaim\Core\Http\Response;
 use Arikaim\Core\Controllers\Controller;
 
 /**
@@ -21,7 +21,7 @@ class ApiController extends Controller
     /**
      * Api response
      *
-     * @var object
+     * @var ApiResponse
      */
     protected $response;
 
@@ -35,12 +35,13 @@ class ApiController extends Controller
     /**
      * Constructor
      */
-    public function __construct() 
+    public function __construct($container) 
     {
-        parent::__construct();
-        $this->type = Controller::API;
-        $this->response = new ApiResponse(Arikaim::settings('debug'),Arikaim::response());  
-           
+        parent::__construct($container);
+
+        $debug = $container->get('config')->get('debug',false);
+        $this->response = new ApiResponse($debug,Response::create());  
+
         // set default validator error callback
         $this->onValidationError(function ($errors) {
             $this->setErrors($errors);
@@ -95,7 +96,7 @@ class ApiController extends Controller
         $message = $this->getMessage($name);
         if (empty($message) == true) {
             // check for system error
-            $message = Arikaim::errors()->get($name,null);
+            $message = $this->get('errors')->get($name,null);
         }
         $message = (empty($message) == true) ? $name : $message;
         
@@ -132,6 +133,7 @@ class ApiController extends Controller
             $message = $this->getMessage($data);
             $data = (empty($message) == true) ? $data : $message;
         }
+        
         return $this->response->setResponse($condition,$data,$error);
     }
 
@@ -172,5 +174,28 @@ class ApiController extends Controller
     public function getResponse($raw = false)
     {
         return $this->response->getResponse($raw);
+    }
+
+    /**
+     * Reguire permission check if current user have permission
+     *
+     * @param string $name
+     * @param mixed $type
+     * @return bool
+     */
+    public function requireAccess($name, $type = null)
+    {       
+        if ($this->has('access') == false) {
+            return false;
+        }
+        
+        if ($this->get('access')->hasAccess($name,$type) == true) {
+            return true;
+        }
+        
+        $this->setError($this->get('errors')->getError("AUTH_FAILED"));                        
+        Response::emit($this->getResponse()); 
+
+        exit();       
     }
 }

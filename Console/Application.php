@@ -11,7 +11,7 @@ namespace Arikaim\Core\Console;
 
 use Symfony\Component\Console\Application as ConsoleApplication;
 
-use Arikaim\Core\App\Factory;
+use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\System\System;
 use Arikaim\Core\Arikaim;
@@ -68,7 +68,10 @@ class Application
      */
     public function loadExtensionsCommands()
     {
-        $extensions = Model::Extensions()->getActive()->get();
+        $extensions = Arikaim::packages()->create('extension')->getPackgesRegistry()->getPackagesList([
+            'status' => 1    
+        ]); 
+
         foreach ($extensions as $extension) {
             $this->addCommands($extension->console_commands);
         }
@@ -81,7 +84,9 @@ class Application
      */
     public function loadModulesCommands()
     {
-        $modules = Model::Modules()->getList(null,1);
+        $modules = Arikaim::packages()->create('module')->getPackgesRegistry()->getPackagesList([
+            'status' => 1    
+        ]);         
         foreach ($modules as $module) {
             $this->addCommands($module['console_commands']);
         }

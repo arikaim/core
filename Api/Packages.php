@@ -10,13 +10,10 @@
 namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ApiController;
-use Arikaim\Core\Packages\PackageManagerFactory;
 use Arikaim\Core\Packages\PackageManager;
-use Arikaim\Core\Packages\Template\TemplatesManager;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\View\Theme;
 use Arikaim\Core\View\Template\Template;
-use Arikaim\Core\Arikaim;
 
 /**
  * Packages controller
@@ -48,7 +45,7 @@ class Packages extends ApiController
         $this->onDataValid(function($data) {            
             $type = $data->get('type',null);
             $name = $data->get('package',null);
-            $packageManager = PackageManagerFactory::create($type);
+            $packageManager = $this->get('packages')->create($type);
 
             if ($type != PackageManager::LIBRARY_PACKAGE) {
                 // create package backup
@@ -60,7 +57,7 @@ class Packages extends ApiController
           
             $this->setResponse($result,function() use($name,$type) {  
                 // clear cache    
-                Arikaim::cache()->clear();            
+                $this->get('cache')->clear();            
                 $this
                     ->message($type . '.install')
                     ->field('type',$type)   
@@ -86,7 +83,7 @@ class Packages extends ApiController
             $type = $data->get('type',null);
             $name = $data->get('name',null);
 
-            $packageManager = PackageManagerFactory::create($type);
+            $packageManager = $this->get('packages')->create($type);
             $result = $packageManager->unInstallPackage($name);
 
             $this->setResponse($result,function() use($name,$type) {                  
@@ -115,7 +112,7 @@ class Packages extends ApiController
             $type = $data->get('type',null);
             $name = $data->get('name',null);
 
-            $packageManager = PackageManagerFactory::create($type);
+            $packageManager = $this->get('packages')->create($type);
             $result = $packageManager->installPackage($name);
 
             $this->setResponse($result,function() use($name,$type) {                  
@@ -144,7 +141,7 @@ class Packages extends ApiController
             $type = $data->get('type',null);
             $name = $data->get('name',null);
 
-            $packageManager = PackageManagerFactory::create($type);            
+            $packageManager = $this->get('packages')->create($type);            
             $package = $packageManager->createPackage($name);
 
             $package->unInstall();
@@ -177,7 +174,7 @@ class Packages extends ApiController
             $name = $data->get('name',null);
             $status = $data->get('status',1);
 
-            $packageManager = PackageManagerFactory::create($type);            
+            $packageManager = $this->get('packages')->create($type);            
           
             $result = ($status == 1) ? $packageManager->enablePackage($name) : $packageManager->disablePackage($name);
             $stausLabel = ($status == 1) ? 'enable' : 'disable';
@@ -255,23 +252,24 @@ class Packages extends ApiController
         $this->requireControlPanelPermission();
         
         $this->onDataValid(function($data) { 
+            $name = $data['name'];
             $current = Template::getTemplateName();
-            $templates = new TemplatesManager();
+            $packageManager = $this->get('packages')->create('template');            
 
             // uninstall current template routes 
-            $result = $templates->unInstallPackage($current);
+            $package = $packageManager->createPackage($current);
+            $result = $package->unInstall();
+          
             // install new template routes
-            $result = $templates->installPackage($data['name']);
-            if ($result == false) {
-                // roll back current template
-                $templates->installPackage($current);
-                $this->error('errors.template.current');
-            } else {                
+            $package = $packageManager->createPackage($name);
+            $result = $package->install($name);
+
+            $this->setResponse($result,function() use($name) {         
+                Template::setTemplateName($name);      
                 $this
                     ->message('template.current')
-                    ->field('name',$data['name']);
-            }
-            
+                    ->field('name',$name);         
+            },'errors.template.current'); 
         });
         $data->validate();            
     }

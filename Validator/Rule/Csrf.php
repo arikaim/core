@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Validator\Rule;
 
 use Arikaim\Core\Validator\Rule;
-use  Arikaim\Core\Access\Csrf as CsrfToken;
+use Arikaim\Core\Access\Csrf as CsrfToken;
 
 /**
  * Csrf token field rule 

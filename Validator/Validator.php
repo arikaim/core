@@ -9,11 +9,12 @@
  */
 namespace Arikaim\Core\Validator;
 
+use Arikaim\Core\Interfaces\Events\EventDispatcherInterface;
+use Arikaim\Core\Interfaces\SystemErrorInterface;
 use Arikaim\Core\Collection\Collection;
 use Arikaim\Core\Validator\Rule;
 use Arikaim\Core\Validator\FilterBuilder;
 use Arikaim\Core\Validator\RuleBuilder;
-use Arikaim\Core\Arikaim;
 
 /**
  * Data validation
@@ -63,30 +64,33 @@ class Validator extends Collection
     private $callback;
 
     /**
+     * Event Dispatcher
+     *
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * System errors
+     *
+     * @var SystemErrorInterface
+     */
+    private $systemErrors;
+
+    /**
      * Constructor
      * 
      * @param array $data
      */
-    public function __construct($data = []) 
+    public function __construct($data = [], EventDispatcherInterface $eventDispatcher = null, SystemErrorInterface $systemErrors = null) 
     {
         parent::__construct($data);
         
         $this->rules = [];
         $this->errors = [];
         $this->filters = [];
-    }
-
-    /**
-     * Create instance
-     *
-     * @param array $data
-     * @return object
-     */
-    public static function create($data)
-    {
-        $data = (is_array($data) == false) ? [$data] : $data;
-
-        return new Self($data);
+        $this->eventDispatcher = $eventDispatcher;
+        $this->systemErrors = $systemErrors;
     }
 
     /**
@@ -206,12 +210,34 @@ class Validator extends Collection
         foreach ($rules as $rule) {    
             $valid = $this->validateRule($rule,$value);
             if ($valid == false) {
-                $this->setError($fieldName,$rule->getErrorMessage(['field_name' => $fieldName])); 
+                // ['field_name' => $fieldName]
+                $errorMessage = $this->resolveErrorMessage($rule,$fieldName);
+                $this->addError($fieldName,$errorMessage); 
                 $errors++;              
             }
         }
 
         return ($errors == 0);
+    }
+
+    /**
+     * Return error message
+     *
+     * @param Rule $rule
+     * @return string $fieldName
+     */
+    public function resolveErrorMessage($rule, $fieldName) 
+    {
+        $errorCode = $rule->getError();
+        if (is_object($this->systemErrors) == false) {
+            return $errorCode;
+        }  
+        $params = $rule->getErrorParams();
+        $params['field_name'] = $fieldName;
+
+        $errorMessage = $this->systemErrors->getError($errorCode,$params,null);
+
+        return (empty($errorMessage) == true) ? $errorCode : $errorMessage;              
     }
 
     /**
@@ -260,13 +286,18 @@ class Validator extends Collection
         $valid = $this->isValid();
         if ($valid == true) {
             // run events callback
-            Arikaim::event()->dispatch('validator.valid',$this->data,true);
+            if (is_object($this->eventDispatcher) == true) {
+                $this->eventDispatcher->dispatch('validator.valid',$this->data,true);
+            }
+          
             if (empty($this->onValid) == false) {
                 $this->onValid->call($this,$this->data);
             }          
         } else {
             // run events callback
-            Arikaim::event()->dispatch('validator.error',$this->getErrors(),true);
+            if (is_object($this->eventDispatcher) == true) {
+                $this->eventDispatcher->dispatch('validator.error',$this->getErrors(),true);
+            }
             if (empty($this->onFail) == false) {               
                 $this->onFail->call($this,$this->getErrors());
             }           
@@ -317,7 +348,7 @@ class Validator extends Collection
      * @param string $message
      * @return void
      */
-    public function setError($fieldName, $message)
+    public function addError($fieldName, $message)
     {
         $error = [
             'field_name' => $fieldName,

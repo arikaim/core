@@ -11,14 +11,16 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-use Arikaim\Core\Traits\Db\Uuid;
-use Arikaim\Core\Traits\Db\Find;
-use Arikaim\Core\Traits\Db\Status;
+use Arikaim\Core\Interfaces\Driver\DriverRegistryInterface;
+
+use Arikaim\Core\Db\Traits\Uuid;
+use Arikaim\Core\Db\Traits\Find;
+use Arikaim\Core\Db\Traits\Status;
 
 /**
  * Drivers registry database model
  */
-class Drivers extends Model  
+class Drivers extends Model implements DriverRegistryInterface
 {
     use Uuid,
         Find,
@@ -80,115 +82,124 @@ class Drivers extends Model
     }
 
     /**
-     * Mutator (get) for full_name attribute.
-     *
-     * @return string
-     */
-    public function getFullNameAttribute()
+      * Add driver
+      *
+      * @param string $name     Driver name        
+      * @param array  $data     Driver data
+      * @return boolean
+    */
+    public function addDriver($name, $data)
     {
-        return (empty($this->category) == false) ? $this->name . ":" . $this->category : $this->name;
+        if ($this->hasDriver($name) == true) {
+            $model = $this->findByColumn($name,'name');
+            return $model->update($data);
+        }
+        $data['name'] = $name;
+
+        return $this->create($data);
+    }
+
+    /**
+     * Remove driver
+     *
+     * @param string $name   
+     * @return boolean
+    */
+    public function removeDriver($name)
+    {
+        $model = $this->findByColumn($name,'name');
+
+        return (is_object($model) == false) ? true : $model->delete();
+    }
+    
+    /**
+     * Return true if driver exist
+     *
+     * @param string $name  
+     * @return boolean
+     */
+    public function hasDriver($name)
+    {
+        $model = $this->findByColumn($name,'name');
+        
+        return is_object($model);
+    }
+
+    /**
+     * Save driver config
+     *
+     * @param string $name Driver name
+     * @param array $config
+     * @return boolean
+     */
+    public function saveConfig($name, $config)
+    {
+        $model = $this->findByColumn($name,'name');
+        if (is_object($model) == true) {
+            $model->config = $config;
+            return $model->save();
+        }
+
+        return false;
+    }
+
+    /**
+     * Save driver config
+     *
+     * @param string $name Driver name
+     * @param integer $status    
+     * @return boolean
+     */
+    public function setDriverStatus($name, $status)
+    {
+        $model = $this->findByColumn($name,'name');
+
+        return $model->setStatus($status);
+    }
+
+    /**
+     * Get driver config
+     *
+     * @param string $name Driver name
+     * @return array
+     */
+    public function getDriverConfig($name)
+    {
+        $model = $this->findByColumn($name,'name');
+        
+        return (is_object($model) == true) ? $model->config : [];
+    }
+
+    /**
+     * Get drivers list
+     *
+     * @param string|null $category
+     * @param integer|null $status
+     * @return array
+     */
+    public function getDriversList($category = null, $status = null)
+    {   
+        $model = $this;
+        if (empty($category) == false) {
+            $model = $model->where('category','=',$category);
+        }
+        if (empty($status) == false) {
+            $model = $model->where('status','=',$status);
+        }
+
+        return $model->get()->toArray();
     }
 
     /**
      * Get driver
      *
-     * @param string|integer $name Driver name, id or uuid 
-     * @param string|null $category
-     * @param boolean $getQuery
-     * @return Model|boolean
+     * @param string|integer $name Driver name
+     * @return array|false
      */
-    public function getDriver($name, $category = null, $getQuery = false)
+    public function getDriver($name)
     {
-        $model = $this->findQuery($name,['name','id','uuid']);
-        if (empty($category) == false) {
-            $model = $model->where('category','=',$category);
-        }  
-        if (is_object($model) == true) {
-            return ($getQuery == true) ? $model : $model->first();
-        }
+        $model = $this->findByColumn($name,'name');
         
-        return false;
+        return (is_object($model) == true) ? $model->toArray() : false;
     }
-
-    /**
-     * Set driver status
-     *
-     * @param string|integer $name Driver name, id or uuid 
-     * @param string|null $category
-     * @param integer $status
-     * @return boolean
-     */
-    public function setStatus($name, $status, $category = null)
-    {
-        $model = $this->getDriver($name,$category);
-        if (is_object($model) == true) {
-            $model->status = $status;
-            $model->save();
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Delete driver
-     *
-     * @param string|integer $name Driver name, id or uuid 
-     * @param string|null $category
-     * @return boolean
-     */
-    public function remove($name, $category = null)
-    {
-        $model = $this->getDriver($name,$category,true);
-        return (is_object($model) == true) ? $model->delete() : true;
-    }
-
-    /**
-     * Return true if driver is exist
-     *
-     * @param string|integer $name Driver name, id or uuid 
-     * @param string|null $category
-     * @return boolean
-     */
-    public function has($name, $category = null)
-    {           
-        return is_object($this->getDriver($name,$category));
-    }
-
-    /**
-     * Delete extension drivers
-     *
-     * @param string $extension
-     * @return boolean
-     */
-    public function deleteExtensionDrivers($extension)
-    {
-        $model = $this->where('extension_name','=',$extension);       
-
-        return $model->delete();
-    }
-
-    /**
-     * Delete module drivers
-     *
-     * @param string $module
-     * @return boolean
-     */
-    public function deleteModuleDrivers($module)
-    {
-        $model = $this->where('module_name','=',$module);       
-        return $model->delete();
-    }
-
-    /**
-     * Add or update driver
-     *    
-     * @param array $info
-     * @return Model|boolean
-     */
-    public function add(array $info)
-    {             
-        $model = $this->getDriver($info['name'],$info['category']);
-    
-        return (is_object($model) == true) ? $model->update($info) : $this->create($info);
-    }   
 }

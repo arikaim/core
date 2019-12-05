@@ -12,7 +12,7 @@ namespace Arikaim\Core\Console\Commands\Queue;
 use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\System\System;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\App\Factory;
+use Arikaim\Core\Utils\Factory;
 
 /**
  * Process cron jobs

@@ -12,8 +12,7 @@ namespace Arikaim\Core\Db;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\Schema\Builder;
 
-use Arikaim\Core\App\Factory;
-use Arikaim\Core\Arikaim;
+use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Db\TableBlueprint;
 use PDOException;
 
@@ -175,8 +174,8 @@ abstract class Schema
     /**
      * Execute blueprint.
      *
-     * @param  \Arikaim\Core\Db\TableBlueprint  $blueprint
-     * @param  \Illuminate\Database\Schema\Builder  $builder
+     * @param  Arikaim\Core\Db\TableBlueprint  $blueprint
+     * @param  Illuminate\Database\Schema\Builder  $builder
      * @return void
      */
     public function build($blueprint, Builder $builder)
@@ -194,9 +193,6 @@ abstract class Schema
      */
     public static function hasTable($model)
     {      
-        if (Arikaim::db()->has(Arikaim::config('db/database')) == false) {
-            return false;
-        }
         $tableName = (is_object($model) == true) ? $model->getTable() : $model;
 
         try {
@@ -274,6 +270,7 @@ abstract class Schema
             } catch(\Exception $e) {
             }
         }
+        
         return false;
     }
 

@@ -16,12 +16,12 @@ use Slim\Middleware\OutputBufferingMiddleware;
 use Slim\Middleware\BodyParsingMiddleware;
 
 use Arikaim\Core\Db\Schema;
-use Arikaim\Core\Db\Model;
-use Arikaim\Core\App\Factory;
+use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Packages\Module\ModulePackage;
+use Arikaim\Core\Packages\ModulePackage;
 use Arikaim\Core\System\Error\ApplicationError;
 use Arikaim\Core\Middleware\CoreMiddleware;
+use Arikaim\Core\Http\Response;
 
 /**
  * Middleware Manager
@@ -40,7 +40,10 @@ class MiddlewareManager
             if (Schema::hasTable('modules') == false) {
                 return false;
             }            
-            $modules = Model::Modules()->getList(ModulePackage::getTypeId('middleware'),1);         
+            $modules = Arikaim::packages()->create('module')->getPackgesRegistry()->getPackagesList([
+                'type'   => ModulePackage::getTypeId('middleware'), 
+                'status' => 1    
+            ]);         
             Arikaim::cache()->save('middleware.list',$modules,2);    
         }    
 
@@ -60,7 +63,7 @@ class MiddlewareManager
     public static function init()
     {
         $errorMiddleware = Arikaim::$app->addErrorMiddleware(true,true,true);
-        $applicationError = new ApplicationError(Arikaim::response(),Arikaim::page());
+        $applicationError = new ApplicationError(Response::create(),Arikaim::errors());
         
        // $errorMiddleware->setDefaultErrorHandler($applicationError);
         Arikaim::$app->add(new ContentLengthMiddleware());

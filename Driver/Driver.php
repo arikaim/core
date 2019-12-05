@@ -9,8 +9,8 @@
 */
 namespace Arikaim\Core\Driver;
 
-use Arikaim\Core\Interfaces\DriverInterface;
-use Arikaim\Core\Traits\Driver as DriverTrait;
+use Arikaim\Core\Interfaces\Driver\DriverInterface;
+use Arikaim\Core\Driver\Traits\Driver as DriverTrait;
 
 /**
  * Driver base class
