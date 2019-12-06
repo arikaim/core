@@ -33,6 +33,8 @@
         "arikaim/queue": "^1.0.0",
         "arikaim/driver": "^1.0.0",
         "arikaim/packages": "^1.0.0",
+        "arikaim/routes": "^1.0.0",
+        "arikaim/mail": "^1.0.0",
         "slim/slim": "4.3.*",
         "symfony/console": "4.1",
         "guzzlehttp/guzzle": "6.3.*",      
