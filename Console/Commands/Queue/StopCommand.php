@@ -41,7 +41,7 @@ class StopCommand extends ConsoleCommand
     {
         $this->showTitle('Stop queue worker');
 
-        $worker = new QueueWorker();
+        $worker = new QueueWorker(Arikaim::get('queue'),Arikaim::get('options'),Arikaim::get('logger'));
         $pid = $worker->getPid();
         
         $this->style->writeLn('Worker pid: ' . $pid);

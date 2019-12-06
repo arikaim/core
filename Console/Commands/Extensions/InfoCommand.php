@@ -12,7 +12,7 @@ namespace Arikaim\Core\Console\Commands\Extensions;
 use Symfony\Component\Console\Helper\Table;
 use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\Console\ConsoleHelper;
-use Arikaim\Core\Packages\Extension\ExtensionsManager;
+use Arikaim\Core\Arikaim;
 
 /**
  * Extension info command
@@ -50,7 +50,7 @@ class InfoCommand extends ConsoleCommand
             return;
         }
     
-        $manager = new ExtensionsManager();
+        $manager = Arikaim::packages()->create('extension');
         $package = $manager->createPackage($name);
         if ($package == false) {
             $this->showError("Extension $name not exists!");

@@ -11,7 +11,7 @@ namespace Arikaim\Core\Console\Commands\Modules;
 
 use Symfony\Component\Console\Helper\Table;
 use Arikaim\Core\Console\ConsoleCommand;
-use Arikaim\Core\Packages\Module\ModulesManager;
+use Arikaim\Core\Arikaim;
 
 /**
  * Module info command
@@ -46,7 +46,7 @@ class InfoCommand extends ConsoleCommand
         $table->setHeaders(['','']);
         $table->setStyle('compact');
 
-        $manager = new ModulesManager();
+        $manager = Arikaim::packages()->create('module');
         $package = $manager->createPackage($name);
         if ($package == false) {
             $this->showError("Module $name not exists!");

@@ -12,7 +12,7 @@ namespace Arikaim\Core\Console\Commands\Template;
 use Symfony\Component\Console\Helper\Table;
 use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\Console\ConsoleHelper;
-use Arikaim\Core\Packages\Template\TemplatesManager;
+use Arikaim\Core\Arikaim;
 
 /**
  * Templates list command
@@ -41,18 +41,20 @@ class ListCommand extends ConsoleCommand
         $this->showTitle('Themes');
       
         $table = new Table($output);
-        $table->setHeaders(['Name', 'Version','Status']);
+        $table->setHeaders(['Name','Version','Status']);
         $table->setStyle('compact');
-
-        $manager = new TemplatesManager();
+        
+        $current = Arikaim::options()->get('current.template',null);
+    
+        $manager = Arikaim::packages()->create('template');
         $items = $manager->getPackages();
 
         $rows = [];
         foreach ($items as $name) {
             $package = $manager->createPackage($name);
             $template = $package->getProperties();
-            $label = ($template->current == true) ? ConsoleHelper::getLabelText('current','cyan') : '';
-            $row = [$template->name,$template->version,$label];
+            $label = ($template['name'] == $current) ? ConsoleHelper::getLabelText('current','cyan') : '';
+            $row = [$template['name'],$template['version'],$label];
 
             array_push($rows,$row);
         }

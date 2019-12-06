@@ -41,15 +41,15 @@ class ListCommand extends ConsoleCommand
         $this->showTitle('Drivers');
       
         $table = new Table($output);
-        $table->setHeaders(['Status','Name','Display Name','Category','Full Name','Version']);
+        $table->setHeaders(['Status','Name','Display Name','Category','Version']);
         $table->setStyle('compact');
 
-        $items = Arikaim::driver()->getDriversList();
+        $items = Arikaim::driver()->getList();
 
         $rows = [];
         foreach ($items as $driver) {
-            $label = ($driver->status == 1) ? ConsoleHelper::getLabelText('enabled','green') : ConsoleHelper::getLabelText('disabled','red');
-            $row = [$label,$driver->name,$driver->title,$driver->category,$driver->full_name,$driver->version];
+            $label = ($driver['status'] == 1) ? ConsoleHelper::getLabelText('enabled','green') : ConsoleHelper::getLabelText('disabled','red');
+            $row = [$label,$driver['name'],$driver['title'],$driver['category'],$driver['version']];
             array_push($rows,$row);
         }
 

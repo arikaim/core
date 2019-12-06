@@ -39,7 +39,9 @@ class InfoCommand extends ConsoleCommand
     {
         $this->showTitle('Session info.');
         
-        $label = (Session::isUseCookies() == true) ? 'true' : 'false';
+        $params = Session::getParams();
+
+        $label = ($params['use_cookies'] == true) ? 'true' : 'false';
 
         $this->style->writeLn('Id: ' . Session::getId());
         $this->style->writeLn('Use cookies: ' . $label);

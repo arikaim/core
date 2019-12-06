@@ -49,7 +49,7 @@ class JobsCommand extends ConsoleCommand
         $items = Arikaim::queue()->getRecuringJobs();
         $rows = [];
         foreach ($items as $item) {                  
-            $row = ['',DateTime::dateTimeFormat($item->due_date),$item->handler_class];
+            $row = ['',DateTime::dateTimeFormat($item['due_date']),$item['handler_class']];
             array_push($rows,$row);
         }
         if (empty($rows) == true) {
@@ -62,7 +62,7 @@ class JobsCommand extends ConsoleCommand
         $items = Arikaim::queue()->getJobs(['schedule_time' => '*']);
         $rows = [];
         foreach ($items as $item) {                  
-            $row = ['',DateTime::dateTimeFormat($item->schedule_time),$item->handler_class];
+            $row = ['',DateTime::dateTimeFormat($item['schedule_time']),$item['handler_class']];
             array_push($rows,$row);
         }
         if (empty($rows) == true) {

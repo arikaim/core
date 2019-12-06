@@ -228,10 +228,9 @@ abstract class Extension implements ExtensionInterface
      * @param boolean $withLanguage
      * @return bool
      */
-
     public function addShowPageRoute($pattern, $pageName, $auth = null, $withLanguage = true, $routeName = null)
     {                  
-        return $this->addPageRoute($pattern,null,"loadPage",$auth,$pageName,$routeName,$withLanguage);
+        return $this->addPageRoute($pattern,null,"loadPage",$pageName,$auth,$routeName,$withLanguage);
     }
 
     /**

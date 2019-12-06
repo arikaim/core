@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Console\Commands\Template;
 
 use Arikaim\Core\Console\ConsoleCommand;
-use Arikaim\Core\Packages\Template\TemplatesManager;
+use Arikaim\Core\Arikaim;
 
 /**
  * Install theme command
@@ -43,8 +43,14 @@ class InstallCommand extends ConsoleCommand
             return;
         }
     
-        $manager = new TemplatesManager();
-        $result = $manager->installPackage($name);
+        $manager = Arikaim::packages()->create('template');
+        $package = $manager->createPackage($name);
+        if ($package == false) {
+            $this->showError("Theme $name not exists!");
+            return;
+        }
+
+        $result = $package->install();
      
         if ($result == false) {
             $this->showError("Can't install theme!");

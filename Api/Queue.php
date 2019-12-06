@@ -12,6 +12,7 @@ namespace Arikaim\Core\Api;
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Queue\Cron;
 use Arikaim\Core\Queue\QueueWorker;
+use Arikaim\Core\System\Error\PhpError;
 
 /**
  * Queue controller
@@ -41,7 +42,7 @@ class Queue extends ApiController
         $this->requireControlPanelPermission();
         
         $this->onDataValid(function($data) {            
-            $worker = new QueueWorker();
+            $worker = new QueueWorker($this->get('queue'),$this->get('options'),$this->get('logger'));
             $result = $worker->runDaemon();
             
             $this->setResponse($result,'queue.run','errors.queue.run');
@@ -62,10 +63,15 @@ class Queue extends ApiController
         $this->requireControlPanelPermission();
 
         $this->onDataValid(function($data) {              
-            $worker = new QueueWorker();
+            $worker = new QueueWorker($this->get('queue'),$this->get('options'),$this->get('logger'));
             $result = $worker->stopDaemon();
-
-            $this->setResponse($result,'queue.stop','errors.queue.stop');
+            if ($result == false) {
+                $error = PhpError::getPosixError();
+                $this->error($error);
+            } else {
+                $this->nessage('queue.stop');
+            }
+           
         });
         $data->validate();          
     }

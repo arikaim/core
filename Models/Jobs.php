@@ -168,6 +168,10 @@ class Jobs extends Model implements QueueStorageInterface
     {
         $model = $this->findById($id);
 
+        if (is_object($model) == false) {
+            $model = $this->findByColumn($id,'name');
+        }
+        
         return (is_object($model) == true) ? $model->toArray() : false;
     }
 
@@ -215,7 +219,7 @@ class Jobs extends Model implements QueueStorageInterface
             return false;
         } 
 
-        return $model->udpate(['status' => $status]);
+        return $model->update(['status' => $status]);
     }
 
     /**
@@ -268,18 +272,12 @@ class Jobs extends Model implements QueueStorageInterface
      */
     public function getJobsDue()
     {
-        $filter = [
-            'recuring_interval' => '<> *',
-            'extension_name'    => $extension  ,
-            'schedule_time','<',DateTime::toTimestamp()  
-        ];    
-
-        $model = $model
-            ->where('status','=',$model->ACTIVE())          
+        $model = $this
+            ->where('status','=',$this->ACTIVE())          
             ->where(function($query) {
-                $query->where('recuring_interval','<>','')->orWhere();
+                $query->where('recuring_interval','<>','')->orWhere('schedule_time','<',DateTime::toTimestamp());
             })->orderBy('priority','desc')->get();
             
-        return $model;
+        return (is_object($model) == true) ? $model->toArray() : [];
     }
 }

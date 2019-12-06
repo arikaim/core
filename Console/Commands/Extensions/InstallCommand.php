@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Console\Commands\Extensions;
 
 use Arikaim\Core\Console\ConsoleCommand;
-use Arikaim\Core\Packages\Extension\ExtensionsManager;
+use Arikaim\Core\Arikaim;
 
 /**
  * Install extension command
@@ -43,8 +43,14 @@ class InstallCommand extends ConsoleCommand
             return;
         }
     
-        $manager = new ExtensionsManager();
-        $result = $manager->installPackage($name);
+        $manager = Arikaim::packages()->create('extension');
+        $package = $manager->createPackage($name);
+        if ($package == false) {
+            $this->showError("Extension $name not exists!");
+            return;
+        }
+
+        $result = $package->install();
      
         if ($result == false) {
             $this->showError("Can't install extension!");

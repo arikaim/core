@@ -62,15 +62,16 @@ class MiddlewareManager
      */
     public static function init()
     {
+        Arikaim::$app->addRoutingMiddleware();
+
         $errorMiddleware = Arikaim::$app->addErrorMiddleware(true,true,true);
         $applicationError = new ApplicationError(Response::create(),Arikaim::errors());
         
-       // $errorMiddleware->setDefaultErrorHandler($applicationError);
+        $errorMiddleware->setDefaultErrorHandler($applicationError);
         Arikaim::$app->add(new ContentLengthMiddleware());
         Arikaim::$app->add(new BodyParsingMiddleware());
         Arikaim::$app->add(new OutputBufferingMiddleware(new StreamFactory(),OutputBufferingMiddleware::APPEND));
         
-        Arikaim::$app->addRoutingMiddleware();
         // sanitize request body and client ip
         Arikaim::$app->add(new CoreMiddleware());    
        

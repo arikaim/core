@@ -12,6 +12,7 @@ namespace Arikaim\Core\Console\Commands\Queue;
 use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\Queue\QueueWorker;
 use Arikaim\Core\System\System;
+use Arikaim\Core\Arikaim;
 
 /**
  * Queueu worker
@@ -38,7 +39,7 @@ class WorkerCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        $worker = new QueueWorker();
+        $worker = new QueueWorker(Arikaim::get('queue'),Arikaim::get('options'),Arikaim::get('logger'));
 
         // set unlimited execution tile
         System::setTimeLimit(0); 

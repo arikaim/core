@@ -201,6 +201,7 @@ class Arikaim
 
             $methods = explode(',',$item['method']);
             $handler = $item['handler_class'] . ":" . $item['handler_method'];   
+
             $route = Self::$app->map($methods,$item['pattern'],$handler);
             // auth middleware
             if ($item['auth'] > 0) {

@@ -25,7 +25,7 @@ class DisableCommand extends ConsoleCommand
     protected function configure()
     {
         $this->setName('drivers:disable')->setDescription('Disable driver');
-        $this->addOptionalArgument('name','Driver full name');
+        $this->addOptionalArgument('name','Driver name');
     }
 
     /**
@@ -39,7 +39,7 @@ class DisableCommand extends ConsoleCommand
     {       
         $name = $input->getArgument('name');
         if (empty($name) == true) {
-            $this->showError("Driver full name required!");
+            $this->showError("Driver name required!");
             return;
         }
     

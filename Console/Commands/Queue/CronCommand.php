@@ -12,7 +12,7 @@ namespace Arikaim\Core\Console\Commands\Queue;
 use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\System\System;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\Utils\Factory;
+use Exception;
 
 /**
  * Process cron jobs
@@ -48,14 +48,19 @@ class CronCommand extends ConsoleCommand
 
         $executed = 0;
         foreach ($jobs as $item) {
-            $job = Factory::createJobFromArray($item->toArray(),$item->handler_class);
+            $job = Arikaim::queue()->createJobFromArray($item,$item['handler_class']);
             
             if ($job->isDue() == true) {       
                 $executed++;      
                 $name = (empty($job->getName()) == true) ? $job->getId() : $job->getName();
 
                 $this->style->writeLn('ExecuteJob: ' . $name);
-                Arikaim::queue()->executeJob($job);
+                try {
+                    Arikaim::queue()->executeJob($job);
+                } catch (Exception $e) {
+                    Arikaim::logger()->error("Failed to execute cron job, details: " . $e->getMessage());
+                }
+               
             }
         }
         $this->style->writeLn('Executed jobs: ' . $executed);

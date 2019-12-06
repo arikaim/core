@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Console\Commands\Extensions;
 
 use Arikaim\Core\Console\ConsoleCommand;
-use Arikaim\Core\Packages\Extension\ExtensionsManager;
+use Arikaim\Core\Arikaim;
 
 /**
  * Uninstall extension command
@@ -43,8 +43,14 @@ class UnInstallCommand extends ConsoleCommand
             return;
         }
     
-        $manager = new ExtensionsManager();
-        $result = $manager->unInstallPackage($name);
+        $manager = Arikaim::packages()->create('extension');
+        $package = $manager->createPackage($name);
+        if ($package == false) {
+            $this->showError("Extension $name not exists!");
+            return;
+        }
+
+        $result = $package->unInstall();
      
         if ($result == false) {
             $this->showError("Can't uninstall extension!");

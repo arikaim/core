@@ -10,7 +10,7 @@
 namespace Arikaim\Core\Console\Commands\Extensions;
 
 use Arikaim\Core\Console\ConsoleCommand;
-use Arikaim\Core\Packages\Extension\ExtensionsManager;
+use Arikaim\Core\Arikaim;
 
 /**
  * Disable extension
@@ -43,8 +43,9 @@ class DisableCommand extends ConsoleCommand
             return;
         }
     
-        $manager = new ExtensionsManager();
+        $manager = Arikaim::packages()->create('extension');
         $package = $manager->createPackage($name);
+        
         if ($package == false) {
             $this->showError("Extension $name not exists!");
             return;

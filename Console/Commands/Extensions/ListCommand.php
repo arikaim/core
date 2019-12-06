@@ -12,7 +12,7 @@ namespace Arikaim\Core\Console\Commands\Extensions;
 use Symfony\Component\Console\Helper\Table;
 use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\Console\ConsoleHelper;
-use Arikaim\Core\Packages\Extension\ExtensionsManager;
+use Arikaim\Core\Arikaim;
 
 /**
  * Extensions list command
@@ -44,7 +44,7 @@ class ListCommand extends ConsoleCommand
 
         $this->showTitle('Extensions');
      
-        $manager = new ExtensionsManager();
+        $manager = Arikaim::packages()->create('extension');
         $items = $manager->getPackages();
         
         $rows = [];

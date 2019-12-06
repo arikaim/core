@@ -12,7 +12,7 @@ namespace Arikaim\Core\Console\Commands\Library;
 use Symfony\Component\Console\Helper\Table;
 use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\Console\ConsoleHelper;
-use Arikaim\Core\Packages\Library\LibraryManager;
+use Arikaim\Core\Arikaim;
 
 /**
  * Library list command
@@ -44,7 +44,7 @@ class ListCommand extends ConsoleCommand
         $table->setHeaders(['Name', 'Version', 'Type']);
         $table->setStyle('compact');
 
-        $manager = new LibraryManager();
+        $manager = Arikaim::packages()->create('library');
         $items = $manager->getPackages();
 
         $rows = [];

@@ -139,6 +139,7 @@ class Routes extends Model implements RoutesStorageInterface
             $result = $model->delete();
             return ($result == null) ? true : $result;
         }
+
         return true;
     }
 
@@ -152,6 +153,7 @@ class Routes extends Model implements RoutesStorageInterface
     public function getRoute($method, $pattern)
     {
         $model = $this->where('method','=',$method)->where('pattern','=',$pattern)->first();
+
         return (is_object($model) == false) ? false : $model->toArray();          
     }
 
@@ -177,7 +179,14 @@ class Routes extends Model implements RoutesStorageInterface
      */
     public function addRoute(array $route)
     {
-        return ($this->hasRoute($route['method'],$route['pattern']) == false) ? $this->create($route) : $this->update($route);         
+        if ($this->hasRoute($route['method'],$route['pattern']) == false) {
+            $model = $this->create($route);
+            return is_object($model);
+        }  
+        $model = $this->where('method','=',$route['method'])->where('pattern','=',$route['pattern'])->first();
+        $result = $model->update($route);  
+        
+        return ($result !== false);
     }
 
     /**

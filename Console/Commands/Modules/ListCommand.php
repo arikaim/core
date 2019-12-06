@@ -12,7 +12,7 @@ namespace Arikaim\Core\Console\Commands\Modules;
 use Symfony\Component\Console\Helper\Table;
 use Arikaim\Core\Console\ConsoleHelper;
 use Arikaim\Core\Console\ConsoleCommand;
-use Arikaim\Core\Packages\Module\ModulesManager;
+use Arikaim\Core\Arikaim;
 
 /**
  * Modules list command
@@ -44,7 +44,7 @@ class ListCommand extends ConsoleCommand
         $table->setHeaders(['Name','Version','Type','Status']);
         $table->setStyle('compact');
 
-        $manager = new ModulesManager();
+        $manager = Arikaim::packages()->create('module');
         $items = $manager->getPackages();
 
         $rows = [];
