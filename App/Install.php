@@ -15,13 +15,11 @@ use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Access\Access;
-use Arikaim\Core\Packages\Extension\ExtensionsManager;
-use Arikaim\Core\Packages\Template\TemplatesManager;
-use Arikaim\Core\Packages\Module\ModulesManager;
 use Arikaim\Core\Queue\Cron;
+use Arikaim\Core\System\System;
 
 /**
- * Arikaim install (TODO error messages)
+ * Arikaim install
  */
 class Install 
 {
@@ -36,12 +34,19 @@ class Install
         Arikaim::errors()->clear();
 
         // create database if not exists  
-        $result = Arikaim::db()->createDb(Arikaim::config('db/database'),Arikaim::config('db/charset'),Arikaim::config('db/collation'));  
-        if ($result == false) {
-            Arikaim::errors()->addError('Error create database  "' . Arikaim::config('db/database') . '"');
-            return false;
+        $databaseName = Arikaim::config()->getByPath('db/database');
+      
+        if (Arikaim::db()->has($databaseName) == false) {
+            $charset = Arikaim::config()->getByPath('db/charset'); 
+            $collation = Arikaim::config()->getByPath('db/collation');
+            $result = Arikaim::db()->createDb($databaseName,$charset,$collation); 
+            if ($result == false) {
+                Arikaim::errors()->addError('DB_DATABASE_ERROR');
+                return false;
+            }            
         }          
-        Arikaim::db()->initConnection(Arikaim::config('db'));     
+
+        Arikaim::db()->initConnection(Arikaim::config()->get('db'));     
 
         // Create Arikaim DB tables
         $result = $this->createDbTables();      
@@ -50,14 +55,10 @@ class Install
         }
 
         // add control panel permisison item 
-        Model::Permissions()->add(Access::CONTROL_PANEL,Access::CONTROL_PANEL,'Arikaim control panel access.');
+        Arikaim::access()->addPermission(Access::CONTROL_PANEL,Access::CONTROL_PANEL,'Arikaim control panel access.');
       
         // register core events
         $this->registerCoreEvents();
-
-        // install core modules
-        $modulesManager = new ModulesManager();       
-        $modulesManager->installAllPackages();
 
         // reload seystem options
         Arikaim::options()->load();
@@ -72,23 +73,27 @@ class Install
         $this->installDrivers();
 
         // install current template 
-        $templateManager = new TemplatesManager();
+        $templateManager = Arikaim::packages()->create('template');
         $currentTemplate = $templateManager->findPackage('current',true);
-        $result = $currentTemplate->install();
+        if ($currentTemplate !== false) {
+            $result = $currentTemplate->install();
+        }
+      
+        // install core modules
+        $modulesManager = Arikaim::packages()->create('module');
+        $result = $modulesManager->installAllPackages();
 
         //Install extensions      
-        $extension_manager = new ExtensionsManager();
-        $result = $extension_manager->installAllPackages();
-        if ($result == false) {           
-            Arikaim::errors()->addError('EXTENSION_INSTALL_ERROR');
-        }
-
+        $extensionManager = Arikaim::packages()->create('extension');
+        $result = $extensionManager->installAllPackages();
+      
         // install cron scheduler 
         $cron = new Cron();
         $cron->install();
         
         // trigger event core.install
         Arikaim::event()->dispatch('core.install',Arikaim::errors()->getErrors());
+
         return true;
     } 
 
@@ -137,6 +142,7 @@ class Install
                 return false;
             }                
         }
+        
         return Model::PermissionRelations()->setUserPermission(Access::CONTROL_PANEL,Access::FULL,$user->id);
     }
 
@@ -189,6 +195,8 @@ class Install
         Arikaim::options()->createOption('session.recreation.interval',0,false);
         // cachek drivers
         Arikaim::options()->createOption('cache.driver',null,true);
+        // library params
+        Arikaim::options()->createOption('library.params',[],true);
     }
 
     /**
@@ -219,7 +227,7 @@ class Install
             }
         }
 
-        return ($errors == 0) ? true : false;         
+        return ($errors == 0);   
     }
 
     /**
@@ -232,7 +240,7 @@ class Install
         $errors = 0;      
         try {
             // check db
-            $errors += Arikaim::db()->has(Arikaim::config('db/database')) ? 0 : 1;
+            $errors += Arikaim::db()->has(Arikaim::config()->getByPath('db/database')) ? 0 : 1;
             if ($errors > 0) {
                 return false;
             }
@@ -251,8 +259,69 @@ class Install
             $errors++;
         }
 
-        return !($errors > 0);   
+        return ($errors == 0);   
     }
+
+    /**
+     * Verify system requirements
+     *
+     * @return array
+     */
+    public static function checkSystemRequirements()
+    {
+        $info['items'] = [];
+        $info['errors']['messages'] = "";
+        $errors = [];
+
+        // php 5.6 or above
+        $phpVersion = System::getPhpVersion();
+        $item['message'] = "PHP $phpVersion";
+        $item['status'] = 0; // error   
+        if (version_compare($phpVersion,'7.1','>=') == true) {               
+            $item['status'] = 1; // ok                    
+        } else {
+            array_push($errors,Arikaim::errors()->getError("PHP_VERSION_ERROR"));
+        }
+        array_push($info['items'],$item);
+
+        // PDO extension
+        $item['message'] = 'PDO php extension';     
+        $item['status'] = (System::hasPhpExtension('PDO') == true) ? 1 : 0;
+        array_push($info['items'],$item);
+
+        // PDO driver
+        $pdoDriver = Arikaim::config()->getByPath('db/driver');
+       
+        $item['message'] = "$pdoDriver PDO driver";
+        $item['status'] = 0; // error
+        if (System::hasPdoDriver($pdoDriver) == true) {
+            $item['status'] = 1; // ok
+        } else {
+            array_push($errors,Arikaim::errors()->getError("PDO_ERROR"));         
+        }
+        array_push($info['items'],$item);
+
+        // curl extension
+        $item['message'] = 'Curl PHP extension';
+        $item['status'] = (System::hasPhpExtension('curl') == true) ? 1 : 2;
+           
+        array_push($info['items'],$item);
+
+        // zip extension
+        $item['message'] = 'Zip PHP extension';    
+        $item['status'] = (System::hasPhpExtension('zip') == true) ? 1 : 2;
+
+        array_push($info['items'],$item);
+        
+        // GD extension 
+        $item['message'] = 'GD PHP extension';      
+        $item['status'] = (System::hasPhpExtension('gd') == true) ? 1 : 2;
+          
+        array_push($info['items'],$item);
+        $info['errors'] = $errors;
+        
+        return $info;
+    }  
 
     /**
      * Return core migration classes
@@ -277,7 +346,6 @@ class Install
             'PermissionsSchema',
             'RoutesSchema',
             'AccessTokensSchema',
-            'ApiCredentialsSchema',
             'DriversSchema'
         ];
     }
@@ -304,7 +372,6 @@ class Install
             'language',
             'jobs',
             'access_tokens',
-            'api_credentials',
             'drivers'
         ];
     }

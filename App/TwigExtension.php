@@ -22,6 +22,10 @@ use Arikaim\Core\Db\Model;
 use Arikaim\Core\View\Html\HtmlComponent;
 use Arikaim\Core\Access\Csrf;
 use Arikaim\Core\System\System;
+use Arikaim\Core\System\Composer;
+use Arikaim\Core\System\Update;
+use Arikaim\Core\App\Install;
+use Arikaim\Core\Arikaim;
 
 /**
  *  Template engine functions, filters and tests.
@@ -43,6 +47,16 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         'Extensions',
         'Jobs',
         'EventSubscribers'
+    ];
+
+    /**
+     * Protected services requires control panel access  
+     *
+     * @var array
+     */
+    protected $protectedServices = [
+        'config',
+        'packages'
     ];
 
     /**
@@ -122,12 +136,16 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('getConstant',["Arikaim\\Core\\Db\\Model",'getConstant']),
             new TwigFunction('hasExtension',[$this,'hasExtension']),
             new TwigFunction('getFileType',[$this,'getFileType']),         
-            new TwigFunction('system',[$this,'system']),          
+            new TwigFunction('system',[$this,'system']),  
+            new TwigFunction('getSystemRequirements',[$this,'getSystemRequirements']),                      
             new TwigFunction('package',[$this,'createPackageManager']),       
-            new TwigFunction('service',['Arikaim\\Core\\Arikaim','get']),     
+            new TwigFunction('service',[$this,'getService']),     
+            new TwigFunction('installConfig',[$this,'getInstallConfig']),     
             new TwigFunction('access',[$this,'getAccess']),   
             new TwigFunction('getCurrentLanguage',[$this,'getCurrentLanguage']),
-         
+            new TwigFunction('getVersion',[$this,'getVersion']),
+            new TwigFunction('getLastVersion',[$this,'getLastVersion']),
+            
             new TwigFunction('getOption',[$this,'getOption']),
             new TwigFunction('getOptions',[$this,'getOptions']),
             new TwigFunction('csrfToken',[$this,'csrfToken']),                
@@ -196,6 +214,70 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         $mobile = new Mobile();
 
         return $mobile->isMobile();
+    }
+
+    /**
+     * Get install config data
+     *
+     * @return array|false
+     */
+    public function getInstallConfig()
+    {
+        $daibled = Arikaim::config()->getByPath('settings/disableInstallPage');
+       
+        return ($daibled == true) ? false : Arikaim::get('config');         
+    }
+
+    /**
+     * Get system requirements
+     *
+     * @return array
+     */
+    public function getSystemRequirements()
+    {
+        return Install::checkSystemRequirements();
+    }
+
+    /**
+     * Get composer package current version
+     *
+     * @param string|null $packageName
+     * @return string|false
+     */
+    public function getVersion($packageName = null)
+    {
+        $packageName = (empty($packageName) == true) ? Arikaim::getCorePackageName() : $packageName;       
+
+        return Composer::getInstalledPackageVersion(ROOT_PATH . BASE_PATH,$packageName);     
+    }
+
+    /**
+     * Get composer package last version
+     *
+     * @param  string|null $packageName
+     * @return string|false
+     */
+    public function getLastVersion($packageName = null)
+    {
+        $packageName = (empty($packageName) == true) ? Arikaim::getCorePackageName() : $packageName;
+        $update = new Update($packageName);
+        
+        return $update->getLastVersion();
+    }
+
+    /**
+     * Get service from container
+     *
+     * @param string $name
+     * @return mixed
+     */
+    public function getService($name)
+    {
+        if (\in_array($name,$this->protectedServices) == true) {
+            return ($this->access->hasControlPanelAccess() == true) ? Arikaim::get($name) : false;           
+        }
+
+        return Arikaim::get($name);
     }
 
     /**

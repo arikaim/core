@@ -13,7 +13,7 @@ use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Db\Model;
 
 /**
- * Users controller login, logout, change password api controller. // TODO
+ * Users controller login, logout 
 */
 class Users extends ApiController  
 {   
@@ -144,31 +144,5 @@ class Users extends ApiController
             ->validate();
 
         return $this->getResponse();    
-    }
-
-    /**
-     * Control Panel password recovery
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @param Validator $data
-     * @return Psr\Http\Message\ResponseInterface
-    */
-    public function passwordRecoveryController($request, $response, $data)
-    {
-        $user = Model::Users()->getControlPanelUser();
-        if ($user == false) {
-            return $this->error('Missing control panel user')->getResponse();           
-        }
-        
-        $this->onDataValid(function($data) use($user) { 
-           
-           
-        });
-
-        $data
-            ->addRule("equal:value=" . $user->email,"email")
-            ->addRule("email","email")
-            ->validate();      
     }
 }

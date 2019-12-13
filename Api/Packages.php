@@ -273,4 +273,40 @@ class Packages extends ApiController
         });
         $data->validate();            
     }
+
+    /**
+     * Set ui library params
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+     */
+    public function setLibraryParamsController($request, $response, $data)
+    {       
+        // access from contorl panel only 
+        $this->requireControlPanelPermission();
+        
+        $this->onDataValid(function($data) { 
+            $name = $data['name'];
+            $libraryParams = json_decode($data->get('params'),true);
+            $result = [];
+        
+            foreach ($libraryParams as $item) {
+                $result[$item['name']] = $item['value'];
+            }
+
+            $params = $this->get('options')->get('library.params',[]);
+            $params[$name] = $result;
+            $result = $this->get('options')->set('library.params',$params);
+          
+            $this->setResponse($result,function() use($name) {                        
+                $this
+                    ->message('library.params')
+                    ->field('name',$name);         
+            },'errors.library.params'); 
+        });
+        $data->validate();            
+        
+    }
 }

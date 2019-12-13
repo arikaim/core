@@ -20,8 +20,8 @@ use Arikaim\Core\Db\Traits\Uuid;
 
 use Arikaim\Core\Db\Traits\Find;
 use Arikaim\Core\Db\Traits\DateCreated;
+use Arikaim\Core\Db\Traits\UserRelation;
 use Arikaim\Core\Access\Traits\Auth;
-use Arikaim\Core\Traits\Auth\UserRelation;
 
 /**
  * Access tokens database model
@@ -33,6 +33,7 @@ class AccessTokens extends Model implements UserProviderInterface
      */
     const PAGE_ACCESS_TOKEN  = 0;
     const LOGIN_ACCESS_TOKEN = 1;
+    const API_ACCESS_TOKEN   = 2;
 
     use Uuid,
         Find,
@@ -203,7 +204,9 @@ class AccessTokens extends Model implements UserProviderInterface
      */
     public function getTokenByUser($userId, $type = AccessTokens::PAGE_ACCESS_TOKEN)
     {
-        return $model = $this->where('user_id','=',$userId)->where('type','=',$type)->first();
+        $model = $this->where('user_id','=',$userId)->where('type','=',$type)->first();
+
+        return (is_object($model) == true) ? $model : false;
     }
 
     /**
@@ -234,6 +237,7 @@ class AccessTokens extends Model implements UserProviderInterface
         if ($type != null) {
             $model = $model->where('type','=',$type);
         }
+
         return $model->delete();
     }
 

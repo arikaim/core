@@ -12,10 +12,7 @@ namespace Arikaim\Core\Console;
 use Symfony\Component\Console\Application as ConsoleApplication;
 
 use Arikaim\Core\Utils\Factory;
-use Arikaim\Core\Db\Model;
-use Arikaim\Core\System\System;
-use Arikaim\Core\Arikaim;
-use Arikaim\Core\App\Install;
+use Arikaim\Core\Console\ShellCommand;
 
 /**
  * Console application
@@ -27,27 +24,36 @@ class Application
      *
      * @var Symfony\Component\Console\Application
      */
-    protected $applicatgion;
+    protected $application;
+
+    /**
+     * Console app title
+     *
+     * @var string
+     */
+    protected $title;
+
+    /**
+     * App version
+     *
+     * @var string
+     */
+    protected $version;
 
     /**
      * Constructor
      */
-    public function __construct() 
+    public function __construct($title, $version = '') 
     {
-        // add core command classes
-        $this->commands = Arikaim::config()->load('console.php');
+        $this->title = $title;
+        $this->version = $version;
+        $this->application = new ConsoleApplication("\n $title",$version);    
 
-        $this->application = new ConsoleApplication("\nArikaim Cli ",System::getVersion());    
-        // add core commands 
-        $this->addCommands($this->commands);
-       
-        if (Arikaim::db()->isValidPdoConnection() == true) {
-            if (Install::isInstalled() == true) {
-                // add extensions commands
-                $this->loadExtensionsCommands();
-                // add modules commands
-                $this->loadModulesCommands();
-            }
+        // add shell command 
+        $shell = new ShellCommand('shell',$title);
+        $this->application->add($shell);
+        if ($shell->isDefault() == true) {
+            $this->application->setDefaultCommand($shell->getName());
         }
     }
 
@@ -62,37 +68,6 @@ class Application
     }
 
     /**
-     * Load extensins commands.
-     *
-     * @return void
-     */
-    public function loadExtensionsCommands()
-    {
-        $extensions = Arikaim::packages()->create('extension')->getPackgesRegistry()->getPackagesList([
-            'status' => 1    
-        ]); 
-
-        foreach ($extensions as $extension) {
-            $this->addCommands($extension->console_commands);
-        }
-    }
-
-    /**
-     * Load modules commands
-     *
-     * @return void
-     */
-    public function loadModulesCommands()
-    {
-        $modules = Arikaim::packages()->create('module')->getPackgesRegistry()->getPackagesList([
-            'status' => 1    
-        ]);         
-        foreach ($modules as $module) {
-            $this->addCommands($module['console_commands']);
-        }
-    }
-
-    /**
      * Add commands to console app
      *
      * @param array $commands
@@ -103,7 +78,8 @@ class Application
         if (is_array($commands) == false) {
             return false;
         }
-        foreach ($commands as $class) {
+
+        foreach ($commands as $class) {          
             $command = Factory::createInstance($class);
             if (is_object($command) == true) {
                 $this->application->add($command);

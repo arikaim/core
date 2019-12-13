@@ -15,8 +15,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Input\InputArgument;
 
-use Arikaim\Core\System\System;
-
 /**
  * Base class for all commands
  */
@@ -39,11 +37,19 @@ abstract class ConsoleCommand extends Command
     /**
      * Constructor
      *
-     * @param string $name
+     * @param string|null $name
+     * @param string|null $description
      */
-    public function __construct($name = null) 
+    public function __construct($name = null, $description = null) 
     {
         parent::__construct($name);
+        
+        if (empty($name) == false) {
+            $this->setName($name);
+        }
+        if (empty($description) == false) {
+            $this->setDescription($description);
+        }
     }
 
     /**

@@ -36,7 +36,7 @@ class Component extends ApiController
         }
         // deny requets 
         if ($component->getOption('access/deny-request') == true) {
-            return $this->withError('ACCESS_DENIED')->getResponse();           
+            return $this->withError($this->get('errors')->getError('ACCESS_DENIED'))->getResponse();           
         }
         return $this->setResult($component->getProperties())->getResponse();        
     }
@@ -59,7 +59,8 @@ class Component extends ApiController
             return $this->withError('Not valid component nane.')->getResponse();  
         }
         if ($component->hasError() == true) {
-            return $this->withError($component->getError())->getResponse();            
+            $error = $component->getError();
+            return $this->withError($this->get('errors')->getError($error['code'],$error['params']))->getResponse();            
         }
         $details = [
                 'properties' => $component->getProperties(),
@@ -104,7 +105,8 @@ class Component extends ApiController
         }
         
         if ($component->hasError() == true) {
-            return $this->withError($component->getError())->getResponse();          
+            $error = $component->getError();          
+            return $this->withError($this->get('errors')->getError($error['code'],$error['params']))->getResponse();          
         }
       
         if ($component->getOption('access/deny-request') == true) {
@@ -138,6 +140,7 @@ class Component extends ApiController
                 return $headerParams;
             }
         }
+
         return [];
     }
 }

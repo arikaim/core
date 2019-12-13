@@ -115,8 +115,9 @@ class SystemRoutes
         })->add($sessionAuth);
         // Update
         Arikaim::$app->group('/core/api/update',function($group) use($apiNamespace) {
-            $group->get('/',"$apiNamespace\Update:update");
-            $group->get('/check',"$apiNamespace\Update:checkVersion"); 
+            $group->put('/',"$apiNamespace\Update:update");
+            $group->get('/check/version',"$apiNamespace\Update:checkVersion"); 
+            $group->get('/last/version/[{package}]',"$apiNamespace\Update:getLastVersion");           
         })->add($sessionAuth);
         // Session
         Arikaim::$app->group('/core/api/session',function($group) use($apiNamespace) {        
@@ -131,6 +132,7 @@ class SystemRoutes
         // Settings
         Arikaim::$app->group('/core/api/settings',function($group) use($apiNamespace) {
             $group->put('/debug',"$apiNamespace\Settings:setDebug");
+            $group->put('/install-page',"$apiNamespace\Settings:disableInstallPage");
         })->add($sessionAuth);
         // Mailer
         Arikaim::$app->group('/core/api/mailer',function($group) use($apiNamespace) {
@@ -163,13 +165,15 @@ class SystemRoutes
             $group->post('/config',"$apiNamespace\Packages:saveConfig");
             $group->put('/current',"$apiNamespace\Packages:setCurrent");
             $group->put('/theme/current',"$apiNamespace\Packages:setCurrentTheme");
+            $group->put('/library/params',"$apiNamespace\Packages:setLibraryParams");
         })->add($sessionAuth);
         // Session
         Arikaim::$app->get('/core/api/session/',"$apiNamespace\Session:getInfo");
         // Install
         Arikaim::$app->post('/core/api/install/',"$apiNamespace\Install:install");
+        Arikaim::$app->put('/core/api/install/repair',"$apiNamespace\Install:repair",$sessionAuth);
         // Install page
-        Arikaim::$app->get('/install/',"Arikaim\Core\App\Installpage:loadInstallPage");
+        Arikaim::$app->get('/admin/install',"Arikaim\Core\App\InstallPage:loadInstallPage");
                    
         return true;      
     }

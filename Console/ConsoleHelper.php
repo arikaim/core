@@ -27,6 +27,16 @@ class ConsoleHelper
     }
 
     /**
+     * Print CHECK MARK
+     *
+     * @return void
+     */
+    public static function checkMark()
+    {
+        return "<fg=green>\xE2\x9C\x93</>";
+    }
+    
+    /**
      * Return status label text
      *
      * @param bool $status

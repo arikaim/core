@@ -22,6 +22,7 @@ use Arikaim\Core\Packages\ModulePackage;
 use Arikaim\Core\System\Error\ApplicationError;
 use Arikaim\Core\Middleware\CoreMiddleware;
 use Arikaim\Core\Http\Response;
+use Arikaim\Core\System\Error\Renderer\HtmlPageErrorRenderer;
 
 /**
  * Middleware Manager
@@ -65,7 +66,8 @@ class MiddlewareManager
         Arikaim::$app->addRoutingMiddleware();
 
         $errorMiddleware = Arikaim::$app->addErrorMiddleware(true,true,true);
-        $applicationError = new ApplicationError(Response::create(),Arikaim::errors());
+        $errorRenderer = new HtmlPageErrorRenderer(Arikaim::errors());
+        $applicationError = new ApplicationError(Response::create(),$errorRenderer);
         
         $errorMiddleware->setDefaultErrorHandler($applicationError);
         Arikaim::$app->add(new ContentLengthMiddleware());

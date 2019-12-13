@@ -45,6 +45,32 @@ class Settings extends ApiController
         $result = $this->get('config')->save();
         $this->setResponse($result,'settings.save','errors.settings.save');
 
+        $this->get('cache')->clear();
+        
+        return $this->getResponse();
+    }
+
+    /**
+     * Disable install page
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+     */
+    public function disableInstallPage($request, $response, $data)
+    {
+        $this->requireControlPanelPermission();
+        
+        $installPage = $data->get('install_page',false);
+       
+        $this->get('config')->setBooleanValue('settings/disableInstallPage',$installPage);
+        // save and reload config file
+        $result = $this->get('config')->save();
+        $this->setResponse($result,'settings.save','errors.settings.save');
+
+        $this->get('cache')->clear();
+
         return $this->getResponse();
     }
 }

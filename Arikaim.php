@@ -12,6 +12,8 @@ namespace Arikaim\Core;
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 use Slim\Routing\RouteContext;
+use FastRoute\BadRouteException;
+use Exception;
 
 use Arikaim\Container\Container;
 use Arikaim\Core\Validator\ValidatorStrategy;
@@ -27,6 +29,7 @@ use Arikaim\Core\Utils\Path;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\System\Error\Renderer\HtmlPageErrorRenderer;
 use Arikaim\Core\Extension\Modules;
+use Arikaim\Core\System\Composer;
 
 /**
  * Arikaim core class
@@ -127,9 +130,7 @@ class Arikaim
 
         Self::resolveEnvironment($_SERVER);
 
-        // init constants
-        define('ARIKAIM_VERSION','1.0.36');
-       
+        // init constants   
         if (defined('ROOT_PATH') == false) {
             define('ROOT_PATH',Self::getRootPath());
         }
@@ -187,6 +188,16 @@ class Arikaim
     }
     
     /**
+     * Get version
+     *
+     * @return string
+     */
+    public static function getVersion() 
+    {
+        return Composer::getInstalledPackageVersion(ROOT_PATH . BASE_PATH,Self::getCorePackageName());        
+    }
+
+    /**
      * Map routes
      *     
      * @return boolean
@@ -203,16 +214,17 @@ class Arikaim
             $handler = $item['handler_class'] . ":" . $item['handler_method'];   
 
             $route = Self::$app->map($methods,$item['pattern'],$handler);
+           
             // auth middleware
             if ($item['auth'] > 0) {
                 $middleware = Self::access()->middleware($item['auth']);    
-                if ($middleware != null) {
+                if ($middleware != null && is_object($route) == true) {
                     $route->add($middleware);
                 }
             }                                
-        }     
+        }    
     }
-
+ 
     /**
      * Get route parser
      *
@@ -256,7 +268,7 @@ class Arikaim
       //  try {
             Self::init();    
             Self::$app->run();  
-       // } catch (\Exception $exception) {    
+        //} catch (\Exception $exception) {    
           //  $renderer = new HtmlPageErrorRenderer(Self::errors());
            // $applicationError = new ApplicationError(Self::response(),Self::errors());    
            // $applicationError->renderError(Self::createRequest(),$exception);         
@@ -417,6 +429,6 @@ class Arikaim
      */
     public static function getCorePackageName()
     {
-        return "arikaim/core";
+        return "league/flysystem";
     }
 }

@@ -15,6 +15,7 @@ use Arikaim\Core\Db\Model;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Utils\Utils;
+use Exception;
 
 /**
  * Base class for all extensions.
@@ -211,10 +212,13 @@ abstract class Extension implements ExtensionInterface
      */
     public function addPageRoute($pattern, $class = null, $handlerMethod = null, $pageName = null, $auth = null, $routeName = null, $withLanguage = true)
     {
+        if (Arikaim::routes()->isValidPattern($pattern) == false) {           
+            return false;
+        }
         $class = ($class == null) ? Factory::getControllerClass("Controller") : $this->getControllerClassName($class);
         $handlerMethod = ($handlerMethod == null) ? "loadPage" : $handlerMethod;
         $auth = Arikaim::access()->resolveAuthType($auth);
-
+ 
         return Arikaim::routes()->addPageRoute($pattern,$class,$handlerMethod,$this->getName(),$pageName,$auth,$routeName,$withLanguage);
     }
 
@@ -230,6 +234,9 @@ abstract class Extension implements ExtensionInterface
      */
     public function addShowPageRoute($pattern, $pageName, $auth = null, $withLanguage = true, $routeName = null)
     {                  
+        if (Arikaim::routes()->isValidPattern($pattern) == false) {
+            return false;
+        }
         return $this->addPageRoute($pattern,null,"loadPage",$pageName,$auth,$routeName,$withLanguage);
     }
 
@@ -245,6 +252,9 @@ abstract class Extension implements ExtensionInterface
      */
     public function addApiRoute($method, $pattern, $class, $handlerMethod, $auth = null)
     {
+        if (Arikaim::routes()->isValidPattern($pattern) == false) {
+            return false;
+        }
         $auth = Arikaim::access()->resolveAuthType($auth);
         $class = ($class == null) ? Factory::getControllerClass("Controller") : $this->getControllerClassName($class);
         
