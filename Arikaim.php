@@ -30,6 +30,7 @@ use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\System\Error\Renderer\HtmlPageErrorRenderer;
 use Arikaim\Core\Extension\Modules;
 use Arikaim\Core\System\Composer;
+use Arikaim\Core\App\Install;
 
 /**
  * Arikaim core class
@@ -115,10 +116,10 @@ class Arikaim
     /**
      * Create Arikaim system. Create container services, load system routes 
      * 
-     * @param boolean $loadRoutes - load routes 
+     * @param boolean $consoleMode - load routes 
      * @return void
     */
-    public static function init($loadRoutes = true) 
+    public static function init() 
     {        
         ini_set('display_errors',1);
         ini_set('display_startup_errors',1);
@@ -152,11 +153,7 @@ class Arikaim
         $loader->LoadClassFile('\\Arikaim\\Core\\App\\Globals');
          
         register_shutdown_function("\Arikaim\Core\Arikaim::end");
-        
-        if (Arikaim::isConsole() == false) {
-            Session::start();
-        }
-
+       
         // create service container            
         AppFactory::setContainer(ServiceContainer::init(new Container()));
         
@@ -166,16 +163,15 @@ class Arikaim
     
         Modules::init(Self::getContainer()->get('cache'));
 
-        // add default middleware
-        MiddlewareManager::init();
-
-        // set router 
-        $validatorStrategy = new ValidatorStrategy(Self::get('event'),Self::get('errors'));
-        Self::$app->getRouteCollector()->setDefaultInvocationStrategy($validatorStrategy);
+        if (Arikaim::isConsole() == false) {    
+            Session::start();
+            // add default middleware
+            MiddlewareManager::init(); 
+            // set router 
+            $validatorStrategy = new ValidatorStrategy(Self::get('event'),Self::get('errors'));
+            Self::$app->getRouteCollector()->setDefaultInvocationStrategy($validatorStrategy);
         
-        Self::$app->getRouteCollector()->setCacheFile(Path::CACHE_PATH . "/routes.cache.php");
-
-        if ($loadRoutes == true) {          
+            Self::$app->getRouteCollector()->setCacheFile(Path::CACHE_PATH . "/routes.cache.php");     
             // map routes                       
             SystemRoutes::mapSystemRoutes();   
             Self::mapRoutes();    
@@ -265,14 +261,8 @@ class Arikaim
     */
     public static function run() 
     {       
-      //  try {
-            Self::init();    
-            Self::$app->run();  
-        //} catch (\Exception $exception) {    
-          //  $renderer = new HtmlPageErrorRenderer(Self::errors());
-           // $applicationError = new ApplicationError(Self::response(),Self::errors());    
-           // $applicationError->renderError(Self::createRequest(),$exception);         
-      //  }        
+        Self::init();    
+        Self::$app->run();            
     }
     
     /**
@@ -300,7 +290,12 @@ class Arikaim
             if (empty($error) == false) {               
                 $renderer = new HtmlPageErrorRenderer(Self::errors());
                 $applicationError = new ApplicationError(Self::response(),$renderer);  
-                $applicationError->renderError(Self::createRequest(),$error);                        
+
+                if (Install::isInstalled() == false) {
+                    $error = new Exception("Arikaim CMS not installed");
+                    Self::get('cache')->clear();
+                } 
+                $applicationError->renderError(Self::createRequest(),$error);                                                   
             }          
         }
     }
@@ -325,7 +320,7 @@ class Arikaim
     */
     public static function getConsoleRootPath()
     {
-        return (defined('ROOT_PATH') == true) ? ROOT_PATH : dirname(dirname(__DIR__));         
+        return (defined('ROOT_PATH') == true) ? ROOT_PATH : $_SERVER['PWD'];// dirname(dirname(__DIR__));         
     }
 
     /**
