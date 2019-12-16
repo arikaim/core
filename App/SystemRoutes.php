@@ -170,7 +170,7 @@ class SystemRoutes
         // Session
         Arikaim::$app->get('/core/api/session/',"$apiNamespace\Session:getInfo");
         // Install
-        Arikaim::$app->post('/core/api/install/',"$apiNamespace\Install:install");
+        Arikaim::$app->post('/core/api/install',"$apiNamespace\Install:install");
         Arikaim::$app->put('/core/api/install/repair',"$apiNamespace\Install:repair",$sessionAuth);
         // Install page
         Arikaim::$app->get('/admin/install',"Arikaim\Core\App\InstallPage:loadInstallPage");

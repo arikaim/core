@@ -121,8 +121,8 @@ class Arikaim
     */
     public static function init() 
     {        
-        ini_set('display_errors',1);
-        ini_set('display_startup_errors',1);
+        ini_set('display_errors',0);
+        ini_set('display_startup_errors',0);
         error_reporting(E_ALL); 
 
         set_error_handler(function () {
@@ -160,27 +160,31 @@ class Arikaim
         // create app 
         Self::$app = AppFactory::create();
         Self::$app->setBasePath(BASE_PATH);
-    
-        Modules::init(Self::getContainer()->get('cache'));
-
-        if (Arikaim::isConsole() == false) {    
+            
+        if (Arikaim::isConsole() == false) {   
             Session::start();
-            // add default middleware
-            MiddlewareManager::init(); 
+
             // set router 
             $validatorStrategy = new ValidatorStrategy(Self::get('event'),Self::get('errors'));
             Self::$app->getRouteCollector()->setDefaultInvocationStrategy($validatorStrategy);
         
             Self::$app->getRouteCollector()->setCacheFile(Path::CACHE_PATH . "/routes.cache.php");     
             // map routes                       
-            SystemRoutes::mapSystemRoutes();   
-            Self::mapRoutes();    
+            SystemRoutes::mapSystemRoutes(); 
+            // boot db
+            Self::get('db');  
+            // Add modules service
+            Modules::init(Self::getContainer()->get('cache'));
+            // add default middleware
+            MiddlewareManager::init(); 
+            
+            Self::mapRoutes();   
+            
+            // DatTime and numbers format
+            Number::setFormats(Self::options()->get('number.format.items'));
+            DateTime::setTimeZone(Arikaim::options()->get('time.zone'));
+            DateTime::setFormats(Arikaim::options()->get('date.format.items'),Arikaim::options()->get('time.format.items'));   
         }      
-        
-        // DatTime and numbers format
-        Number::setFormats(Self::options()->get('number.format.items'));
-        DateTime::setTimeZone(Arikaim::options()->get('time.zone'));
-        DateTime::setFormats(Arikaim::options()->get('date.format.items'),Arikaim::options()->get('time.format.items'));      
     }
     
     /**
@@ -260,7 +264,7 @@ class Arikaim
      * @return void
     */
     public static function run() 
-    {       
+    {      
         Self::init();    
         Self::$app->run();            
     }
@@ -279,21 +283,25 @@ class Arikaim
     }
 
     /**
-     * Force garbage collector before exit
+     * End handler
      *
      * @return void
      */
     public static function end() 
     {    
         if (error_reporting() == true) {
-            $error = error_get_last();                
+            $error = error_get_last();    
             if (empty($error) == false) {               
+                Self::get('cache')->clear();
                 $renderer = new HtmlPageErrorRenderer(Self::errors());
                 $applicationError = new ApplicationError(Self::response(),$renderer);  
 
                 if (Install::isInstalled() == false) {
-                    $error = new Exception("Arikaim CMS not installed");
-                    Self::get('cache')->clear();
+                    if (Install::isInstallPage() == true) {                                                  
+                        Self::$app->run(); 
+                        return;                     
+                    }
+                    $error = new Exception(Self::get('errors')->getError('NOT_INSTALLED_ERROR'));
                 } 
                 $applicationError->renderError(Self::createRequest(),$error);                                                   
             }          
@@ -320,7 +328,7 @@ class Arikaim
     */
     public static function getConsoleRootPath()
     {
-        return (defined('ROOT_PATH') == true) ? ROOT_PATH : $_SERVER['PWD'];// dirname(dirname(__DIR__));         
+        return (defined('ROOT_PATH') == true) ? ROOT_PATH : $_SERVER['PWD'];
     }
 
     /**
@@ -424,6 +432,6 @@ class Arikaim
      */
     public static function getCorePackageName()
     {
-        return "league/flysystem";
+        return "arikaim/core";
     }
 }

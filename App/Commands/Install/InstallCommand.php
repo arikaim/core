@@ -7,7 +7,7 @@
  * @license     http://www.arikaim.com/license
  * 
  */
-namespace Arikaim\Core\App\Commands;
+namespace Arikaim\Core\App\Commands\Install;
 
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Question\ConfirmationQuestion;

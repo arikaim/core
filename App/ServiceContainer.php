@@ -20,6 +20,8 @@ use Arikaim\Core\App\TwigExtension;
 use Arikaim\Core\Packages\PackageManagerFactory;
 use Arikaim\Core\Packages\PackageFactory;
 use Arikaim\Core\Routes\Routes;
+use Arikaim\Core\App\Install;
+use PDOException;
 
 /**
  * Create system services
@@ -105,13 +107,13 @@ class ServiceContainer
             try {  
                 $relations = $container->get('config')->load('relations.php');
                 $db = new \Arikaim\Core\Db\Db($container->get('config')['db'],$relations);
-            } catch(\PDOException $e) {
-                $container->get('errors')->addError('DB_CONNECTION_ERROR');
+            } catch(PDOException $e) {
+                if (Install::isInstalled() == true) {
+                    $container->get('errors')->addError('DB_CONNECTION_ERROR');
+                }                
             }      
             return $db;
-        };   
-        // boot db
-        $container->get('db'); 
+        };     
         // Routes
         $container['routes'] = function($container) { 
             return new Routes(Model::Routes(),$container['cache']);  

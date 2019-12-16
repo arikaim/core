@@ -18,16 +18,6 @@ use Arikaim\Core\App\Install as SystemInstall;
 class Install extends ApiController
 {
     /**
-     * Init controller
-     *
-     * @return void
-     */
-    public function init()
-    {
-        $this->loadMessages('system:admin.messages');
-    }
-
-    /**
      * Install Arikaim 
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
@@ -45,7 +35,7 @@ class Install extends ApiController
             $this->get('config')->setValue('db/password',$data->get('password'));
             $this->get('config')->setValue('db/database',$data->get('database'));         
             $this->get('config')->save();
-             
+              
             $result = $this->get('db')->testConnection($this->get('config')->get('db'));
           
             if ($result == true) {          
@@ -54,11 +44,10 @@ class Install extends ApiController
                 $result = $install->install();   
                                       
                 $this->setResponse($result,function() {                  
-                    $this
-                        ->message('install');                                          
-                },'errors.install');
+                    $this->message('Arikaim CMS was installed successfully.');                                          
+                },'INSTALL_ERROR');
             } else {
-                $this->message('errors.db');
+                $this->error('DB_CONNECTION_ERROR');
             }         
         });
         $data
@@ -85,8 +74,8 @@ class Install extends ApiController
             $install = new SystemInstall();
             $result = $install->install();   
             $this->setResponse($result,function() {                  
-                $this->message('install');                                          
-            },'errors.install');
+                $this->message('Arikaim CMS was installed successfully.');                                          
+            },'INSTALL_ERROR');
 
         });
         $data->validate();  

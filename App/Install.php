@@ -24,6 +24,18 @@ use Arikaim\Core\System\System;
 class Install 
 {
     /**
+     * Check for install page url
+     *
+     * @return boolean
+     */
+    public static function isInstallPage()
+    {
+        $uri = $_SERVER['REQUEST_URI'];
+
+        return (substr($uri,-7) == 'install');
+    }
+
+    /**
      * Install Arikaim
      *
      * @return boolean;
