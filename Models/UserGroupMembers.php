@@ -37,6 +37,13 @@ class UserGroupMembers extends Model
     ];
     
     /**
+     * Db table name
+     *
+     * @var string
+     */
+    protected $table = 'user_group_members';
+
+    /**
      * Disable timestamps
      *
      * @var boolean

@@ -40,6 +40,13 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
     ];
     
     /**
+     * Db table name
+     *
+     * @var string
+     */
+    protected $table = 'event_subscribers';
+
+    /**
      * Disable timestamps
      *
      * @var boolean

@@ -30,7 +30,7 @@ class Install
      */
     public static function isInstallPage()
     {
-        $uri = $_SERVER['REQUEST_URI'];
+        $uri = (isset($_SERVER['REQUEST_URI']) == true) ? $_SERVER['REQUEST_URI'] : '';
 
         return (substr($uri,-7) == 'install');
     }
@@ -188,7 +188,7 @@ class Install
         Arikaim::options()->createOption('number.format.items',$items,false);
         
         // set default time zone 
-        Arikaim::options()->createOption('time.zone',DateTime::getTimeZone(),false);
+        Arikaim::options()->createOption('time.zone',DateTime::getTimeZoneName(),false);
         // set default template name
         Arikaim::options()->createOption('current.template',Template::getTemplateName(),true);
         // mailer
@@ -230,13 +230,16 @@ class Install
     private function createDbTables()
     {                 
         $classes = $this->getSystemSchemaClasses();
-        $errors = 0;      
+        $errors = 0;     
+
         foreach ($classes as $class) {            
             $installed = Schema::install($class);
             if ($installed == false) {
-                $errors++; 
+                $errors++;       
                 Arikaim::errors()->addError('Error create database table "' . Schema::getTable($class) . '"');
-            }
+                echo "err: " . Schema::getTable($class);
+                exit();
+            } 
         }
 
         return ($errors == 0);   

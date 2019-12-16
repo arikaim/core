@@ -52,6 +52,13 @@ class Modules extends Model implements PackageRegistryInterface
     ];
     
     /**
+     * Db table name
+     *
+     * @var string
+     */
+    protected $table = 'modules';
+
+    /**
      * Disable timestamps
      *
      * @var boolean

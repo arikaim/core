@@ -40,6 +40,13 @@ class UserGroups extends Model
     public $timestamps = false;
 
     /**
+     * Db table name
+     *
+     * @var string
+     */
+    protected $table = 'user_groups';
+
+    /**
      * Group members relation
      *
      * @return UserGroupMembers

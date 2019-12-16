@@ -31,8 +31,8 @@ class PermissionRelationsSchema extends Schema
      */
     public function create($table) 
     {            
-        $table->tablePolymorphicRelations('permission_id','premissions',function($table) {
-             // columns                    
+        $table->tablePolymorphicRelations('permission_id','permissions',function($table) {
+            // columns                    
             $table->integer('read')->nullable(false)->default(0);
             $table->integer('write')->nullable(false)->default(0);
             $table->integer('delete')->nullable(false)->default(0);

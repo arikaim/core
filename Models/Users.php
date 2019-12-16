@@ -65,6 +65,14 @@ class Users extends Model implements UserProviderInterface
     public $timestamps = false;
 
     /**
+     * Db table name
+     *
+     * @var string
+     */
+    protected $table = 'users';
+
+
+    /**
      * User groups relation
      *
      * @return void

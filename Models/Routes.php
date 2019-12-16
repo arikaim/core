@@ -47,6 +47,13 @@ class Routes extends Model implements RoutesStorageInterface
     ];
     
     /**
+     * Db table name
+     *
+     * @var string
+     */
+    protected $table = 'routes';
+
+    /**
      * Disable timestamps
      *
      * @var boolean

@@ -52,6 +52,13 @@ class Jobs extends Model implements QueueStorageInterface
     ];
     
     /**
+     * Db table name
+     *
+     * @var string
+     */
+    protected $table = 'jobs';
+
+    /**
      * Disable timestamps
      *
      * @var boolean
