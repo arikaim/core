@@ -54,7 +54,7 @@ class Packages extends ApiController
         
             $repository = $packageManager->getRepository($name);
             $result = (is_object($repository) == true) ? $repository->install() : false;
-          
+            
             $this->setResponse($result,function() use($name,$type) {  
                 // clear cache    
                 $this->get('cache')->clear();            
