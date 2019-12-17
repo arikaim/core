@@ -432,6 +432,6 @@ class Arikaim
      */
     public static function getCorePackageName()
     {
-        return "arikaim/installer";
+        return "arikaim/core";
     }
 }
