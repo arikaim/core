@@ -52,7 +52,7 @@ class Packages extends ApiController
                 $packageManager->createBackup($name);
             }
         
-            $repository = $packageManager->getRepository();
+            $repository = $packageManager->getRepository($name);
             $result = (is_object($repository) == true) ? $repository->install() : false;
           
             $this->setResponse($result,function() use($name,$type) {  
