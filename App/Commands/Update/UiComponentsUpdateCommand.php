@@ -42,14 +42,9 @@ class UiComponentsUpdateCommand extends ConsoleCommand
         $update = new Update('arikaim/ui-components');
         $update->update(false,true);
         $currentVersion = $update->getCurrentVersion();
-
-        if ($currentVersion == $update->getLastVersion()) {
-            // updated
-            $this->showCompleted('UI components updated successfully.');
-            $this->style->writeLn('New version: ' . ConsoleHelper::getLabelText($currentVersion));
-            return;
-        } 
-
-        $this->showError("Can't update UI components!");
+       
+        // updated
+        $this->showCompleted('UI components updated successfully.');
+        $this->style->writeLn('New version: ' . ConsoleHelper::getLabelText($currentVersion));
     }
 }

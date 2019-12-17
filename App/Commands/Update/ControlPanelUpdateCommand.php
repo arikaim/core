@@ -43,13 +43,8 @@ class ControlPanelUpdateCommand extends ConsoleCommand
         $update->update(false,true);
         $currentVersion = $update->getCurrentVersion();
 
-        if ($currentVersion == $update->getLastVersion()) {
-            // updated
-            $this->showCompleted('Control Panel updated successfully.');
-            $this->style->writeLn('New version: ' . ConsoleHelper::getLabelText($currentVersion));
-            return;
-        } 
-
-        $this->showError("Can't update Control Panel!");
+        // updated
+        $this->showCompleted('Control Panel updated successfully.');
+        $this->style->writeLn('New version: ' . ConsoleHelper::getLabelText($currentVersion));
     }
 }

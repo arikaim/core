@@ -3,7 +3,7 @@
     "description": "Arikam CMS core component",
     "keywords": ["CMS", "Content Management System"],
     "type": "library",
-    "license": "GPL-3.0-or-later",
+    "license": "GPL-3.0-only",
     "authors": [{
         "name": "Konstantin Atanasov",
         "email": "info@arikaim.com",
@@ -12,7 +12,7 @@
     "homepage": "http://arikaim.com",
     "require": {
         "php": ">=7.1",
-        "arikaim/installer": "*",
+        "arikaim/installer": "^1.0.0",
         "arikaim/container": "^1.0.0",
         "arikaim/utils": "^1.0.0",
         "arikaim/collection": "^1.0.0",

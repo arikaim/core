@@ -47,19 +47,14 @@ class UpdateCommand extends ConsoleCommand
         $update->update(false,true);
         $currentVersion = $update->getCurrentVersion();
 
-        if ($currentVersion == $update->getLastVersion()) {
-            // updated
-            $install = new Install();
-            $result = $install->install();
-            if ($result !== false) {
-                $this->showCompleted('Arikaim CMS updated successfully.');
-                $this->style->writeLn('New version: ' . ConsoleHelper::getLabelText($currentVersion));
-            } else {
-                $this->showError("Can't install Arikaim CMS core package!");
-            }
-            return;
-        } 
-
-        $this->showError("Can't update Arikaim CMS core package!");
+        // updated
+        $install = new Install();
+        $result = $install->install();
+        if ($result !== false) {
+            $this->showCompleted('Arikaim CMS updated successfully.');
+            $this->style->writeLn('New version: ' . ConsoleHelper::getLabelText($currentVersion));
+        } else {
+            $this->showError("Can't install Arikaim CMS core package!");
+        }
     }
 }
