@@ -52,8 +52,8 @@ class Packages extends ApiController
                 $packageManager->createBackup($name);
             }
         
-            $package = $packageManager->createPackage($name);
-            $result = (is_object($package) == true) ? $package->getRepository()->install() : false;
+            $repository = $packageManager->getRepository();
+            $result = (is_object($repository) == true) ? $repository->install() : false;
           
             $this->setResponse($result,function() use($name,$type) {  
                 // clear cache    

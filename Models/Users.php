@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use Arikaim\Core\Models\UserGroupMembers;
 use Arikaim\Core\Utils\DateTime;
-use Arikaim\Core\Db\Schema;
+use Arikaim\Core\Utils\Uuid as UuidCreate;
 use Arikaim\Core\Access\Access;
 use Arikaim\Core\Access\Interfaces\UserProviderInterface;
 use Arikaim\Core\Db\Model as DbModel;
@@ -43,10 +43,12 @@ class Users extends Model implements UserProviderInterface
      * @var array
     */
     protected $fillable = [
+        'uuid',
         'user_name',
         'email',
         'password',      
         'date_login',
+        'date_created',       
         'date_deleted'
     ];
 
@@ -179,10 +181,6 @@ class Users extends Model implements UserProviderInterface
      */
     public function getControlPanelUser()
     {
-        if (Schema::hasTable($this) == false) {
-            return false;
-        }
-        
         $permisisonId = DbModel::Permissions()->getId(Access::CONTROL_PANEL);
         if ($permisisonId == false) {
             return false;
@@ -259,9 +257,11 @@ class Users extends Model implements UserProviderInterface
             return $user;
         }
         $data = [
-            'user_name'  => $userName,
-            'password'   => $this->EncryptPassword($password),
-            'email'      => $email
+            'uuid'          => UuidCreate::create(),
+            'date_created'  => DateTime::getTimestamp(),
+            'user_name'     => $userName,
+            'password'      => $this->EncryptPassword($password),
+            'email'         => $email
         ];
    
         return $this->create($data);

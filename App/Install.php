@@ -91,15 +91,15 @@ class Install
             $result = $currentTemplate->install();
         }
       
-        // install core modules
+        // Install core modules
         $modulesManager = Arikaim::packages()->create('module');
         $result = $modulesManager->installAllPackages();
 
-        //Install extensions      
+        // Install extensions      
         $extensionManager = Arikaim::packages()->create('extension');
         $result = $extensionManager->installAllPackages();
       
-        // install cron scheduler 
+        // Install cron scheduler 
         $cron = new Cron();
         $cron->install();
         
@@ -152,7 +152,7 @@ class Install
             if (empty($user->id) == true) {
                 Arikaim::errors()->addError('CONTROL_PANEL_USER_ERROR',"Error create control panel user.");
                 return false;
-            }                
+            }    
         }
         
         return Model::PermissionRelations()->setUserPermission(Access::CONTROL_PANEL,Access::FULL,$user->id);
