@@ -12,9 +12,7 @@ namespace Arikaim\Core\App;
 use Arikaim\Container\Container;
 use Arikaim\Core\Events\EventsManager;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\Collection\Collection;
 use Arikaim\Core\Utils\Path;
-use Arikaim\Core\System\Config;
 use Arikaim\Core\View\Template\Extension;
 use Arikaim\Core\App\TwigExtension;
 use Arikaim\Core\Packages\PackageManagerFactory;
@@ -35,19 +33,11 @@ class ServiceContainer
      */
     public static function init($container)
     {
-        // Settings
-        Config::setConfigDir(Path::CONFIG_PATH);
-
-        $config = Config::read('config.php');
-        $settings = isset($config['settings']) ? $config['settings'] : [];       
-        $container['settings'] = function () use ($settings) {
-            return new Collection($settings);
-        };
         // Cache 
         $container['cache'] = function($container) {            
-            $enabled = $container->get('settings')->get('cache',false);   
+           // $enabled = $container->get('settings')->get('cache',false);   
             $routeCacheFile = Path::CACHE_PATH . "/routes.cache.php";            
-            return new \Arikaim\Core\Cache\Cache(Path::CACHE_PATH,$routeCacheFile,null,$enabled);
+            return new \Arikaim\Core\Cache\Cache(Path::CACHE_PATH,$routeCacheFile,null,true);
         };
         // Config
         $container['config'] = function($container) {    
@@ -55,6 +45,10 @@ class ServiceContainer
             $config = new \Arikaim\Core\System\Config("config.php",$cache,Path::CONFIG_PATH);         
             return $config;
         }; 
+
+        // init cache status
+        $container->get('cache')->setStatus($container->get('config')['settings']['cache']);
+
         // Events manager 
         $container['event'] = function() {
             return new EventsManager(Model::Events(),Model::EventSubscribers());
@@ -92,7 +86,8 @@ class ServiceContainer
         }; 
         // Errors  
         $container['errors'] = function($container) {
-            return new \Arikaim\Core\System\Error\Errors($container['page']);          
+            $systemErrors = $container->get('config')->loadJsonConfigFile('errors.json');       
+            return new \Arikaim\Core\System\Error\Errors($container['page'],$systemErrors);          
         };
         // Access
         $container['access'] = function($container) {
