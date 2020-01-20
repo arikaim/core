@@ -13,16 +13,19 @@ use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Access\Access;
 use Arikaim\Core\Queue\Cron;
 use Arikaim\Core\System\System;
+
+use Arikaim\Core\System\Error\Traits\TaskErrors;
 
 /**
  * Arikaim install
  */
 class Install 
 {
+    use TaskErrors;
+    
     /**
      * Check for install page url
      *
@@ -31,7 +34,7 @@ class Install
     public static function isInstallPage()
     {
         $uri = (isset($_SERVER['REQUEST_URI']) == true) ? $_SERVER['REQUEST_URI'] : '';
-
+       
         return (substr($uri,-7) == 'install');
     }
 
@@ -44,6 +47,7 @@ class Install
     {    
         // clear errors before start
         Arikaim::errors()->clear();
+        $this->clearErrors();
 
         // create database if not exists  
         $databaseName = Arikaim::config()->getByPath('db/database');
@@ -53,8 +57,8 @@ class Install
             $collation = Arikaim::config()->getByPath('db/collation');
             $result = Arikaim::db()->createDb($databaseName,$charset,$collation); 
             if ($result == false) {
-                Arikaim::errors()->addError('DB_DATABASE_ERROR');
-                return false;
+                $error = Arikaim::errors()->getError('DB_DATABASE_ERROR');
+                $this->addError($error);
             }            
         }          
 
@@ -62,13 +66,13 @@ class Install
 
         // Create Arikaim DB tables
         $result = $this->createDbTables();      
-        if ($result == false) {
-            return false;
-        }
-
-        // add control panel permisison item 
-        Arikaim::access()->addPermission(Access::CONTROL_PANEL,Access::CONTROL_PANEL,'Arikaim control panel access.');
       
+        // add control panel permisison item 
+        $result = Arikaim::access()->addPermission(Access::CONTROL_PANEL,Access::CONTROL_PANEL,'Arikaim control panel access.');
+        if ($result == false) {          
+            $this->addError("Can't create contorl panel permission");
+        }   
+
         // register core events
         $this->registerCoreEvents();
 
@@ -106,7 +110,7 @@ class Install
         // trigger event core.install
         Arikaim::event()->dispatch('core.install',Arikaim::errors()->getErrors());
 
-        return true;
+        return ($this->hasError() == false);
     } 
 
     /**
@@ -142,7 +146,7 @@ class Install
     /**
      * Create default control panel user
      *
-     * @return void
+     * @return boolean
      */
     private function createDefaultAdminUser()
     {
@@ -165,32 +169,24 @@ class Install
      */
     private function initDefaultOptions()
     {
-        // add date formats options
-        $items = Arikaim::config()->loadJsonConfigFile("date-format.json");      
-        Arikaim::options()->createOption('date.format.items',$items,false);
-        // set default date format 
-        $key = array_search(1,array_column($items,'default'));
-        if ($key !== false) {
-            Arikaim::options()->createOption('date.format',$items[$key]['value'],true);
-        }
-     
-        // add time format options
-        $items = Arikaim::config()->loadJsonConfigFile("time-format.json");
-        Arikaim::options()->createOption('time.format.items',$items,false);
-        // set default time format
-        $key = array_search(1,array_column($items,'default'));
-        if ($key !== false) {
-            Arikaim::options()->createOption('time.format',$items[$key]['value'],true);
-        }
+        $formats = Arikaim::config()->loadJsonConfigFile("date-time-format.json");
 
+        // add date formats options
+        Arikaim::options()->createOption('date.format.items',$formats['date'],true);
+        Arikaim::options()->createOption('date.format',$formats['date']['numeric-us'],true);
+        // add time format options
+        Arikaim::options()->createOption('time.format.items',$formats['time'],true);    
+        Arikaim::options()->createOption('time.format',$formats['time']['24-long'],true);
+    
         // add number format options
         $items = Arikaim::config()->loadJsonConfigFile("number-format.json");
-        Arikaim::options()->createOption('number.format.items',$items,false);
-        
+        Arikaim::options()->createOption('number.format.items',$items,true);
+        Arikaim::options()->createOption('number.format','default',true);
+
+        // primary template
+        Arikaim::options()->createOption('primary.template','blog',true);
         // set default time zone 
         Arikaim::options()->createOption('time.zone',DateTime::getTimeZoneName(),false);
-        // set default template name
-        Arikaim::options()->createOption('current.template',Template::getTemplateName(),true);
         // mailer
         Arikaim::options()->createOption('mailer.use.sendmail',true,true);
         Arikaim::options()->createOption('mailer.smpt.port','25',true);
@@ -236,9 +232,8 @@ class Install
             $installed = Schema::install($class);
             if ($installed == false) {
                 $errors++;       
-                Arikaim::errors()->addError('Error create database table "' . Schema::getTable($class) . '"');
-                echo "err: " . Schema::getTable($class);
-                exit();
+                $error = 'Error create database table "' . Schema::getTable($class) . '"';
+                $this->addError($error);
             } 
         }
 

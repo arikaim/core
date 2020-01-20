@@ -28,7 +28,7 @@ class SystemRoutes
         $sessionAuth = Arikaim::access()->middleware('session');
 
         // Control Panel
-        Arikaim::$app->get('/admin/[{language:[a-z]{2}}/]',"Arikaim\Core\App\ControlPanel:loadControlPanel");    
+        Arikaim::$app->get('/admin[/{language:[a-z]{2}}/]',"Arikaim\Core\App\ControlPanel:loadControlPanel");    
         // Api Access
         Arikaim::$app->post('/core/api/create/token/',"$apiNamespace\Client:createToken");
         Arikaim::$app->post('/core/api/verify/request/',"$apiNamespace\Client:verifyRequest");      
@@ -71,14 +71,10 @@ class SystemRoutes
         })->add($sessionAuth);              
         // Control Panel user
         Arikaim::$app->group('/core/api/user',function($group) use($apiNamespace) {  
-            $group->post('/login/',"$apiNamespace\Users:adminLogin");
-            $group->post('/password/recovery/',"$apiNamespace\Users:passwordRecovery");
-            $group->post('/password/change/',"$apiNamespace\Users:changePassword");
-            $group->get('/logout/',"$apiNamespace\Users:logout");
-        });
-        // Change password page
-        Arikaim::$app->get('/admin/change-password/{code}/[{language}/]',"Arikaim\Core\App\ControlPanel:loadChangePassword");
-        Arikaim::$app->post('/core/api/user/',"$apiNamespace\Users:changeDetails")->add($sessionAuth);
+            $group->post('/login',"$apiNamespace\Users:adminLogin");
+            $group->post('/update',"$apiNamespace\Users:changeDetails");           
+            $group->get('/logout',"$apiNamespace\Users:logout");
+        });      
         // Languages  
         Arikaim::$app->group('/core/api/language',function($group) use($apiNamespace) {      
             $group->post('/add',"$apiNamespace\Language:add");
@@ -148,12 +144,17 @@ class SystemRoutes
         Arikaim::$app->group('/core/api/logs',function($group) use($apiNamespace) {
             $group->delete('/clear',"$apiNamespace\Logger:clear");
         })->add($sessionAuth);
-        // Orm
+        // options and relations used for all extensions
         Arikaim::$app->group('/core/api/orm',function($group) use($apiNamespace) {
-            $group->put('/relation/delete',"$apiNamespace\Orm:deleteRelation");
-            $group->post('/relation',"$apiNamespace\Orm:addRelation");
-            $group->put('/options',"$apiNamespace\Orm:saveOptions");
-            $group->get('/model/{name}/{extension}/{uuid}',"$apiNamespace\Orm:read");
+            $group->put('/relation/delete',"$apiNamespace\Orm\Relations:deleteRelation");
+            $group->post('/relation',"$apiNamespace\Orm\Relations:addRelation");
+            $group->put('/options',"$apiNamespace\Orm\Options:saveOptions");
+            $group->post('/options/type/add',"$apiNamespace\Orm\Options:addOptionType");
+            $group->put('/options/type/update',"$apiNamespace\Orm\Options:updateOptionType");
+            $group->put('/options/type/delete',"$apiNamespace\Orm\Options:deleteOptionType");
+            $group->post('/options/list/add',"$apiNamespace\Orm\Options:addOptionList");    
+            $group->put('/options/list/update',"$apiNamespace\Orm\Options:updateOptionList");       
+            $group->put('/options/list/delete',"$apiNamespace\Orm\Options:deleteOptionList");              
         })->add($sessionAuth);
         // Packages
         Arikaim::$app->group('/core/api/packages',function($group) use($apiNamespace) {
@@ -163,7 +164,7 @@ class SystemRoutes
             $group->put('/uninstall',"$apiNamespace\Packages:unInstall");
             $group->put('/update',"$apiNamespace\Packages:update");
             $group->post('/config',"$apiNamespace\Packages:saveConfig");
-            $group->put('/current',"$apiNamespace\Packages:setCurrent");
+            $group->put('/primary',"$apiNamespace\Packages:setPrimary");
             $group->put('/theme/current',"$apiNamespace\Packages:setCurrentTheme");
             $group->put('/library/params',"$apiNamespace\Packages:setLibraryParams");
         })->add($sessionAuth);

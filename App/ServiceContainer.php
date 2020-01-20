@@ -140,19 +140,10 @@ class ServiceContainer
         };   
        
         // Add template extensions
-        $extension = new Extension(
-            $container->get('cache'),
-            BASE_PATH,
-            Path::VIEW_PATH,
-            Path::LIBRARY_PATH,
-            Path::EXTENSIONS_PATH,
-            $container->get('page'),
-            $container->get('access')
-        );
-     
+        $extension = new Extension($container->get('cache'),BASE_PATH,Path::VIEW_PATH,$container->get('page'),$container->get('access'));
         $container->get('view')->addExtension($extension);
-        $twigExtension = new TwigExtension($container->get('cache'),$container->get('access'),$container->get('options'));
 
+        $twigExtension = new TwigExtension($container->get('cache'),$container->get('access'),$container->get('options'));
         $container->get('view')->addExtension($twigExtension);
 
         return $container;

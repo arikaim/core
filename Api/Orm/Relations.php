@@ -7,15 +7,15 @@
  * @license     http://www.arikaim.com/license
  * 
 */
-namespace Arikaim\Core\Api;
+namespace Arikaim\Core\Api\Orm;
 
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Db\Model;
 
 /**
- * Orm controller
+ * Orm relations controller
 */
-class Orm extends ApiController
+class Relations extends ApiController
 {   
     /**
      * Init controller
@@ -40,16 +40,20 @@ class Orm extends ApiController
         $this->requireControlPanelPermission();
 
         $this->onDataValid(function($data) {            
-            $model = Model::create($data['model'],$data['extension'])->findByid($data['uuid']);
-            $result = (is_object($model) == true) ? $model->delete() : false;
-
+            $model = Model::create($data['model'],$data['extension']);
+            if (is_object($model) == false) {               
+                $this->error('errors.relations.add');               
+                return;
+            }
+            $result = $model->deleteRelations($data['id'],$data['type'],$data['relation_id']);
+             
             $this->setResponse($result,'relations.delete','errors.relations.delete');
         });
         $data->validate();
     }
 
     /**
-     * Remove relation
+     * Add relation
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param \Psr\Http\Message\ResponseInterface $response
@@ -62,6 +66,11 @@ class Orm extends ApiController
 
         $this->onDataValid(function($data) {                        
             $model = Model::create($data['model'],$data['extension']);
+            if (is_object($model) == false) {
+                $this->error('errors.relations.add');
+                return;
+            }
+
             $result = $model->saveRelation($data['id'],$data['type'],$data['relation_id']);
             
             $this->setResponse($result,'relations.add','errors.relations.add');
@@ -91,36 +100,6 @@ class Orm extends ApiController
                     ->field('data',$model->toArray());                   
             },'errors.orm.read');
         });
-        $data->validate();
-    }
-
-    /**
-     * Save options
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @param Validator $data
-     * @return Psr\Http\Message\ResponseInterface
-     */
-    public function saveOptionsController($request, $response, $data)
-    {
-        $this->requireControlPanelPermission();
-        
-        $this->onDataValid(function($data) { 
-            $modelName = $data->get('model');
-            $extension = $data->get('extension');
-            $referenceId = $data->get('id');
-            $model = Model::create($modelName,$extension);
-            
-            $result = (is_object($model) == true) ? $model->saveOptions($referenceId,$data['options']) : false;
-         
-            $this->setResponse($result,function() use($model) {
-                $this
-                    ->message('orm.options.save')
-                    ->field('uuid',$model->uuid);                   
-            },'errors.options.save');
-        });
-
         $data->validate();
     }
 }
