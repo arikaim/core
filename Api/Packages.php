@@ -41,7 +41,9 @@ class Packages extends ApiController
     {
         $this->requireControlPanelPermission();
 
-        $this->onDataValid(function($data) {            
+        $this->onDataValid(function($data) {  
+            $this->get('cache')->clear();
+
             $type = $data->get('type',null);
             $name = $data->get('package',null);
             $packageManager = $this->get('packages')->create($type);
@@ -54,9 +56,7 @@ class Packages extends ApiController
             $repository = $packageManager->getRepository($name);
             $result = (is_object($repository) == true) ? $repository->install() : false;
             
-            $this->setResponse($result,function() use($name,$type) {  
-                // clear cache    
-                $this->get('cache')->clear();            
+            $this->setResponse($result,function() use($name,$type) {            
                 $this
                     ->message($type . '.install')
                     ->field('type',$type)   
@@ -79,6 +79,8 @@ class Packages extends ApiController
         $this->requireControlPanelPermission();
 
         $this->onDataValid(function($data) { 
+            $this->get('cache')->clear();
+
             $type = $data->get('type',null);
             $name = $data->get('name',null);
 
@@ -113,6 +115,8 @@ class Packages extends ApiController
         $this->requireControlPanelPermission();
 
         $this->onDataValid(function($data) { 
+            $this->get('cache')->clear();
+          
             $type = $data->get('type',null);
             $name = $data->get('name',null);
 
@@ -147,6 +151,8 @@ class Packages extends ApiController
         $this->requireControlPanelPermission();
 
         $this->onDataValid(function($data) {  
+            $this->get('cache')->clear();
+
             $type = $data->get('type',null);
             $name = $data->get('name',null);
 
@@ -155,7 +161,10 @@ class Packages extends ApiController
             $properties = $package->getProperties();
             $primary = $properties->get('primary',false);
 
-            $package->unInstall();           
+            $package->unInstall();    
+            
+            $this->get('cache')->clear();
+           
             $result = $package->install($primary);
             if ($primary == true) { 
                 $package->setPrimary($primary);
@@ -188,7 +197,9 @@ class Packages extends ApiController
     {
         $this->requireControlPanelPermission();
         
-        $this->onDataValid(function($data) {     
+        $this->onDataValid(function($data) {   
+            $this->get('cache')->clear();
+
             $type = $data->get('type',null);
             $name = $data->get('name',null);
             $status = $data->get('status',1);
@@ -221,11 +232,13 @@ class Packages extends ApiController
     {
         $this->requireControlPanelPermission();
 
-        $this->onDataValid(function($data) {            
+        $this->onDataValid(function($data) {    
+            $this->get('cache')->clear();
+
             $module = Model::Modules()->FindByColumn('name',$data['name']);
             $module->config = $data->toArray();
             $result = $module->save();
-
+            
             $this->setResponse($result,'module.config','errors.module.config');
         });
         $data->validate();       
@@ -273,6 +286,8 @@ class Packages extends ApiController
         $this->requireControlPanelPermission();
         
         $this->onDataValid(function($data) { 
+            $this->get('cache')->clear();
+
             $name = $data['name'];
             $type = $data->get('type','template');
 

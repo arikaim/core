@@ -81,7 +81,7 @@ class ServiceContainer
         };    
         // Init page components.
         $container['page'] = function($container) {    
-            $packageFactory = new PackageFactory($container->get('cache'));
+            $packageFactory = new PackageFactory();
             return new \Arikaim\Core\View\Html\Page($container->get('view'),$packageFactory);
         }; 
         // Errors  

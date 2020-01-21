@@ -14,7 +14,6 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Access\Access;
-use Arikaim\Core\Queue\Cron;
 use Arikaim\Core\System\System;
 
 use Arikaim\Core\System\Error\Traits\TaskErrors;
@@ -103,13 +102,6 @@ class Install
         $extensionManager = Arikaim::packages()->create('extension');
         $result = $extensionManager->installAllPackages();
       
-        // Install cron scheduler 
-        $cron = new Cron();
-        $cron->install();
-        
-        // trigger event core.install
-        Arikaim::event()->dispatch('core.install',Arikaim::errors()->getErrors());
-
         return ($this->hasError() == false);
     } 
 
@@ -126,8 +118,7 @@ class Install
         Arikaim::event()->registerEvent('core.route.disable','After disable route.');
         // UI Library
         Arikaim::event()->registerEvent('core.library.download','After download UI Library.');
-        // System
-        Arikaim::event()->registerEvent('core.install','After install.');
+        // System       
         Arikaim::event()->registerEvent('core.update','After update.');
         // Jobs
         Arikaim::event()->registerEvent('core.jobs.before.execute','Before run job.');

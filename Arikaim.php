@@ -188,7 +188,7 @@ class Arikaim
             DateTime::setTimeZone(Arikaim::options()->get('time.zone'));
             // Set date and time formats
             DateTime::setDateFormats(Arikaim::options()->get('date.format.items',[]),Arikaim::options()->get('date.format',null));   
-            DateTime::setTimeFormats(Arikaim::options()->get('date.format.items',[]),Arikaim::options()->get('time.format',null));              
+            DateTime::setTimeFormats(Arikaim::options()->get('date.format.items',[]),Arikaim::options()->get('time.format',null));                  
         }      
     }
     
@@ -225,7 +225,7 @@ class Arikaim
                     $route->add($middleware);
                 }
             }                                                   
-        }    
+        }   
     }
  
     /**

@@ -6,7 +6,7 @@ Http/
 System/
 Access/
 Interfaces/
-Cache/
+Cache/**
 View/
 Storage/
 Db/

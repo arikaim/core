@@ -312,9 +312,14 @@ abstract class Extension implements ExtensionInterface
      */
     public function addHomePageRoute($pattern, $class = null, $handlerMethod = null, $pageName = null, $auth = null, $routeName = null, $withLanguage = false)
     {
-        if ($this->primary == true) {           
-            Arikaim::routes()->deleteHomePage();
-        } 
+        if ($this->primary == true) {                     
+            Arikaim::routes()->deleteHomePage();           
+        } else {
+            $homePageRoute = Arikaim::routes()->getRoutes(['type' => 3]); // find home page route
+            if (empty($homePageRoute) == false) {
+                return true;
+            }          
+        }
 
         return $this->addPageRoute($pattern,$class,$handlerMethod,$pageName,$auth,$routeName,$withLanguage,3);
     }
@@ -344,7 +349,7 @@ abstract class Extension implements ExtensionInterface
             Arikaim::routes()->delete('GET',$pattern . Route::getLanguagePattern($pattern));          
         }
 
-        $result = Arikaim::routes()->addPageRoute($pattern,$class,$handlerMethod,$this->getName(),$pageName,$auth,$routeName,$withLanguage, $type);
+        $result = Arikaim::routes()->addPageRoute($pattern,$class,$handlerMethod,$this->getName(),$pageName,$auth,$routeName,$withLanguage,$type);
         if ($result !== true) {           
             $this->addError(Arikaim::errors()->getError("REGISTER_ROUTE_ERROR",['pattern' => $pattern])); 
         }
