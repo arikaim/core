@@ -162,8 +162,12 @@ abstract class Extension implements ExtensionInterface
     {
         $result = Arikaim::options()->createOption($key,$value,$autoLoad,$this->getName());
         if ($result !== true) {
-            // add error
-            $this->addError(Arikaim::errors()->getError("ERROR_CREATE_OPTION",['key' => $key]));
+            if (Arikaim::options()->has($key) == false) {
+                // add error
+                $this->addError(Arikaim::errors()->getError("ERROR_CREATE_OPTION",['key' => $key]));
+                return false;
+            }   
+            return true;
         } 
         
         return $result;
