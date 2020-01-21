@@ -65,6 +65,5 @@ class ExtensionsSchema extends Schema
      */
     public function update($table) 
     {       
-        $table->integer('primary')->nullable(true);
     }
 }
