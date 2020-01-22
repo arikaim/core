@@ -25,7 +25,7 @@ class InstallPage extends Controller
      * @param Validator $data
      * @return Psr\Http\Message\ResponseInterface
     */
-    public function loadInstallPage($request, $response, $data)
+    public function loadInstall($request, $response, $data)
     {
         $this->get('cache')->clear();   
 
