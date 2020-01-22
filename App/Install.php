@@ -35,6 +35,18 @@ class Install
     {
         $uri = (isset($_SERVER['REQUEST_URI']) == true) ? $_SERVER['REQUEST_URI'] : '';
        
+        return (substr($uri,-13) == 'install');
+    }
+
+    /**
+     * Return true if request is for installation 
+     *
+     * @return boolean
+     */
+    public static function isApiInstallRequest()
+    {
+        $uri = (isset($_SERVER['REQUEST_URI']) == true) ? $_SERVER['REQUEST_URI'] : '';
+       
         return (substr($uri,-7) == 'install');
     }
 

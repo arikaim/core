@@ -299,11 +299,15 @@ class Arikaim
                 $renderer = new HtmlPageErrorRenderer(Self::errors());
                 $applicationError = new ApplicationError(Self::response(),$renderer);  
                 if (Install::isInstalled() == false) {                   
-                    if (Install::isInstallPage() == true) {                                              
-                        Self::$app->run(); 
-                        return;                     
+                    if (Install::isInstallPage() == true) {   
+                        $output = Self::get('page')->getHtmlCode('system:install');  
+                        echo $output;
+                        exit();             
                     }
-                    $error = new Exception(Self::get('errors')->getError('NOT_INSTALLED_ERROR'));
+                    if (Install::isApiInstallRequest() == true) {
+                        return Self::$app->run();
+                    } 
+                    $error = new Exception(Self::get('errors')->getError('NOT_INSTALLED_ERROR'));       
                 } 
                 $applicationError->renderError(Self::createRequest(),$error); 
                 exit();                                                  
