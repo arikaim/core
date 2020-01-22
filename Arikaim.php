@@ -305,7 +305,8 @@ class Arikaim
                     }
                     $error = new Exception(Self::get('errors')->getError('NOT_INSTALLED_ERROR'));
                 } 
-                $applicationError->renderError(Self::createRequest(),$error);                                                   
+                $applicationError->renderError(Self::createRequest(),$error); 
+                exit();                                                  
             }          
         }
     }

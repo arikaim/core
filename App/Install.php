@@ -17,6 +17,7 @@ use Arikaim\Core\Access\Access;
 use Arikaim\Core\System\System;
 
 use Arikaim\Core\System\Error\Traits\TaskErrors;
+use Exception;
 
 /**
  * Arikaim install
@@ -65,7 +66,7 @@ class Install
 
         // Create Arikaim DB tables
         $result = $this->createDbTables();      
-      
+    
         // add control panel permisison item 
         $result = Arikaim::access()->addPermission(Access::CONTROL_PANEL,Access::CONTROL_PANEL,'Arikaim control panel access.');
         if ($result == false) {          
@@ -77,23 +78,16 @@ class Install
 
         // reload seystem options
         Arikaim::options()->load();
-
+      
         // create admin user if not exists 
         $this->createDefaultAdminUser();
-
+      
         // add date, time, number format items
         $this->initDefaultOptions();
 
         // install drivers
         $this->installDrivers();
-
-        // install current template 
-        $templateManager = Arikaim::packages()->create('template');
-        $currentTemplate = $templateManager->findPackage('current',true);
-        if ($currentTemplate !== false) {
-            $result = $currentTemplate->install();
-        }
-      
+ 
         // Install core modules
         $modulesManager = Arikaim::packages()->create('module');
         $result = $modulesManager->installAllPackages();
@@ -101,7 +95,7 @@ class Install
         // Install extensions      
         $extensionManager = Arikaim::packages()->create('extension');
         $result = $extensionManager->installAllPackages();
-      
+
         return ($this->hasError() == false);
     } 
 
@@ -219,8 +213,9 @@ class Install
         $classes = $this->getSystemSchemaClasses();
         $errors = 0;     
 
-        foreach ($classes as $class) {            
+        foreach ($classes as $class) {        
             $installed = Schema::install($class);
+          
             if ($installed == false) {
                 $errors++;       
                 $error = 'Error create database table "' . Schema::getTable($class) . '"';
@@ -248,15 +243,15 @@ class Install
             // check db tables
             $tables = Self::getSystemDbTableNames();
             foreach ($tables as $tableName) {
-                $errors += Schema::hasTable($tableName) ? 0:1;
+                $errors += Schema::hasTable($tableName) ? 0 : 1;
             }
-           
+                    
             $result = Model::Users()->hasControlPanelUser();                          
             if ($result == false) {
                 $errors++;
-            }
-           
-        } catch(\Exception $e) {
+            }          
+
+        } catch(Exception $e) {
             $errors++;
         }
 
@@ -332,6 +327,7 @@ class Install
     private function getSystemSchemaClasses()
     {
         return [
+            'RoutesSchema',
             'UsersSchema',
             'PermissionsSchema',
             'PermissionRelationsSchema',
@@ -345,7 +341,6 @@ class Install
             'LanguageSchema',
             'OptionsSchema',
             'PermissionsSchema',
-            'RoutesSchema',
             'AccessTokensSchema',
             'DriversSchema'
         ];
