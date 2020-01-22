@@ -40,7 +40,7 @@ class SystemRoutes
         Arikaim::$app->post('/core/api/ui/library/upload',"$apiNamespace\Ui\Library:upload")->add($sessionAuth);
 
         // UI Page  
-        Arikaim::$app->get('/core/api/ui/page/{name}',"$apiNamespace\Ui\Page:loadPage");
+        Arikaim::$app->get('/core/api/ui/page/{name}',"$apiNamespace\Ui\Page:loadPageHtml");
         Arikaim::$app->get('/core/api/ui/page/properties/',"$apiNamespace\Ui\Page:loadPageProperties");  
         // Paginator 
         Arikaim::$app->group('/core/api/ui/paginator',function($group) use($apiNamespace) {  

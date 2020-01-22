@@ -344,7 +344,7 @@ abstract class Extension implements ExtensionInterface
     public function addPageRoute($pattern, $class = null, $handlerMethod = null, $pageName = null, $auth = null, $routeName = null, $withLanguage = false, $type = 1)
     {
         $class = ($class == null) ? Factory::getControllerClass("Controller") : $this->getControllerClassName($class);
-        $handlerMethod = ($handlerMethod == null) ? "loadPage" : $handlerMethod;
+        $handlerMethod = ($handlerMethod == null) ? "load" : $handlerMethod;
         $auth = Arikaim::access()->resolveAuthType($auth);
  
         // if extension is primary remove existing page route
@@ -362,7 +362,7 @@ abstract class Extension implements ExtensionInterface
     }
 
     /**
-     * Register show page route (handler: PageLoader:loadPage)
+     * Register show page route (handler: PageLoader:load)
      *
      * @param string $pattern
      * @param string $pageName
@@ -373,7 +373,7 @@ abstract class Extension implements ExtensionInterface
      */
     public function addShowPageRoute($pattern, $pageName, $auth = null, $withLanguage = true, $routeName = null)
     {                  
-        return $this->addPageRoute($pattern,null,"loadPage",$pageName,$auth,$routeName,$withLanguage);
+        return $this->addPageRoute($pattern,null,"load",$pageName,$auth,$routeName,$withLanguage);
     }
 
     /**
