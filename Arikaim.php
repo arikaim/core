@@ -298,12 +298,12 @@ class Arikaim
                 Self::get('cache')->clear();
                 $renderer = new HtmlPageErrorRenderer(Self::errors());
                 $applicationError = new ApplicationError(Self::response(),$renderer);  
-                if (Install::isInstalled() == false) {                   
-                    if (Install::isInstallPage() == true) {   
+                if (Install::isInstalled() == false) {       
+                    if (Install::isInstallPage() == true) {                          
                         $output = Self::get('page')->getHtmlCode('system:install');  
                         echo $output;
                         exit();             
-                    }
+                    }                   
                     if (Install::isApiInstallRequest() == true) {
                         return Self::$app->run();
                     } 

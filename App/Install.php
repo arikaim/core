@@ -35,7 +35,7 @@ class Install
     {
         $uri = (isset($_SERVER['REQUEST_URI']) == true) ? $_SERVER['REQUEST_URI'] : '';
        
-        return (substr($uri,-13) == 'install');
+        return (substr($uri,-13) == 'admin/install');
     }
 
     /**
@@ -47,7 +47,7 @@ class Install
     {
         $uri = (isset($_SERVER['REQUEST_URI']) == true) ? $_SERVER['REQUEST_URI'] : '';
        
-        return (substr($uri,-7) == 'install');
+        return (substr($uri,-16) == 'core/api/install');
     }
 
     /**
