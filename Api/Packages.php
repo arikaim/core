@@ -45,10 +45,13 @@ class Packages extends ApiController
             $this->get('cache')->clear();
             $type = $data->get('type',null);
             $package = $data->get('package',null);
+            $reposioryType = $data->get('repository_type',null);
 
             $packageManager = $this->get('packages')->create($type);
-            $repositoryUrl = PackageManager::createRepositoryUrl($package);
+            $repositoryUrl = PackageManager::createRepositoryUrl($package,$reposioryType);
             $repository = $packageManager->createRepository($repositoryUrl);
+
+            $this->get('cache')->clear();
 
             $result = (is_object($repository) == true) ? $repository->install() : false;
 
@@ -90,10 +93,16 @@ class Packages extends ApiController
             $repository = $packageManager->getRepository($name);
             $result = (is_object($repository) == true) ? $repository->install() : false;
             
-            $this->setResponse($result,function() use($name,$type) {            
+            $package = $packageManager->createPackage($name);
+            $version = (is_object($package) == true) ? $package->getVersion() : null;
+
+            $this->get('cache')->clear();
+            
+            $this->setResponse($result,function() use($name,$type,$version) {            
                 $this
                     ->message($type . '.update')
-                    ->field('type',$type)   
+                    ->field('type',$type) 
+                    ->field('type',$version)   
                     ->field('name',$name);                  
             },'errors.' . $type . '.update');
         });
