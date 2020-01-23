@@ -46,7 +46,7 @@ class ArikaimStore
     {
         $page = (empty($search) == true) ? $page : "/$page";
         $url = Self::HOST . "/api/store/product/list/$type/$search" . $page;
-       
+         
         return Curl::get($url);
     }
 

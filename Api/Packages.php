@@ -36,8 +36,42 @@ class Packages extends ApiController
      * @param \Psr\Http\Message\ResponseInterface $response
      * @param Validator $data
      * @return Psr\Http\Message\ResponseInterface
-     */
+    */
     public function repositoryInstallController($request, $response, $data)
+    {
+        $this->requireControlPanelPermission();
+        
+        $this->onDataValid(function($data) {  
+            $this->get('cache')->clear();
+            $type = $data->get('type',null);
+            $package = $data->get('package',null);
+
+            $packageManager = $this->get('packages')->create($type);
+            $repositoryUrl = PackageManager::createRepositoryUrl($package);
+            $repository = $packageManager->createRepository($repositoryUrl);
+
+            $result = (is_object($repository) == true) ? $repository->install() : false;
+
+            $this->setResponse($result,function() use($package,$type) {            
+                $this
+                    ->message($type . '.install')
+                    ->field('type',$type)   
+                    ->field('name',$package);                  
+            },'errors.' . $type . '.install');
+
+        });
+        $data->validate();       
+    }
+
+    /**
+     * Dowload and update package from repository
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+     */
+    public function repositoryUpdateController($request, $response, $data)
     {
         $this->requireControlPanelPermission();
 
@@ -58,10 +92,10 @@ class Packages extends ApiController
             
             $this->setResponse($result,function() use($name,$type) {            
                 $this
-                    ->message($type . '.install')
+                    ->message($type . '.update')
                     ->field('type',$type)   
                     ->field('name',$name);                  
-            },'errors.' . $type . '.install');
+            },'errors.' . $type . '.update');
         });
         $data->validate();       
     }
