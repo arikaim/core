@@ -163,7 +163,7 @@ class Arikaim
             
         if (Arikaim::isConsole() == false) {   
             Session::start();
-        
+                       
             // Set router 
             $validatorStrategy = new ValidatorStrategy(Self::get('event'),Self::get('errors'));
             Self::$app->getRouteCollector()->setDefaultInvocationStrategy($validatorStrategy);
@@ -307,9 +307,10 @@ class Arikaim
                     if (Install::isApiInstallRequest() == true) {
                         return Self::$app->run();
                     } 
-                    $error = new Exception(Self::get('errors')->getError('NOT_INSTALLED_ERROR'));       
+                    $error = new Exception(Self::get('errors')->getError('NOT_INSTALLED_ERROR'));                      
                 } 
-                $applicationError->renderError(Self::createRequest(),$error); 
+                $output = $applicationError->renderError(Self::createRequest(),$error);            
+                echo $output;
                 exit();                                                  
             }          
         }

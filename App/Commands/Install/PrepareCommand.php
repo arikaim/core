@@ -65,15 +65,25 @@ class PrepareCommand extends ConsoleCommand
         }
         $this->style->newLine();
         $this->style->write("\t Set cache directory writable ");
-        if (File::setWritable(Path::CACHE_PATH) == true) {
+        $result = File::setWritable(Path::CACHE_PATH); 
+        if ($result == true) {
             $this->style->write(ConsoleHelper::getLabelText("\t done"));
-        };
+        } else {
+            $this->showError("Error: Can't set cache folder writtable.");
+            return;
+        }
 
         $this->style->newLine();
         $this->style->write("\t Set config file writable ");
-        if (File::setWritable( Arikaim::config()->getConfigFile()) == true) {
+
+        $result = File::setWritable(Arikaim::config()->getConfigFile());
+        if ($result == true) {
             $this->style->write(ConsoleHelper::getLabelText("\t done"));
+        } else {
+            $this->showError("Error: Can't set config file writtable.");
+            return;
         };
+
         $this->style->newLine();       
         $this->style->newLine();       
     }

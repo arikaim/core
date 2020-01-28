@@ -34,8 +34,11 @@ class Install extends ApiController
             $this->get('config')->setValue('db/username',$data->get('username'));
             $this->get('config')->setValue('db/password',$data->get('password'));
             $this->get('config')->setValue('db/database',$data->get('database'));         
-            $this->get('config')->save();
-              
+            $result = $this->get('config')->save();
+            if ($result === false) {
+                $this->error('Config file is not writtable');
+                return;
+            }
             $result = $this->get('db')->testConnection($this->get('config')->get('db'));
           
             if ($result == true) {          
