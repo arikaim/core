@@ -61,6 +61,8 @@ class Install
         Arikaim::errors()->clear();
         $this->clearErrors();
 
+        Arikaim::db()->getCapsule()->getConnection()->reconnect();
+
         // create database if not exists  
         $databaseName = Arikaim::config()->getByPath('db/database');
       
