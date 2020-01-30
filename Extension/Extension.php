@@ -349,7 +349,7 @@ abstract class Extension implements ExtensionInterface
  
         // if extension is primary remove existing page route
         if ($this->isPrimary() == true) {
-            Arikaim::routes()->delete('GET',$pattern);
+            Arikaim::routes()->delete('GET',$pattern);            
             Arikaim::routes()->delete('GET',$pattern . Route::getLanguagePattern($pattern));          
         }
 

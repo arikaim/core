@@ -239,7 +239,7 @@ class Users extends Model implements UserProviderInterface
             return false;
         }
         $model = DbModel::PermissionRelations()->getRelationsQuery($permisisonId,'user');
-        $model = $model->where('relation_id','=',$id);
+        $model = $model->where('relation_id','=',$id)->first();
 
         if (is_object($model) == false) {
             return false;
