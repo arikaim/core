@@ -43,15 +43,18 @@ class Users extends ApiController
                     'password' => $data->get('password')
             ];
             $result = $this->get('access')->authenticate($credentials);
-                 
             if ($result === false) {           
+                $this->error('errors.login');  
+                return; 
+            }  
+            // check for control panel permission
+            if ($this->get('access')->hasControlPanelAccess() == false) {
                 $this->error('errors.login');   
-            } else {        
-                $access = $this->get('access')->hasControlPanelAccess();
-                if ($access == false) {
-                    $this->setError('errors.login');   
-                } 
-            }              
+            }
+            // update login date time
+            $userId = $this->get('access')->getId();  
+            Model::Users()->findById($userId)->updateLoginDate();
+            
         });
         $data
             ->addRule("text:min=2","user_name")   

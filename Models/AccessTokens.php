@@ -247,13 +247,16 @@ class AccessTokens extends Model implements UserProviderInterface
      * Delete user token
      *
      * @param inetger $userId
-     * @param integer $type
+     * @param integer|null $type
      * @return boolean
      */
-    public function deleteUserToken($userId,$type = TokenAuthProvider::PAGE_ACCESS_TOKEN)
+    public function deleteUserToken($userId, $type = TokenAuthProvider::PAGE_ACCESS_TOKEN)
     {
-        $model = $this->where('type','=',$type)->where('user_id','=', $userId);
-
+        $model = $this->where('user_id','=', $userId);
+        if (empty($type) == false) {
+            $model = $model->where('type','=',$type);
+        }
+       
         return $model->delete();
     }
 
