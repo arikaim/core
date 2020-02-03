@@ -88,7 +88,7 @@ class AccessTokens extends Model implements UserProviderInterface
 
         $model = $this->findByColumn($token,'token');
 
-        return is_object($model) ? $model->user() : false;
+        return is_object($model) ? $model->user : false;
     }
 
     /**

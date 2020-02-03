@@ -308,4 +308,14 @@ class Users extends Model implements UserProviderInterface
    
         return $this->create($data);
     }
+
+    /**
+     * Get user_name_or_email attribute
+     *
+     * @return string
+     */
+    public function getUserNameOrEmailAttribute()
+    {
+        return (empty($this->user_name) == true) ? $this->email : $this->user_name;
+    }
 }

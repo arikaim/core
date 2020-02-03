@@ -41,18 +41,18 @@ class AccessTokens extends ApiController
         $this->requireControlPanelPermission();
 
         $this->onDataValid(function($data) {          
-            $token = $data->get('token');
-            $result = Model::AccessTokens()->removeToken($token);
+            $uuid = $data->get('uuid');
+            $result = Model::AccessTokens()->removeToken($uuid);
 
-            $this->setResponse($result,function() use($token) {
+            $this->setResponse($result,function() use($uuid) {
                 $this
                     ->message('access_tokens.delete')
-                    ->field('token',$token);
+                    ->field('uuid',$uuid);
             },'errors.access_tokens.delete');
                      
         });
         $data
-            ->addRule("exists:model=AccessTokens|field=token|required","token")
+            ->addRule("exists:model=AccessTokens|field=uuid|required","uuid")
             ->validate();        
     }
 

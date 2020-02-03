@@ -89,6 +89,19 @@ class PermissionRelations extends Model implements PermissionsInterface
     }
 
     /**
+     * Get users permisssions
+     *
+     * @param integer $userId
+     * @return mixed
+     */
+    public function getUserPermissions($userId)
+    {
+        $query = $this->getRelationsQuery($userId,'user');
+      
+        return $query->get();
+    }
+
+    /**
      * Set user permission
      *
      * @param string $name

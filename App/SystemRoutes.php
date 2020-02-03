@@ -122,7 +122,7 @@ class SystemRoutes
         })->add($sessionAuth);
         // Access tokens
         Arikaim::$app->group('/core/api/tokens',function($group) use($apiNamespace) {
-            $group->delete('/delete/{token}',"$apiNamespace\AccessTokens:delete");
+            $group->delete('/delete/{uuid}',"$apiNamespace\AccessTokens:delete");
             $group->delete('/delete/expired/{uuid}',"$apiNamespace\AccessTokens:deleteExpired");
         })->add($sessionAuth);
         // Settings
