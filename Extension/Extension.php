@@ -315,9 +315,9 @@ abstract class Extension implements ExtensionInterface
      * @return bool
      */
     public function addHomePageRoute($pattern, $class = null, $handlerMethod = null, $pageName = null, $auth = null, $routeName = null, $withLanguage = false)
-    {
-        if ($this->primary == true) {                     
-            Arikaim::routes()->deleteHomePage();           
+    {       
+        if ($this->primary == true) {                      
+            Arikaim::routes()->deleteHomePage();                     
         } else {
             $homePageRoute = Arikaim::routes()->getRoutes(['type' => 3]); // find home page route
             if (empty($homePageRoute) == false) {
@@ -346,11 +346,11 @@ abstract class Extension implements ExtensionInterface
         $class = ($class == null) ? Factory::getControllerClass("Controller") : $this->getControllerClassName($class);
         $handlerMethod = ($handlerMethod == null) ? "pageLoad" : $handlerMethod;
         $auth = Arikaim::access()->resolveAuthType($auth);
- 
+        
         // if extension is primary remove existing page route
         if ($this->isPrimary() == true) {
-            Arikaim::routes()->delete('GET',$pattern);            
-            Arikaim::routes()->delete('GET',$pattern . Route::getLanguagePattern($pattern));          
+            Arikaim::routes()->delete('GET',$pattern);          
+            Arikaim::routes()->delete('GET',$pattern . Route::getLanguagePattern($pattern));
         }
 
         $result = Arikaim::routes()->addPageRoute($pattern,$class,$handlerMethod,$this->getName(),$pageName,$auth,$routeName,$withLanguage,$type);

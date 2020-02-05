@@ -13,6 +13,7 @@ use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Packages\PackageManager;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\View\Theme;
+use Arikaim\Core\System\Composer;
 
 /**
  * Packages controller
@@ -146,6 +147,52 @@ class Packages extends ApiController
     }
 
     /**
+     * Update or Install composer packages
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+     */
+    public function updateComposerPackagesController($request, $response, $data)
+    {
+        $this->requireControlPanelPermission();
+        $this->onDataValid(function($data) { 
+            $this->get('cache')->clear();
+          
+            $type = $data->get('type',null);
+            $name = $data->get('name',null);
+
+            $packageManager = $this->get('packages')->create($type);
+            $package = $packageManager->createPackage($name);
+        
+            if (is_object($package) == false) {
+                $this->error('Not valid package name');
+                return;
+            }
+            $require = $package->getRequire();
+            $composerPackages = $require->get('composer',[]);
+            
+            foreach ($composerPackages as $compsoerPackage) {
+                if (Composer::isInstalled(ROOT_PATH . BASE_PATH,$compsoerPackage) === false) {
+                    Composer::requirePackage($compsoerPackage);     
+                } else {
+                    Composer::updatePackage($compsoerPackage);     
+                }                         
+            }    
+            $result = Composer::isInstalled(ROOT_PATH . BASE_PATH,$composerPackages);
+        
+            $this->setResponse($result,function() use($name,$type) {                  
+                $this
+                    ->message('composer.update')
+                    ->field('type',$type)   
+                    ->field('name',$name);                  
+            },'errors.composer.update');
+        });
+        $data->validate();
+    }
+
+    /**
      * Install package
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
@@ -180,6 +227,7 @@ class Packages extends ApiController
         });
         $data->validate();
     }
+
 
     /**
      * Update (reinstall) package

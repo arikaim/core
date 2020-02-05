@@ -155,7 +155,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('getCurrentLanguage',[$this,'getCurrentLanguage']),
             new TwigFunction('getVersion',[$this,'getVersion']),
             new TwigFunction('getLastVersion',[$this,'getLastVersion']),
-            
+            new TwigFunction('composerPackages',[$this,'getComposerPackages']),
+
             new TwigFunction('getOption',[$this,'getOption']),
             new TwigFunction('getOptions',[$this,'getOptions']),
             new TwigFunction('csrfToken',[$this,'csrfToken']),                
@@ -254,6 +255,22 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
+     * Get composer packages info
+     *
+     * @param array $packagesList
+     * @return array|false
+     */
+    public function getComposerPackages(array $packagesList)
+    {
+        // Control Panel only
+        if ($this->access->hasControlPanelAccess() == false) {           
+            return false;
+        }
+
+        return Composer::getLocalPackagesInfo(ROOT_PATH . BASE_PATH,$packagesList);
+    }
+
+    /**
      * Create arikaim store instance
      *
      * @return ArikaimStore
@@ -336,7 +353,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function createPackageManager($packageType)
     {
         // Control Panel only
-        if ($this->access->hasControlPanelAccess() == false ) {
+        if ($this->access->hasControlPanelAccess() == false) {
             return null;
         }
         

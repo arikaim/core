@@ -159,6 +159,7 @@ class SystemRoutes
         // Packages
         Arikaim::$app->group('/core/api/packages',function($group) use($apiNamespace) {
             $group->put('/install',"$apiNamespace\Packages:install");    
+            $group->put('/composer/update',"$apiNamespace\Packages:updateComposerPackages");    
             $group->put('/repository/update',"$apiNamespace\Packages:repositoryUpdate");      
             $group->put('/repository/install',"$apiNamespace\Packages:repositoryInstall");          
             $group->put('/status',"$apiNamespace\Packages:setStatus");
