@@ -101,7 +101,10 @@ class Install
 
         // install drivers
         $this->installDrivers();
- 
+        
+        // set sorage public folder
+        $this->initPublicStorage();
+
         // Install core modules
         $modulesManager = Arikaim::packages()->create('module');
         $result = $modulesManager->installAllPackages();
@@ -112,6 +115,24 @@ class Install
 
         return ($this->hasError() == false);
     } 
+
+    /**
+     * Create storage public folder
+     *
+     * @return boolean
+     */
+    public function initPublicStorage()
+    {       
+        $result = (Arikaim::storage()->has('public') == false) ? Arikaim::storage()->createDir('public') : true;
+        if ($result == true) {
+            // create symlink 
+            $result = @symlink(Arikaim::storage()->getFuillPath('/public'),ROOT_PATH . BASE_PATH . '/storage');
+
+            return $result;
+        }
+
+        return false;
+    }
 
     /**
      * Register code events
