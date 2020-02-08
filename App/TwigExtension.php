@@ -61,6 +61,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     protected $protectedServices = [
         'config',
+        'storage',
         'packages'
     ];
 
@@ -164,6 +165,9 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('extractArray',[$this,'extractArray'],['needs_context' => true]),
             new TwigFunction('arikaimStore',[$this,'arikaimStore']),
 
+            // files
+            new TwigFunction('getDirectoryFiles',[$this,'getDirectoryFiles']),
+       
             // date and time
             new TwigFunction('getTimeZonesList',["Arikaim\\Core\\Utils\\DateTime",'getTimeZonesList']),
             new TwigFunction('timeInterval',['Arikaim\\Core\\Utils\\TimeInterval','getInterval']),
@@ -345,16 +349,33 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
+     * Get directory contents
+     *
+     * @param string $path
+     * @param boolean $recursive
+     * @return array|false
+     */
+    public function getDirectoryFiles($path, $recursive = false)
+    {
+        // Control Panel only
+        if ($this->access->isLogged() == false) {
+            return false;
+        }
+
+        return Arikaim::storage()->listContents($path,$recursive);
+    }
+
+    /**
      * Create package manager
      *
      * @param string $packageType
-     * @return PackageManagerInterface|null
+     * @return PackageManagerInterface|false
      */
     public function createPackageManager($packageType)
     {
         // Control Panel only
         if ($this->access->hasControlPanelAccess() == false) {
-            return null;
+            return false;
         }
         
         return \Arikaim\Core\Arikaim::get('packages')->create($packageType);

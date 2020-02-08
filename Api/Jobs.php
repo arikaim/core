@@ -69,14 +69,12 @@ class Jobs extends ApiController
             $uuid = $data->get('uuid');  
             $status = $data->get('status',1);
 
-            $job = $this->get('queue')->findById($uuid);
-            $result = (is_object($job) == true) ? $job->setStatus($status) : false;
-          
-            $this->setResponse($result,function() use($job) {                  
+            $result = $this->get('queue')->getStorageDriver()->setJobStatus($uuid,$status);
+            $this->setResponse($result,function() use($status,$uuid) {                  
                 $this
                     ->message('jobs.status')
-                    ->field('status',$job->status)
-                    ->field('uuid',$job->uuid);   
+                    ->field('status',$status)
+                    ->field('uuid',$uuid);   
             },'errors.jobs.status');
         });
         $data->validate();          
