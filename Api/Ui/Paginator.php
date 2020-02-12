@@ -33,7 +33,7 @@ class Paginator extends ApiController
 
         if ($page == 'next') {                            
             $page = SessionPaginator::getCurrentPage($namespace) + 1;   
-            $page = ($page > $paginator['last_page'] && $paginator['last_page'] != -1) ? $paginator['last_page'] : $page;  
+            $page = ($page > $paginator['last_page'] && $paginator['last_page'] != -1) ? $paginator['last_page'] : $page;           
         }
         if ($page == 'prev') {      
             $page = SessionPaginator::getCurrentPage($namespace) - 1; 

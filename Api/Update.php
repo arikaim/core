@@ -69,6 +69,7 @@ class Update extends ApiController
         $this->requireControlPanelPermission();
         
         $package = $data->get('package',Arikaim::getCorePackageName());
+  
         $update = new SystemUpdate($package);
         $version = $update->getLastVersion();
        

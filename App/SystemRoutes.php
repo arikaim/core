@@ -113,7 +113,7 @@ class SystemRoutes
         Arikaim::$app->group('/core/api/update',function($group) use($apiNamespace) {
             $group->put('/',"$apiNamespace\Update:update");
             $group->get('/check/version',"$apiNamespace\Update:checkVersion"); 
-            $group->get('/last/version/[{package}]',"$apiNamespace\Update:getLastVersion");           
+            $group->put('/last/version',"$apiNamespace\Update:getLastVersion");           
         })->add($sessionAuth);
         // Session
         Arikaim::$app->group('/core/api/session',function($group) use($apiNamespace) {        

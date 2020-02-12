@@ -39,13 +39,18 @@ class Relations extends ApiController
     {
         $this->requireControlPanelPermission();
 
-        $this->onDataValid(function($data) {            
+        $this->onDataValid(function($data) {
             $model = Model::create($data['model'],$data['extension']);
             if (is_object($model) == false) {               
                 $this->error('errors.relations.add');               
                 return;
             }
-            $result = $model->deleteRelations($data['id'],$data['type'],$data['relation_id']);
+            if (empty($data['type']) == false && empty($data['relation_id']) == false) {
+                $result = $model->deleteRelations($data['id'],$data['type'],$data['relation_id']);
+            } else {
+                $result = $model->deleteRelation($data['uuid']);
+            }
+            
              
             $this->setResponse($result,'relations.delete','errors.relations.delete');
         });
