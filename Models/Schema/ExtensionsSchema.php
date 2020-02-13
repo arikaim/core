@@ -65,5 +65,8 @@ class ExtensionsSchema extends Schema
      */
     public function update($table) 
     {       
+        if ($this->hasColumn('primary') == false) {
+            $table->prototype('defaultColumn','primary');
+        }
     }
 }
