@@ -185,12 +185,15 @@ class Arikaim
             Template::setPrimary(Self::options()->get('primary.template'));
             // DatTime and numbers format
             Number::setFormats(Self::options()->get('number.format.items',[]),Self::options()->get('number.format',null));
+           
             // Set time zone
             DateTime::setTimeZone(Arikaim::options()->get('time.zone'));
+
             // Set date and time formats
             DateTime::setDateFormats(Arikaim::options()->get('date.format.items',[]),Arikaim::options()->get('date.format',null));   
             DateTime::setTimeFormats(Arikaim::options()->get('date.format.items',[]),Arikaim::options()->get('time.format',null));                  
         }      
+
     }
     
     /**

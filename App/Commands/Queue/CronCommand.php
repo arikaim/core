@@ -12,6 +12,7 @@ namespace Arikaim\Core\App\Commands\Queue;
 use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\System\System;
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\Utils\DateTime;
 use Exception;
 
 /**
@@ -41,6 +42,8 @@ class CronCommand extends ConsoleCommand
     {
         // unlimited execution time
         System::setTimeLimit(0); 
+        // Set time zone
+        DateTime::setTimeZone(Arikaim::options()->get('time.zone'));
 
         $this->showTitle('Scheduler');
         $jobs = Arikaim::queue()->getJobsDue();
