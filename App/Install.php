@@ -15,6 +15,7 @@ use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Access\Access;
 use Arikaim\Core\System\System;
+use Arikaim\Core\Utils\File;
 
 use Arikaim\Core\System\Error\Traits\TaskErrors;
 use Exception;
@@ -121,15 +122,13 @@ class Install
      */
     public function initPublicStorage()
     {       
-        $result = (Arikaim::storage()->has('public') == false) ? Arikaim::storage()->createDir('public') : true;
-        if ($result == true) {
-            // create symlink 
-            $result = @symlink(Arikaim::storage()->getFuillPath('/public'),ROOT_PATH . BASE_PATH . '/storage');
-
-            return $result;
-        }
-
-        return false;
+        if (Arikaim::storage()->has('public') == false) {          
+            Arikaim::storage()->createDir('public');
+        } 
+        // delete symlink
+        File::delete(ROOT_PATH . BASE_PATH . '/storage');
+        // create symlink 
+        return @symlink(Arikaim::storage()->getFuillPath('public'),ROOT_PATH . BASE_PATH . '/storage');      
     }
 
     /**

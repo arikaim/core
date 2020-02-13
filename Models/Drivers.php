@@ -92,11 +92,14 @@ class Drivers extends Model implements DriverRegistryInterface
     {
         if ($this->hasDriver($name) == true) {
             $model = $this->findByColumn($name,'name');
-            return $model->update($data);
+            $result = $model->update($data);
+            
+            return ($result !== false);
         }
         $data['name'] = $name;
+        $result = $this->create($data);
 
-        return $this->create($data);
+        return is_object($result);
     }
 
     /**
