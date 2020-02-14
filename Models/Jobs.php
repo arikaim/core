@@ -66,6 +66,15 @@ class Jobs extends Model implements QueueStorageInterface
     public $timestamps = false;
 
     /**
+     * Append custom attributes
+     *
+     * @var array
+     */
+    public $appends = [
+        'due_date'
+    ];
+
+    /**
      * Get attribute mutator for due_date
      *
      * @return integer
