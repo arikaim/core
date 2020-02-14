@@ -126,9 +126,9 @@ class Install
             Arikaim::storage()->createDir('public');
         } 
         // delete symlink
-        File::delete(ROOT_PATH . BASE_PATH . '/storage');
+        File::delete(ROOT_PATH . BASE_PATH . '/public');
         // create symlink 
-        return @symlink(Arikaim::storage()->getFuillPath('public'),ROOT_PATH . BASE_PATH . '/storage');      
+        return @symlink(Arikaim::storage()->getFuillPath('public'),ROOT_PATH . BASE_PATH . '/public');      
     }
 
     /**
