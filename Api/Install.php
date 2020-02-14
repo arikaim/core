@@ -72,6 +72,33 @@ class Install extends ApiController
     }
 
     /**
+     * Install Arikaim extensions
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+    */
+    public function installExtensionsController($request, $response, $data) 
+    {           
+        $this->onDataValid(function($data) {    
+            // clear cache
+            $this->get('cache')->clear();
+
+            // do install
+            $install = new SystemInstall();
+            $result = $install->installExtensions();   
+                       
+            if ($result == false) { 
+                $this->addErrors($install->getErrors());
+                return;
+            }
+            $this->message('Arikaim extensions was installed successfully.');                      
+        });
+        $data->validate();      
+    }
+    
+    /**
      * Repair installation Arikaim 
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request

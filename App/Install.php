@@ -58,6 +58,8 @@ class Install
      */
     public function install() 
     {    
+        System::setTimeLimit(0);
+
         // clear errors before start
         Arikaim::errors()->clear();
         $this->clearErrors();
@@ -108,12 +110,28 @@ class Install
         $modulesManager = Arikaim::packages()->create('module');
         $result = $modulesManager->installAllPackages();
 
-        // Install extensions      
-        $extensionManager = Arikaim::packages()->create('extension');
-        $result = $extensionManager->installAllPackages();
-
         return ($this->hasError() == false);
     } 
+
+    /**
+     * Install all extensions packages
+     *
+     * @return boolean
+     */
+    public function installExtensions()
+    {
+        System::setTimeLimit(0);
+
+        // clear errors before start
+        Arikaim::errors()->clear();
+        $this->clearErrors();
+        
+        // Install extensions      
+        $extensionManager = Arikaim::packages()->create('extension');
+        $extensionManager->installAllPackages();
+
+        return ($this->hasError() == false);
+    }
 
     /**
      * Create storage public folder
