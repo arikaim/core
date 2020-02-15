@@ -10,6 +10,7 @@
 namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ApiController;
+use Arikaim\Core\Utils\File;
 
 /**
  * Cache controller
@@ -54,6 +55,12 @@ class Cache extends ApiController
     {
         $this->requireControlPanelPermission();
         
+        $result = File::setWritable($this->get('cache')->getCacheDir());
+        if ($result === false) {
+            $this->error("Cant't set cache dir writable!");
+            return;
+        }
+
         $this->get('config')->setBooleanValue('settings/cache',true);
         $result = $this->get('config')->save();
 
