@@ -42,6 +42,7 @@ class Drivers extends ApiController
 
             $config = $this->get('driver')->getConfig($driverName);
             // change config valus
+
             $config->setPropertyValues($data->toArray());
             $result = $this->get('driver')->saveConfig($driverName,$config);
         
