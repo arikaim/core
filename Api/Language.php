@@ -183,7 +183,7 @@ class Language extends ApiController
     }
 
     /**
-     *  Change language order
+     *  Change current language
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param \Psr\Http\Message\ResponseInterface $response

@@ -19,6 +19,7 @@ use Arikaim\Core\Packages\PackageManagerFactory;
 use Arikaim\Core\Packages\PackageFactory;
 use Arikaim\Core\Routes\Routes;
 use Arikaim\Core\App\Install;
+use Arikaim\Core\View\Html\Page;
 use PDOException;
 
 /**
@@ -34,8 +35,7 @@ class ServiceContainer
     public static function init($container)
     {
         // Cache 
-        $container['cache'] = function($container) {            
-           // $enabled = $container->get('settings')->get('cache',false);   
+        $container['cache'] = function($container) {                    
             $routeCacheFile = Path::CACHE_PATH . "/routes.cache.php";            
             return new \Arikaim\Core\Cache\Cache(Path::CACHE_PATH,$routeCacheFile,null,true);
         };
@@ -79,10 +79,21 @@ class ServiceContainer
                 ['cache' => $cache,'debug' => $debug,'autoescape' => false]
             );           
         };    
+        // Default language
+        $container['default.language'] = function($container) {                
+            $defaultLanguage = $container->get('cache')->fetch('default.language');
+            if (empty($defaultLanguage) == true) {
+                $defaultLanguage = Model::Language()->getDefaultLanguage();
+                $container->get('cache')->save('default.language',$defaultLanguage,2);
+                Page::setDefaultLanguage($defaultLanguage);
+            }
+            
+            return $defaultLanguage;
+        }; 
         // Init page components.
         $container['page'] = function($container) {    
             $packageFactory = new PackageFactory();
-            return new \Arikaim\Core\View\Html\Page($container->get('view'),$packageFactory);
+            return new Page($container->get('view'),$packageFactory);
         }; 
         // Errors  
         $container['errors'] = function($container) {

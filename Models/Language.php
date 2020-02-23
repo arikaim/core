@@ -107,6 +107,7 @@ class Language extends Model
             return (is_object($model) == true) ? $model->code : "en";                    
         } catch(\Exception $e) {
         }
+        
         return 'en';
     }
 }

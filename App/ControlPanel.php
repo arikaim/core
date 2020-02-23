@@ -25,7 +25,9 @@ class ControlPanel extends Controller
      * @return Psr\Http\Message\ResponseInterface
     */
     public function loadControlPanel($request, $response, $data) 
-    {          
-        return $this->pageLoad($request,$response,['page_name' => 'system:admin']);       
+    {                 
+        $data['page_name'] = 'system:admin';
+
+        return $this->pageLoad($request,$response,$data);       
     }
 }
