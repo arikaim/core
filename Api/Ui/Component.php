@@ -11,6 +11,7 @@ namespace Arikaim\Core\Api\Ui;
 
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Collection\Arrays;
+use Arikaim\Core\View\Html\HtmlComponent;
 
 /**
  * Component Api controller
@@ -27,7 +28,10 @@ class Component extends ApiController
      */
     public function componentProperties($request, $response, $data)
     {
-        $component = $this->get('page')->createHtmlComponent($data['name'])->renderComponent();
+        $language = $data->get('language',null);
+        $language = (empty($language) == true) ? HtmlComponent::getLanguage() : $language;
+
+        $component = $this->get('page')->createHtmlComponent($data['name'],[],$language)->renderComponent();
         if (is_object($component) == false) {
             return $this->withError('Not valid component nane.')->getResponse();  
         }
@@ -39,6 +43,7 @@ class Component extends ApiController
         if ($component->getOption('access/deny-request') == true) {
             return $this->withError($this->get('errors')->getError('ACCESS_DENIED'))->getResponse();           
         }
+        
         return $this->setResult($component->getProperties())->getResponse();        
     }
 
@@ -82,13 +87,17 @@ class Component extends ApiController
      */
     public function loadComponent($request, $response, $data)
     {       
+        $language = $data->get('language',null);
+        $language = (empty($language) == true) ? HtmlComponent::getLanguage() : $language;
+
         $params = $this->getParams($request);
      
         // get header params
         $headerParams = $this->getHeaderParams($request);
         $params = array_merge($params,$headerParams);
-    
-        return $this->load($data['name'],$params);
+        $params = array_merge($params,$data->toArray());
+
+        return $this->load($data['name'],$params,$language);
     }
 
     /**
@@ -96,11 +105,12 @@ class Component extends ApiController
      *
      * @param string $name
      * @param array $params
+     * @param string|null $language
      * @return JSON 
      */
-    public function load($name, $params = [])
+    public function load($name, $params = [], $language = null)
     {   
-        $component = $this->get('page')->createHtmlComponent($name,$params)->renderComponent();
+        $component = $this->get('page')->createHtmlComponent($name,$params,$language)->renderComponent();
         if (is_object($component) == false) {
             return $this->withError('Not valid component nane.')->getResponse();  
         }
