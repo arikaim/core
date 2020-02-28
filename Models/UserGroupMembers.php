@@ -15,6 +15,7 @@ use Arikaim\Core\Models\Users;
 use Arikaim\Core\Models\UserGroups;
 
 use Arikaim\Core\Db\Traits\Uuid;
+use Arikaim\Core\Db\Traits\Find;
 use Arikaim\Core\Db\Traits\DateCreated;
 
 /**
@@ -23,6 +24,7 @@ use Arikaim\Core\Db\Traits\DateCreated;
 class UserGroupMembers extends Model  
 {
     use Uuid,
+        Find,
         DateCreated;
 
     /**
@@ -32,8 +34,9 @@ class UserGroupMembers extends Model
     */
     protected $fillable = [        
         'user_id',
-        'groupd_id',
-        'date_expire'
+        'group_id',
+        'date_expire',
+        'date_created'
     ];
     
     /**
@@ -67,6 +70,35 @@ class UserGroupMembers extends Model
      */
     public function user()
     {
-        return $this->hasOne(Users::class,'user_id','id');     
+        return $this->belongsTo(Users::class,'user_id');     
+    }
+
+    /**
+     * Add member to group
+     *
+     * @param string|integer $userId
+     * @param string|integer $groupId
+     * @return Model|false
+     */
+    public function addMember($userId, $groupId)
+    {
+        $user = new Users();
+        $user = $user->findById($userId);
+        if (is_object($user) == false) {
+            return false;
+        }
+
+        $group = new UserGroups();
+        $group = $group->findById($groupId);
+        if (is_object($group) == false) {
+            return false;
+        }
+
+        $member = $this->create([
+            'user_id'  => $user->id,
+            'group_id' => $group->id
+        ]);
+
+        return (is_object($member) == true) ? $member : false;
     }
 }

@@ -10,9 +10,13 @@
 namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Arikaim\Core\Models\UserGroupMembers;
+
 use Arikaim\Core\Db\Traits\Uuid;
 use Arikaim\Core\Db\Traits\Find;
-use Arikaim\Core\Models\UserGroupMembers;
+use Arikaim\Core\Db\Traits\Status;
+use Arikaim\Core\Db\Traits\Slug;
+
 
 /**
  * User groups database model
@@ -20,6 +24,8 @@ use Arikaim\Core\Models\UserGroupMembers;
 class UserGroups extends Model  
 {
     use Uuid,
+        Slug,
+        Status,
         Find;
 
     /**
@@ -29,6 +35,7 @@ class UserGroups extends Model
     */
     protected $fillable = [        
         'title',
+        'status',
         'description'
     ];
 
@@ -53,7 +60,7 @@ class UserGroups extends Model
      */
     public function members()
     {
-        return $this->hasMany(UserGroupMembers::class);
+        return $this->hasMany(UserGroupMembers::class,'group_id');
     }
 
     /**

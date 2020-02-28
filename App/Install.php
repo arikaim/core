@@ -84,8 +84,10 @@ class Install
     
         // add control panel permisison item 
         $result = Arikaim::access()->addPermission(Access::CONTROL_PANEL,Access::CONTROL_PANEL,'Arikaim control panel access.');
-        if ($result == false) {          
-            $this->addError("Can't create contorl panel permission");
+        if ($result == false) {    
+            if (Model::Permissions()->has(Access::CONTROL_PANEL) == false) {
+                $this->addError("Can't create contorl panel permission");
+            }           
         }   
 
         // register core events
@@ -193,7 +195,7 @@ class Install
                 return false;
             }    
         }
-        
+              
         return Model::PermissionRelations()->setUserPermission(Access::CONTROL_PANEL,Access::FULL,$user->id);
     }
 
@@ -265,13 +267,13 @@ class Install
 
         foreach ($classes as $class) {        
             $installed = Schema::install($class);
-          
+                  
             if ($installed == false) {
                 $errors++;       
                 $error = 'Error create database table "' . Schema::getTable($class) . '"';
                 $this->addError($error);
             } 
-        }
+        }      
 
         return ($errors == 0);   
     }

@@ -35,7 +35,8 @@ class UserGroupMembersSchema extends Schema
         $table->id();            
         $table->userId();
         $table->relation('group_id','user_groups',false);
-        
+        $table->prototype('uuid');     
+
         // date time   
         $table->dateCreated();
         $table->dateUpdated();
@@ -52,5 +53,8 @@ class UserGroupMembersSchema extends Schema
      */
     public function update($table) 
     {        
+        if ($this->hasColumn('uuid') == false) {
+            $table->prototype('uuid');    
+        } 
     }
 }

@@ -34,6 +34,8 @@ class UserGroupsSchema extends Schema
         // columns
         $table->id();
         $table->prototype('uuid');     
+        $table->status();
+        $table->slug();
         $table->string('title')->nullable(false);
         $table->string('description')->nullable(true);   
         // unique indexes
@@ -46,7 +48,13 @@ class UserGroupsSchema extends Schema
      * @param \Arikaim\Core\Db\TableBlueprint $table
      * @return void
      */
-    public function update($table) 
+    public function update($table)     
     {        
+        if ($this->hasColumn('status') == false) {
+            $table->status();
+        } 
+        if ($this->hasColumn('slug') == false) {
+            $table->slug();
+        }
     }
 }

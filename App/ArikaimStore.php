@@ -19,7 +19,7 @@ class ArikaimStore
     /**
      *  Arikaim store host
      */
-    const HOST = 'http://arikaim.com';
+    const HOST       = 'http://arikaim.com';
     const SIGNUP_URL =  Self::HOST . '/signup';
 
     /**

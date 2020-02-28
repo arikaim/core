@@ -102,12 +102,25 @@ class PermissionRelations extends Model implements PermissionsInterface
     }
 
     /**
+     * Get user group permisssions
+     *
+     * @param integer $groupId
+     * @return mixed
+     */
+    public function getGroupPermissions($groupId)
+    {
+        $query = $this->getRelationsQuery($groupId,'group');
+      
+        return $query->get();
+    }
+
+    /**
      * Set user permission
      *
      * @param string $name
      * @param array $permissions
      * @param integer|string|null $id
-     * @return bool
+     * @return Model|bool
      */
     public function setUserPermission($name, $permissions, $id = null) 
     {
@@ -115,6 +128,7 @@ class PermissionRelations extends Model implements PermissionsInterface
             $model = DbModel::Users()->findById($id);
             $id = (is_object($model) == true) ? $model->id : null; 
         }
+
         return $this->setPermission($name,$permissions,$id,Self::USER);
     }
     
@@ -124,7 +138,7 @@ class PermissionRelations extends Model implements PermissionsInterface
      * @param string $name
      * @param array $permissions
      * @param integer|string $id
-     * @return bool
+     * @return Model|bool
      */
     public function setGroupPermission($name, $permissions, $id)
     {
@@ -132,6 +146,7 @@ class PermissionRelations extends Model implements PermissionsInterface
             $model = DbModel::UserGroups()->findById($id);
             $id = (is_object($model) == true) ? $model->id : null;
         }
+ 
         return $this->setPermission($name,$permissions,$id,Self::GROUP);
     }
 
@@ -220,21 +235,24 @@ class PermissionRelations extends Model implements PermissionsInterface
      * @param array $access - ['read','write','delete','execute]
      * @param integer|null $id user Id or group Id 
      * @param integer $type
-     * @return bool
+     * @return Model|bool
      */
     public function setPermission($name, $access, $id = null, $type = Self::USER) 
     {
         $permissions = $this->resolvePermissions($access); 
         $id = ($id == null && $type == Self::USER) ? Arikaim::access()->getId() : $id;
-        $relationId = DbModel::Permissions()->getId($name);       
-        if (empty($relationId) == true) {
+        $permissionId = DbModel::Permissions()->getId($name);     
+        if (empty($permissionId) == true) {
             return false;
         }
-        $model = $this->saveRelation($id,$type,$relationId);
-        
-        $result = (is_object($model) == true) ? $model->update($permissions) : false;        
+        $model = $this->saveRelation($permissionId,$type,$id);
+    
+        if (is_object($model) == false) {
+            $model = $this->getRelation($permissionId,$type,$id);           
+        }        
+        $result = $model->update($permissions);  
 
-        return $result;
+        return ($result === false) ? false : $model;
     }
 
     /**
@@ -336,6 +354,7 @@ class PermissionRelations extends Model implements PermissionsInterface
         $count += ($this->hasPermission('write') == false) ? 0 : 1;
         $count += ($this->hasPermission('delete') == false) ? 0 : 1;
         $count += ($this->hasPermission('execute') == false) ? 0 : 1;
+
         return ($count == 4) ? true : false;
     }
 }

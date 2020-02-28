@@ -11,8 +11,11 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Arikaim\Core\Access\Access;
+
 use Arikaim\Core\Db\Traits\Uuid;
 use Arikaim\Core\Db\Traits\Find;
+use Arikaim\Core\Db\Traits\Slug;
 
 /**
  * Permissions database model
@@ -20,6 +23,7 @@ use Arikaim\Core\Db\Traits\Find;
 class Permissions extends Model  
 {
     use Uuid,
+        Slug,
         Find;
 
     /**
@@ -29,9 +33,12 @@ class Permissions extends Model
     */
     protected $fillable = [
         'name',
+        'slug',
+        'editable',
         'title',
         'description',
-        'extension_name'
+        'extension_name',
+        'validator_class'
     ];
 
     /**
@@ -47,6 +54,13 @@ class Permissions extends Model
      * @var string
      */
     protected $table = 'permissions';
+
+    /**
+     * Slug source column
+     *
+     * @var string
+    */
+    protected $slugSourceColumn = 'name';
 
     /**
      * Mutator (get) for title attribute.
@@ -67,6 +81,7 @@ class Permissions extends Model
     public function has($name)
     {
         $model = $this->where('name','=',$name)->first();
+
         return (is_object($model) == false) ? false : true;            
     }
 
@@ -79,6 +94,17 @@ class Permissions extends Model
     public function getId($name)
     {
         $model = $this->where('name','=',$name)->first();
+
         return  (is_object($model) == true) ? $model->id : false;    
+    }
+
+    /**
+     * Get permisisons list query
+     *
+     * @return Builder
+     */
+    public function getListQuery()
+    {
+        return $this->where('name','<>',Access::CONTROL_PANEL)->orderBy('name');
     }
 }

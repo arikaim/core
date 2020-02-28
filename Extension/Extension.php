@@ -197,6 +197,23 @@ abstract class Extension implements ExtensionInterface
     }
 
     /**
+     * Uninstall driver
+     *
+     * @param string $name Driver name   
+     * @return boolean
+    */
+    public function unInstallDriver($name)
+    {
+        $result = Arikaim::driver()->unInstall($name);
+        if ($result !== true) {
+            // add error
+            $this->addError(Arikaim::errors()->getError("ERROR_UNINSTALL_DRIVER",['name' => $name]));
+        } 
+        
+        return $result;
+    }
+
+    /**
      * Return extension name
      *
      * @return string
