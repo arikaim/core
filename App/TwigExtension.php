@@ -31,6 +31,7 @@ use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Http\Url;
 use Arikaim\Core\App\ArikaimStore;
+use Arikaim\Core\Routes\Route;
 
 /**
  *  Template engine functions, filters and tests.
@@ -165,6 +166,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('extractArray',[$this,'extractArray'],['needs_context' => true]),
             new TwigFunction('arikaimStore',[$this,'arikaimStore']),
 
+            // url
+            new TwigFunction('getPageUrl',[$this,'getPageUrl']),            
             // files
             new TwigFunction('getDirectoryFiles',[$this,'getDirectoryFiles']),
        
@@ -178,6 +181,31 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         $this->cache->save('twig.functions',$items,10);
 
         return $items;
+    }
+
+    /**
+     * Get page url
+     *
+     * @param string $routeName
+     * @param string $extension
+     * @param array $params
+     * @param boolean $full
+     * @param string|null $language
+     * @return string|false
+     */
+    public function getPageUrl($routeName, $extension, $params = [], $full = true, $language = null)
+    {
+        $route = Arikaim::routes()->getRoutes([
+            'name'           => $routeName,
+            'extension_name' => $extension
+        ]);
+
+        if (isset($route[0]) == false) {
+            return false;
+        }
+        $urlPath = Route::getRouteUrl($route[0]['pattern'],$params);
+        
+        return Page::getUrl($urlPath,$full,$language);
     }
 
     /**

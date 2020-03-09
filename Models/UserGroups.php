@@ -143,4 +143,25 @@ class UserGroups extends Model
         
         return $model->delete();
     }
+
+    /**
+     * Create group
+     *
+     * @param string $title
+     * @param string $description
+     * @return Model|false
+     */
+    public function createGroup($title, $description = '')
+    {
+        $model = $this->findByColumn($title,'title');
+
+        if (is_object($model) == true) {
+            return false;
+        }
+        
+        return $this->create([ 
+            'tille'       => $title, 
+            'description' => $description 
+        ]);
+    }
 }

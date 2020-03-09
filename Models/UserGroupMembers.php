@@ -60,7 +60,7 @@ class UserGroupMembers extends Model
      */
     public function group()
     {
-        return $this->hasOne(UserGroups::class,'groupd_id','id');     
+        return $this->belongsTo(UserGroups::class,'group_id');     
     }
 
     /**

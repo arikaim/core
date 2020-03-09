@@ -158,6 +158,8 @@ class SystemRoutes
         })->add($sessionAuth);
         // Packages
         Arikaim::$app->group('/core/api/packages',function($group) use($apiNamespace) {
+            $group->post('/upload',"$apiNamespace\UploadPackages:upload"); 
+            $group->put('/upload/confirm',"$apiNamespace\UploadPackages:confirmUpload");                        
             $group->put('/install',"$apiNamespace\Packages:install");    
             $group->put('/composer/update',"$apiNamespace\Packages:updateComposerPackages");    
             $group->put('/repository/update',"$apiNamespace\Packages:repositoryUpdate");      
