@@ -10,7 +10,6 @@
 namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ApiController;
-use Arikaim\Core\Packages\PackageManager;
 use Arikaim\Core\Utils\File;
 use Arikaim\Core\Utils\ZipFile;
 use Arikaim\Core\Utils\Path;
@@ -107,17 +106,18 @@ class UploadPackages extends ApiController
             foreach ($files as $item) {               
                 if (empty($item['error']) == false) continue;
                 $fileUploaded = $item['name'];
+                $destination = pathinfo($fileUploaded,PATHINFO_FILENAME); 
                 if (File::getExtension($fileUploaded) == 'zip') {
                     // unzip 
-                    $fileName = Path::STORAGE_TEMP_PATH . $fileUploaded;        
-                    ZipFile::extract($fileName,Path::STORAGE_TEMP_PATH);
+                    $fileName = Path::STORAGE_TEMP_PATH . $fileUploaded;                   
+                    ZipFile::extract($fileName,Path::STORAGE_TEMP_PATH . $destination);
                     break;
                 }
             }
             $packageDir = pathinfo($fileName,PATHINFO_FILENAME); 
 
             $result = $this->get('storage')->has('temp/' . $packageDir);
-            if ($result == false) {
+            if ($result == false) {               
                 $this->error('errors.package.upload');
                 return;
             }
