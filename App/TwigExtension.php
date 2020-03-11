@@ -167,7 +167,10 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('arikaimStore',[$this,'arikaimStore']),
 
             // url
-            new TwigFunction('getPageUrl',[$this,'getPageUrl']),            
+            new TwigFunction('getPageUrl',[$this,'getPageUrl']),         
+            new TwigFunction('getTemplateUrl',['Arikaim\\Core\\Http\\Url','getTemplateUrl']),     
+            new TwigFunction('getExtensionViewUrl',['Arikaim\\Core\\Http\\Url','getExtensionViewUrl']),     
+
             // files
             new TwigFunction('getDirectoryFiles',[$this,'getDirectoryFiles']),
        
