@@ -417,15 +417,16 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      *
      * @param string $modelClass
      * @param string|null $extension
+     * @param boolean $showError
      * @return Model|false
      */
-    public function createModel($modelClass, $extension = null)
+    public function createModel($modelClass, $extension = null, $showError = false)
     {
         if (\in_array($modelClass,$this->protectedModels) == true) {
             return ($this->access->hasControlPanelAccess() == true) ? Model::create($modelClass,$extension) : false;           
         }
      
-        return Model::create($modelClass,$extension);
+        return Model::create($modelClass,$extension,null,$showError);
     }
 
     /**
