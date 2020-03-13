@@ -70,6 +70,19 @@ class AccessTokens extends Model implements UserProviderInterface
     }
 
     /**
+     * Get token type
+     *
+     * @param string $token
+     * @return integer|null
+     */
+    public function getType($token)
+    {
+        $model = $this->getToken($token);
+        
+        return (is_object($model) == true) ? $model->type : null;
+    }
+
+    /**
      * Get user credentials
      *
      * @param array $credential
@@ -82,7 +95,7 @@ class AccessTokens extends Model implements UserProviderInterface
         if (empty($token) == true) {
             return false;
         }
-        if ($this->isExpired($token) == true) {
+        if ($this->isExpired($token) == true) {           
             return false;
         }
 
@@ -130,7 +143,8 @@ class AccessTokens extends Model implements UserProviderInterface
         if ($this->date_expired == -1) {
             return false;
         }
-        return (DateTime::getTimestamp() > $this->date_expired || empty($this->date_expired) == true) ? true : false;
+        
+        return $this->isExpired();
     }
 
     /**
@@ -201,12 +215,12 @@ class AccessTokens extends Model implements UserProviderInterface
     /**
      * Return true if token is expired
      *
-     * @param string $token
+     * @param string|null $token
      * @return boolean
      */
-    public function isExpired($token)
+    public function isExpired($token = null)
     {
-        $model = $this->findByColumn($token,'token');
+        $model = (empty($token) == true) ? $this : $this->findByColumn($token,'token');
         if (is_object($model) == false) {
             return true;
         }

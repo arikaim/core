@@ -11,6 +11,7 @@ namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Db\Model;
+use Arikaim\Core\Http\Cookie;
 
 /**
  * Users controller login, logout 
@@ -72,6 +73,10 @@ class Users extends ApiController
     */
     public function logoutController($request, $response, $data) 
     {    
+        // remove token
+        Cookie::delete('user');
+        Cookie::delete('token');   
+
         $this->get('access')->logout();        
     }   
 

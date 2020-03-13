@@ -167,6 +167,26 @@ class Routes extends Model implements RoutesStorageInterface
     }
 
     /**
+     * Save route redirect url
+     *
+     * @param string $method
+     * @param string $pattern
+     * @param string $url
+     * @return boolean
+     */
+    public function saveRedirectUrl($method, $pattern, $url)
+    {
+        $model = $this->where('method','=',$method)->where('pattern','=',$pattern)->first();
+        if (is_object($model) == true) {
+            $model->redirect_url = $url;
+            
+            return (bool)$model->save();
+        }
+
+        return false;
+    }
+
+    /**
      * Save route options
      *
      * @param string $method

@@ -394,6 +394,19 @@ abstract class Extension implements ExtensionInterface
     }
 
     /**
+     * Set route redirect url
+     *
+     * @param string $method
+     * @param string $pattern
+     * @param string $url
+     * @return boolean
+    */
+    public function setRouteRedirectUrl($method, $pattern, $url)
+    {
+        return Arikaim::routes()->setRedirectUrl($method,$pattern,$url);
+    }
+
+    /**
      * Register api route 
      *
      * @param string $method
