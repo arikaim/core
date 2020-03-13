@@ -86,16 +86,45 @@ class Permissions extends Model
     }
 
     /**
-     * Get permission id 
+     * Create permission model
      *
      * @param string $name
+     * @param string $title
+     * @param string|null $description
+     * @return Model|false
+     */
+    public function createPermission($name, $title = '', $description = null)
+    {
+        $model = $this->findByColumn($name,'name');
+        if (is_object($model) == true) {
+            return false;
+        }
+       
+        return $this->create([
+            'name'        => $name,
+            'title'       => $title,
+            'description' => $description,
+            'editable'    => true
+        ]);
+    }
+
+    /**
+     * Get permission id 
+     *
+     * @param string $name  Name or Slug
      * @return integer|false
      */
     public function getId($name)
     {
+        // find with slug
+        $model = $this->where('slug','=',$name)->first();
+        if (is_object($model) == true) {
+            return $model->id;
+        }
+        // find by name
         $model = $this->where('name','=',$name)->first();
 
-        return  (is_object($model) == true) ? $model->id : false;    
+        return (is_object($model) == true) ? $model->id : false;    
     }
 
     /**

@@ -135,16 +135,24 @@ class PermissionRelations extends Model implements PermissionsInterface
     /**
      * Set group permisison
      *
-     * @param string $name
+     * @param string $name Permission Name Or Slug
      * @param array $permissions
-     * @param integer|string $id
+     * @param integer|string $id Group Id, Uuid or Slug
      * @return Model|bool
      */
     public function setGroupPermission($name, $permissions, $id)
     {
         if (is_string($id) == true) {
-            $model = DbModel::UserGroups()->findById($id);
-            $id = (is_object($model) == true) ? $model->id : null;
+            $model = DbModel::UserGroups();
+            $group = $model->findById($id);
+            if (is_object($group) == false) {
+                $group = $model->findBySlug($id);                
+            }
+            if (is_object($group) == false) {
+                return false;
+            }
+
+            $id = $group->id;
         }
  
         return $this->setPermission($name,$permissions,$id,Self::GROUP);
@@ -153,7 +161,7 @@ class PermissionRelations extends Model implements PermissionsInterface
     /**
      * Get user permission
      *
-     * @param string $name
+     * @param string $name Permission name or slug
      * @param integer|string $userId
      * @return Model|false
      */
@@ -166,16 +174,16 @@ class PermissionRelations extends Model implements PermissionsInterface
         if (empty($userId) == true) {
             return false;
         }
+
         // check for user permiission
         $permission = $this->getPermission($name,$userId,Self::USER);
         if (is_object($permission) == true) {
             return $permission;
         }
-
         // check groups
         $groupList = DbModel::UserGroups()->getUserGroups($userId);
-        foreach ($groupList as $group) {
-            $permission = $this->getGroupPermission($name,$group->id);
+        foreach ($groupList as $item) {          
+            $permission = $this->getGroupPermission($name,$item->group_id);
             if (is_object($permission) == true) {
                 return $permission;
             }
@@ -195,17 +203,20 @@ class PermissionRelations extends Model implements PermissionsInterface
     {
         if (is_string($id) == true) {
             $model = DbModel::UserGroups()->findById($id);
-            $id = (is_object($model) == true) ? $model->id : null;
+            if (is_object($model) == false) {
+                return false;
+            }
+            $id = $model->id;        
         }
-      
-        return (is_object($model) == true) ? $this->getPermission($name,$id,Self::GROUP) : false;      
+             
+        return $this->getPermission($name,$id,Self::GROUP);
     }
 
     /**
      * Return permission for user or group
      *
-     * @param string|integer $name
-     * @param integer|string $id
+     * @param string|integer $name Permission name or slug
+     * @param integer $id
      * @param integer $type
      * @return Model|bool
      */

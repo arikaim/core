@@ -17,7 +17,6 @@ use Arikaim\Core\Db\Traits\Find;
 use Arikaim\Core\Db\Traits\Status;
 use Arikaim\Core\Db\Traits\Slug;
 
-
 /**
  * User groups database model
  */
@@ -35,6 +34,8 @@ class UserGroups extends Model
     */
     protected $fillable = [        
         'title',
+        'uuid',
+        'slug',
         'status',
         'description'
     ];
@@ -81,13 +82,16 @@ class UserGroups extends Model
     /**
      * Return true if user is member of gorup 
      *
-     * @param integer $groupId
+     * @param integer|string $groupId  Group Id, Uuid or Slug
      * @param integer $userId
      * @return bool
      */
     public function inGroup($groupId, $userId)
     {
-        $model = $this->where('id','=',$groupId)->get();
+        $model = $this->findById($groupId);
+        if (is_object($model) == false) {
+            $model = $this->findBySlug($groupId);
+        }
 
         return (is_object($model) == true) ? $this->hasUser($userId,$model) : false;         
     }
@@ -158,10 +162,10 @@ class UserGroups extends Model
         if (is_object($model) == true) {
             return false;
         }
-        
+           
         return $this->create([ 
-            'tille'       => $title, 
-            'description' => $description 
-        ]);
+            'title'       => $title, 
+            'description' => $description            
+        ]);       
     }
 }

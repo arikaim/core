@@ -76,7 +76,7 @@ class UserGroupMembers extends Model
     /**
      * Add member to group
      *
-     * @param string|integer $userId
+     * @param string|integer $userId  Group Id or Group slug
      * @param string|integer $groupId
      * @return Model|false
      */
@@ -91,7 +91,11 @@ class UserGroupMembers extends Model
         $group = new UserGroups();
         $group = $group->findById($groupId);
         if (is_object($group) == false) {
-            return false;
+            $group = $group->findBySlug($groupId);           
+        }
+
+        if (is_object($group) == false) {
+            return false;      
         }
 
         $member = $this->create([
