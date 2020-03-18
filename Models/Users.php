@@ -318,4 +318,23 @@ class Users extends Model implements UserProviderInterface
     {
         return (empty($this->user_name) == true) ? $this->email : $this->user_name;
     }
+
+    /**
+     * Hard delete user
+     *
+     * @return boolean
+     */
+    public function deleteUser()
+    {
+        // remove user form groups
+        $members = DbModel::UserGroupMembers();      
+        $members->where('user_id','=',$this->id)->delete();
+
+        // remove user permissions
+        $permissions = DbModel::PermissionRelations();
+        $permissions = $permissions->getRelationsQuery($$this->id,'user');    
+        $permissions->delete();
+
+        return $this->delete();
+    }
 }
