@@ -366,6 +366,13 @@ class Install
         $item['status'] = (System::hasPhpExtension('gd') == true) ? 1 : 2;
           
         array_push($info['items'],$item);
+
+        // fileinfo php extension
+        $item['message'] = 'fileinfo PHP extension';      
+        $item['status'] = (System::hasPhpExtension('fileinfo') == true) ? 1 : 2;
+          
+        array_push($info['items'],$item);
+
         $info['errors'] = $errors;
         
         return $info;
