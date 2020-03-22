@@ -119,13 +119,7 @@ abstract class Extension implements ExtensionInterface
      */
     public function addPermission($name, $title = null, $description = null)
     {
-        $result = Arikaim::access()->addPermission($name,$title,$description,$this->getName());     
-        if ($result !== true) {
-            // add error
-            $this->addError(Arikaim::errors()->getError("REGISTER_PERMISSION_ERROR",['name' => $name]));
-        }   
-
-        return $result;
+        return Arikaim::access()->addPermission($name,$title,$description,$this->getName());            
     }
 
     /**

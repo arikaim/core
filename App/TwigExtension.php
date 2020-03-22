@@ -242,6 +242,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('timeFormat',["Arikaim\\Core\\Utils\\DateTime",'timeFormat']),
             // numbers
             new TwigFilter('numberFormat',["Arikaim\\Core\\Utils\\Number",'format']),
+            // text
+            new TwigFilter('mask',["Arikaim\\Core\\Utils\\Text",'mask']),
             // files
             new TwigFilter('fileSize',["Arikaim\\Core\\Utils\\File",'getSizeText'])
         ];
