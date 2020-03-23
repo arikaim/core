@@ -265,7 +265,7 @@ class Users extends Model implements UserProviderInterface
      * @param string|null $email
      * @return Model|false
      */
-    private function getUser($userName, $email = null)
+    public function getUser($userName, $email = null)
     {       
         if (empty($userName) == false) {
             $model = $this->where('user_name','=',$userName)->first();
@@ -297,6 +297,10 @@ class Users extends Model implements UserProviderInterface
         if (is_object($user) == true) {           
             return false;
         }
+        if (empty($userName) == true && empty($email) == true) {
+            return false;
+        }
+        
         $data = [
             'uuid'          => UuidCreate::create(),
             'date_created'  => DateTime::getTimestamp(),
