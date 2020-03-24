@@ -396,6 +396,16 @@ class Arikaim
     }
 
     /**
+     * Get host
+     *
+     * @return string
+     */
+    public static function getHost() 
+    {      
+        return Self::$host;
+    }
+
+    /**
      * Return true if script is run from console.
      *
      * @return boolean
