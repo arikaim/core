@@ -32,6 +32,7 @@ use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Http\Url;
 use Arikaim\Core\App\ArikaimStore;
 use Arikaim\Core\Routes\Route;
+use Arikaim\Core\Db\Schema;
 
 /**
  *  Template engine functions, filters and tests.
@@ -420,15 +421,22 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param string $modelClass
      * @param string|null $extension
      * @param boolean $showError
+     * @param boolean $checkTable
      * @return Model|false
      */
-    public function createModel($modelClass, $extension = null, $showError = false)
+    public function createModel($modelClass, $extension = null, $showError = false, $checkTable = false)
     {
         if (\in_array($modelClass,$this->protectedModels) == true) {
             return ($this->access->hasControlPanelAccess() == true) ? Model::create($modelClass,$extension) : false;           
         }
-     
-        return Model::create($modelClass,$extension,null,$showError);
+        $model = Model::create($modelClass,$extension,null,$showError);
+
+        if (is_object($model) == true && $checkTable == true) {
+            // check if table exist
+            return (Schema::hasTable($model) == false) ? false : $model;
+        }
+
+        return $model;
     }
 
     /**
