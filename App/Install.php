@@ -105,8 +105,8 @@ class Install
         // install drivers
         $this->installDrivers();
         
-        // set sorage public folder
-        $this->initPublicStorage();
+        // set storage folders
+        $this->initStorage();
 
         // Install core modules
         $modulesManager = Arikaim::packages()->create('module');
@@ -136,12 +136,16 @@ class Install
     }
 
     /**
-     * Create storage public folder
+     * Create storage folders
      *
      * @return boolean
      */
-    public function initPublicStorage()
-    {       
+    public function initStorage()
+    {   
+        if (Arikaim::storage()->has('bin') == false) {          
+            Arikaim::storage()->createDir('bin');
+        } 
+
         if (Arikaim::storage()->has('public') == false) {          
             Arikaim::storage()->createDir('public');
         } 
@@ -169,15 +173,7 @@ class Install
         // Jobs
         Arikaim::event()->registerEvent('core.jobs.before.execute','Before run job.');
         Arikaim::event()->registerEvent('core.jobs.after.execute','After run job.');
-        Arikaim::event()->registerEvent('core.jobs.queue.run','After run jobs queue.');
-        // Storage events
-        Arikaim::event()->registerEvent('core.storage.delete.file','File is deleted in storage folder.');
-        Arikaim::event()->registerEvent('core.storage.write.file','File is added to storage folder.');
-        Arikaim::event()->registerEvent('core.storage.update.file','Update File.');
-        Arikaim::event()->registerEvent('core.storage.rename.file','Rename file.');
-        Arikaim::event()->registerEvent('core.storage.copy.file','Copy file.');
-        Arikaim::event()->registerEvent('core.storage.create.dir','Create directory');
-        Arikaim::event()->registerEvent('core.storage.delete.dir','Delete directory');
+        Arikaim::event()->registerEvent('core.jobs.queue.run','After run jobs queue.');       
     } 
 
     /**

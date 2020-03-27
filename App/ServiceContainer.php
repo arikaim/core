@@ -55,7 +55,7 @@ class ServiceContainer
         };
         // Storage
         $container['storage'] = function($container) {
-            return new \Arikaim\Core\Storage\Storage($container['event']);
+            return new \Arikaim\Core\Storage\Storage();
         };
         // Http client  
         $container['http'] = function() {

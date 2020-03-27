@@ -111,7 +111,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         return [
             'system_template_name'  => Template::SYSTEM_TEMPLATE_NAME,
             'domain'                => (defined('DOMAIN') == true) ? DOMAIN : null,
-            'base_url'              => Url::BASE_URL     
+            'base_url'              => Url::BASE_URL,     
+            'DIRECTORY_SEPARATOR'   => DIRECTORY_SEPARATOR
         ];
     }
 
@@ -387,16 +388,17 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      *
      * @param string $path
      * @param boolean $recursive
+     * @param string $fileSystemName
      * @return array|false
      */
-    public function getDirectoryFiles($path, $recursive = false)
+    public function getDirectoryFiles($path, $recursive = false, $fileSystemName = 'storage')
     {
         // Control Panel only
         if ($this->access->isLogged() == false) {
             return false;
         }
 
-        return Arikaim::storage()->listContents($path,$recursive);
+        return Arikaim::storage()->listContents($path,$recursive,$fileSystemName);
     }
 
     /**
