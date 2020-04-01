@@ -148,8 +148,12 @@ class ServiceContainer
         // Jobs queue
         $container['queue'] = function($container) {           
             return new \Arikaim\Core\Queue\QueueManager(Model::Jobs(),$container['event'],$container['options']);          
-        };   
-       
+        };          
+        // Modules manager
+        $container['modules'] = function($container) {           
+            return new \Arikaim\Core\Extension\Modules($container->get('cache'));
+        }; 
+      
         // Add template extensions
         $extension = new Extension($container->get('cache'),BASE_PATH,Path::VIEW_PATH,$container->get('page'),$container->get('access'));
         $container->get('view')->addExtension($extension);

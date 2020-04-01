@@ -21,6 +21,7 @@ use Arikaim\Core\Utils\Uuid as UuidFactory;
 use Arikaim\Core\Db\Traits\Uuid;
 use Arikaim\Core\Db\Traits\Find;
 use Arikaim\Core\Db\Traits\PolymorphicRelations;
+use Arikaim\Core\Db\Traits\Permissions as PermissionsTrait;
 
 /**
  * Permissions database model
@@ -32,6 +33,7 @@ class PermissionRelations extends Model implements PermissionsInterface
 
     use Uuid,
         PolymorphicRelations,
+        PermissionsTrait,
         Find;
  
     /**
@@ -233,7 +235,6 @@ class PermissionRelations extends Model implements PermissionsInterface
 
         $query = $this->getRelationsQuery($id,$type);
         $query = $query->where('permission_id','=',$permissionId);
-
         $model = $query->first();
 
         return (is_object($model) == true) ? $model : false;           
@@ -264,22 +265,6 @@ class PermissionRelations extends Model implements PermissionsInterface
         $result = $model->update($permissions);  
 
         return ($result === false) ? false : $model;
-    }
-
-    /**
-     * Resolve permissions array
-     *
-     * @param array $access
-     * @return array
-     */
-    public function resolvePermissions(array $access) 
-    {
-        return [
-            'read'      => in_array('read',$access) ? 1:0,
-            'write'     => in_array('write',$access) ? 1:0,
-            'delete'    => in_array('delete',$access) ? 1:0,
-            'execute'   => in_array('execute',$access) ? 1:0
-        ];       
     }
 
     /**
@@ -336,36 +321,5 @@ class PermissionRelations extends Model implements PermissionsInterface
         $permission = $model->create($item);
 
         return is_object($permission);
-    }
-
-    /**
-     * Return true if have permission 
-     *
-     * @param string $name valid values read|write|delete|execute
-     * @return boolean
-     */
-    public function hasPermission($name)
-    {
-        if (isset($this->attributes[$name]) == true) {
-            return ($this->attributes[$name] == 1) ? true : false;
-        }
-
-        return false;
-    }
-
-    /**
-     *Return true if have all permissions
-     *
-     * @return boolean
-     */
-    public function hasFull()
-    {
-        $count = 0;
-        $count += ($this->hasPermission('read') == false) ? 0 : 1;
-        $count += ($this->hasPermission('write') == false) ? 0 : 1;
-        $count += ($this->hasPermission('delete') == false) ? 0 : 1;
-        $count += ($this->hasPermission('execute') == false) ? 0 : 1;
-
-        return ($count == 4) ? true : false;
-    }
+    }    
 }

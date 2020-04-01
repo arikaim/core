@@ -30,6 +30,23 @@ class Modules
     private static $container;
 
     /**
+     * Cache
+     *
+     * @var CacheInterface
+    */
+    private $cache;
+
+    /**
+     * Constructor
+     *
+     * @param CacheInterface $cache
+     */
+    public function __construct(CacheInterface $cache = null)
+    {
+        $this->cache = $cache;
+    } 
+
+    /**
      * Get container service
      *
      * @param string $name Service name
@@ -61,6 +78,27 @@ class Modules
         return $service;
     }
     
+    /**
+     * Create module instance
+     *
+     * @param string $name
+     * @return ModuleInterface|null
+     */
+    public function create($name)
+    {        
+        $module = $this->cache->fetch('module.' . $name);
+        if (is_array($module) == false) {
+            $module = Model::Modules()->getPackage($name);
+            if ($module != false) {
+                $this->cache->save('module.' . $name,$module,3);  
+            }  
+        } else {
+            $module = Model::Modules()->getPackage($name);
+        }
+
+        return ($module == false) ? null : Factory::createModule($name,$module['class']);
+    }
+
     /**
      * Check item exists in container
      *
