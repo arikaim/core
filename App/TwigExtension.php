@@ -175,7 +175,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
             // files
             new TwigFunction('getDirectoryFiles',[$this,'getDirectoryFiles']),
-       
+           
             // date and time
             new TwigFunction('getTimeZonesList',["Arikaim\\Core\\Utils\\DateTime",'getTimeZonesList']),
             new TwigFunction('timeInterval',['Arikaim\\Core\\Utils\\TimeInterval','getInterval']),
@@ -247,7 +247,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             // text
             new TwigFilter('mask',["Arikaim\\Core\\Utils\\Text",'mask']),
             // files
-            new TwigFilter('fileSize',["Arikaim\\Core\\Utils\\File",'getSizeText'])
+            new TwigFilter('fileSize',["Arikaim\\Core\\Utils\\File",'getSizeText']),
+            new TwigFilter('baseName',["Arikaim\\Core\\Utils\\File",'baseName'])
         ];
     }
 
