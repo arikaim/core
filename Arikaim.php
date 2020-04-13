@@ -118,18 +118,21 @@ class Arikaim
      * Create Arikaim system. Create container services, load system routes 
      * 
      * @param boolean $consoleMode - load routes 
+     * @param integer $showErrors
      * @return void
     */
-    public static function init() 
+    public static function init($showErrors = 0) 
     {        
-        ini_set('display_errors',0);
-        ini_set('display_startup_errors',0);
+        ini_set('display_errors',$showErrors);
+        ini_set('display_startup_errors',$showErrors);
         error_reporting(E_ALL); 
 
-        set_error_handler(function () {
-            return Self::end();
-        });
-
+        if ($showErrors == 0) {
+            set_error_handler(function () {
+                return Self::end();
+            });
+        }
+       
         Self::resolveEnvironment($_SERVER);
 
         // Init constants   
@@ -270,12 +273,13 @@ class Arikaim
 
     /**
      * Start Arikaim
-     *
+     * 
+     * @param integer $showErrors
      * @return void
     */
-    public static function run() 
+    public static function run($showErrors = 0) 
     {      
-        Self::init();    
+        Self::init($showErrors);    
         Self::$app->run();            
     }
     

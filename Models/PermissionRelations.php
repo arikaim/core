@@ -260,7 +260,7 @@ class PermissionRelations extends Model implements PermissionsInterface
         $model = $this->saveRelation($permissionId,$type,$id);
     
         if (is_object($model) == false) {
-            $model = $this->getRelation($permissionId,$type,$id);           
+            $model = $this->getRelationModel($permissionId,$type,$id);           
         }        
         $result = $model->update($permissions);  
 
