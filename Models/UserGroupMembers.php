@@ -98,11 +98,29 @@ class UserGroupMembers extends Model
             return false;      
         }
 
+        if ($this->isMember($user->id,$group->id) == true) {
+            return false;
+        }
+        
         $member = $this->create([
             'user_id'  => $user->id,
             'group_id' => $group->id
         ]);
 
         return (is_object($member) == true) ? $member : false;
+    }
+
+    /**
+     * Add member to group
+     *
+     * @param integer $userId  Group Id or Group slug
+     * @param integer $groupId
+     * @return boolean
+    */
+    public function isMember($userId, $groupId)
+    {
+        $model = $this->where('user_id','=',$userId)->where('group_id','=',$groupId)->first();
+
+        return is_object($model);
     }
 }
