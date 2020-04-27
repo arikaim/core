@@ -20,6 +20,7 @@ use Arikaim\Core\Packages\PackageFactory;
 use Arikaim\Core\Routes\Routes;
 use Arikaim\Core\App\Install;
 use Arikaim\Core\View\Html\Page;
+use Arikaim\Core\Http\Session;
 use PDOException;
 
 /**
@@ -84,10 +85,10 @@ class ServiceContainer
             $defaultLanguage = $container->get('cache')->fetch('default.language');
             if (empty($defaultLanguage) == true) {
                 $defaultLanguage = Model::Language()->getDefaultLanguage();
-                $container->get('cache')->save('default.language',$defaultLanguage,2);
-                Page::setDefaultLanguage($defaultLanguage);
+                $container->get('cache')->save('default.language',$defaultLanguage,2);                       
             }
-            
+            Session::set('default.language',$defaultLanguage);
+
             return $defaultLanguage;
         }; 
         // Init page components.

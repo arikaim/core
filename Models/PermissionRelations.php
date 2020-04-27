@@ -21,7 +21,7 @@ use Arikaim\Core\Utils\Uuid as UuidFactory;
 use Arikaim\Core\Db\Traits\Uuid;
 use Arikaim\Core\Db\Traits\Find;
 use Arikaim\Core\Db\Traits\PolymorphicRelations;
-use Arikaim\Core\Db\Traits\Permissions as PermissionsTrait;
+use Arikaim\Core\Db\Traits\Permissions\Permissions as PermissionsTrait;
 
 /**
  * Permissions database model

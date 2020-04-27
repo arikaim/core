@@ -87,16 +87,16 @@ class Component extends ApiController
      */
     public function loadComponent($request, $response, $data)
     {       
-        $language = $data->get('language',null);
-        $language = (empty($language) == true) ? HtmlComponent::getLanguage() : $language;
-
         $params = $this->getParams($request);
      
         // get header params
         $headerParams = $this->getHeaderParams($request);
         $params = array_merge($params,$headerParams);
         $params = array_merge($params,$data->toArray());
-
+      
+        $language = $this->getPageLanguage($params);
+        $this->get('view')->addGlobal('current_language',$language);
+      
         return $this->load($data['name'],$params,$language);
     }
 

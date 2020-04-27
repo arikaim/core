@@ -11,7 +11,6 @@ namespace Arikaim\Core\Api\Ui;
 
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\View\Template\Template;
-use Arikaim\Core\Db\Model;
 use Arikaim\Core\Http\Url;
 use Arikaim\Core\View\Html\HtmlComponent;
 
@@ -67,8 +66,7 @@ class Page extends ApiController
             'loader'            => $loaderCode,  
             'loader_name'       => $loader,
             'library'           => Template::getLibraries(),
-            'language'          => HtmlComponent::getLanguage(),     
-            'default_language'  => Model::Language()->getDefaultLanguage(),   
+            'language'          => HtmlComponent::getLanguage(),       
             'site_url'          => Url::BASE_URL
         ];
 
