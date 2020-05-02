@@ -429,9 +429,12 @@ class Arikaim
     public static function resolveEnvironment(array $env)
     {
         // scheme
-        $secure = (isset($env['HTTPS']) == true) ? $env['HTTPS'] : null;
-        Self::$scheme = (empty($secure) || $secure === 'off') ? 'http' : 'https';
-
+        $isHttps = (isset($env['HTTPS']) == true && $env['HTTPS'] !== 'off') || 
+            (isset($env['REQUEST_SCHEME']) && $env['REQUEST_SCHEME'] === 'https') || 
+            (isset($env['HTTP_X_FORWARDED_PROTO']) && $env['HTTP_X_FORWARDED_PROTO'] === 'https');
+       
+        Self::$scheme = ($isHttps == true) ? 'https' : 'http';
+              
         // host
         $serverName = (isset($env['SERVER_NAME']) == true) ? $env['SERVER_NAME'] : '';            
         $host = (isset($env['HTTP_HOST']) == true) ? $env['HTTP_HOST'] : $serverName;   
