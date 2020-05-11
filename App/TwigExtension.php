@@ -160,7 +160,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('getVersion',[$this,'getVersion']),
             new TwigFunction('getLastVersion',[$this,'getLastVersion']),
             new TwigFunction('composerPackages',[$this,'getComposerPackages']),
-
+          
             new TwigFunction('getOption',[$this,'getOption']),
             new TwigFunction('getOptions',[$this,'getOptions']),
             new TwigFunction('csrfToken',[$this,'csrfToken']),                
@@ -175,13 +175,16 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
             // files
             new TwigFunction('getDirectoryFiles',[$this,'getDirectoryFiles']),
-           
+            new TwigFunction('isImage',["Arikaim\\Core\\Utils\\File",'isImageMimeType']),
+
             // date and time
             new TwigFunction('getTimeZonesList',["Arikaim\\Core\\Utils\\DateTime",'getTimeZonesList']),
             new TwigFunction('timeInterval',['Arikaim\\Core\\Utils\\TimeInterval','getInterval']),
             new TwigFunction('currentYear',[$this,'currentYear']),
             new TwigFunction('today',["Arikaim\\Core\\Utils\\DateTime",'getTimestamp']),
-           
+            // unique Id
+            new TwigFunction('createUuid',["Arikaim\\Core\\Utils\\Uuid",'create']),
+            new TwigFunction('createToken',["Arikaim\\Core\\Utils\\Utils",'createToken']),
         ];
         $this->cache->save('twig.functions',$items,10);
 

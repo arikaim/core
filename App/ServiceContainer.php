@@ -13,6 +13,7 @@ use Arikaim\Container\Container;
 use Arikaim\Core\Events\EventsManager;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Utils\Path;
+use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\View\Template\Extension;
 use Arikaim\Core\App\TwigExtension;
 use Arikaim\Core\Packages\PackageManagerFactory;
@@ -154,7 +155,7 @@ class ServiceContainer
         $container['modules'] = function($container) {           
             return new \Arikaim\Core\Extension\Modules($container->get('cache'));
         }; 
-      
+    
         // Add template extensions
         $extension = new Extension($container->get('cache'),BASE_PATH,Path::VIEW_PATH,$container->get('page'),$container->get('access'));
         $container->get('view')->addExtension($extension);
