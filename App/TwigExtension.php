@@ -62,9 +62,17 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @var array
      */
     protected $protectedServices = [
-        'config',
-        'storage',
+        'config',       
         'packages'
+    ];
+
+    /**
+     * Protected services requires logged user
+     *
+     * @var array
+     */
+    protected $userProtectedServices = [      
+        'storage'      
     ];
 
     /**
@@ -382,6 +390,10 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     {
         if (\in_array($name,$this->protectedServices) == true) {
             return ($this->access->hasControlPanelAccess() == true) ? Arikaim::get($name) : false;           
+        }
+
+        if (\in_array($name,$this->userProtectedServices) == true) {
+            return ($this->access->isLogged() == true) ? Arikaim::get($name) : false;           
         }
 
         return Arikaim::get($name);

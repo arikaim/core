@@ -306,7 +306,7 @@ class Users extends Model implements UserProviderInterface
             'date_created'  => DateTime::getTimestamp(),
             'user_name'     => $userName,
             'status'        => 1,
-            'password'      => $this->EncryptPassword($password),
+            'password'      => $this->encryptPassword($password),
             'email'         => $email
         ];
    
@@ -340,5 +340,26 @@ class Users extends Model implements UserProviderInterface
         $permissions->delete();
 
         return $this->delete();
+    }
+
+    /**
+     * Find user by username or email
+     *
+     * @param string $userName
+     * @return Model|false
+     */
+    public function findUser($userName)
+    {
+        $user = $this->where('user_name','=',$userName)->whereNotNull('user_name')->first();    
+        if (is_object($user) == false) {
+            // try with email
+            $user = $this->where('email','=',$userName)->whereNotNull('email')->first();
+        } 
+        if (is_object($user) == false) {
+            // try with uuid or id 
+            $user = $this->where('uuid','=',$userName)->orWhere('id','=',$userName)->first();
+        }
+
+        return (is_object($user) == true) ? $user : false;
     }
 }
