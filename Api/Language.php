@@ -89,8 +89,8 @@ class Language extends ApiController
         $data
             ->addRule("text:min=2","title")
             ->addRule("text:min=2","native_title")
-            ->addRule("unique:model=Language|field=code","code")
-            ->addRule("unique:model=Language|field=code_3","code_3")
+            ->addRule("unique:model=Language|field=code","code",$this->getMessage('errors.language.code'))
+            ->addRule("unique:model=Language|field=code_3","code_3",$this->getMessage('errors.language.code3'))
             ->addRule("text:min=2|max=2","language_code")
             ->validate();
     }
