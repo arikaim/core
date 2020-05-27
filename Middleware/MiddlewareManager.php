@@ -70,13 +70,12 @@ class MiddlewareManager
         $applicationError = new ApplicationError(Response::create(),$errorRenderer);
         
         $errorMiddleware->setDefaultErrorHandler($applicationError);
-        Arikaim::$app->add(new ContentLengthMiddleware());
+        // sanitize request body and client ip
+        Arikaim::$app->add(new CoreMiddleware());         
+        Arikaim::$app->add(new ContentLengthMiddleware());        
         Arikaim::$app->add(new BodyParsingMiddleware());
         Arikaim::$app->add(new OutputBufferingMiddleware(new StreamFactory(),OutputBufferingMiddleware::APPEND));
         
-        // sanitize request body and client ip
-        Arikaim::$app->add(new CoreMiddleware());    
-       
         // add modules middlewares 
         Self::addModules();      
     }
