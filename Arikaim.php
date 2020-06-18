@@ -228,9 +228,9 @@ class Arikaim
             if ($item['auth'] > 0) {
                 $options['redirect'] = (empty($item['redirect_url']) == false) ? Url::BASE_URL . $item['redirect_url'] : null;      
                 
-                $userProvider = ($item['auth'] == 4) ? $accessToken : null;              
+                $userProvider = ($item['auth'] == 4) ? $accessToken : null;                
                 $middleware = Self::access()->middleware($item['auth'],$options,$userProvider);    
-
+    
                 if ($middleware != null && is_object($route) == true) {
                     $route->add($middleware);
                 }

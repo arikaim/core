@@ -148,7 +148,7 @@ abstract class Extension implements ExtensionInterface
      * Create extension option
      *
      * @param string $key
-     * @param mxied $value
+     * @param mixed $value
      * @param boolean $autoLoad
      * @return bool
      */
