@@ -11,6 +11,7 @@ namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\App\Install as SystemInstall;
+use Arikaim\Core\App\PostInstallActions;
 
 /**
  * Install controller
@@ -32,7 +33,6 @@ class Install extends ApiController
         $this->onDataValid(function($data) {    
             // clear cache
             $this->get('cache')->clear();
-
              
             // save config file               
             $this->get('config')->setValue('db/username',$data->get('username'));
@@ -98,6 +98,32 @@ class Install extends ApiController
         $data->validate();      
     }
     
+    /**
+     * Post install actions
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+    */
+    public function postInstallActionsController($request, $response, $data) 
+    {           
+        $this->onDataValid(function($data) {    
+            // clear cache
+            $this->get('cache')->clear();
+
+            // do post install actions
+            $errors = PostInstallActions::runPostInstallActions();
+                       
+            if ($errors > 0) { 
+                $this->error('Post install actions error');
+                return;
+            }
+            $this->message('Post install actions completed successfully.');                      
+        });
+        $data->validate();      
+    }
+
     /**
      * Repair installation Arikaim 
      *

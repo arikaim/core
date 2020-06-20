@@ -249,6 +249,11 @@ class Packages extends ApiController
 
             $packageManager = $this->get('packages')->create($type);            
             $package = $packageManager->createPackage($name);
+            if (is_object($package) == false) {
+                $this->error('Not valid package name');
+                return;
+            }
+
             $properties = $package->getProperties();
             $primary = $properties->get('primary',false);
 
@@ -258,7 +263,7 @@ class Packages extends ApiController
            
             $result = $package->install($primary);
             if ($primary == true) { 
-                $package->setPrimary($primary);
+                $package->setPrimary();
             }
             
             if (is_array($result) == true) {
@@ -385,7 +390,7 @@ class Packages extends ApiController
             $packageManager = $this->get('packages')->create($type);            
           
             $package = $packageManager->createPackage($name);
-            $result = $package->setPrimary($name);
+            $result = (is_object($package) == true) ? $package->setPrimary() : false;
 
             $this->setResponse($result,function() use($name,$type) {         
                 $this

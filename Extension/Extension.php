@@ -75,6 +75,15 @@ abstract class Extension implements ExtensionInterface
     }
 
     /**
+     * Run post install actions
+     *
+     * @return void
+     */
+    public function postInstall()
+    {        
+    }
+
+    /**
      * Load extension json config file
      *
      * @param string $fileName

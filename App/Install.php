@@ -48,7 +48,7 @@ class Install
     {
         $uri = (isset($_SERVER['REQUEST_URI']) == true) ? $_SERVER['REQUEST_URI'] : '';
        
-        return (substr($uri,-16) == 'core/api/install');
+        return (substr($uri,-17) == 'core/api/install/');
     }
 
     /**

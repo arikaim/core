@@ -16,7 +16,6 @@ use Arikaim\Core\Utils\Path;
 
 use Arikaim\Core\Controllers\Traits\FileUpload;
 
-
 /**
  * UploadPackage controller
 */
