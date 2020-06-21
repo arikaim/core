@@ -93,7 +93,7 @@ class Install extends ApiController
                 $this->addErrors($install->getErrors());
                 return;
             }
-            $this->message('Arikaim extensions was installed successfully.');                      
+            $this->message('Extensions was installed successfully.');                      
         });
         $data->validate();      
     }
@@ -119,6 +119,7 @@ class Install extends ApiController
                 $this->error('Post install actions error');
                 return;
             }
+            $this->field('complete','Arikaim was installed successfully.');        
             $this->message('Post install actions completed successfully.');                      
         });
         $data->validate();      
