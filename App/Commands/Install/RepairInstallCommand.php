@@ -11,6 +11,7 @@ namespace Arikaim\Core\App\Commands\Install;
 
 use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\App\Install;
+use Arikaim\Core\App\PostInstallActions;
 
 /**
  * Repair (reinstall) command class
@@ -39,6 +40,9 @@ class RepairInstallCommand extends ConsoleCommand
       
         $install = new Install();
         $result = $install->install();   
+
+        // run post install actions
+        PostInstallActions::runPostInstallActions();
 
         if ($result == true) {
             $this->showCompleted();  
