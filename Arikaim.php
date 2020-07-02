@@ -180,7 +180,7 @@ class Arikaim
             // Add modules service
             Modules::init(Self::getContainer()->get('cache'));
             // Add default middleware
-            MiddlewareManager::init(); 
+            MiddlewareManager::init(Self::getContainer()->get('config')['settings']); 
             
             Self::mapRoutes();   
             

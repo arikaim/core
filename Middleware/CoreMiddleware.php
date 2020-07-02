@@ -23,7 +23,7 @@ use Arikaim\Core\Http\Session;
  * Core middleware
  */
 class CoreMiddleware extends Middleware implements MiddlewareInterface
-{
+{ 
     /**
      * Process middleware
      * 
@@ -43,8 +43,11 @@ class CoreMiddleware extends Middleware implements MiddlewareInterface
         $Ip = ClientIp::getClientIpAddress($request);
         $request->withAttribute('client_ip',$Ip);   
         Session::set('client_ip',$Ip);
-
-        return $handler->handle($request);
+     
+        $response = $handler->handle($request);
+        
+        // set cache control header
+        return $response->withHeader('Cache-Control',$this->getParam('CacheControl',"max-age=31536000,public"));      
     }
 
     /**

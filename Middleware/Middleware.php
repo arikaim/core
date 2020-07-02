@@ -35,11 +35,12 @@ class Middleware
      * Get param value
      *
      * @param string $name
+     * @param mixed $default
      * @return mixed|null
      */
-    public function getParam($name)
+    public function getParam($name, $default = null)
     {
-        return (isset($this->params[$name]) == true) ? $this->params[$name] : null;
+        return (isset($this->params[$name]) == true) ? $this->params[$name] : $default;
     }
 
     /**
@@ -65,5 +66,15 @@ class Middleware
     {
         $this->setParam($name,$value);
         return $this;
+    }
+
+    /**
+     * Return all params
+     *
+     * @return array
+     */
+    public function getParams()
+    {
+        return $this->params;
     }
 }
