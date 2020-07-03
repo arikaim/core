@@ -13,11 +13,9 @@ use Arikaim\Container\Container;
 use Arikaim\Core\Events\EventsManager;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Utils\Path;
-use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\View\Template\Extension;
 use Arikaim\Core\App\TwigExtension;
 use Arikaim\Core\Packages\PackageManagerFactory;
-use Arikaim\Core\Packages\PackageFactory;
 use Arikaim\Core\Routes\Routes;
 use Arikaim\Core\App\Install;
 use Arikaim\Core\View\Html\Page;
@@ -93,10 +91,10 @@ class ServiceContainer
             return $defaultLanguage;
         }; 
         // Init page components.
-        $container['page'] = function($container) {    
-            $packageFactory = new PackageFactory();
-            return new Page($container->get('view'),$packageFactory);
+        $container['page'] = function($container) {               
+            return new Page($container->get('view'),$container->get('options'));
         }; 
+
         // Errors  
         $container['errors'] = function($container) {
             $systemErrors = $container->get('config')->loadJsonConfigFile('errors.json');       
@@ -130,7 +128,7 @@ class ServiceContainer
         $container['options'] = function($container) { 
             $options = Model::Options();  
             return new \Arikaim\Core\Options\Options($options,$container->get('cache'));          
-        };
+        };     
         // Mailer
         $container['mailer'] = function($container) {
             return new \Arikaim\Core\Mail\Mailer($container['options'],$container['page']);
