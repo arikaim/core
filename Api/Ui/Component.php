@@ -31,10 +31,13 @@ class Component extends ApiController
         $language = $data->get('language',null);
         $language = (empty($language) == true) ? HtmlComponent::getLanguage() : $language;
 
-        $component = $this->get('page')->createHtmlComponent($data['name'],[],$language)->renderComponent();
+        $component = $this->get('page')->createHtmlComponent($data['name'],[],$language);
         if (is_object($component) == false) {
             return $this->withError('Not valid component nane.')->getResponse();  
         }
+        
+        $component = $component->renderComponent();
+
         if ($component->hasError() == true) {
             $error = $component->getError();           
             return $this->withError($this->get('errors')->getError($error['code'],$error['params']))->getResponse();  
@@ -60,10 +63,13 @@ class Component extends ApiController
         // control panel only
         $this->requireControlPanelPermission();
 
-        $component = $this->get('page')->createHtmlComponent($data['name'])->renderComponent();
+        $component = $this->get('page')->createHtmlComponent($data['name']);
         if (is_object($component) == false) {
             return $this->withError('Not valid component nane.')->getResponse();  
         }
+
+        $component = $component->renderComponent();
+
         if ($component->hasError() == true) {
             $error = $component->getError();
             return $this->withError($this->get('errors')->getError($error['code'],$error['params']))->getResponse();            
@@ -110,17 +116,23 @@ class Component extends ApiController
      */
     public function load($name, $params = [], $language = null)
     {   
-        $component = $this->get('page')->createHtmlComponent($name,$params,$language)->renderComponent();
+        $component = $this->get('page')->createHtmlComponent($name,$params,$language);
         if (is_object($component) == false) {
             return $this->withError('Not valid component nane.')->getResponse();  
         }
-        
+     
+        $component = $component->renderComponent();
+    
         if ($component->hasError() == true) {
-            $error = $component->getError();                               
+            $error = $component->getError();  
+            $this->setResultField('redirect',$component->getOption('access/redirect')); 
+
             return $this->withError($this->get('errors')->getError($error['code'],$error['params']))->getResponse();          
         }
       
         if ($component->getOption('access/deny-request') == true) {
+            $this->setResultField('redirect',$component->getOption('access/redirect')); 
+
             return $this->withError('ACCESS_DENIED')->getResponse();           
         }
         $files = $this->get('view')->properties()->get('include.components.files');
@@ -129,7 +141,8 @@ class Component extends ApiController
             'html'       => $component->getHtmlCode(),
             'css_files'  => (isset($files['css']) == true) ? Arrays::arrayColumns($files['css'],['url','params']) : [],
             'js_files'   => (isset($files['js']) == true)  ? Arrays::arrayColumns($files['js'],['url','params'])  : [],
-            'properties' => json_encode($component->getProperties())
+            'properties' => json_encode($component->getProperties()),
+            'html'       => $component->getHtmlCode()           
         ];
   
         return $this->setResult($result)->getResponse();        

@@ -285,7 +285,7 @@ class PermissionRelations extends Model implements PermissionsInterface
         if (is_object($model) == false) {
             return false;
         }
-        
+    
         foreach ($permissions as $permission) {               
             if ($model->hasPermission($permission) == false) {              
                 return false;
