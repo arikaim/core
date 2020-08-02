@@ -30,6 +30,7 @@ use Arikaim\Core\App\Install;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Http\Url;
+use Arikaim\Core\Http\Session;
 use Arikaim\Core\App\ArikaimStore;
 use Arikaim\Core\Routes\Route;
 use Arikaim\Core\Db\Schema;
@@ -168,7 +169,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('getVersion',[$this,'getVersion']),
             new TwigFunction('getLastVersion',[$this,'getLastVersion']),
             new TwigFunction('composerPackages',[$this,'getComposerPackages']),
-          
+            new TwigFunction('modules',[$this,'getModulesService']),
+
+            // session vars
+            new TwigFunction('getSessionVar',[$this,'getSessionVar']),
+            new TwigFunction('setSessionVar',[$this,'setSessionVar']),
+
             new TwigFunction('getOption',[$this,'getOption']),
             new TwigFunction('getOptions',[$this,'getOptions']),
             new TwigFunction('csrfToken',[$this,'csrfToken']),                
@@ -197,6 +203,40 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         $this->cache->save('twig.functions',$items,10);
 
         return $items;
+    }
+
+    /**
+     * Get modules service
+     *
+     * @return object|null
+     */
+    public function getModulesService()
+    {
+        return (Arikaim::getContainer()->has('modules') == true) ? Arikaim::modules() : null;
+    }
+
+    /**
+     * Get session var
+     *
+     * @param string $name
+     * @param mixed $default
+     * @return mixed
+     */
+    public function getSessionVar($name, $default = null)
+    {
+        return Session::get('vars.' . $name,$default);
+    }
+
+    /**
+     * Set session var
+     *
+     * @param string $name
+     * @param mixed $value
+     * @return void
+     */
+    public function setSessionVar($name, $value)
+    {
+        Session::set('vars.' . $name,$value);
     }
 
     /**

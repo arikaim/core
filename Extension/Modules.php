@@ -65,10 +65,10 @@ class Modules
         }
         if (isset($arguments[0]) == true) {
             $key = $arguments[0];
-            if (is_array($service) == true) {
+            if (\is_array($service) == true) {
                 return (isset($service[$name]) == true) ? Arrays::getValue($service[$name],$key) : Arrays::getValue($service,$key);                            
             }            
-            if (is_object($service) == true) {
+            if (\is_object($service) == true) {
                 if ($service instanceof CollectionInterface) {
                     return Arrays::getValue($service->toArray(),$key);                  
                 }
@@ -87,7 +87,7 @@ class Modules
     public function create($name)
     {        
         $module = $this->cache->fetch('module.' . $name);
-        if (is_array($module) == false) {
+        if (\is_array($module) == false) {
             $module = Model::Modules()->getPackage($name);
             if ($module != false) {
                 $this->cache->save('module.' . $name,$module,3);  
@@ -95,7 +95,7 @@ class Modules
         } else {
             $module = Model::Modules()->getPackage($name);
         }
-
+        
         return ($module == false) ? null : Factory::createModule($name,$module['class']);
     }
 
@@ -141,7 +141,7 @@ class Modules
         $container = new Container();
 
         $modules = $cache->fetch('services.list');
-        if (is_array($modules) == false) {
+        if (\is_array($modules) == false) {
             $modules = Model::Modules()->getPackagesList([
                 'type'   => ModulePackage::getTypeId('service'), 
                 'status' => 1
@@ -159,7 +159,7 @@ class Modules
             }
             if ($module['bootable'] == true) {
                 $service = $container->get($serviceName);
-                if (is_object($service) == true) {
+                if (\is_object($service) == true) {
                     $service->boot();
                 }
             }           
