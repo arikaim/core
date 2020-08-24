@@ -69,14 +69,18 @@ class ServiceContainer
         $container['view'] = function ($container) {                        
             $cache = (isset($container->get('config')['settings']['cache']) == true) ? Path::VIEW_CACHE_PATH : false;
             $debug = (isset($container->get('config')['settings']['debug']) == true) ? $container->get('config')['settings']['debug'] : true;
-             
+            $demoModel = (isset($container->get('config')['settings']['demo_mode']) == true) ? $container->get('config')['settings']['demo_mode'] : false;
             return new \Arikaim\Core\View\View(
                 $container['cache'],
                 Path::VIEW_PATH,
                 Path::EXTENSIONS_PATH, 
                 Path::TEMPLATES_PATH,
-                Path::COMPONENTS_PATH,
-                ['cache' => $cache,'debug' => $debug,'autoescape' => false]
+                Path::COMPONENTS_PATH, [
+                    'cache'      => $cache,
+                    'debug'      => $debug,
+                    'demo_mode'  => $demoModel,
+                    'autoescape' => false
+                ]
             );           
         };    
         // Default language
