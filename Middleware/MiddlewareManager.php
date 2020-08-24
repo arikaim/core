@@ -37,7 +37,7 @@ class MiddlewareManager
     public static function addModules()
     {
         $modules = Arikaim::cache()->fetch('middleware.list');
-        if (is_array($modules) == false) {   
+        if (\is_array($modules) == false) {   
             if (Schema::hasTable('modules') == false) {
                 return false;
             }            
@@ -50,7 +50,7 @@ class MiddlewareManager
 
         foreach ($modules as $module) {             
             $instance = Factory::createModule($module['name'],$module['class']);
-            if (is_object($instance) == true) {
+            if (\is_object($instance) == true) {
                 Arikaim::$app->add($instance);  
             }         
         }

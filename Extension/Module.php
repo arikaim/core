@@ -151,8 +151,9 @@ class Module implements ModuleInterface
     protected function loadConfig($name)
     {
         $model = Model::Modules()->findByColumn($name,'name');
-        if (is_object($model) == true) {
+        if (\is_object($model) == true) {
             $this->setConfig($model->config);
+            
             return true;
         } 
         

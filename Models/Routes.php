@@ -69,8 +69,8 @@ class Routes extends Model implements RoutesStorageInterface
      */
     public function setOptionsAttribute($value)
     {
-        $value = (is_array($value) == true) ? $value : [];    
-        $this->attributes['options'] = json_encode($value);
+        $value = (\is_array($value) == true) ? $value : [];    
+        $this->attributes['options'] = \json_encode($value);
     }
 
     /**
@@ -80,7 +80,7 @@ class Routes extends Model implements RoutesStorageInterface
      */
     public function getOptionsAttribute()
     {
-        return json_decode($this->attributes['options'],true);
+        return \json_decode($this->attributes['options'],true);
     }
 
     /**
@@ -96,7 +96,7 @@ class Routes extends Model implements RoutesStorageInterface
             $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);      
         }
        
-        return (is_object($model) == true) ? $model->get()->toArray() : [];
+        return (\is_object($model) == true) ? $model->get()->toArray() : [];
     }
 
     /**
@@ -131,7 +131,7 @@ class Routes extends Model implements RoutesStorageInterface
             $model = $model->where($key,'=',$value);
         }
 
-        return (is_object($model) == true) ? $model->update(['status' => $status]) : false;
+        return (\is_object($model) == true) ? $model->update(['status' => $status]) : false;
     }
 
     /**
@@ -144,7 +144,7 @@ class Routes extends Model implements RoutesStorageInterface
     public function deleteRoute($method, $pattern)
     {       
         $model = $this->where('method','=',$method)->where('pattern','=',$pattern);
-        if (is_object($model) == true) {
+        if (\is_object($model) == true) {
             $result = $model->delete();
             return ($result == null) ? true : $result;
         }
@@ -163,7 +163,7 @@ class Routes extends Model implements RoutesStorageInterface
     {
         $model = $this->where('method','=',$method)->where('pattern','=',$pattern)->first();
 
-        return (is_object($model) == false) ? false : $model->toArray();          
+        return (\is_object($model) == false) ? false : $model->toArray();          
     }
 
     /**
@@ -177,7 +177,7 @@ class Routes extends Model implements RoutesStorageInterface
     public function saveRedirectUrl($method, $pattern, $url)
     {
         $model = $this->where('method','=',$method)->where('pattern','=',$pattern)->first();
-        if (is_object($model) == true) {
+        if (\is_object($model) == true) {
             $model->redirect_url = $url;
             
             return (bool)$model->save();
@@ -197,7 +197,7 @@ class Routes extends Model implements RoutesStorageInterface
     public function saveRouteOptions($method, $pattern, array $options)
     {
         $model = $this->where('method','=',$method)->where('pattern','=',$pattern)->first();
-        if (is_object($model) == true) {
+        if (\is_object($model) == true) {
             $model->options = $options; 
             
             return (bool)$model->save();
@@ -230,7 +230,7 @@ class Routes extends Model implements RoutesStorageInterface
     {
         if ($this->hasRoute($route['method'],$route['pattern']) == false) {
             $model = $this->create($route);
-            return is_object($model);
+            return \is_object($model);
         }  
         $model = $this->where('method','=',$route['method'])->where('pattern','=',$route['pattern'])->first();
         $result = $model->update($route);  
@@ -250,8 +250,8 @@ class Routes extends Model implements RoutesStorageInterface
             isset($routeInfo['pattern']) == false
             || isset($routeInfo['handler_class']) == false
             || isset($routeInfo['handler_method']) == false 
-            || empty(trim($routeInfo['type'])) == true
-            || empty(trim($routeInfo['method'])) == true
+            || empty(\trim($routeInfo['type'])) == true
+            || empty(\trim($routeInfo['method'])) == true
         ) ? false : true;          
     }
 }

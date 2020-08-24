@@ -42,7 +42,7 @@ class AdminResetCommand extends ConsoleCommand
          
         $helper = $this->getHelper('question');
         $validator = function($value) {                
-            if (empty(trim($value)) == true) {
+            if (empty(\trim($value)) == true) {
                 throw new \Exception('Cannot be empty');              
                 return null;
             }
@@ -50,17 +50,17 @@ class AdminResetCommand extends ConsoleCommand
         };
         $question = new Question("Enter new password: ",null);    
         $question->setValidator($validator);      
-        $newPassword = trim($helper->ask($input, $output, $question));
+        $newPassword = \trim($helper->ask($input, $output, $question));
         
         $question = new Question("Repeat new passsord: ");
-        $repeatPasword = trim($helper->ask($input, $output, $question));
+        $repeatPasword = \trim($helper->ask($input, $output, $question));
 
         if ($newPassword != $repeatPasword) {
             $this->showError("New password and repeat password mot mach!");
             return;
         }
         $user = Model::create('Users')->getControlPanelUser();
-        if (is_object($user) == false) {
+        if (\is_object($user) == false) {
             $this->showError("Missing control panel user!");
             return;
         }

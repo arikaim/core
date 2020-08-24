@@ -126,9 +126,9 @@ class PermissionRelations extends Model implements PermissionsInterface
      */
     public function setUserPermission($name, $permissions, $id = null) 
     {
-        if (is_string($id) == true) {
+        if (\is_string($id) == true) {
             $model = DbModel::Users()->findById($id);
-            $id = (is_object($model) == true) ? $model->id : null; 
+            $id = (\is_object($model) == true) ? $model->id : null; 
         }
 
         return $this->setPermission($name,$permissions,$id,Self::USER);
@@ -144,13 +144,13 @@ class PermissionRelations extends Model implements PermissionsInterface
      */
     public function setGroupPermission($name, $permissions, $id)
     {
-        if (is_string($id) == true) {
+        if (\is_string($id) == true) {
             $model = DbModel::UserGroups();
             $group = $model->findById($id);
-            if (is_object($group) == false) {
+            if (\is_object($group) == false) {
                 $group = $model->findBySlug($id);                
             }
-            if (is_object($group) == false) {
+            if (\is_object($group) == false) {
                 return false;
             }
 
@@ -169,9 +169,9 @@ class PermissionRelations extends Model implements PermissionsInterface
      */
     public function getUserPermission($name, $userId)
     {
-        if (is_string($userId) == true) {
+        if (\is_string($userId) == true) {
             $model = DbModel::Users()->findById($userId);
-            $userId = (is_object($model) == true) ? $model->id : null; 
+            $userId = (\is_object($model) == true) ? $model->id : null; 
         }
         if (empty($userId) == true) {
             return false;
@@ -179,14 +179,14 @@ class PermissionRelations extends Model implements PermissionsInterface
 
         // check for user permiission
         $permission = $this->getPermission($name,$userId,Self::USER);
-        if (is_object($permission) == true) {
+        if (\is_object($permission) == true) {
             return $permission;
         }
         // check groups
         $groupList = DbModel::UserGroups()->getUserGroups($userId);
         foreach ($groupList as $item) {          
             $permission = $this->getGroupPermission($name,$item->group_id);
-            if (is_object($permission) == true) {
+            if (\is_object($permission) == true) {
                 return $permission;
             }
         }
@@ -203,9 +203,9 @@ class PermissionRelations extends Model implements PermissionsInterface
      */
     public function getGroupPermission($name, $id)
     {
-        if (is_string($id) == true) {
+        if (\is_string($id) == true) {
             $model = DbModel::UserGroups()->findById($id);
-            if (is_object($model) == false) {
+            if (\is_object($model) == false) {
                 return false;
             }
             $id = $model->id;        
@@ -231,13 +231,13 @@ class PermissionRelations extends Model implements PermissionsInterface
             return false;
         }
        
-        $permissionId = (is_string($name) == true) ? DbModel::Permissions()->getId($name) : $name;
+        $permissionId = (\is_string($name) == true) ? DbModel::Permissions()->getId($name) : $name;
 
         $query = $this->getRelationsQuery($id,$type);
         $query = $query->where('permission_id','=',$permissionId);
         $model = $query->first();
 
-        return (is_object($model) == true) ? $model : false;           
+        return (\is_object($model) == true) ? $model : false;           
     }
 
     /**
@@ -259,7 +259,7 @@ class PermissionRelations extends Model implements PermissionsInterface
         }
         $model = $this->saveRelation($permissionId,$type,$id);
     
-        if (is_object($model) == false) {
+        if (\is_object($model) == false) {
             $model = $this->getRelationModel($permissionId,$type,$id);           
         }        
         $result = $model->update($permissions);  
@@ -277,12 +277,12 @@ class PermissionRelations extends Model implements PermissionsInterface
      */
     public function hasPermissions($name, $id, $permissions)
     {
-        if (is_array($permissions) == false || count($permissions) == 0) {
+        if (\is_array($permissions) == false || count($permissions) == 0) {
             return false;
         } 
       
         $model = $this->getUserPermission($name,$id);       
-        if (is_object($model) == false) {
+        if (\is_object($model) == false) {
             return false;
         }
     
@@ -320,6 +320,6 @@ class PermissionRelations extends Model implements PermissionsInterface
         ];
         $permission = $model->create($item);
 
-        return is_object($permission);
+        return \is_object($permission);
     }    
 }

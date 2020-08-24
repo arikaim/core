@@ -41,9 +41,9 @@ class Position extends ApiController
 
         $model = $this->createModel($data);
 
-        if (is_object($model) == true) {          
+        if (\is_object($model) == true) {          
             $targetModel = $model->findById($data->get('target_uuid'));
-            if (is_object($targetModel) == true) {                    
+            if (\is_object($targetModel) == true) {                    
                 $model->shiftPosition($targetModel);
             }
             $this->message('done');
@@ -63,7 +63,8 @@ class Position extends ApiController
     public function createModel($data)
     {
         $model = Model::create($data->get('model_name'));
-        return (is_object($model) == true) ? $model->findById($data->get('uuid')) : false;      
+
+        return (\is_object($model) == true) ? $model->findById($data->get('uuid')) : false;      
     }
 
     /**
@@ -80,9 +81,9 @@ class Position extends ApiController
 
         $model = $this->createModel($data);
 
-        if (is_object($model) == true) {          
+        if (\is_object($model) == true) {          
             $targetModel = $model->findById($data->get('target_uuid'));
-            if (is_object($targetModel) == true) {                    
+            if (\is_object($targetModel) == true) {                    
                 $model->swapPosition($targetModel);
             }
             $this->message('done');

@@ -9,6 +9,9 @@
  */
 namespace Arikaim\Core\App\Commands\Install;
 
+use Symfony\Component\Console\Output\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
 use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\App\Install;
 use Arikaim\Core\App\PostInstallActions;

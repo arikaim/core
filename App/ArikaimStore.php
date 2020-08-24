@@ -58,6 +58,11 @@ class ArikaimStore
         return Self::SIGNUP_URL;
     }
 
+    /**
+     * Get access token
+     *
+     * @return string
+     */
     protected function getAccessToken()
     {
     }

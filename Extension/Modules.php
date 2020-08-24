@@ -11,11 +11,12 @@ namespace Arikaim\Core\Extension;
 
 use Arikaim\Container\Container;
 use Arikaim\Core\Interfaces\CacheInterface;
+use Arikaim\Core\Collection\Interfaces\CollectionInterface;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Packages\ModulePackage;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\Utils\Arrays;
-use Arikaim\Core\Collection\Interfaces\CollectionInterface;
+use Arikaim\Core\Collection\Arrays;
+
 
 /**
  * Modules service locator
@@ -138,7 +139,7 @@ class Modules
      */
     public static function init(CacheInterface $cache)
     {
-        $container = new Container();
+        Self::$container = new Container();
 
         $modules = $cache->fetch('services.list');
         if (\is_array($modules) == false) {
@@ -163,8 +164,6 @@ class Modules
                     $service->boot();
                 }
             }           
-        }
-
-        Self::setContainer($container);
+        }      
     }
 }

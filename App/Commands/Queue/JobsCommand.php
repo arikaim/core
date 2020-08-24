@@ -10,6 +10,9 @@
 namespace Arikaim\Core\App\Commands\Queue;
 
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
 use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\DateTime;
@@ -50,10 +53,10 @@ class JobsCommand extends ConsoleCommand
         $rows = [];
         foreach ($items as $item) {                  
             $row = ['',DateTime::dateTimeFormat($item['due_date']),$item['handler_class']];
-            array_push($rows,$row);
+            \array_push($rows,$row);
         }
         if (empty($rows) == true) {
-            array_push($rows,['','..','']);
+            \array_push($rows,['','..','']);
         }
         $table->setRows($rows);
         $table->render();
@@ -63,10 +66,10 @@ class JobsCommand extends ConsoleCommand
         $rows = [];
         foreach ($items as $item) {                  
             $row = ['',DateTime::dateTimeFormat($item['schedule_time']),$item['handler_class']];
-            array_push($rows,$row);
+            \array_push($rows,$row);
         }
         if (empty($rows) == true) {
-            array_push($rows,['','..','']);
+            \array_push($rows,['','..','']);
         }
 
         $this->showTitle('Scheduled Jobs');

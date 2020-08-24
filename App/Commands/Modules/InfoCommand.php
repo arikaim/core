@@ -10,6 +10,9 @@
 namespace Arikaim\Core\App\Commands\Modules;
 
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
 use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\Arikaim;
 

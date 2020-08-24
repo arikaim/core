@@ -10,6 +10,9 @@
 namespace Arikaim\Core\App\Commands\Library;
 
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
 use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\Console\ConsoleHelper;
 use Arikaim\Core\Arikaim;
@@ -54,7 +57,7 @@ class ListCommand extends ConsoleCommand
             $library = $library_package->getProperties();
             $label = ($library->framework == true) ?  ConsoleHelper::getLabelText('framework','cyan') : '';
             $row = [$library->name,$library->version,$label];
-            array_push($rows,$row);
+            \array_push($rows,$row);
         }
 
         $table->setRows($rows);

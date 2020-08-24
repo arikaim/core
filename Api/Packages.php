@@ -54,7 +54,7 @@ class Packages extends ApiController
 
             $this->get('cache')->clear();
 
-            $result = (is_object($repository) == true) ? $repository->install() : false;
+            $result = (\is_object($repository) == true) ? $repository->install() : false;
 
             $this->setResponse($result,function() use($package,$type) {            
                 $this
@@ -92,10 +92,10 @@ class Packages extends ApiController
             }
         
             $repository = $packageManager->getRepository($name);
-            $result = (is_object($repository) == true) ? $repository->install() : false;
+            $result = (\is_object($repository) == true) ? $repository->install() : false;
             
             $package = $packageManager->createPackage($name);
-            $version = (is_object($package) == true) ? $package->getVersion() : null;
+            $version = (\is_object($package) == true) ? $package->getVersion() : null;
 
             $this->get('cache')->clear();
             
@@ -131,7 +131,7 @@ class Packages extends ApiController
             $packageManager = $this->get('packages')->create($type);
             $result = $packageManager->unInstallPackage($name);
 
-            if (is_array($result) == true) {
+            if (\is_array($result) == true) {
                 $this->addErrors($result);
                 return;
             }

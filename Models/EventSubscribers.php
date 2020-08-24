@@ -69,7 +69,7 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
             $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
         }
 
-        return (is_object($model) == true) ? $model->get()->toArray() : [];
+        return (\is_object($model) == true) ? $model->get()->toArray() : [];
     }
 
     /**
@@ -85,7 +85,7 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
             $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
         }
 
-        return (is_object($model) == true) ? $model->delete() : false;
+        return (\is_object($model) == true) ? $model->delete() : false;
     }
 
     /**
@@ -204,6 +204,7 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
         if ($extension != null) {
             $this->where('extension_name','=',$extension);
         }
+        
         return $this->update(['status' => $status]);       
     }
 }

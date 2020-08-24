@@ -79,7 +79,7 @@ class AccessTokens extends Model implements UserProviderInterface
     {
         $model = $this->getToken($token);
         
-        return (is_object($model) == true) ? $model->type : null;
+        return (\is_object($model) == true) ? $model->type : null;
     }
 
     /**
@@ -101,7 +101,7 @@ class AccessTokens extends Model implements UserProviderInterface
 
         $model = $this->findByColumn($token,'token');
 
-        return is_object($model) ? $model->user : false;
+        return \is_object($model) ? $model->user : false;
     }
 
     /**
@@ -113,11 +113,8 @@ class AccessTokens extends Model implements UserProviderInterface
     public function getUserById($id)
     {
         $model = $this->findById($id);
-        if (is_object($model) == false) {
-            return false;
-        }
 
-        return $model->user()->toArray();
+        return (\is_object($model) == false) ? false : $model->user()->toArray();          
     }
 
     /**
@@ -130,21 +127,17 @@ class AccessTokens extends Model implements UserProviderInterface
     {
         $model = $this->findByColumn($password,'token'); 
 
-        return is_object($model);
+        return \is_object($model);
     }
 
     /**
      * Expired mutator attribute
      *
-     * @return void
+     * @return boolean
      */
     public function getExpiredAttribute()
     {
-        if ($this->date_expired == -1) {
-            return false;
-        }
-        
-        return $this->isExpired();
+        return ($this->date_expired == -1) ? false : $this->isExpired();          
     }
 
     /**
@@ -170,7 +163,7 @@ class AccessTokens extends Model implements UserProviderInterface
         }
         
         $model = $this->getTokenByUser($userId,$type);
-        if (is_object($model) == true) {
+        if (\is_object($model) == true) {
             return $model->toArray();
         }
 
@@ -182,7 +175,7 @@ class AccessTokens extends Model implements UserProviderInterface
         ];
         $model = $this->create($info);
 
-        return (is_object($model) == true) ? $model->toArray() : false;
+        return (\is_object($model) == true) ? $model->toArray() : false;
     }
 
     /**
@@ -194,22 +187,21 @@ class AccessTokens extends Model implements UserProviderInterface
     public function removeToken($token)
     {
         $model = $this->findByColumn($token,['uuid','token']);
-        if (is_object($model) == true) {
-            return $model->delete();
-        }
-        return true;
+
+        return (\is_object($model) == true) ? $model->delete() : true;           
     }
 
     /**
      * Get access token
      *
      * @param  string $token
-     * @return string|null
+     * @return Model|null
      */
     public function getToken($token)
     {      
         $model = $this->findByColumn($token,'token');
-        return (is_object($model) == true) ? $model : null;
+
+        return (\is_object($model) == true) ? $model : null;
     }
 
     /**
@@ -221,7 +213,7 @@ class AccessTokens extends Model implements UserProviderInterface
     public function isExpired($token = null)
     {
         $model = (empty($token) == true) ? $this : $this->findByColumn($token,'token');
-        if (is_object($model) == false) {
+        if (\is_object($model) == false) {
             return true;
         }
         if ($model->date_expired == -1) {
@@ -236,13 +228,13 @@ class AccessTokens extends Model implements UserProviderInterface
      *
      * @param integer $userId
      * @param integer $type
-     * @return mxied
+     * @return Model|false
      */
     public function getTokenByUser($userId, $type = TokenAuthProvider::PAGE_ACCESS_TOKEN)
     {
         $model = $this->where('user_id','=',$userId)->where('type','=',$type)->first();
 
-        return (is_object($model) == true) ? $model : false;
+        return (\is_object($model) == true) ? $model : false;
     }
 
     /**
@@ -254,13 +246,13 @@ class AccessTokens extends Model implements UserProviderInterface
      */
     public function hasToken($userId, $type = TokenAuthProvider::PAGE_ACCESS_TOKEN)
     {    
-        return is_object($this->getTokenByUser($userId,$type));
+        return \is_object($this->getTokenByUser($userId,$type));
     }
 
     /**
      * Delete user token
      *
-     * @param inetger $userId
+     * @param integer $userId
      * @param integer|null $type
      * @return boolean
      */
@@ -279,7 +271,7 @@ class AccessTokens extends Model implements UserProviderInterface
      *
      * @param integer $userId
      * @param integer|null $type
-     * @return void
+     * @return boolean
      */
     public function deleteExpired($userId, $type = TokenAuthProvider::PAGE_ACCESS_TOKEN)
     {

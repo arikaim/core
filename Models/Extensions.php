@@ -80,8 +80,8 @@ class Extensions extends Model implements PackageRegistryInterface
      */
     public function setAdminMenuAttribute($value)
     {
-        $value = (is_array($value) == true) ? $value : [];         
-        $this->attributes['admin_menu'] = json_encode($value);
+        $value = (\is_array($value) == true) ? $value : [];         
+        $this->attributes['admin_menu'] = \json_encode($value);
     }
 
     /**
@@ -92,8 +92,8 @@ class Extensions extends Model implements PackageRegistryInterface
      */
     public function setConsoleCommandsAttribute($value)
     {
-        $value = (is_array($value) == true) ? $value : [];    
-        $this->attributes['console_commands'] = json_encode($value);
+        $value = (\is_array($value) == true) ? $value : [];    
+        $this->attributes['console_commands'] = \json_encode($value);
     }
 
     /**
@@ -103,7 +103,7 @@ class Extensions extends Model implements PackageRegistryInterface
      */
     public function getConsoleCommandsAttribute()
     {
-        return json_decode($this->attributes['console_commands'],true);
+        return \json_decode($this->attributes['console_commands'],true);
     }
 
     /**
@@ -113,6 +113,6 @@ class Extensions extends Model implements PackageRegistryInterface
      */
     public function getAdminMenuAttribute()
     {
-        return json_decode($this->attributes['admin_menu'],true);
+        return \json_decode($this->attributes['admin_menu'],true);
     }
 }

@@ -60,7 +60,8 @@ class Options extends Model implements OptionsStorageInterface
         } catch (Exception $e) {
             return null;
         }
-        return (is_object($model) == false) ? $default : $model->value;  
+
+        return (\is_object($model) == false) ? $default : $model->value;  
     }
 
     /**
@@ -91,7 +92,7 @@ class Options extends Model implements OptionsStorageInterface
             return false;
         }
 
-        return is_object($model);
+        return \is_object($model);
     }
 
     /**
@@ -105,14 +106,14 @@ class Options extends Model implements OptionsStorageInterface
      */
     public function saveOption($key, $value, $autoLoad = false, $extension = null) 
     {
-        $key = trim($key);
+        $key = \trim($key);
         if (empty($key) == true) {
             return false;
         }
-        $key = str_replace('_','.',$key);
+        $key = \str_replace('_','.',$key);
         
-        if (is_array($value) == true) {            
-            $value = json_encode($value);
+        if (\is_array($value) == true) {            
+            $value = \json_encode($value);
         }
 
         $data = [
@@ -128,7 +129,7 @@ class Options extends Model implements OptionsStorageInterface
         }
         $model = $this->create($data);
         
-        return is_object($model);
+        return \is_object($model);
     }
 
     /**
@@ -140,7 +141,7 @@ class Options extends Model implements OptionsStorageInterface
     {             
         try {
             $model = $this->where('auto_load','=','1')->select('key','value')->get();
-            if (is_object($model) == true) {
+            if (\is_object($model) == true) {
                 $options = $model->mapWithKeys(function ($item) {
                     return [$item['key'] => $item['value']];
                 })->toArray(); 
@@ -149,7 +150,6 @@ class Options extends Model implements OptionsStorageInterface
             }               
         
         } catch (Exception $e) {
-            return [];
         }
       
         return [];
@@ -166,13 +166,13 @@ class Options extends Model implements OptionsStorageInterface
         $options = [];
         $model = $this->where('key','like',"$searchKey%")->select('key','value')->get();
       
-        if (is_object($model) == true) {
+        if (\is_object($model) == true) {
             $options = $model->mapWithKeys(function ($item) {
                 return [$item['key'] => $item['value']];
             })->toArray(); 
         }     
         $values = Arrays::getValues($options,$searchKey);
-        if (is_array($values) == false) {
+        if (\is_array($values) == false) {
             return [];
         }
         $result = null;

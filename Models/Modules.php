@@ -73,8 +73,8 @@ class Modules extends Model implements PackageRegistryInterface
      */
     public function setConsoleCommandsAttribute($value)
     {
-        $value = (is_array($value) == true) ? $value : [];         
-        $this->attributes['console_commands'] = json_encode($value);
+        $value = (\is_array($value) == true) ? $value : [];         
+        $this->attributes['console_commands'] = \json_encode($value);
     }
 
     /**
@@ -84,7 +84,7 @@ class Modules extends Model implements PackageRegistryInterface
      */
     public function getConsoleCommandsAttribute()
     {
-        return (empty($this->attributes['console_commands']) == true) ? [] : json_decode($this->attributes['console_commands'],true);
+        return (empty($this->attributes['console_commands']) == true) ? [] : \json_decode($this->attributes['console_commands'],true);
     }
 
     /**
@@ -95,8 +95,8 @@ class Modules extends Model implements PackageRegistryInterface
      */
     public function setConfigAttribute($value)
     {
-        $value = (is_array($value) == true) ? $value : [];    
-        $this->attributes['config'] = json_encode($value);
+        $value = (\is_array($value) == true) ? $value : [];    
+        $this->attributes['config'] = \json_encode($value);
     }
 
     /**
@@ -106,6 +106,6 @@ class Modules extends Model implements PackageRegistryInterface
      */
     public function getConfigAttribute()
     {
-        return (empty($this->attributes['config']) == true) ? [] : json_decode($this->attributes['config'],true);
+        return (empty($this->attributes['config']) == true) ? [] : \json_decode($this->attributes['config'],true);
     }
 }

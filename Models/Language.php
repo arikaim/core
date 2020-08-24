@@ -81,7 +81,8 @@ class Language extends Model
             $model = $model->where('status','=',Self::$ACTIVE);
         }
         $model = $model->first();
-        return (is_object($model) == true) ? true : false;           
+
+        return \is_object($model);
     }
 
     /**
@@ -98,7 +99,7 @@ class Language extends Model
     /**
      * Return default language
      *
-     * @return void
+     * @return string
      */
     public function getDefaultLanguage()
     {

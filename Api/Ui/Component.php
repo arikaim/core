@@ -32,7 +32,7 @@ class Component extends ApiController
         $language = (empty($language) == true) ? HtmlComponent::getLanguage() : $language;
 
         $component = $this->get('page')->createHtmlComponent($data['name'],[],$language);
-        if (is_object($component) == false) {
+        if (\is_object($component) == false) {
             return $this->withError('Not valid component nane.')->getResponse();  
         }
         
@@ -64,7 +64,7 @@ class Component extends ApiController
         $this->requireControlPanelPermission();
 
         $component = $this->get('page')->createHtmlComponent($data['name']);
-        if (is_object($component) == false) {
+        if (\is_object($component) == false) {
             return $this->withError('Not valid component nane.')->getResponse();  
         }
 
@@ -97,8 +97,8 @@ class Component extends ApiController
      
         // get header params
         $headerParams = $this->getHeaderParams($request);
-        $params = array_merge($params,$headerParams);
-        $params = array_merge($params,$data->toArray());
+        $params = \array_merge($params,$headerParams);
+        $params = \array_merge($params,$data->toArray());
       
         $language = $this->getPageLanguage($params);
         $this->get('view')->addGlobal('current_language',$language);
@@ -117,7 +117,7 @@ class Component extends ApiController
     public function load($name, $params = [], $language = null)
     {   
         $component = $this->get('page')->createHtmlComponent($name,$params,$language);
-        if (is_object($component) == false) {
+        if (\is_object($component) == false) {
             return $this->withError('Not valid component nane.')->getResponse();  
         }
      
@@ -141,7 +141,7 @@ class Component extends ApiController
             'html'       => $component->getHtmlCode(),
             'css_files'  => (isset($files['css']) == true) ? Arrays::arrayColumns($files['css'],['url','params']) : [],
             'js_files'   => (isset($files['js']) == true)  ? Arrays::arrayColumns($files['js'],['url','params'])  : [],
-            'properties' => json_encode($component->getProperties()),
+            'properties' => \json_encode($component->getProperties()),
             'html'       => $component->getHtmlCode()           
         ];
   
@@ -159,8 +159,8 @@ class Component extends ApiController
         $headerParams = (isset($request->getHeader('Params')[0]) == true) ? $request->getHeader('Params')[0] : null;
         
         if ($headerParams != null) {
-            $headerParams = json_decode($headerParams,true);
-            if (is_array($headerParams) == true) {
+            $headerParams = \json_decode($headerParams,true);
+            if (\is_array($headerParams) == true) {
                 return $headerParams;
             }
         }

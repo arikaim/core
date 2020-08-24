@@ -36,7 +36,7 @@ class Install
     {
         $uri = (isset($_SERVER['REQUEST_URI']) == true) ? $_SERVER['REQUEST_URI'] : '';
        
-        return (substr($uri,-13) == 'admin/install');
+        return (\substr($uri,-13) == 'admin/install');
     }
 
     /**
@@ -48,7 +48,7 @@ class Install
     {
         $uri = (isset($_SERVER['REQUEST_URI']) == true) ? $_SERVER['REQUEST_URI'] : '';
        
-        return (substr($uri,-17) == 'core/api/install/');
+        return (\substr($uri,-17) == 'core/api/install/');
     }
 
     /**
@@ -324,14 +324,14 @@ class Install
         if (version_compare($phpVersion,'7.1','>=') == true) {               
             $item['status'] = 1; // ok                    
         } else {
-            array_push($errors,Arikaim::errors()->getError("PHP_VERSION_ERROR"));
+            \array_push($errors,Arikaim::errors()->getError("PHP_VERSION_ERROR"));
         }
-        array_push($info['items'],$item);
+        \array_push($info['items'],$item);
 
         // PDO extension
         $item['message'] = 'PDO php extension';     
         $item['status'] = (System::hasPhpExtension('PDO') == true) ? 1 : 0;
-        array_push($info['items'],$item);
+        \array_push($info['items'],$item);
 
         // PDO driver
         $pdoDriver = Arikaim::config()->getByPath('db/driver');
@@ -341,33 +341,33 @@ class Install
         if (System::hasPdoDriver($pdoDriver) == true) {
             $item['status'] = 1; // ok
         } else {
-            array_push($errors,Arikaim::errors()->getError("PDO_ERROR"));         
+            \array_push($errors,Arikaim::errors()->getError("PDO_ERROR"));         
         }
-        array_push($info['items'],$item);
+        \array_push($info['items'],$item);
 
         // curl extension
         $item['message'] = 'Curl PHP extension';
         $item['status'] = (System::hasPhpExtension('curl') == true) ? 1 : 2;
            
-        array_push($info['items'],$item);
+        \array_push($info['items'],$item);
 
         // zip extension
         $item['message'] = 'Zip PHP extension';    
         $item['status'] = (System::hasPhpExtension('zip') == true) ? 1 : 2;
 
-        array_push($info['items'],$item);
+        \array_push($info['items'],$item);
         
         // GD extension 
         $item['message'] = 'GD PHP extension';      
         $item['status'] = (System::hasPhpExtension('gd') == true) ? 1 : 2;
           
-        array_push($info['items'],$item);
+        \array_push($info['items'],$item);
 
         // fileinfo php extension
         $item['message'] = 'fileinfo PHP extension';      
         $item['status'] = (System::hasPhpExtension('fileinfo') == true) ? 1 : 2;
           
-        array_push($info['items'],$item);
+        \array_push($info['items'],$item);
 
         $info['errors'] = $errors;
         

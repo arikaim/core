@@ -82,7 +82,7 @@ class Permissions extends Model
     {
         $model = $this->where('name','=',$name)->first();
 
-        return (is_object($model) == false) ? false : true;            
+        return \is_object($model);           
     }
 
     /**
@@ -96,7 +96,7 @@ class Permissions extends Model
     public function createPermission($name, $title = '', $description = null)
     {
         $model = $this->findByColumn($name,'name');
-        if (is_object($model) == true) {
+        if (\is_object($model) == true) {
             return false;
         }
        
@@ -118,13 +118,13 @@ class Permissions extends Model
     {
         // find with slug
         $model = $this->where('slug','=',$name)->first();
-        if (is_object($model) == true) {
+        if (\is_object($model) == true) {
             return $model->id;
         }
         // find by name
         $model = $this->where('name','=',$name)->first();
 
-        return (is_object($model) == true) ? $model->id : false;    
+        return (\is_object($model) == true) ? $model->id : false;    
     }
 
     /**

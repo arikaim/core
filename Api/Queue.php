@@ -88,8 +88,7 @@ class Queue extends ApiController
     {
         $this->requireControlPanelPermission();
         
-        $this->onDataValid(function($data) {             
-              //  Arikaim::jobs()->getQueueService()->removeAllJobs(); ( TOOD ) 
+        $this->onDataValid(function($data) {                        
         });
         $data->validate();           
     }

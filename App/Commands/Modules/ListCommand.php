@@ -10,6 +10,9 @@
 namespace Arikaim\Core\App\Commands\Modules;
 
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
 use Arikaim\Core\Console\ConsoleHelper;
 use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\Arikaim;
@@ -56,7 +59,7 @@ class ListCommand extends ConsoleCommand
             $statusLabel = ($module->status == 1) ?  ConsoleHelper::getLabelText('enabled','green') : '';
             $label = $installedLabel . " " . $statusLabel;
             $row = [$module->name,$module->version,$module->type,$label];
-            array_push($rows,$row);
+            \array_push($rows,$row);
         }
 
         $table->setRows($rows);

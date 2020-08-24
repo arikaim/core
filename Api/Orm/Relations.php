@@ -41,7 +41,7 @@ class Relations extends ApiController
 
         $this->onDataValid(function($data) {
             $model = Model::create($data['model'],$data['extension']);
-            if (is_object($model) == false) {               
+            if (\is_object($model) == false) {               
                 $this->error('errors.relations.add');               
                 return;
             }
@@ -51,7 +51,6 @@ class Relations extends ApiController
                 $result = $model->deleteRelation($data['uuid']);
             }
             
-             
             $this->setResponse($result,'relations.delete','errors.relations.delete');
         });
         $data->validate();
@@ -71,7 +70,7 @@ class Relations extends ApiController
 
         $this->onDataValid(function($data) {                        
             $model = Model::create($data['model'],$data['extension']);
-            if (is_object($model) == false) {
+            if (\is_object($model) == false) {
                 $this->error('errors.relations.add');
                 return;
             }

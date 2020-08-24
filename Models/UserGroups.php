@@ -73,10 +73,10 @@ class UserGroups extends Model
      */
     public function hasUser($userId, $model = null)
     {
-        $model = (is_object($model) == false) ? $this : $model;
+        $model = (\is_object($model) == false) ? $this : $model;
         $model = $model->members()->where('user_id','=',$userId)->first();
 
-        return is_object($model);
+        return \is_object($model);
     }
 
     /**
@@ -89,11 +89,11 @@ class UserGroups extends Model
     public function inGroup($groupId, $userId)
     {
         $model = $this->findById($groupId);
-        if (is_object($model) == false) {
+        if (\is_object($model) == false) {
             $model = $this->findBySlug($groupId);
         }
 
-        return (is_object($model) == true) ? $this->hasUser($userId,$model) : false;         
+        return (\is_object($model) == true) ? $this->hasUser($userId,$model) : false;         
     }
 
     /**
@@ -106,7 +106,7 @@ class UserGroups extends Model
     {
         $model = UserGroupMembers::where('user_id','=',$userId)->get();
 
-        return (is_object($model) == true) ? $model : [];
+        return (\is_object($model) == true) ? $model : [];
     }
 
     /**
@@ -130,7 +130,7 @@ class UserGroups extends Model
         ];
         $model = UserGroupMembers::create($info);
 
-        return is_object($model);
+        return \is_object($model);
     }
 
     /**
@@ -159,7 +159,7 @@ class UserGroups extends Model
     {
         $model = $this->findByColumn($title,'title');
 
-        if (is_object($model) == true) {
+        if (\is_object($model) == true) {
             return false;
         }
            

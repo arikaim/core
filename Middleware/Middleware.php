@@ -65,6 +65,7 @@ class Middleware
     public function withParam($name, $value)
     {
         $this->setParam($name,$value);
+        
         return $this;
     }
 

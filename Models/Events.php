@@ -78,7 +78,7 @@ class Events extends Model implements EventRegistryInterface
         $model = DbModel::create('EventSubscribers');
         $items = $model->where('name','=',$this->name)->get();
         
-        return (is_object($model) == true) ? $items : $model;
+        return (\is_object($model) == true) ? $items : $model;
     }
 
     /**
@@ -94,7 +94,7 @@ class Events extends Model implements EventRegistryInterface
             $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
         }
 
-        return (is_object($model) == true) ? $model->delete() : false;             
+        return (\is_object($model) == true) ? $model->delete() : false;             
     }
 
     /**
@@ -133,7 +133,7 @@ class Events extends Model implements EventRegistryInterface
         ];
         $model = $this->create($info);
          
-        return is_object($model);
+        return \is_object($model);
     }   
 
     /**
@@ -149,7 +149,7 @@ class Events extends Model implements EventRegistryInterface
             $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
         }
 
-        return (is_object($model) == true) ? $model->get()->toArray() : [];
+        return (\is_object($model) == true) ? $model->get()->toArray() : [];
     }
 
     /**
@@ -166,6 +166,6 @@ class Events extends Model implements EventRegistryInterface
             $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
         }
 
-        return (is_object($model) == true) ? $model->update(['status' => $status]) : false;
+        return (\is_object($model) == true) ? $model->update(['status' => $status]) : false;
     }
 }

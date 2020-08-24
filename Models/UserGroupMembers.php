@@ -84,17 +84,17 @@ class UserGroupMembers extends Model
     {
         $user = new Users();
         $user = $user->findById($userId);
-        if (is_object($user) == false) {
+        if (\is_object($user) == false) {
             return false;
         }
 
         $group = new UserGroups();
         $group = $group->findById($groupId);
-        if (is_object($group) == false) {
+        if (\is_object($group) == false) {
             $group = $group->findBySlug($groupId);           
         }
 
-        if (is_object($group) == false) {
+        if (\is_object($group) == false) {
             return false;      
         }
 
@@ -107,7 +107,7 @@ class UserGroupMembers extends Model
             'group_id' => $group->id
         ]);
 
-        return (is_object($member) == true) ? $member : false;
+        return (\is_object($member) == true) ? $member : false;
     }
 
     /**
@@ -121,6 +121,6 @@ class UserGroupMembers extends Model
     {
         $model = $this->where('user_id','=',$userId)->where('group_id','=',$groupId)->first();
 
-        return is_object($model);
+        return \is_object($model);
     }
 }

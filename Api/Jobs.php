@@ -42,7 +42,7 @@ class Jobs extends ApiController
             $uuid = $data->get('uuid');
 
             $job = $this->get('queue')->findById($uuid);
-            $result = (is_object($job) == true) ? $job->delete() : false;
+            $result = (\is_object($job) == true) ? $job->delete() : false;
 
             $this->setResponse($result,function() use($uuid) {                  
                 $this

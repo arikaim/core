@@ -9,6 +9,7 @@
  */
 namespace Arikaim\Core;
 
+use Psr\Http\Message\ResponseInterface;
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 use Slim\Routing\RouteContext;
@@ -123,12 +124,12 @@ class Arikaim
     */
     public static function init($showErrors = 0) 
     {        
-        ini_set('display_errors',$showErrors);
-        ini_set('display_startup_errors',$showErrors);
-        error_reporting(E_ALL); 
+        \ini_set('display_errors',$showErrors);
+        \ini_set('display_startup_errors',$showErrors);
+        \error_reporting(E_ALL); 
 
         if ($showErrors == 0) {
-            set_error_handler(function () {
+            \set_error_handler(function () {
                 return Self::end();
             });
         }
@@ -137,11 +138,11 @@ class Arikaim
 
         // Init constants   
         if (defined('ROOT_PATH') == false) {
-            define('ROOT_PATH',Self::getRootPath());
+            \define('ROOT_PATH',Self::getRootPath());
         }
-        define('BASE_PATH',Self::getBasePath());
-        define('DOMAIN',Self::getDomain());
-        define('APP_PATH',ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');  
+        \define('BASE_PATH',Self::getBasePath());
+        \define('DOMAIN',Self::getDomain());
+        \define('APP_PATH',ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');  
        
         $loader = new \Arikaim\Core\System\ClassLoader(BASE_PATH,ROOT_PATH,'Arikaim\Core',[
             'Arikaim\Extensions',
@@ -156,7 +157,7 @@ class Arikaim
         // Load global functions
         $loader->LoadClassFile('\\Arikaim\\Core\\App\\Globals');
          
-        register_shutdown_function("\Arikaim\Core\Arikaim::end");
+        \register_shutdown_function("\Arikaim\Core\Arikaim::end");
        
         // Create service container            
         AppFactory::setContainer(ServiceContainer::init(new Container()));
@@ -177,8 +178,7 @@ class Arikaim
             SystemRoutes::mapSystemRoutes(); 
             // Boot db
             Self::get('db');  
-            // Add modules service
-            Modules::init(Self::getContainer()->get('cache'));
+           
             // Add default middleware
             MiddlewareManager::init(Self::getContainer()->get('config')['settings']); 
             
@@ -220,7 +220,7 @@ class Arikaim
         $accessToken = new AccessTokens();
 
         foreach($routes as $item) {
-            $methods = explode(',',$item['method']);
+            $methods = \explode(',',$item['method']);
             $handler = $item['handler_class'] . ":" . $item['handler_method'];   
 
             $route = Self::$app->map($methods,$item['pattern'],$handler);
@@ -231,7 +231,7 @@ class Arikaim
                 $userProvider = ($item['auth'] == 4) ? $accessToken : null;                
                 $middleware = Self::access()->middleware($item['auth'],$options,$userProvider);    
     
-                if ($middleware != null && is_object($route) == true) {
+                if ($middleware != null && \is_object($route) == true) {
                     $route->add($middleware);
                 }
             }                                                   
@@ -303,8 +303,8 @@ class Arikaim
      */
     public static function end() 
     {    
-        if (error_reporting() == true) {
-            $error = error_get_last();    
+        if (\error_reporting() == true) {
+            $error = \error_get_last();    
             if (empty($error) == false) {               
                 Self::get('cache')->clear();
                 $renderer = new HtmlPageErrorRenderer(Self::errors());
@@ -320,6 +320,7 @@ class Arikaim
                     } 
                     $error = new Exception(Self::get('errors')->getError('NOT_INSTALLED_ERROR'));                      
                 } 
+        
                 $output = $applicationError->renderError(Self::createRequest(),$error);            
                 echo $output;
                 exit();                                                  
@@ -347,7 +348,7 @@ class Arikaim
     */
     public static function getConsoleRootPath()
     {
-        return (defined('ROOT_PATH') == true) ? ROOT_PATH : $_SERVER['PWD'];
+        return (\defined('ROOT_PATH') == true) ? ROOT_PATH : $_SERVER['PWD'];
     }
 
     /**
@@ -357,7 +358,7 @@ class Arikaim
      */
     public static function getConsoleBasePath()
     {
-        return (defined('BASE_PATH') == true) ? BASE_PATH : "";       
+        return (\defined('BASE_PATH') == true) ? BASE_PATH : "";       
     }
 
     /**
@@ -368,7 +369,7 @@ class Arikaim
     public static function getRootPath() 
     {
         if (Self::isConsole() == false) {
-            return rtrim(realpath($_SERVER['DOCUMENT_ROOT']),DIRECTORY_SEPARATOR);
+            return \rtrim(\realpath($_SERVER['DOCUMENT_ROOT']),DIRECTORY_SEPARATOR);
         }
         // get root path for console run
         return Self::getConsoleRootPath();
@@ -382,7 +383,7 @@ class Arikaim
     public static function getBasePath() 
     {        
         if (Self::isConsole() == false) {
-            $path = rtrim(str_ireplace('index.php','',Self::$basePath), DIRECTORY_SEPARATOR);
+            $path = \rtrim(\str_ireplace('index.php','',Self::$basePath), DIRECTORY_SEPARATOR);
             return ($path == "/") ? "" : $path;               
         } 
         
@@ -416,7 +417,7 @@ class Arikaim
     */
     public static function isConsole()
     {
-        return (php_sapi_name() == "cli") ? true : false;         
+        return (\php_sapi_name() == "cli") ? true : false;         
     }   
     
     /**
@@ -429,7 +430,8 @@ class Arikaim
     public static function resolveEnvironment(array $env)
     {
         // scheme
-        $isHttps = (isset($env['HTTPS']) == true && $env['HTTPS'] !== 'off') || 
+        $isHttps = 
+            (isset($env['HTTPS']) == true && $env['HTTPS'] !== 'off') || 
             (isset($env['REQUEST_SCHEME']) && $env['REQUEST_SCHEME'] === 'https') || 
             (isset($env['HTTP_X_FORWARDED_PROTO']) && $env['HTTP_X_FORWARDED_PROTO'] === 'https');
        
@@ -439,20 +441,20 @@ class Arikaim
         $serverName = (isset($env['SERVER_NAME']) == true) ? $env['SERVER_NAME'] : '';            
         $host = (isset($env['HTTP_HOST']) == true) ? $env['HTTP_HOST'] : $serverName;   
 
-        if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/',$host,$matches) == false) {           
-            $host = (strpos($host,':') !== false) ? strstr($host,':', true) : $host;                             
+        if (\preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/',$host,$matches) == false) {           
+            $host = (\strpos($host,':') !== false) ? \strstr($host,':', true) : $host;                             
         } 
         Self::$host = $host;
 
         // path
-        $scriptName = (string)parse_url($env['SCRIPT_NAME'],PHP_URL_PATH);
-        $scriptDir = dirname($scriptName);      
+        $scriptName = (string)\parse_url($env['SCRIPT_NAME'],PHP_URL_PATH);
+        $scriptDir = \dirname($scriptName);      
         $uri = (isset($env['REQUEST_URI']) == true) ? $env['REQUEST_URI'] : '';  
-        $uri = (string)parse_url(Self::getDomain() . $uri,PHP_URL_PATH);
+        $uri = (string)\parse_url(Self::getDomain() . $uri,PHP_URL_PATH);
         
-        if (stripos($uri,$scriptName) === 0) {
+        if (\stripos($uri,$scriptName) === 0) {
             Self::$basePath = $scriptName;
-        } elseif ($scriptDir !== '/' && stripos($uri, $scriptDir) === 0) {
+        } elseif ($scriptDir !== '/' && \stripos($uri, $scriptDir) === 0) {
             Self::$basePath = $scriptDir;
         }       
     }

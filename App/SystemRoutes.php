@@ -37,8 +37,7 @@ class SystemRoutes
 
         Arikaim::$app->get('/core/api/ui/component/details/{name}[/{params:.*}]',"$apiNamespace\Ui\Component:componentDetails")->add($sessionAuth);
         Arikaim::$app->map(['GET','POST'],'/core/api/ui/component/{name}[/{params:.*}]',"$apiNamespace\Ui\Component:loadComponent");      
-        Arikaim::$app->post('/core/api/ui/library/upload',"$apiNamespace\Ui\Library:upload")->add($sessionAuth);
-
+    
         // UI Page  
         Arikaim::$app->get('/core/api/ui/page/{name}',"$apiNamespace\Ui\Page:loadPageHtml");
         Arikaim::$app->get('/core/api/ui/page/properties/',"$apiNamespace\Ui\Page:loadPageProperties");  

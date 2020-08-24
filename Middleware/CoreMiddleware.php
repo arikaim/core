@@ -59,7 +59,7 @@ class CoreMiddleware extends Middleware implements MiddlewareInterface
     private function sanitizeRequest($request)
     {
         $data = $request->getParsedBody();
-        $data = (is_array($data) == true) ? $data : [];       
+        $data = (\is_array($data) == true) ? $data : [];       
         $validator = new Validator($data);
   
         $filter = $validator->filter()->trimSpace();

@@ -26,7 +26,7 @@ class Console
     {
         $commands = Arikaim::config()->load('console.php',false);
 
-        return (is_array($commands) == true) ? $commands : [];
+        return (\is_array($commands) == true) ? $commands : [];
     }
 
     /**
@@ -49,7 +49,7 @@ class Console
         
         $commands = [];
         foreach ($extensions as $extension) {
-            $commands = array_merge($commands,$extension['console_commands']);
+            $commands = \array_merge($commands,$extension['console_commands']);
         }
 
         return $commands;
@@ -75,7 +75,7 @@ class Console
 
         $commands = [];
         foreach ($modules as $module) {
-            $commands = array_merge($commands,$module['console_commands']);          
+            $commands = \array_merge($commands,$module['console_commands']);          
         }
 
         return $commands;

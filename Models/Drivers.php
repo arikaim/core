@@ -67,8 +67,8 @@ class Drivers extends Model implements DriverRegistryInterface
      */
     public function setConfigAttribute($value)
     {
-        $value = (is_array($value) == true) ? $value : [$value];    
-        $this->attributes['config'] = json_encode($value);
+        $value = (\is_array($value) == true) ? $value : [$value];    
+        $this->attributes['config'] = \json_encode($value);
     }
 
     /**
@@ -78,7 +78,7 @@ class Drivers extends Model implements DriverRegistryInterface
      */
     public function getConfigAttribute()
     {
-        return (empty($this->attributes['config']) == true) ? [] : json_decode($this->attributes['config'],true);
+        return (empty($this->attributes['config']) == true) ? [] : \json_decode($this->attributes['config'],true);
     }
 
     /**
@@ -99,7 +99,7 @@ class Drivers extends Model implements DriverRegistryInterface
         $data['name'] = $name;
         $result = $this->create($data);
 
-        return is_object($result);
+        return \is_object($result);
     }
 
     /**
@@ -112,7 +112,7 @@ class Drivers extends Model implements DriverRegistryInterface
     {
         $model = $this->findByColumn($name,'name');
 
-        return (is_object($model) == false) ? true : $model->delete();
+        return (\is_object($model) == false) ? true : $model->delete();
     }
     
     /**
@@ -125,7 +125,7 @@ class Drivers extends Model implements DriverRegistryInterface
     {
         $model = $this->findByColumn($name,'name');
         
-        return is_object($model);
+        return \is_object($model);
     }
 
     /**
@@ -138,7 +138,7 @@ class Drivers extends Model implements DriverRegistryInterface
     public function saveConfig($name, $config)
     {
         $model = $this->findByColumn($name,'name');
-        if (is_object($model) == true) {
+        if (\is_object($model) == true) {
             $model->config = $config;
             return $model->save();
         }
@@ -170,7 +170,7 @@ class Drivers extends Model implements DriverRegistryInterface
     {
         $model = $this->findByColumn($name,'name');
         
-        return (is_object($model) == true) ? $model->config : [];
+        return (\is_object($model) == true) ? $model->config : [];
     }
 
     /**
@@ -203,6 +203,6 @@ class Drivers extends Model implements DriverRegistryInterface
     {
         $model = $this->findByColumn($name,'name');
         
-        return (is_object($model) == true) ? $model->toArray() : false;
+        return (\is_object($model) == true) ? $model->toArray() : false;
     }
 }

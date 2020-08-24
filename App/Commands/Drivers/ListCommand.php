@@ -10,6 +10,9 @@
 namespace Arikaim\Core\App\Commands\Drivers;
 
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
 use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\Console\ConsoleHelper;
 use Arikaim\Core\Arikaim;
@@ -50,7 +53,7 @@ class ListCommand extends ConsoleCommand
         foreach ($items as $driver) {
             $label = ($driver['status'] == 1) ? ConsoleHelper::getLabelText('enabled','green') : ConsoleHelper::getLabelText('disabled','red');
             $row = [$label,$driver['name'],$driver['title'],$driver['category'],$driver['version']];
-            array_push($rows,$row);
+            \array_push($rows,$row);
         }
 
         $table->setRows($rows);

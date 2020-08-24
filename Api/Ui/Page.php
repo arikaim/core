@@ -39,7 +39,7 @@ class Page extends ApiController
             'html'       => $component->getHtmlCode(),
             'css_files'  => (isset($files['css']) == true) ? $files['css'] : [],
             'js_files'   => (isset($files['js']) == true)  ? $files['js'] : [],
-            'properties' => json_encode($component->getProperties())
+            'properties' => \json_encode($component->getProperties())
         ];
 
         return $this->setResult($result)->getResponse();       

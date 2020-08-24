@@ -80,7 +80,7 @@ class Language extends ApiController
         $this->onDataValid(function($data) {                   
             $model = Model::Language()->add($data->toArray());  
             
-            $this->setResponse(is_object($model),function() use($model) {
+            $this->setResponse(\is_object($model),function() use($model) {
                 $this
                     ->message('language.add')
                     ->field('uuid',$model->uuid);

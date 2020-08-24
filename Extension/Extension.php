@@ -95,7 +95,7 @@ abstract class Extension implements ExtensionInterface
         $configDir = Path::EXTENSIONS_PATH . $extensionName . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR;
         $data = File::readJsonFile($configDir . $fileName);
         
-        return (is_array($data) == true) ? $data : [];
+        return (\is_array($data) == true) ? $data : [];
     }
 
     /**
@@ -142,7 +142,7 @@ abstract class Extension implements ExtensionInterface
     {
         $relations = Arikaim::config()->load('relations.php');       
         $relations[$type] = Factory::getModelClass($modelClass,$this->getName());
-        $relations = array_unique($relations);
+        $relations = \array_unique($relations);
       
         $result = Arikaim::config()->save('relations.php',$relations);
         if ($result === false) {
@@ -225,7 +225,7 @@ abstract class Extension implements ExtensionInterface
     {    
         $class = Utils::getBaseClassName($this);
         
-        return strtolower($class);      
+        return \strtolower($class);      
     }
 
     /**
@@ -247,13 +247,13 @@ abstract class Extension implements ExtensionInterface
     public function registerConsoleCommand($class)
     {
         $class = Factory::getExtensionConsoleClassName($this->getName(),Utils::getBaseClassName($class));
-        if (class_exists($class) == false) {
+        if (\class_exists($class) == false) {
             // add error
             $this->addError(Arikaim::errors()->getError("NOT_VALID_CONSOLE_CLASS",['class' => $class])); 
             return false;
         }
-        array_push($this->consoleClasses,$class);
-        $this->consoleClasses = array_unique($this->consoleClasses);
+        \array_push($this->consoleClasses,$class);
+        $this->consoleClasses = \array_unique($this->consoleClasses);
 
         return true;
     }
@@ -280,8 +280,9 @@ abstract class Extension implements ExtensionInterface
     public function addJob($class, $name = null)
     {       
         $job = $this->createJob($class,$name);
-        if (is_object($job) == false) {
+        if (\is_object($job) == false) {
             $this->addError(Arikaim::errors()->getError("REGISTER_JOB_ERROR",['name' => $name])); 
+
             return false;
         }
 
@@ -319,7 +320,7 @@ abstract class Extension implements ExtensionInterface
      */
     public function getControllerClassName($class)
     {
-        return ((substr($class,0,7) == 'Arikaim') == true) ? $class : Factory::getExtensionControllerClass($this->getName(),$class);       
+        return ((\substr($class,0,7) == 'Arikaim') == true) ? $class : Factory::getExtensionControllerClass($this->getName(),$class);       
     }
 
     /**

@@ -16,7 +16,7 @@ use Twig\Extension\GlobalsInterface;
 
 use Arikaim\Core\View\Html\Page;
 use Arikaim\Core\Interfaces\CacheInterface;
-use Arikaim\Core\Interfaces\Access\AccessInterface;
+use Arikaim\Core\Interfaces\Access\AuthInterface;
 use Arikaim\Core\Interfaces\OptionsInterface;
 use Arikaim\Core\Utils\Mobile;
 use Arikaim\Core\Utils\Factory;
@@ -86,7 +86,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Access
      *
-     * @var AccessInterface
+     * @var AuthInterface
      */
     protected $access;
 
@@ -101,9 +101,9 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * Constructor
      *
      * @param CacheInterface $cache
-     * @param AccessInterface $access
+     * @param AuthInterface $access
      */
-    public function __construct(CacheInterface $cache, AccessInterface $access, OptionsInterface $options)
+    public function __construct(CacheInterface $cache, AuthInterface $access, OptionsInterface $options)
     {
         $this->cache = $cache;
         $this->access = $access;
@@ -119,7 +119,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     {
         return [
             'system_template_name'  => Template::SYSTEM_TEMPLATE_NAME,
-            'domain'                => (defined('DOMAIN') == true) ? DOMAIN : null,
+            'domain'                => (\defined('DOMAIN') == true) ? DOMAIN : null,
             'base_url'              => Url::BASE_URL,     
             'DIRECTORY_SEPARATOR'   => DIRECTORY_SEPARATOR
         ];
@@ -133,7 +133,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function getFunctions() 
     {
         $items = $this->cache->fetch('twig.functions');
-        if (is_array($items) == true) {
+        if (\is_array($items) == true) {
             return $items;
         }
 
@@ -326,7 +326,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Get accesss
      *
-     * @return AccessInterface
+     * @return AuthInterface
      */
     public function getAccess()
     {
@@ -489,7 +489,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         }
         $model = Model::create($modelClass,$extension,null,$showError);
 
-        if (is_object($model) == true && $checkTable == true) {
+        if (\is_object($model) == true && $checkTable == true) {
             // check if table exist
             return (Schema::hasTable($model) == false) ? false : $model;
         }
@@ -507,7 +507,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     {
         $model = Model::Extensions()->where('name','=',$extension)->first();  
 
-        return is_object($model);          
+        return \is_object($model);          
     }
 
     /**
@@ -518,7 +518,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function getFileType($fileName) 
     {
-        return pathinfo($fileName,PATHINFO_EXTENSION);
+        return \pathinfo($fileName,PATHINFO_EXTENSION);
     }
 
     /**
@@ -528,7 +528,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function currentYear()
     {
-        return date("Y");
+        return \date("Y");
     }
     
     /**
@@ -541,7 +541,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         $language = HtmlComponent::getLanguage();
         $model = Model::Language()->where('code','=',$language)->first();
 
-        return (is_object($model) == true) ? $model->toArray() : null;
+        return (\is_object($model) == true) ? $model->toArray() : null;
     }
 
     /**
@@ -576,7 +576,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function create($class, $extension = null)
     {
-        if (class_exists($class) == false) {
+        if (\class_exists($class) == false) {
             $class = (empty($extension) == false) ? Factory::getExtensionClassName($extension,$class) : Factory::getFullClassName($class);
         }
      
@@ -605,7 +605,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     {
         $response = \Arikaim\Core\Arikaim::get('http')->get($url);
         
-        return (is_object($response) == true) ? $response->getBody() : null;
+        return (\is_object($response) == true) ? $response->getBody() : null;
     }
 
     /**
@@ -617,7 +617,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function extractArray(&$context, $data) 
     {
-        if (is_array($data) == false) {
+        if (\is_array($data) == false) {
             return;
         }
         foreach($data as $key => $value) {

@@ -130,7 +130,7 @@ class Options extends ApiController
             $referenceId = $data->get('id');
             $model = Model::create($modelName,$extension);
             
-            $result = (is_object($model) == true) ? $model->saveOptions($referenceId,$data['options']) : false;
+            $result = (\is_object($model) == true) ? $model->saveOptions($referenceId,$data['options']) : false;
             
             $this->setResponse($result,function() use($model) {
                 $this
