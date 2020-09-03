@@ -42,21 +42,26 @@ class InfoCommand extends ConsoleCommand
     protected function executeCommand($input, $output)
     {       
         $name = $input->getArgument('name');
+        if (empty($name) == true) {
+            $this->showError("Missing module name option!");
+            return;
+        }
+
+        $manager = Arikaim::packages()->create('module');
+        if ($manager->hasPackage($name) == false) {
+            $this->showError("Module $name not exists!");
+            return;
+        }
+        $package = $manager->createPackage($name);
+        $module = $package->getProperties(true);
+
         $this->style->text('Module ' . $name);
         $this->style->newLine();
 
         $table = new Table($output);
         $table->setHeaders(['','']);
         $table->setStyle('compact');
-
-        $manager = Arikaim::packages()->create('module');
-        $package = $manager->createPackage($name);
-        if ($package == false) {
-            $this->showError("Module $name not exists!");
-            return;
-        }
-        $module = $package->getProperties(true);
-
+        
         $bootable = ($module['bootable'] == 1) ? "yes" : "no";
         $installed = ($module['installed'] == true) ? "yes" : "no";
         $status = ($module['status'] == 1) ? "enabled" : "disabled";

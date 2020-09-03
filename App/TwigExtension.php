@@ -185,6 +185,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             // url
             new TwigFunction('getPageUrl',[$this,'getPageUrl']),         
             new TwigFunction('getTemplateUrl',['Arikaim\\Core\\Http\\Url','getTemplateUrl']),     
+            new TwigFunction('getLibraryUrl',['Arikaim\\Core\\Http\\Url','getLibraryFileUrl']),  
             new TwigFunction('getExtensionViewUrl',['Arikaim\\Core\\Http\\Url','getExtensionViewUrl']),     
 
             // files
@@ -299,7 +300,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('mask',["Arikaim\\Core\\Utils\\Text",'mask']),
             // files
             new TwigFilter('fileSize',["Arikaim\\Core\\Utils\\File",'getSizeText']),
-            new TwigFilter('baseName',["Arikaim\\Core\\Utils\\File",'baseName'])
+            new TwigFilter('baseName',["Arikaim\\Core\\Utils\\File",'baseName']),
+            new TwigFilter('relativePath',["Arikaim\\Core\\Utils\\Path",'getRelativePath'])
         ];
     }
 
