@@ -152,7 +152,7 @@ class Install
         // delete symlink
         File::delete(ROOT_PATH . BASE_PATH . '/public');
         // create symlink 
-        return @symlink(Arikaim::storage()->getFuillPath('public'),ROOT_PATH . BASE_PATH . '/public');      
+        return @symlink(Arikaim::storage()->getFullPath('public'),ROOT_PATH . BASE_PATH . '/public');      
     }
 
     /**

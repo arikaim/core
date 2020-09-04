@@ -340,7 +340,8 @@ abstract class Extension implements ExtensionInterface
         if ($this->primary == true) {                      
             Arikaim::routes()->deleteHomePage();                     
         } else {
-            $homePageRoute = Arikaim::routes()->getRoutes(['type' => 3]); // find home page route
+            // find home page route
+            $homePageRoute = Arikaim::routes()->getRoutes(['type' => 3]);
             if (empty($homePageRoute) == false) {
                 return true;
             }          
