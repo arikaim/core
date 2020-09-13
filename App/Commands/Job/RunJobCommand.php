@@ -49,12 +49,9 @@ class RunJobCommand extends ConsoleCommand
             $this->showError("Not valid job name!");
             return;
         } 
-        $result = Arikaim::queue()->execute($name);
-        
-        if ($result === false) {
-            $this->showError("Error execution job!");
-        } else {
-            $this->showCompleted();
-        }      
+    
+        Arikaim::queue()->executeJob($name);
+    
+        $this->showCompleted();          
     }    
 }

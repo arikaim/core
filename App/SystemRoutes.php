@@ -34,13 +34,14 @@ class SystemRoutes
         Arikaim::$app->post('/core/api/verify/request/',"$apiNamespace\Client:verifyRequest");      
         // UI Component
         Arikaim::$app->get('/core/api/ui/component/properties/{name}[/{params:.*}]',"$apiNamespace\Ui\Component:componentProperties");
-
         Arikaim::$app->get('/core/api/ui/component/details/{name}[/{params:.*}]',"$apiNamespace\Ui\Component:componentDetails")->add($sessionAuth);
         Arikaim::$app->map(['GET','POST'],'/core/api/ui/component/{name}[/{params:.*}]',"$apiNamespace\Ui\Component:loadComponent");      
-    
         // UI Page  
         Arikaim::$app->get('/core/api/ui/page/{name}',"$apiNamespace\Ui\Page:loadPageHtml");
         Arikaim::$app->get('/core/api/ui/page/properties/',"$apiNamespace\Ui\Page:loadPageProperties");  
+        // UI Library 
+        Arikaim::$app->get('/core/api/ui/library/{name}',"$apiNamespace\Ui\Page:loadLibraryDetails");
+
         // Paginator 
         Arikaim::$app->group('/core/api/ui/paginator',function($group) use($apiNamespace) {  
             $group->put('/page-size',"$apiNamespace\Ui\Paginator:setPageSize");

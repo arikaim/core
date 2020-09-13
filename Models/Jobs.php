@@ -200,7 +200,10 @@ class Jobs extends Model implements QueueStorageInterface
     public function hasJob($id)
     {
         $model = $this->findById($id);
-
+        if (\is_object($model) == false) {
+            $model = $this->findByColumn($id,'name');
+        }
+        
         return \is_object($model);
     }
 

@@ -45,6 +45,29 @@ class Page extends ApiController
         return $this->setResult($result)->getResponse();       
     }
 
+   /**
+     * Load library details 
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data    
+     * @return Psr\Http\Message\ResponseInterface
+     */
+    public function loadLibraryDetails($request, $response, $data) 
+    {        
+        $libraryName = $data->get('name',null);
+        $data = $this->get('page')->getLibraryDetails($libraryName);
+        $result = [
+            'name'        => $libraryName,
+            'css_files'   => (isset($data['files']['css']) == true) ? $data['files']['css'] : [],
+            'js_files'    => (isset($data['files']['js']) == true)  ? $data['files']['js'] : [],
+            'async'       => $data['async'],
+            'crossorigin' => $data['crossorigin']
+        ];
+       
+        return $this->setResult($result)->getResponse();       
+    }
+
     /**
      * Get html page properties
      *

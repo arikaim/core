@@ -138,7 +138,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         }
 
         $items = [
-            new TwigFunction('isMobile',[$this,'isMobile']),
+            new TwigFunction('isMobile',['Arikaim\\Core\\Utils\\Mobile','mobile']),
             // paginator
             new TwigFunction('paginate',['Arikaim\\Core\\Paginator\\SessionPaginator','create']),
             new TwigFunction('paginatorUrl',[$this,'getPaginatorUrl']),
@@ -298,6 +298,9 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('numberFormat',["Arikaim\\Core\\Utils\\Number",'format']),
             // text
             new TwigFilter('mask',["Arikaim\\Core\\Utils\\Text",'mask']),
+            new TwigFilter('pad',["Arikaim\\Core\\Utils\\Text",'pad']),
+            new TwigFilter('padLeft',["Arikaim\\Core\\Utils\\Text",'padLeft']),
+            new TwigFilter('padRight',["Arikaim\\Core\\Utils\\Text",'padRight']),
             // files
             new TwigFilter('fileSize',["Arikaim\\Core\\Utils\\File",'getSizeText']),
             new TwigFilter('baseName',["Arikaim\\Core\\Utils\\File",'baseName']),
@@ -334,18 +337,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     {
         return $this->access;
     } 
-
-    /**
-     * True if request is from mobile browser
-     *
-     * @return boolean
-     */
-    public function isMobile()
-    {
-        $mobile = new Mobile();
-
-        return $mobile->isMobile();
-    }
 
     /**
      * Get composer packages info
