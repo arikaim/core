@@ -76,7 +76,6 @@ class Users extends Model implements UserProviderInterface
      */
     protected $table = 'users';
 
-
     /**
      * User groups relation
      *

@@ -18,7 +18,6 @@ use Arikaim\Core\View\Html\Page;
 use Arikaim\Core\Interfaces\CacheInterface;
 use Arikaim\Core\Interfaces\Access\AuthInterface;
 use Arikaim\Core\Interfaces\OptionsInterface;
-use Arikaim\Core\Utils\Mobile;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\View\Html\HtmlComponent;
