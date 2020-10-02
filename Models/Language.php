@@ -105,7 +105,7 @@ class Language extends Model
     {
         try {
             $model = $this->getDefault();
-            return (is_object($model) == true) ? $model->code : "en";                    
+            return (is_object($model) == true) ? $model->code : 'en';                    
         } catch(\Exception $e) {
         }
         

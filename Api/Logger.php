@@ -9,12 +9,12 @@
 */
 namespace Arikaim\Core\Api;
 
-use Arikaim\Core\Controllers\ApiController;
+use Arikaim\Core\Controllers\ControlPanelApiController;
 
 /**
  * Logger controller
 */
-class Logger extends ApiController
+class Logger extends ControlPanelApiController
 {   
     /**
      * Init controller
@@ -36,8 +36,6 @@ class Logger extends ApiController
      */
     public function clearController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-
         $this->onDataValid(function($data) {            
             $result = $this->get('logger')->deleteSystemLogs();
             $this->setResponse($result,'logs.clear','errors.logs.clear');

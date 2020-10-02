@@ -9,12 +9,12 @@
 */
 namespace Arikaim\Core\Api;
 
-use Arikaim\Core\Controllers\ApiController;
+use Arikaim\Core\Controllers\ControlPanelApiController;
 
 /**
  * Settings controller
 */
-class Settings extends ApiController
+class Settings extends ControlPanelApiController
 {
     /**
      * Init controller
@@ -34,20 +34,15 @@ class Settings extends ApiController
      * @param Validator $data
      * @return Psr\Http\Message\ResponseInterface
      */
-    public function setDebug($request, $response, $data)
+    public function setDebugController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-        
         $debug = $data->get('debug',false);
        
         $this->get('config')->setBooleanValue('settings/debug',$debug);
         // save and reload config file
         $result = $this->get('config')->save();
         $this->setResponse($result,'settings.save','errors.settings.save');
-
-        $this->get('cache')->clear();
-        
-        return $this->getResponse();
+        $this->get('cache')->clear();       
     }
 
     /**
@@ -58,19 +53,14 @@ class Settings extends ApiController
      * @param Validator $data
      * @return Psr\Http\Message\ResponseInterface
      */
-    public function disableInstallPage($request, $response, $data)
+    public function disableInstallPageController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-        
         $installPage = $data->get('install_page',false);
        
         $this->get('config')->setBooleanValue('settings/disableInstallPage',$installPage);
         // save and reload config file
         $result = $this->get('config')->save();
         $this->setResponse($result,'settings.save','errors.settings.save');
-
-        $this->get('cache')->clear();
-
-        return $this->getResponse();
+        $this->get('cache')->clear();        
     }
 }

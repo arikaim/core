@@ -9,7 +9,7 @@
  */
 namespace Arikaim\Core\App\Commands;
 
-use Symfony\Component\Console\Output\InputInterface;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 use Arikaim\Core\Console\ConsoleCommand;

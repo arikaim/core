@@ -21,7 +21,7 @@ class ExtensionsSchema extends Schema
      *
      * @var string
      */
-    protected $tableName = "extensions";
+    protected $tableName = 'extensions';
 
     /**
      * Create table

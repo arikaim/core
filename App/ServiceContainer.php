@@ -12,6 +12,7 @@ namespace Arikaim\Core\App;
 use Arikaim\Container\Container;
 use Arikaim\Core\Events\EventsManager;
 use Arikaim\Core\Db\Model;
+use Arikaim\Core\Cache\Cache;
 use Arikaim\Core\Utils\Path;
 use Arikaim\Core\View\Template\Extension;
 use Arikaim\Core\App\TwigExtension;
@@ -30,24 +31,26 @@ class ServiceContainer
     /**
      * Init default services
      *
+     * @param boolean $cosole
      * @return Container
      */
-    public static function init($container)
+    public static function init($container, $console = false)
     {
         // Cache 
         $container['cache'] = function($container) {                    
-            $routeCacheFile = Path::CACHE_PATH . "/routes.cache.php";            
-            return new \Arikaim\Core\Cache\Cache(Path::CACHE_PATH,$routeCacheFile,null,true);
+            $routeCacheFile = Path::CACHE_PATH . '/routes.cache.php';                   
+            return new Cache(Path::CACHE_PATH,$routeCacheFile,Cache::ARRAY_DRIVER,true);
         };
         // Config
         $container['config'] = function($container) {    
             $cache = $container->get('cache');                         
-            $config = new \Arikaim\Core\System\Config("config.php",$cache,Path::CONFIG_PATH);         
+            $config = new \Arikaim\Core\System\Config('config.php',$cache,Path::CONFIG_PATH);         
             return $config;
         }; 
 
         // init cache status
         $container->get('cache')->setStatus($container->get('config')['settings']['cache']);
+        $container->get('cache')->setDriver($container->get('config')->getByPath('settings/cacheDriver',Cache::FILESYSTEM_DRIVER));
 
         // Events manager 
         $container['event'] = function() {
@@ -100,8 +103,13 @@ class ServiceContainer
         }; 
 
         // Errors  
-        $container['errors'] = function($container) {
-            $systemErrors = $container->get('config')->loadJsonConfigFile('errors.json');       
+        $container['errors'] = function($container) use ($console) {
+            $systemErrors = $container->get('config')->loadJsonConfigFile('errors.json');    
+            if ($console == true) {
+                $consoleErrors = $container->get('config')->loadJsonConfigFile('console-errors.json'); 
+                $systemErrors = \array_merge($systemErrors,$consoleErrors);
+            }               
+            
             return new \Arikaim\Core\System\Error\Errors($container['page'],$systemErrors);          
         };
         // Access
@@ -159,7 +167,7 @@ class ServiceContainer
         }; 
     
         // Add template extensions
-        $extension = new Extension($container->get('cache'),BASE_PATH,Path::VIEW_PATH,$container->get('page'),$container->get('access'));
+        $extension = new Extension(BASE_PATH,Path::VIEW_PATH,$container->get('page'),$container->get('access'));
         $container->get('view')->addExtension($extension);
 
         $twigExtension = new TwigExtension($container->get('cache'),$container->get('access'),$container->get('options'));

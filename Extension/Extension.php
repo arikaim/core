@@ -147,7 +147,7 @@ abstract class Extension implements ExtensionInterface
         $result = Arikaim::config()->save('relations.php',$relations);
         if ($result === false) {
             // add error
-            $this->addError(Arikaim::errors()->getError("REGISTER_RELATION_ERROR",['class' => $modelClass]));
+            $this->addError(Arikaim::errors()->getError('REGISTER_RELATION_ERROR',['class' => $modelClass]));
         }   
 
         return $result;
@@ -167,7 +167,7 @@ abstract class Extension implements ExtensionInterface
         if ($result !== true) {
             if (Arikaim::options()->has($key) == false) {
                 // add error
-                $this->addError(Arikaim::errors()->getError("ERROR_CREATE_OPTION",['key' => $key]));
+                $this->addError(Arikaim::errors()->getError('ERROR_CREATE_OPTION',['key' => $key]));
                 return false;
             }   
             return true;
@@ -193,7 +193,7 @@ abstract class Extension implements ExtensionInterface
         $result = Arikaim::driver()->install($name,$class,$category,$title,$description,$version,$config,$this->getName());
         if ($result !== true) {
             // add error
-            $this->addError(Arikaim::errors()->getError("ERROR_INSTALL_DRIVER",['name' => $name]));
+            $this->addError(Arikaim::errors()->getError('ERROR_INSTALL_DRIVER',['name' => $name]));
         } 
         
         return $result;
@@ -210,7 +210,7 @@ abstract class Extension implements ExtensionInterface
         $result = Arikaim::driver()->unInstall($name);
         if ($result !== true) {
             // add error
-            $this->addError(Arikaim::errors()->getError("ERROR_UNINSTALL_DRIVER",['name' => $name]));
+            $this->addError(Arikaim::errors()->getError('ERROR_UNINSTALL_DRIVER',['name' => $name]));
         } 
         
         return $result;
@@ -249,7 +249,7 @@ abstract class Extension implements ExtensionInterface
         $class = Factory::getExtensionConsoleClassName($this->getName(),Utils::getBaseClassName($class));
         if (\class_exists($class) == false) {
             // add error
-            $this->addError(Arikaim::errors()->getError("NOT_VALID_CONSOLE_CLASS",['class' => $class])); 
+            $this->addError(Arikaim::errors()->getError('NOT_VALID_CONSOLE_CLASS',['class' => $class])); 
             return false;
         }
         \array_push($this->consoleClasses,$class);
@@ -281,14 +281,14 @@ abstract class Extension implements ExtensionInterface
     {       
         $job = $this->createJob($class,$name);
         if (\is_object($job) == false) {
-            $this->addError(Arikaim::errors()->getError("REGISTER_JOB_ERROR",['name' => $name])); 
+            $this->addError(Arikaim::errors()->getError('REGISTER_JOB_ERROR',['name' => $name])); 
 
             return false;
         }
 
         $result = Arikaim::queue()->addJob($job,$this->getName());
         if ($result !== true) {
-            $this->addError(Arikaim::errors()->getError("REGISTER_JOB_ERROR",['name' => $name])); 
+            $this->addError(Arikaim::errors()->getError('REGISTER_JOB_ERROR',['name' => $name])); 
         }
 
         return $result;
@@ -306,7 +306,7 @@ abstract class Extension implements ExtensionInterface
     {
         $result = Arikaim::event()->registerEvent($name,$title,$this->getName(),$description);
         if ($result !== true) {
-            $this->addError(Arikaim::errors()->getError("REGISTER_EVENT_ERROR",['name' => $name])); 
+            $this->addError(Arikaim::errors()->getError('REGISTER_EVENT_ERROR',['name' => $name])); 
         }
 
         return $result;
@@ -365,8 +365,8 @@ abstract class Extension implements ExtensionInterface
      */
     public function addPageRoute($pattern, $class = null, $handlerMethod = null, $pageName = null, $auth = null, $routeName = null, $withLanguage = false, $type = 1)
     {
-        $class = ($class == null) ? Factory::getControllerClass("Controller") : $this->getControllerClassName($class);
-        $handlerMethod = ($handlerMethod == null) ? "pageLoad" : $handlerMethod;
+        $class = ($class == null) ? Factory::getControllerClass('Controller') : $this->getControllerClassName($class);
+        $handlerMethod = ($handlerMethod == null) ? 'pageLoad' : $handlerMethod;
         $auth = Arikaim::access()->resolveAuthType($auth);
         
         // if extension is primary remove existing page route
@@ -377,7 +377,7 @@ abstract class Extension implements ExtensionInterface
 
         $result = Arikaim::routes()->addPageRoute($pattern,$class,$handlerMethod,$this->getName(),$pageName,$auth,$routeName,$withLanguage,$type);
         if ($result !== true) {           
-            $this->addError(Arikaim::errors()->getError("REGISTER_ROUTE_ERROR",['pattern' => $pattern])); 
+            $this->addError(Arikaim::errors()->getError('REGISTER_ROUTE_ERROR',['pattern' => $pattern])); 
         }
 
         return $result;
@@ -395,7 +395,7 @@ abstract class Extension implements ExtensionInterface
      */
     public function addShowPageRoute($pattern, $pageName, $auth = null, $withLanguage = true, $routeName = null)
     {                  
-        return $this->addPageRoute($pattern,null,"pageLoad",$pageName,$auth,$routeName,$withLanguage);
+        return $this->addPageRoute($pattern,null,'pageLoad',$pageName,$auth,$routeName,$withLanguage);
     }
 
     /**
@@ -424,11 +424,11 @@ abstract class Extension implements ExtensionInterface
     public function addApiRoute($method, $pattern, $class, $handlerMethod, $auth = null)
     {
         $auth = Arikaim::access()->resolveAuthType($auth);
-        $class = ($class == null) ? Factory::getControllerClass("Controller") : $this->getControllerClassName($class);
+        $class = ($class == null) ? Factory::getControllerClass('Controller') : $this->getControllerClassName($class);
         
         $result = Arikaim::routes()->addApiRoute($method,$pattern,$class,$handlerMethod,$this->getName(),$auth);
         if ($result !== true) {
-            $this->addError(Arikaim::errors()->getError("REGISTER_ROUTE_ERROR",['pattern' => $pattern])); 
+            $this->addError(Arikaim::errors()->getError('REGISTER_ROUTE_ERROR',['pattern' => $pattern])); 
         }
 
         return $result;
@@ -442,9 +442,9 @@ abstract class Extension implements ExtensionInterface
      */
     public function createDbTable($schemaClass)
     {       
-        $result = Schema::install($schemaClass,$this->getName());
+        $result = Schema::install($schemaClass,$this->getName());   
         if ($result !== true) {
-            $this->addError(Arikaim::errors()->getError("CREATE_DB_TABLE_ERROR",['class' => $schemaClass])); 
+            $this->addError(Arikaim::errors()->getError('CREATE_DB_TABLE_ERROR',['class' => $schemaClass])); 
         }
 
         return $result;
@@ -460,7 +460,7 @@ abstract class Extension implements ExtensionInterface
     {
         $result = Schema::unInstall($schemaClass,$this->getName());
         if ($result !== true) {
-            $this->addError(Arikaim::errors()->getError("DROP_DB_TABLE_ERROR",['class' => $schemaClass])); 
+            $this->addError(Arikaim::errors()->getError('DROP_DB_TABLE_ERROR',['class' => $schemaClass])); 
         }
 
         return $result;

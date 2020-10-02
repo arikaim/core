@@ -10,13 +10,14 @@
 namespace Arikaim\Core\App\Commands\Cache;
 
 use Arikaim\Core\Console\ConsoleCommand;
+use Arikaim\Core\Console\ConsoleHelper;
 use Arikaim\Core\Arikaim;
 
 /**
- * Disable cache command
+ * Show cache driver command
  * 
  */
-class DisableCommand extends ConsoleCommand
+class DriverCommand extends ConsoleCommand
 {  
     /**
      * Command config
@@ -25,7 +26,7 @@ class DisableCommand extends ConsoleCommand
      */
     protected function configure()
     {
-        $this->setName('cache:disable')->setDescription('Disable cache');
+        $this->setName('cache:driver')->setDescription('Cache driver info');
     }
 
     /**
@@ -37,18 +38,17 @@ class DisableCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        $this->showTitle('Disable cache.');
-        Arikaim::cache()->clear();
-        
-        Arikaim::config()->setBooleanValue('settings/cache',false);
-        $result = Arikaim::config()->save();
+        $this->showTitle('Cache driver'); 
+        $driver = Arikaim::cache()->getDriver();
 
-        if ($result !== true) {
-            $error = Arikaim::errors()->getError('CACHE_DISABLE_ERROR');
-            $this->showError($error);
-            return;
-        } 
-
+        $this->style->write(ConsoleHelper::getLabelText('Class ','cyan')); 
+        $this->style->write(get_class($driver));
+        $this->style->newLine();
+        $this->style->write(ConsoleHelper::getLabelText('Name ','cyan')); 
+        $this->style->write(Arikaim::cache()->getDriverName());
+       
+        $this->style->newLine();
         $this->showCompleted();
+        $this->style->newLine();
     }
 }

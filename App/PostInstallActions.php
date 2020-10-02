@@ -27,7 +27,7 @@ class PostInstallActions
         $extensionManager = Arikaim::packages()->create('extension');
         $extensionManager->postInstallAllPackages();
 
-        $actions = Arikaim::config()->loadJsonConfigFile("post-install.json");
+        $actions = Arikaim::config()->loadJsonConfigFile('post-install.json');
         $errors = 0;
         foreach ($actions as $action) {           
             $result = Self::runAction($action);
@@ -57,7 +57,7 @@ class PostInstallActions
         $packageType = (empty($extension) == false) ? 'extension' : 'template';
 
         switch($command) {
-            case "set-primary": {
+            case 'set-primary': {
                 return Self::setPrimaryPackage($packageName,$packageType);
             }
         }

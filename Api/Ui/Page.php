@@ -10,9 +10,7 @@
 namespace Arikaim\Core\Api\Ui;
 
 use Arikaim\Core\Controllers\ApiController;
-use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Http\Url;
-use Arikaim\Core\View\Html\HtmlComponent;
 
 /**
  * Page Api controller
@@ -80,16 +78,10 @@ class Page extends ApiController
     {       
         $pageName = $data->get('name',$this->get('page')->getCurrent());    
     
-        $loader = Template::getLoader(); 
-        $loaderCode = (empty($loader) == false) ? $this->get('page')->createHtmlComponent($loader)->load() : "";
-
         $result['properties'] = [
             'name'              => $pageName,            
-            'framework'         => Template::getFrameworks(),
-            'loader'            => $loaderCode,  
-            'loader_name'       => $loader,
-            'library'           => Template::getLibraries(),
-            'language'          => HtmlComponent::getLanguage(),       
+            'library'           => $this->get('page')->getIncludedLibraries(),
+            'language'          => $this->getPageLanguage($data),       
             'site_url'          => Url::BASE_URL
         ];
 

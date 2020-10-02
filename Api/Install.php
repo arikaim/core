@@ -65,9 +65,9 @@ class Install extends ApiController
             $this->message('Arikaim CMS was installed successfully.');                      
         });
         $data
-            ->addRule("text:min=2","database")
-            ->addRule("text:min=2","username")
-            ->addRule("text:min=2","password")
+            ->addRule('text:min=2','database')
+            ->addRule('text:min=2','username')
+            ->addRule('text:min=2','password')
             ->validate();      
     }
 

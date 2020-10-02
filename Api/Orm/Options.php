@@ -9,13 +9,13 @@
 */
 namespace Arikaim\Core\Api\Orm;
 
-use Arikaim\Core\Controllers\ApiController;
+use Arikaim\Core\Controllers\ControlPanelApiController;
 use Arikaim\Core\Db\Model;
 
 /**
  * Orm options controller
 */
-class Options extends ApiController
+class Options extends ControlPanelApiController
 {   
     /**
      * Init controller
@@ -36,9 +36,7 @@ class Options extends ApiController
      * @return Psr\Http\Message\ResponseInterface
     */
     public function addOptionTypeController($request, $response, $data)
-    {
-        $this->requireControlPanelPermission();
-        
+    { 
         $this->onDataValid(function($data) { 
         });
         $data->validate();
@@ -54,8 +52,6 @@ class Options extends ApiController
     */
     public function updateOptionTypeController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-
         $this->onDataValid(function($data) { 
         });
         $data->validate();
@@ -71,8 +67,6 @@ class Options extends ApiController
     */
     public function deleteOptionTypeController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-
         $this->onDataValid(function($data) { 
         });
         $data->validate();
@@ -88,8 +82,6 @@ class Options extends ApiController
     */
     public function addOptionListController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-
         $this->onDataValid(function($data) { 
         });
         $data->validate();
@@ -105,8 +97,6 @@ class Options extends ApiController
     */
     public function deleteOptionListController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-
         $this->onDataValid(function($data) { 
         });
         $data->validate();
@@ -121,9 +111,7 @@ class Options extends ApiController
      * @return Psr\Http\Message\ResponseInterface
      */
     public function saveOptionsController($request, $response, $data)
-    {
-        $this->requireControlPanelPermission();
-        
+    {  
         $this->onDataValid(function($data) { 
             $modelName = $data->get('model');
             $extension = $data->get('extension');

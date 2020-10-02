@@ -9,13 +9,13 @@
 */
 namespace Arikaim\Core\Api\Orm;
 
-use Arikaim\Core\Controllers\ApiController;
+use Arikaim\Core\Controllers\ControlPanelApiController;
 use Arikaim\Core\Db\Model;
 
 /**
  * Orm relations controller
 */
-class Relations extends ApiController
+class Relations extends ControlPanelApiController
 {   
     /**
      * Init controller
@@ -37,8 +37,6 @@ class Relations extends ApiController
      */
     public function deleteRelationController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-
         $this->onDataValid(function($data) {
             $model = Model::create($data['model'],$data['extension']);
             if (\is_object($model) == false) {               
@@ -66,8 +64,6 @@ class Relations extends ApiController
      */
     public function addRelationController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-
         $this->onDataValid(function($data) {                        
             $model = Model::create($data['model'],$data['extension']);
             if (\is_object($model) == false) {
@@ -92,8 +88,6 @@ class Relations extends ApiController
      */
     public function readController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-
         $this->onDataValid(function($data) {                        
             $model = Model::create($data['name'],$data['extension']);
             $model = (is_object($model) == true) ? $model->findById($data['uuid']) : null;

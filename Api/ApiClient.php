@@ -40,7 +40,7 @@ class ApiClient extends ApiController
            
         });
         $data
-            ->addRule("text:min=2","api_key")   
+            ->addRule('text:min=2','api_key')   
             ->validate();       
     }
 }

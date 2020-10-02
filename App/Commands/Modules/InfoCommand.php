@@ -43,13 +43,13 @@ class InfoCommand extends ConsoleCommand
     {       
         $name = $input->getArgument('name');
         if (empty($name) == true) {
-            $this->showError("Missing module name option!");
+            $this->showError('Missing module name option!');
             return;
         }
 
         $manager = Arikaim::packages()->create('module');
         if ($manager->hasPackage($name) == false) {
-            $this->showError("Module $name not exists!");
+            $this->showError('Module ' . $name . ' not exists!');
             return;
         }
         $package = $manager->createPackage($name);
@@ -62,9 +62,9 @@ class InfoCommand extends ConsoleCommand
         $table->setHeaders(['','']);
         $table->setStyle('compact');
         
-        $bootable = ($module['bootable'] == 1) ? "yes" : "no";
-        $installed = ($module['installed'] == true) ? "yes" : "no";
-        $status = ($module['status'] == 1) ? "enabled" : "disabled";
+        $bootable = ($module['bootable'] == 1) ? 'yes' : 'no';
+        $installed = ($module['installed'] == true) ? 'yes' : 'no';
+        $status = ($module['status'] == 1) ? 'enabled' : 'disabled';
         $rows = [
             ['Title',$module['title']],
             ['Description',$module['description']],

@@ -43,7 +43,7 @@ class SessionApi extends ApiController
      */
     public function recreate($request, $response, $data) 
     {             
-        $lifetime = $data->get('$lifetime',null);
+        $lifetime = $data->get('lifetime',null);
         Session::recrete($lifetime);
 
         $sessionInfo = Session::getParams();  
@@ -64,7 +64,7 @@ class SessionApi extends ApiController
     { 
         $this->requireControlPanelPermission();
         
-        $lifetime = $data->get('$lifetime',null);
+        $lifetime = $data->get('lifetime',null);
         Session::restart($lifetime);
 
         $sessionInfo = Session::getParams();  

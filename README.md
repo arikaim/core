@@ -4,5 +4,5 @@
 
 
 #### Requirements 
-  * PHP 7.1, 7.2, 7.3
+  * PHP 7.1, 7.2, 7.3, 7.4
   * [Arikaim CMS](https://github.com/arikaim/arikaim)

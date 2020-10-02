@@ -10,12 +10,12 @@
 namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\Controllers\ApiController;
+use Arikaim\Core\Controllers\ControlPanelApiController;
 
 /**
  * Access Tokens controller
 */
-class AccessTokens extends ApiController
+class AccessTokens extends ControlPanelApiController
 {
     /**
      * Init controller
@@ -37,9 +37,6 @@ class AccessTokens extends ApiController
      */
     public function deleteController($request, $response, $data) 
     {                
-        // access from contorl panel only 
-        $this->requireControlPanelPermission();
-
         $this->onDataValid(function($data) {          
             $uuid = $data->get('uuid');
             $result = Model::AccessTokens()->removeToken($uuid);
@@ -52,7 +49,7 @@ class AccessTokens extends ApiController
                      
         });
         $data
-            ->addRule("exists:model=AccessTokens|field=uuid|required","uuid")
+            ->addRule('exists:model=AccessTokens|field=uuid|required','uuid')
             ->validate();        
     }
 
@@ -66,9 +63,6 @@ class AccessTokens extends ApiController
      */
     public function deleteExpiredController($request, $response, $data) 
     {                   
-        // access from contorl panel only 
-        $this->requireControlPanelPermission();
-
         $this->onDataValid(function($data) {               
             $uuid = $data->get('uuid');
             $user = Model::Users()->findById($uuid);
@@ -81,7 +75,7 @@ class AccessTokens extends ApiController
             },'errors.access_tokens.expired');
         });
         $data
-            ->addRule("exists:model=Users|field=uuid|required","uuid")
+            ->addRule('exists:model=Users|field=uuid|required','uuid')
             ->validate();         
     }
 }

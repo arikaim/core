@@ -21,7 +21,7 @@ class DriversSchema extends Schema
      *
      * @var string
      */
-    protected $tableName = "drivers";
+    protected $tableName = 'drivers';
 
     /**
      * Create table

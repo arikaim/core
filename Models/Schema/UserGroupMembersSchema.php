@@ -21,7 +21,7 @@ class UserGroupMembersSchema extends Schema
      *
      * @var string
      */ 
-    protected $tableName = "user_group_members";
+    protected $tableName = 'user_group_members';
 
     /**
      * Create table

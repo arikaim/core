@@ -55,7 +55,7 @@ class Options extends ApiController
             },'errors.options.save');          
         });
         $data
-            ->addRule("text:min=2","key")
+            ->addRule('text:min=2','key')
             ->validate();      
     }
 
@@ -74,7 +74,7 @@ class Options extends ApiController
             $this->setResult($value);           
         });
         $data
-            ->addRule("exists:model=Options|field=key","key")
+            ->addRule('exists:model=Options|field=key','key')
             ->validate();  
     }
     

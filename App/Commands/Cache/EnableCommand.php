@@ -44,10 +44,12 @@ class EnableCommand extends ConsoleCommand
 
         Arikaim::cache()->clear();
         
-        if ($result == true) {
-            $this->showCompleted();
-        } else {
-            $this->showError("Can't enable cache!");
-        }
+        if ($result !== true) {
+            $error = Arikaim::errors()->getError('CACHE_ENABLE_ERROR');
+            $this->showError($error);
+            return;
+        } 
+      
+        $this->showCompleted();        
     }
 }

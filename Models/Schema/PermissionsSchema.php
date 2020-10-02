@@ -21,7 +21,7 @@ class PermissionsSchema extends Schema
      *
      * @var string
      */ 
-    protected $tableName = "permissions";
+    protected $tableName = 'permissions';
 
     /**
      * Create table

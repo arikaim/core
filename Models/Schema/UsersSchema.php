@@ -21,7 +21,7 @@ class UsersSchema extends Schema
      *
      * @var string
      */ 
-    protected $tableName = "users";
+    protected $tableName = 'users';
 
     /**
      * Create table

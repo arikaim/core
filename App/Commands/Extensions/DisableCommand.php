@@ -42,7 +42,8 @@ class DisableCommand extends ConsoleCommand
     {       
         $name = $input->getArgument('name');
         if (empty($name) == true) {
-            $this->showError("Extension name required!");
+            $error = Arikaim::errors()->getError('ARGUMENT_ERROR',['name' => 'name']);
+            $this->showError($error);
             return;
         }
     
@@ -50,13 +51,14 @@ class DisableCommand extends ConsoleCommand
         $package = $manager->createPackage($name);
         
         if ($package == false) {
-            $this->showError("Extension $name not exists!");
+            $this->showError('Extension ' . $name . ' not exists!');
             return;
         }
         $installed = $package->getProperties()->get('installed');
        
         if ($installed == false) {
-            $this->showError("Extension $name not installed!");
+            $error = Arikaim::errors()->getError('EXTENSION_NOT_INSTALLED',['name' => $name]);
+            $this->showError($error);
             return;
         }
         

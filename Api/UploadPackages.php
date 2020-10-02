@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Api;
 
-use Arikaim\Core\Controllers\ApiController;
+use Arikaim\Core\Controllers\ControlPanelApiController;
 use Arikaim\Core\Utils\File;
 use Arikaim\Core\Utils\ZipFile;
 use Arikaim\Core\Utils\Path;
@@ -19,7 +19,7 @@ use Arikaim\Core\Controllers\Traits\FileUpload;
 /**
  * UploadPackage controller
 */
-class UploadPackages extends ApiController
+class UploadPackages extends ControlPanelApiController
 {
     use FileUpload;
 
@@ -43,7 +43,6 @@ class UploadPackages extends ApiController
     */
     public function packageInfoController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
     }
 
     /**
@@ -56,20 +55,18 @@ class UploadPackages extends ApiController
     */
     public function confirmUploadController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-        
         $this->onDataValid(function($data)  {    
             
             $packageDir = $data->get('package_directory');
             $sourcePath = Path::STORAGE_TEMP_PATH . $packageDir;    
             
             if (File::exists($sourcePath) == false) {
-                $this->error('Package temp directory not exists');
+                $this->error('errors.package.temp');
                 return;                
             }
             $packageInfo = File::readJsonFile($sourcePath . DIRECTORY_SEPARATOR . 'arikaim-package.json');
             if ($packageInfo === false) {
-                $this->error('Not valid or missing arikaim-package.json file.');
+                $this->error('errors.package.json');
                 return;
             }
             $destinatinPath = $this->get('packages')->getPackagePath($packageInfo['package-type']);
@@ -95,9 +92,7 @@ class UploadPackages extends ApiController
      * @return Psr\Http\Message\ResponseInterface
     */
     public function uploadController($request, $response, $data)
-    {
-        $this->requireControlPanelPermission();
-        
+    {  
         $this->onDataValid(function($data) use ($request) {            
             $files = $this->uploadFiles($request,Path::STORAGE_TEMP_PATH,false);
 
@@ -123,7 +118,7 @@ class UploadPackages extends ApiController
 
             $packageInfo = File::readJsonFile(Path::STORAGE_TEMP_PATH . $packageDir . DIRECTORY_SEPARATOR . 'arikaim-package.json');
             if ($packageInfo === false) {
-                $this->error('Not valid or missing arikaim-package.json file.');
+                $this->error('errors.package.json');
                 return;
             }
             $packagePath = $this->get('packages')->getPackagePath($packageInfo['package-type']);

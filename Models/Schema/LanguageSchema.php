@@ -22,7 +22,7 @@ class LanguageSchema extends Schema
      *
      * @var string
      */ 
-    protected $tableName = "language";
+    protected $tableName = 'language';
 
     /**
      * Create table
@@ -70,13 +70,13 @@ class LanguageSchema extends Schema
     {
         $seed->create(['code' => 'en'],
             [
-                "uuid"         => Uuid::create(),
-                "title"        => "English",
-                "native_title" => "English",
-                "code"         => "en",
-                "code_3"       => "eng",
-                "default"      => "1",
-                "country_code" => "us"   
+                'uuid'         => Uuid::create(),
+                'title'        => 'English',
+                'native_title' => 'English',
+                'code'         => 'en',
+                'code_3'       => 'eng',
+                'default'      => '1',
+                'country_code' => 'us'   
             ]
         );        
     }

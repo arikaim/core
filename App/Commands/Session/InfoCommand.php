@@ -45,7 +45,7 @@ class InfoCommand extends ConsoleCommand
 
         $this->style->writeLn('Id: ' . Session::getId());
         $this->style->writeLn('Use cookies: ' . $label);
-        $this->style->writeLn('Save Path: ' . ini_get( 'session.save_path'));      
+        $this->style->writeLn('Save Path: ' . ini_get('session.save_path'));      
         $this->style->writeLn('Lifetime: ' . Session::getLifetime());
 
         $this->showCompleted();

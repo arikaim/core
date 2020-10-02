@@ -32,7 +32,7 @@ class Console
     /**
      * Get extensions commands.
      *
-     * @return void
+     * @return array
      */
     public static function getExtensionsCommands()
     {

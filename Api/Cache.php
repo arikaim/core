@@ -9,13 +9,13 @@
 */
 namespace Arikaim\Core\Api;
 
-use Arikaim\Core\Controllers\ApiController;
+use Arikaim\Core\Controllers\ControlPanelApiController;
 use Arikaim\Core\Utils\File;
 
 /**
  * Cache controller
 */
-class Cache extends ApiController
+class Cache extends ControlPanelApiController
 {
     /**
      * Init controller
@@ -36,9 +36,7 @@ class Cache extends ApiController
      * @return Psr\Http\Message\ResponseInterface
      */
     public function clearController($request, $response, $data)
-    {
-        $this->requireControlPanelPermission();
-        
+    { 
         $result = $this->get('cache')->clear();
         $this->setResponse($result,'cache.clear','errors.cache.clear');
     }
@@ -53,11 +51,9 @@ class Cache extends ApiController
      */
     public function enableController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-        
         $result = File::setWritable($this->get('cache')->getCacheDir());
         if ($result === false) {
-            $this->error("Cant't set cache dir writable!");
+            $this->error('errors.cache.writable');
             return;
         }
 
@@ -80,8 +76,6 @@ class Cache extends ApiController
      */
     public function disableController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-        
         $this->get('config')->setBooleanValue('settings/cache',false);
         $result = $this->get('config')->save();
         
@@ -89,5 +83,25 @@ class Cache extends ApiController
         $this->get('config')->reloadConfig();
 
         $this->setResponse($result,'cache.disable','errors.cache.disable');
+    }
+
+    /**
+     * Set cache driver
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+     */
+    public function setDriverController($request, $response, $data)
+    {
+        $driverName = $data->get('name','filesystem');
+        $this->get('config')->setValue('settings/cacheDriver',$driverName);
+        $result = $this->get('config')->save();
+        
+        $this->get('cache')->clear();
+        $this->get('config')->reloadConfig();
+
+        $this->setResponse($result,'cache.driver','errors.cache.driver');
     }
 }

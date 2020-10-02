@@ -9,13 +9,13 @@
 */
 namespace Arikaim\Core\Api;
 
-use Arikaim\Core\Controllers\ApiController;
+use Arikaim\Core\Controllers\ControlPanelApiController;
 use Arikaim\Core\Utils\Utils;
 
 /**
  * Mailer controller
 */
-class Mailer extends ApiController
+class Mailer extends ControlPanelApiController
 {
     /**
      * Init controller
@@ -37,10 +37,7 @@ class Mailer extends ApiController
      */
     public function sendTestEmailController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-
-        $this->onDataValid(function($data) { 
-            
+        $this->onDataValid(function($data) {             
             $user = $this->get('access')->getUser();
           
             if (Utils::isEmail($user['email']) == false) {

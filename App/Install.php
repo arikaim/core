@@ -86,7 +86,8 @@ class Install
         $result = Arikaim::access()->addPermission(Access::CONTROL_PANEL,Access::CONTROL_PANEL,'Arikaim control panel access.');
         if ($result == false) {    
             if (Model::Permissions()->has(Access::CONTROL_PANEL) == false) {
-                $this->addError("Can't create contorl panel permission");
+                $error = Arikaim::errors()->getError('REGISTER_PERMISSION_ERROR',['name' => 'ContorlPanel']);
+                $this->addError($error);
             }           
         }   
 
@@ -185,9 +186,9 @@ class Install
     {
         $user = Model::Users()->getControlPanelUser();
         if ($user == false) {
-            $user = Model::Users()->createUser("admin","admin");  
+            $user = Model::Users()->createUser('admin','admin');  
             if (empty($user->id) == true) {
-                Arikaim::errors()->addError('CONTROL_PANEL_USER_ERROR',"Error create control panel user.");
+                Arikaim::errors()->addError('CONTROL_PANEL_USER_ERROR','Error create control panel user.');
                 return false;
             }    
         }
@@ -202,7 +203,7 @@ class Install
      */
     private function initDefaultOptions()
     {
-        $formats = Arikaim::config()->loadJsonConfigFile("date-time-format.json");
+        $formats = Arikaim::config()->loadJsonConfigFile('date-time-format.json');
 
         // add date formats options
         Arikaim::options()->createOption('date.format.items',$formats['date'],true);
@@ -212,7 +213,7 @@ class Install
         Arikaim::options()->createOption('time.format',$formats['time']['24-long'],true);
     
         // add number format options
-        $items = Arikaim::config()->loadJsonConfigFile("number-format.json");
+        $items = Arikaim::config()->loadJsonConfigFile('number-format.json');
         Arikaim::options()->createOption('number.format.items',$items,true);
         Arikaim::options()->createOption('number.format','default',true);
 
@@ -266,7 +267,7 @@ class Install
                   
             if ($installed == false) {
                 $errors++;       
-                $error = 'Error create database table "' . Schema::getTable($class) . '"';
+                $error = "Error create database table '" . Schema::getTable($class) . "'";
                 $this->addError($error);
             } 
         }      
@@ -314,17 +315,17 @@ class Install
     public static function checkSystemRequirements()
     {
         $info['items'] = [];
-        $info['errors']['messages'] = "";
+        $info['errors']['messages'] = '';
         $errors = [];
 
         // php 5.6 or above
         $phpVersion = System::getPhpVersion();
-        $item['message'] = "PHP $phpVersion";
+        $item['message'] = 'PHP $phpVersion';
         $item['status'] = 0; // error   
         if (version_compare($phpVersion,'7.1','>=') == true) {               
             $item['status'] = 1; // ok                    
         } else {
-            \array_push($errors,Arikaim::errors()->getError("PHP_VERSION_ERROR"));
+            \array_push($errors,Arikaim::errors()->getError('PHP_VERSION_ERROR'));
         }
         \array_push($info['items'],$item);
 
@@ -336,12 +337,12 @@ class Install
         // PDO driver
         $pdoDriver = Arikaim::config()->getByPath('db/driver');
        
-        $item['message'] = "$pdoDriver PDO driver";
+        $item['message'] = '$pdoDriver PDO driver';
         $item['status'] = 0; // error
         if (System::hasPdoDriver($pdoDriver) == true) {
             $item['status'] = 1; // ok
         } else {
-            \array_push($errors,Arikaim::errors()->getError("PDO_ERROR"));         
+            \array_push($errors,Arikaim::errors()->getError('PDO_ERROR'));         
         }
         \array_push($info['items'],$item);
 

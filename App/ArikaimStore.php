@@ -35,6 +35,16 @@ class ArikaimStore
     }
 
     /**
+     * Is curl installed
+     *
+     * @return boolean
+     */
+    public function hasCurl()
+    {
+        return Curl::isInsatlled();
+    }
+
+    /**
      * Fetch packages list 
      *
      * @param string $type
@@ -44,8 +54,8 @@ class ArikaimStore
      */
     public function fetchPackages($type, $page = 1, $search = '')
     {
-        $page = (empty($search) == true) ? $page : "/$page";
-        $url = Self::HOST . "/api/store/product/list/$type/$search" . $page;
+        $page = (empty($search) == true) ? $page : '/ ' .$page;
+        $url = Self::HOST . '/api/store/product/list/' .$type . '/' . $search . $page;
          
         return Curl::get($url);
     }

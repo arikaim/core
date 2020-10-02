@@ -57,9 +57,9 @@ class InstallCommand extends ConsoleCommand
         // status - 0 red , 1 - ok,  2 - oarange
         foreach ($requirements['items'] as $item) {
             if ($item['status'] == 1) {
-                $label = "\t" . ConsoleHelper::checkMark() . " " . ConsoleHelper::getLabelText($item['message'],'green');               
+                $label = "\t" . ConsoleHelper::checkMark() . ' ' . ConsoleHelper::getLabelText($item['message'],'green');               
             } else {
-                $label = "\t" . " " . ConsoleHelper::getLabelText($item['message'],'red');    
+                $label = "\t" . ' ' . ConsoleHelper::getLabelText($item['message'],'red');    
             }
             $this->style->writeLn($label);
         }
@@ -118,7 +118,7 @@ class InstallCommand extends ConsoleCommand
                 $this->showCompleted();  
                 return;          
             } 
-            $this->showError("Error");
+            $this->showError('Error');
         }
         return;
     }

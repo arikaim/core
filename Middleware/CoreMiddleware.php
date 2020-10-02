@@ -47,7 +47,7 @@ class CoreMiddleware extends Middleware implements MiddlewareInterface
         $response = $handler->handle($request);
         
         // set cache control header
-        return $response->withHeader('Cache-Control',$this->getParam('CacheControl',"max-age=3600,public"));      
+        return $response->withHeader('Cache-Control',$this->getParam('CacheControl','max-age=3600,public'));      
     }
 
     /**

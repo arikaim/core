@@ -49,14 +49,14 @@ class InfoCommand extends ConsoleCommand
 
         $name = $input->getArgument('name');
         if (empty($name) == true) {
-            $this->showError("Extension name required!");
+            $this->showError('Extension name required!');
             return;
         }
     
         $manager = Arikaim::packages()->create('extension');
         $package = $manager->createPackage($name);
         if ($package == false) {
-            $this->showError("Extension $name not exists!");
+            $this->showError('Extension ' . $name . ' not exists!');
             return;
         }
         $extension = $package->getProperties();

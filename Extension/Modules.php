@@ -10,13 +10,14 @@
 namespace Arikaim\Core\Extension;
 
 use Arikaim\Container\Container;
-use Arikaim\Core\Interfaces\CacheInterface;
-use Arikaim\Core\Collection\Interfaces\CollectionInterface;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Packages\ModulePackage;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Collection\Arrays;
 
+use Psr\Container\ContainerInterface;
+use Arikaim\Core\Interfaces\CacheInterface;
+use Arikaim\Core\Collection\Interfaces\CollectionInterface;
 
 /**
  * Modules service locator
@@ -24,9 +25,9 @@ use Arikaim\Core\Collection\Arrays;
 class Modules  
 {
     /**
-     * Http Scheme
+     * Container
      * 
-     * @var string
+     * @var ContainerInterface
     */
     private static $container;
 
@@ -108,13 +109,13 @@ class Modules
     */
     public static function has($name)
     {
-        return Self::$container->has($name);
+        return Self::getContainer()->has($name);
     }
 
     /**
      * Return service container object.
      *
-     * @return object
+     * @return ContainerInterface
     */
     public static function getContainer()
     {
@@ -124,7 +125,7 @@ class Modules
     /**
      * Set container
      *
-     * @param  Psr\Container\ContainerInterface $container
+     * @param ContainerInterface $container
      * @return void
      */
     public static function setContainer($container)

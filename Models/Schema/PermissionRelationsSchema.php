@@ -21,7 +21,7 @@ class PermissionRelationsSchema extends Schema
      *
      * @var string
      */ 
-    protected $tableName = "permission_relations";
+    protected $tableName = 'permission_relations';
 
     /**
      * Create table

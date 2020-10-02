@@ -58,8 +58,8 @@ class Users extends ApiController
             
         });
         $data
-            ->addRule("text:min=2","user_name")   
-            ->addRule("text:min=2","password") 
+            ->addRule('text:min=2','user_name')   
+            ->addRule('text:min=2','password') 
             ->validate();       
     }
 
@@ -142,11 +142,11 @@ class Users extends ApiController
             $this->setResponse($result,'update','errors.update'); 
         });
         $data 
-            ->addRule("text:min=2|required","user_name") 
-            ->addRule("email","email")           
-            ->addRule("text:min=5","old_password")
-            ->addRule("text:min=5","new_password")
-            ->addRule("text:min=5","repeat_password")
+            ->addRule('text:min=2|required','user_name') 
+            ->addRule('email','email')           
+            ->addRule('text:min=5','old_password')
+            ->addRule('text:min=5','new_password')
+            ->addRule('text:min=5','repeat_password')
             ->validate();      
     }
 }

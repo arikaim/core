@@ -39,14 +39,14 @@ class InstallCommand extends ConsoleCommand
     {       
         $name = $input->getArgument('name');
         if (empty($name) == true) {
-            $this->showError("Theme name required!");
+            $this->showError('Theme name required!');
             return;
         }
     
         $manager = Arikaim::packages()->create('template');
         $package = $manager->createPackage($name);
         if ($package == false) {
-            $this->showError("Theme $name not exists!");
+            $this->showError('Theme ' . $name . ' not exists!');
             return;
         }
 

@@ -44,7 +44,7 @@ class ListCommand extends ConsoleCommand
         $this->showTitle('UI library');
       
         $table = new Table($output);
-        $table->setHeaders(['Name', 'Version', 'Type']);
+        $table->setHeaders(['Name','Version','Type']);
         $table->setStyle('compact');
 
         $manager = Arikaim::packages()->create('library');
@@ -55,7 +55,7 @@ class ListCommand extends ConsoleCommand
             $library_package = $manager->createPackage($name);
 
             $library = $library_package->getProperties();
-            $label = ($library->framework == true) ?  ConsoleHelper::getLabelText('framework','cyan') : '';
+            $label = ($library->framework == true) ? ConsoleHelper::getLabelText('framework','cyan') : '';
             $row = [$library->name,$library->version,$label];
             \array_push($rows,$row);
         }

@@ -42,7 +42,7 @@ class ListCommand extends ConsoleCommand
     protected function executeCommand($input, $output)
     {       
         $table = new Table($output);
-        $table->setHeaders(['Name', 'Version', 'Status','Installed']);
+        $table->setHeaders(['Name','Version','Status','Installed']);
         $table->setStyle('compact');
 
         $this->showTitle('Extensions');

@@ -9,7 +9,7 @@
 */
 namespace Arikaim\Core\Api;
 
-use Arikaim\Core\Controllers\ApiController;
+use Arikaim\Core\Controllers\ControlPanelApiController;
 use Arikaim\Core\Queue\Cron;
 use Arikaim\Core\Queue\QueueWorker;
 use Arikaim\Core\System\Error\PhpError;
@@ -17,7 +17,7 @@ use Arikaim\Core\System\Error\PhpError;
 /**
  * Queue controller
 */
-class Queue extends ApiController
+class Queue extends ControlPanelApiController
 {
     /**
      * Init controller
@@ -38,9 +38,7 @@ class Queue extends ApiController
      * @return Psr\Http\Message\ResponseInterface
      */
     public function startWorkerController($request, $response, $data)
-    {
-        $this->requireControlPanelPermission();
-        
+    {  
         $this->onDataValid(function($data) {            
             $worker = new QueueWorker($this->get('queue'),$this->get('options'),$this->get('logger'));
             $result = $worker->runDaemon();
@@ -60,8 +58,6 @@ class Queue extends ApiController
      */
     public function stopWorkerController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-
         $this->onDataValid(function($data) {              
             $worker = new QueueWorker($this->get('queue'),$this->get('options'),$this->get('logger'));
             $result = $worker->stopDaemon();
@@ -85,9 +81,7 @@ class Queue extends ApiController
      * @return Psr\Http\Message\ResponseInterface
      */
     public function deleteJobsController($request, $response, $data)
-    {
-        $this->requireControlPanelPermission();
-        
+    { 
         $this->onDataValid(function($data) {                        
         });
         $data->validate();           
@@ -101,15 +95,16 @@ class Queue extends ApiController
      * @param Validator $data
      * @return Psr\Http\Message\ResponseInterface
      */
-    public function installCron($request, $response, $data)
-    {
-        $this->requireControlPanelPermission();
-               
+    public function installCronController($request, $response, $data)
+    {         
         $cron = new Cron();
         $result = ($cron->isInstalled() == false) ? $cron->install() : true;
-           
-        $this->setResponse($result,'cron.install','errors.cron.install');       
-        return $this->getResponse();
+        
+        var_dump($result);
+        
+        exit();
+
+        $this->setResponse($result,'cron.install','errors.cron.install');              
     }
 
     /**
@@ -120,14 +115,11 @@ class Queue extends ApiController
      * @param Validator $data
      * @return Psr\Http\Message\ResponseInterface
      */
-    public function unInstallCron($request, $response, $data)
-    {
-        $this->requireControlPanelPermission();
-               
+    public function unInstallCronController($request, $response, $data)
+    {         
         $cron = new Cron();
         $result = $cron->unInstall();
 
-        $this->setResponse($result,'cron.uninstall','errors.cron.uninstall');       
-        return $this->getResponse();
+        $this->setResponse($result,'cron.uninstall','errors.cron.uninstall');               
     }
 }

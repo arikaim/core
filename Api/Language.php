@@ -10,13 +10,12 @@
 namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\Controllers\ApiController;
-use Arikaim\Core\View\Html\Page;
+use Arikaim\Core\Controllers\ControlPanelApiController;
 
 /**
  * Languages controller
 */
-class Language extends ApiController
+class Language extends ControlPanelApiController
 {
     /**
      * Init controller
@@ -38,9 +37,6 @@ class Language extends ApiController
      */
     public function updateController($request, $response, $data) 
     {    
-        // access from contorl panel only 
-        $this->requireControlPanelPermission();
-
         $uuid = $data->get('uuid');
         $model = Model::Language()->findById($uuid);
 
@@ -55,12 +51,12 @@ class Language extends ApiController
         });
 
         $data
-            ->addRule("exists:model=Language|field=uuid","uuid")
-            ->addRule("text:min=2","title")
-            ->addRule("text:min=2","native_title")
-            ->addRule("unique:model=Language|field=code|exclude=" . $model->code,"code")
-            ->addRule("unique:model=Language|field=code_3|exclude=" . $model->code_3,"code_3")
-            ->addRule("text:min=2|max=2","language_code")
+            ->addRule('exists:model=Language|field=uuid','uuid')
+            ->addRule('text:min=2','title')
+            ->addRule('text:min=2','native_title')
+            ->addRule('unique:model=Language|field=code|exclude=' . $model->code,'code')
+            ->addRule('unique:model=Language|field=code_3|exclude=' . $model->code_3,'code_3')
+            ->addRule('text:min=2|max=2','language_code')
             ->validate();
     }
 
@@ -74,9 +70,6 @@ class Language extends ApiController
      */
     public function addController($request, $response, $data) 
     {       
-        // access from contorl panel only 
-        $this->requireControlPanelPermission();
-        
         $this->onDataValid(function($data) {                   
             $model = Model::Language()->add($data->toArray());  
             
@@ -87,11 +80,11 @@ class Language extends ApiController
             },'errors.language.add');
         });
         $data
-            ->addRule("text:min=2","title")
-            ->addRule("text:min=2","native_title")
-            ->addRule("unique:model=Language|field=code","code",$this->getMessage('errors.language.code'))
-            ->addRule("unique:model=Language|field=code_3","code_3",$this->getMessage('errors.language.code3'))
-            ->addRule("text:min=2|max=2","language_code")
+            ->addRule('text:min=2','title')
+            ->addRule('text:min=2','native_title')
+            ->addRule('unique:model=Language|field=code','code',$this->getMessage('errors.language.code'))
+            ->addRule('unique:model=Language|field=code_3','code_3',$this->getMessage('errors.language.code3'))
+            ->addRule('text:min=2|max=2','language_code')
             ->validate();
     }
 
@@ -104,10 +97,7 @@ class Language extends ApiController
      * @return Psr\Http\Message\ResponseInterface
      */
     public function removeController($request, $response, $data)
-    {
-        // access from contorl panel only 
-        $this->requireControlPanelPermission();
-        
+    { 
         $this->onDataValid(function($data) {               
             $uuid = $data->get('uuid');
             $result = Model::Language()->findById($uuid)->delete();
@@ -119,7 +109,7 @@ class Language extends ApiController
             },'errors.language.remove');
         });
         $data
-            ->addRule("exists:model=Language|field=uuid","uuid")
+            ->addRule('exists:model=Language|field=uuid','uuid')
             ->validate();        
     }
     
@@ -133,9 +123,6 @@ class Language extends ApiController
     */
     public function setStatusController($request, $response, $data)
     {         
-        // access from contorl panel only 
-        $this->requireControlPanelPermission();
-        
         $this->onDataValid(function($data) {            
             $status = $data->get('status','toggle');
             $uuid = $data->get('uuid');               
@@ -149,8 +136,8 @@ class Language extends ApiController
             },'errors.language.status');
         });
         $data
-            ->addRule("exists:model=Language|field=uuid","uuid")
-            ->addRule("checkList:items=0,1,toggle","status")
+            ->addRule('exists:model=Language|field=uuid','uuid')
+            ->addRule('checkList:items=0,1,toggle','status')
             ->validate();       
     }
 
@@ -164,9 +151,6 @@ class Language extends ApiController
     */
     public function setDefaultController($request, $response, $data)
     {
-        // access from contorl panel only 
-        $this->requireControlPanelPermission();
-        
         $this->onDataValid(function($data) {           
             $uuid = $data->get('uuid');
             $result = Model::Language()->setDefault($uuid);
@@ -178,7 +162,7 @@ class Language extends ApiController
             },'errors.language.default');
         });
         $data
-            ->addRule("exists:model=Language|field=uuid","uuid")
+            ->addRule('exists:model=Language|field=uuid','uuid')
             ->validate();      
     }
 
@@ -191,17 +175,15 @@ class Language extends ApiController
      * @return Psr\Http\Message\ResponseInterface
     */
     public function changeLanguageController($request, $response, $data)
-    {
-        $this->requireControlPanelPermission();
-        
+    { 
         $this->onDataValid(function($data) {
-            $language = $data->get("language_code"); 
-            Page::setLanguage($language);
+            $language = $data->get('language_code'); 
+            $this->get('page')->setLanguage($language);
 
             $this->field('language','language');
         });
         $data
-            ->addRule("exists:model=Language|field=code","language_code")
+            ->addRule('exists:model=Language|field=code','language_code')
             ->validate();      
     }
 }

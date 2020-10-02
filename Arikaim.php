@@ -28,10 +28,8 @@ use Arikaim\Core\Http\Url;
 use Arikaim\Core\Utils\Path;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\System\Error\Renderer\HtmlPageErrorRenderer;
-use Arikaim\Core\Extension\Modules;
 use Arikaim\Core\System\Composer;
 use Arikaim\Core\App\Install;
-use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Models\AccessTokens;
 
 /**
@@ -152,28 +150,28 @@ class Arikaim
         
         Url::setAppUrl('/arikaim');
         Path::setAppPath('arikaim');
-        Factory::setCoreNamespace("Arikaim\\Core");
+        Factory::setCoreNamespace('Arikaim\\Core');
 
         // Load global functions
         $loader->LoadClassFile('\\Arikaim\\Core\\App\\Globals');
          
-        \register_shutdown_function("\Arikaim\Core\Arikaim::end");
+        \register_shutdown_function('\Arikaim\Core\Arikaim::end');
        
         // Create service container            
-        AppFactory::setContainer(ServiceContainer::init(new Container()));
+        AppFactory::setContainer(ServiceContainer::init(new Container(),Self::isConsole()));
         
         // Create app 
         Self::$app = AppFactory::create();
         Self::$app->setBasePath(BASE_PATH);
             
-        if (Arikaim::isConsole() == false) {   
+        if (Self::isConsole() == false) {   
             Session::start();
                        
             // Set router 
             $validatorStrategy = new ValidatorStrategy(Self::get('event'),Self::get('errors'));
             Self::$app->getRouteCollector()->setDefaultInvocationStrategy($validatorStrategy);
         
-            Self::$app->getRouteCollector()->setCacheFile(Path::CACHE_PATH . "/routes.cache.php");     
+            Self::$app->getRouteCollector()->setCacheFile(Path::CACHE_PATH . '/routes.cache.php');     
             // Map routes                       
             SystemRoutes::mapSystemRoutes(); 
             // Boot db
@@ -184,19 +182,18 @@ class Arikaim
             
             Self::mapRoutes();   
             
-            // Set primary template
-            Template::setPrimary(Self::options()->get('primary.template'));
+            // Set primary template           
+            Self::view()->setPrimaryTemplate(Self::options()->get('primary.template'));          
             // DatTime and numbers format
             Number::setFormats(Self::options()->get('number.format.items',[]),Self::options()->get('number.format',null));
            
             // Set time zone
-            DateTime::setTimeZone(Arikaim::options()->get('time.zone'));
+            DateTime::setTimeZone(Self::options()->get('time.zone'));
 
             // Set date and time formats
-            DateTime::setDateFormats(Arikaim::options()->get('date.format.items',[]),Arikaim::options()->get('date.format',null));   
-            DateTime::setTimeFormats(Arikaim::options()->get('date.format.items',[]),Arikaim::options()->get('time.format',null));                  
+            DateTime::setDateFormats(Self::options()->get('date.format.items',[]),Self::options()->get('date.format',null));   
+            DateTime::setTimeFormats(Self::options()->get('date.format.items',[]),Self::options()->get('time.format',null));                  
         }      
-
     }
     
     /**
@@ -221,7 +218,7 @@ class Arikaim
 
         foreach($routes as $item) {
             $methods = \explode(',',$item['method']);
-            $handler = $item['handler_class'] . ":" . $item['handler_method'];   
+            $handler = $item['handler_class'] . ':' . $item['handler_method'];   
 
             $route = Self::$app->map($methods,$item['pattern'],$handler);
             // auth middleware
@@ -358,7 +355,7 @@ class Arikaim
      */
     public static function getConsoleBasePath()
     {
-        return (\defined('BASE_PATH') == true) ? BASE_PATH : "";       
+        return (\defined('BASE_PATH') == true) ? BASE_PATH : '';       
     }
 
     /**
@@ -384,7 +381,7 @@ class Arikaim
     {        
         if (Self::isConsole() == false) {
             $path = \rtrim(\str_ireplace('index.php','',Self::$basePath), DIRECTORY_SEPARATOR);
-            return ($path == "/") ? "" : $path;               
+            return ($path == '/') ? '' : $path;               
         } 
         
         return Self::getConsoleBasePath();
@@ -397,7 +394,7 @@ class Arikaim
     */
     public static function getDomain() 
     {      
-        return Self::$scheme . "://" . Self::$host;
+        return Self::$scheme . '://' . Self::$host;
     }
 
     /**
@@ -417,7 +414,7 @@ class Arikaim
     */
     public static function isConsole()
     {
-        return (\php_sapi_name() == "cli") ? true : false;         
+        return (\php_sapi_name() == 'cli') ? true : false;         
     }   
     
     /**
@@ -466,6 +463,6 @@ class Arikaim
      */
     public static function getCorePackageName()
     {
-        return "arikaim/core";
+        return 'arikaim/core';
     }
 }

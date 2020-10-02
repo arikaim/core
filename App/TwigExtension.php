@@ -20,14 +20,12 @@ use Arikaim\Core\Interfaces\Access\AuthInterface;
 use Arikaim\Core\Interfaces\OptionsInterface;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\View\Html\HtmlComponent;
 use Arikaim\Core\Access\Csrf;
 use Arikaim\Core\System\System;
 use Arikaim\Core\System\Composer;
 use Arikaim\Core\System\Update;
 use Arikaim\Core\App\Install;
 use Arikaim\Core\Arikaim;
-use Arikaim\Core\View\Template\Template;
 use Arikaim\Core\Http\Url;
 use Arikaim\Core\Http\Session;
 use Arikaim\Core\App\ArikaimStore;
@@ -117,7 +115,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function getGlobals() 
     {
         return [
-            'system_template_name'  => Template::SYSTEM_TEMPLATE_NAME,
+            'system_template_name'  => Page::SYSTEM_TEMPLATE_NAME,
             'domain'                => (\defined('DOMAIN') == true) ? DOMAIN : null,
             'base_url'              => Url::BASE_URL,     
             'DIRECTORY_SEPARATOR'   => DIRECTORY_SEPARATOR
@@ -131,7 +129,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function getFunctions() 
     {
-        $items = $this->cache->fetch('twig.functions');
+        $items = $this->cache->fetch('arikaim.twig.functions');
         if (\is_array($items) == true) {
             return $items;
         }
@@ -155,7 +153,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('createModel',[$this,'createModel']),
             new TwigFunction('showSql',['Arikaim\\Core\\Db\\Model','getSql']),
             // other
-            new TwigFunction('getConstant',["Arikaim\\Core\\Db\\Model",'getConstant']),
+            new TwigFunction('getConstant',['Arikaim\\Core\\Db\\Model','getConstant']),
             new TwigFunction('hasExtension',[$this,'hasExtension']),
             new TwigFunction('getFileType',[$this,'getFileType']),         
             new TwigFunction('system',[$this,'system']),  
@@ -189,18 +187,18 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
             // files
             new TwigFunction('getDirectoryFiles',[$this,'getDirectoryFiles']),
-            new TwigFunction('isImage',["Arikaim\\Core\\Utils\\File",'isImageMimeType']),
+            new TwigFunction('isImage',['Arikaim\\Core\\Utils\\File','isImageMimeType']),
 
             // date and time
-            new TwigFunction('getTimeZonesList',["Arikaim\\Core\\Utils\\DateTime",'getTimeZonesList']),
+            new TwigFunction('getTimeZonesList',['Arikaim\\Core\\Utils\\DateTime','getTimeZonesList']),
             new TwigFunction('timeInterval',['Arikaim\\Core\\Utils\\TimeInterval','getInterval']),
             new TwigFunction('currentYear',[$this,'currentYear']),
-            new TwigFunction('today',["Arikaim\\Core\\Utils\\DateTime",'getTimestamp']),
+            new TwigFunction('today',['Arikaim\\Core\\Utils\\DateTime','getTimestamp']),
             // unique Id
-            new TwigFunction('createUuid',["Arikaim\\Core\\Utils\\Uuid",'create']),
-            new TwigFunction('createToken',["Arikaim\\Core\\Utils\\Utils",'createToken']),
+            new TwigFunction('createUuid',['Arikaim\\Core\\Utils\\Uuid','create']),
+            new TwigFunction('createToken',['Arikaim\\Core\\Utils\\Utils','createToken']),
         ];
-        $this->cache->save('twig.functions',$items,10);
+        $this->cache->save('arikaim.twig.functions',$items,10);
 
         return $items;
     }
@@ -275,7 +273,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function getPaginatorUrl($pageUrl, $page, $full = true, $withLanguagePath = false)
     {
-        $path = (empty($pageUrl) == true) ? $page : $pageUrl . "/$page";
+        $path = (empty($pageUrl) == true) ? $page : $pageUrl . '/' . $page;
         
         return Page::getUrl($path,$full,$withLanguagePath);
     }
@@ -286,25 +284,34 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @return array
      */
     public function getFilters() 
-    {       
-        return [
-            new TwigFilter('jsonDecode',["Arikaim\\Core\\Utils\\Utils",'jsonDecode']),
+    {      
+        $items = $this->cache->fetch('arikaim.twig.filters');
+        if (\is_array($items) == true) {
+            return $items;
+        }
+
+        $items =  [
+            new TwigFilter('jsonDecode',['Arikaim\\Core\\Utils\\Utils','jsonDecode']),
             // date time
-            new TwigFilter('dateFormat',["Arikaim\\Core\\Utils\\DateTime",'dateFormat']),
-            new TwigFilter('dateTimeFormat',["Arikaim\\Core\\Utils\\DateTime",'dateTimeFormat']),
-            new TwigFilter('timeFormat',["Arikaim\\Core\\Utils\\DateTime",'timeFormat']),
+            new TwigFilter('dateFormat',['Arikaim\\Core\\Utils\\DateTime','dateFormat']),
+            new TwigFilter('dateTimeFormat',['Arikaim\\Core\\Utils\\DateTime','dateTimeFormat']),
+            new TwigFilter('timeFormat',['Arikaim\\Core\\Utils\\DateTime','timeFormat']),
             // numbers
-            new TwigFilter('numberFormat',["Arikaim\\Core\\Utils\\Number",'format']),
+            new TwigFilter('numberFormat',['Arikaim\\Core\\Utils\\Number','format']),
             // text
-            new TwigFilter('mask',["Arikaim\\Core\\Utils\\Text",'mask']),
-            new TwigFilter('pad',["Arikaim\\Core\\Utils\\Text",'pad']),
-            new TwigFilter('padLeft',["Arikaim\\Core\\Utils\\Text",'padLeft']),
-            new TwigFilter('padRight',["Arikaim\\Core\\Utils\\Text",'padRight']),
+            new TwigFilter('mask',['Arikaim\\Core\\Utils\\Text','mask']),
+            new TwigFilter('pad',['Arikaim\\Core\\Utils\\Text','pad']),
+            new TwigFilter('padLeft',['Arikaim\\Core\\Utils\\Text','padLeft']),
+            new TwigFilter('padRight',['Arikaim\\Core\\Utils\\Text','padRight']),
             // files
-            new TwigFilter('fileSize',["Arikaim\\Core\\Utils\\File",'getSizeText']),
-            new TwigFilter('baseName',["Arikaim\\Core\\Utils\\File",'baseName']),
-            new TwigFilter('relativePath',["Arikaim\\Core\\Utils\\Path",'getRelativePath'])
+            new TwigFilter('fileSize',['Arikaim\\Core\\Utils\\File','getSizeText']),
+            new TwigFilter('baseName',['Arikaim\\Core\\Utils\\File','baseName']),
+            new TwigFilter('relativePath',['Arikaim\\Core\\Utils\\Path','getRelativePath'])
         ];
+
+        $this->cache->save('arikaim.twig.filters',$items,10);
+        
+        return $items;
     }
 
     /**
@@ -520,7 +527,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function currentYear()
     {
-        return \date("Y");
+        return \date('Y');
     }
     
     /**
@@ -530,7 +537,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function getCurrentLanguage() 
     {
-        $language = HtmlComponent::getLanguage();
+        $language = Arikaim::get('page')->getLanguage();
         $model = Model::Language()->where('code','=',$language)->first();
 
         return (\is_object($model) == true) ? $model->toArray() : null;
@@ -584,7 +591,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     {
         $token = Csrf::getToken(true);    
 
-        return '<input type="hidden" name="csrf_token" value="'. $token . '">';
+        return "<input type='hidden' name='csrf_token' value='" . $token . "'>";
     }
 
     /**

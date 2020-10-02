@@ -61,7 +61,7 @@ class CronCommand extends ConsoleCommand
                 try {
                     Arikaim::queue()->executeJob($job);
                 } catch (Exception $e) {
-                    Arikaim::logger()->error("Failed to execute cron job, details: " . $e->getMessage());
+                    Arikaim::logger()->error('Failed to execute cron job, details: ' . $e->getMessage());
                 }
                
             }

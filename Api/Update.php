@@ -9,14 +9,14 @@
 */
 namespace Arikaim\Core\Api;
 
-use Arikaim\Core\Controllers\ApiController;
+use Arikaim\Core\Controllers\ControlPanelApiController;
 use Arikaim\Core\System\Update as SystemUpdate;
 use Arikaim\Core\Arikaim;
 
 /**
  * Update controller
 */
-class Update extends ApiController
+class Update extends ControlPanelApiController
 {
     /**
      * Init controller
@@ -38,8 +38,6 @@ class Update extends ApiController
      */
     public function updateController($request, $response, $data) 
     {           
-        $this->requireControlPanelPermission();
-
         $this->onDataValid(function($data) { 
             $package = $data->get('package',Arikaim::getCorePackageName());
             $update = new SystemUpdate($package);
@@ -64,10 +62,8 @@ class Update extends ApiController
      * @param Validator $data
      * @return Psr\Http\Message\ResponseInterface
      */
-    public function getLastVersion($request, $response, $data) 
+    public function getLastVersionController($request, $response, $data) 
     {           
-        $this->requireControlPanelPermission();
-        
         $package = $data->get('package',Arikaim::getCorePackageName());
   
         $update = new SystemUpdate($package);
@@ -76,7 +72,5 @@ class Update extends ApiController
         $this->setResponse($version,function() use($version) {
             $this->field('version',$version);             
         },'errors.core.update');
-        
-        return $this->getResponse();  
     }
 }

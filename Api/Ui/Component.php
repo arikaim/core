@@ -11,7 +11,7 @@ namespace Arikaim\Core\Api\Ui;
 
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Collection\Arrays;
-use Arikaim\Core\View\Html\HtmlComponent;
+use Arikaim\Core\View\Html\ResourceLocator;
 
 /**
  * Component Api controller
@@ -28,12 +28,11 @@ class Component extends ApiController
      */
     public function componentProperties($request, $response, $data)
     {
-        $language = $data->get('language',null);
-        $language = (empty($language) == true) ? HtmlComponent::getLanguage() : $language;
-
+        $language = $this->getPageLanguage($data); 
         $component = $this->get('page')->createHtmlComponent($data['name'],[],$language);
+
         if (\is_object($component) == false) {
-            return $this->withError('Not valid component nane.')->getResponse();  
+            return $this->withError('TEMPLATE_COMPONENT_NOT_FOUND')->getResponse();  
         }
         
         $component = $component->renderComponent();
@@ -65,7 +64,7 @@ class Component extends ApiController
 
         $component = $this->get('page')->createHtmlComponent($data['name']);
         if (\is_object($component) == false) {
-            return $this->withError('Not valid component nane.')->getResponse();  
+            return $this->withError('TEMPLATE_COMPONENT_NOT_FOUND')->getResponse();  
         }
 
         $component = $component->renderComponent();
@@ -77,6 +76,7 @@ class Component extends ApiController
         $details = [
                 'properties' => $component->getProperties(),
                 'options'    => $component->getOptions(),
+                'framework'  => $component->getFramework(),
                 'files'      => $component->getFiles()
         ];
         
@@ -111,37 +111,46 @@ class Component extends ApiController
      *
      * @param string $name
      * @param array $params
-     * @param string|null $language
+     * @param string $language
      * @return JSON 
      */
-    public function load($name, $params = [], $language = null)
+    public function load($name, $params = [], $language)
     {   
-        $component = $this->get('page')->createHtmlComponent($name,$params,$language);
+        $framework = (isset($params['framework']) == true) ? $params['framework'] : null;
+        if (empty($framework) == true) {
+            $template = ResourceLocator::getTemplateName($name,$this->get('view')->getPrimaryTemplate());
+            $framework = $this->get('page')->getFramework($template);      
+        }
+        $component = $this->get('page')->createHtmlComponent($name,$params,$language,true,$framework);
+     
         if (\is_object($component) == false) {
-            return $this->withError('Not valid component nane.')->getResponse();  
+            return $this->withError('TEMPLATE_COMPONENT_NOT_FOUND',[
+                'full_component_name' => $name
+            ])->getResponse();  
         }
      
-        $component = $component->renderComponent();
+        $component = $component->renderComponentData($component->getComponentData(),$params);
     
         if ($component->hasError() == true) {
-            $error = $component->getError();  
+            $error = $component->getError();
             $this->setResultField('redirect',$component->getOption('access/redirect')); 
-
-            return $this->withError($this->get('errors')->getError($error['code'],$error['params']))->getResponse();          
+                      
+            return $this->withError($error['message'])->getResponse();          
         }
       
         if ($component->getOption('access/deny-request') == true) {
             $this->setResultField('redirect',$component->getOption('access/redirect')); 
 
-            return $this->withError('ACCESS_DENIED')->getResponse();           
+            return $this->withError('ACCESS_DENIED',['name' => $component->getFullName()])->getResponse();           
         }
-        $files = $this->get('view')->properties()->get('include.components.files');
+        $files = $this->get('page')->getComponentsFiles();
         
         $result = [
             'html'       => $component->getHtmlCode(),
             'css_files'  => (isset($files['css']) == true) ? Arrays::arrayColumns($files['css'],['url','params']) : [],
             'js_files'   => (isset($files['js']) == true)  ? Arrays::arrayColumns($files['js'],['url','params'])  : [],
             'properties' => \json_encode($component->getProperties()),
+            'framework'  => $component->getFramework(),
             'html'       => $component->getHtmlCode()           
         ];
   

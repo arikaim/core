@@ -57,7 +57,7 @@ class ListCommand extends ConsoleCommand
 
             $installedLabel = ($module->installed == true) ?  ConsoleHelper::getLabelText('installed','cyan') : '';
             $statusLabel = ($module->status == 1) ?  ConsoleHelper::getLabelText('enabled','green') : '';
-            $label = $installedLabel . " " . $statusLabel;
+            $label = $installedLabel . ' ' . $statusLabel;
             $row = [$module->name,$module->version,$module->type,$label];
             \array_push($rows,$row);
         }

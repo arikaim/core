@@ -39,16 +39,24 @@ class EnableCommand extends ConsoleCommand
     {       
         $name = $input->getArgument('name');
         if (empty($name) == true) {
-            $this->showError("Driver name required!");
+            $error = Arikaim::errors()->getError('ARGUMENT_ERROR',['name' => 'name']);
+            $this->showError($error);
             return;
         }
-    
-        $result = Arikaim::driver()->enable($name);
-        if ($result == false) {
-            $this->showError("Driver $name not exists!");
+        
+        if (Arikaim::driver()->has($name) == false) {
+            $error = Arikaim::errors()->getError('DRIVER_NOT_EXISTS_ERROR',['name' => $name]);
+            $this->showError($error);
             return;
         }
 
+        $result = Arikaim::driver()->enable($name);
+        if ($result == false) {
+            $error = Arikaim::errors()->getError('DRIVER_ENABLE_ERROR');
+            $this->showError($error);           
+            return;
+        }
+       
         $this->showCompleted();
     }
 }

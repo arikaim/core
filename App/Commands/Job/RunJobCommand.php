@@ -40,13 +40,13 @@ class RunJobCommand extends ConsoleCommand
         $this->showTitle('Run Job');
         $name = $input->getArgument('name');
         if (empty($name) == true) {
-            $this->showError("Job name required!");
+            $this->showError('Job name required!');
             return;
         }
         $this->style->writeLn('Name: ' . $name);
       
         if (Arikaim::queue()->has($name) == false) {
-            $this->showError("Not valid job name!");
+            $this->showError('Not valid job name!');
             return;
         } 
     

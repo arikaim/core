@@ -38,7 +38,7 @@
         "arikaim/console": "^1.0.0",
         "slim/slim": "4.3.*",
         "guzzlehttp/guzzle": "6.3.*",      
-        "http-interop/http-factory-guzzle": "1.*"
+        "http-interop/http-factory-guzzle": "^1.0.0"
     },
     "autoload": {       
         "psr-4": {

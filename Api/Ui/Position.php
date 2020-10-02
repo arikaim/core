@@ -48,7 +48,7 @@ class Position extends ApiController
             }
             $this->message('done');
         } else {
-            $this->error("errors.position");
+            $this->error('errors.position');
         }
        
         return $this->getResponse();
@@ -58,7 +58,7 @@ class Position extends ApiController
      * Create model object form request data
      *
      * @param Validator $data
-     * @return Model|false
+     * @return object|false
      */
     public function createModel($data)
     {
@@ -88,7 +88,7 @@ class Position extends ApiController
             }
             $this->message('done');
         } else {
-            $this->error("errors.position");
+            $this->error('errors.position');
         }
        
         return $this->getResponse();
