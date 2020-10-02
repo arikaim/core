@@ -320,7 +320,7 @@ class Install
 
         // php 5.6 or above
         $phpVersion = System::getPhpVersion();
-        $item['message'] = 'PHP $phpVersion';
+        $item['message'] = 'PHP ' . $phpVersion;
         $item['status'] = 0; // error   
         if (version_compare($phpVersion,'7.1','>=') == true) {               
             $item['status'] = 1; // ok                    
@@ -337,7 +337,7 @@ class Install
         // PDO driver
         $pdoDriver = Arikaim::config()->getByPath('db/driver');
        
-        $item['message'] = '$pdoDriver PDO driver';
+        $item['message'] = $pdoDriver . 'PDO driver';
         $item['status'] = 0; // error
         if (System::hasPdoDriver($pdoDriver) == true) {
             $item['status'] = 1; // ok
