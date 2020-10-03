@@ -30,6 +30,10 @@ class InstallPage extends Controller
         $this->get('cache')->clear();   
 
         $disableInstallPage = $this->get('config')->getByPath('settings/disableInstallPage');
+
+        echo "dus: $disableInstallPage";
+        exit();
+        
         if ($disableInstallPage == true) {           
             return $this->get('errors')->loadPageNotFound($response); 
         }

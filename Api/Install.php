@@ -34,6 +34,12 @@ class Install extends ApiController
             // clear cache
             $this->get('cache')->clear();
              
+            $disabled = $this->get('config')->getByPath('settings/disableInstallPage',false);
+            if ($disabled == true) {
+                $this->error('Install page is disabled.');
+                return;
+            }
+
             // save config file               
             $this->get('config')->setValue('db/username',$data->get('username'));
             $this->get('config')->setValue('db/password',$data->get('password'));

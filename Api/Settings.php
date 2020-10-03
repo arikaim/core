@@ -37,7 +37,8 @@ class Settings extends ControlPanelApiController
     public function setDebugController($request, $response, $data)
     {
         $debug = $data->get('debug',false);
-       
+        $this->get('cache')->clear();
+
         $this->get('config')->setBooleanValue('settings/debug',$debug);
         // save and reload config file
         $result = $this->get('config')->save();
@@ -56,7 +57,8 @@ class Settings extends ControlPanelApiController
     public function disableInstallPageController($request, $response, $data)
     {
         $installPage = $data->get('install_page',false);
-       
+        $this->get('cache')->clear();
+        
         $this->get('config')->setBooleanValue('settings/disableInstallPage',$installPage);
         // save and reload config file
         $result = $this->get('config')->save();

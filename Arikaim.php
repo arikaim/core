@@ -300,29 +300,42 @@ class Arikaim
      */
     public static function end() 
     {    
-        if (\error_reporting() == true) {
-            $error = \error_get_last();    
-            if (empty($error) == false) {               
-                Self::get('cache')->clear();
-                $renderer = new HtmlPageErrorRenderer(Self::errors());
-                $applicationError = new ApplicationError(Self::response(),$renderer);  
-                if (Install::isInstalled() == false) {       
-                    if (Install::isInstallPage() == true) {                          
-                        $output = Self::get('page')->getHtmlCode('system:install');  
-                        echo $output;
-                        exit();             
-                    }                   
-                    if (Install::isApiInstallRequest() == true) {
-                        return Self::$app->run();
-                    } 
-                    $error = new Exception(Self::get('errors')->getError('NOT_INSTALLED_ERROR'));                      
-                } 
-        
+        if (\error_reporting() == false) {
+            return;
+        }
+        $error = \error_get_last();    
+        if (empty($error) == true) {  
+            return;    
+        }
+
+        Self::get('cache')->clear();
+        $renderer = new HtmlPageErrorRenderer(Self::errors());
+        $applicationError = new ApplicationError(Self::response(),$renderer);  
+        if (Install::isInstalled() == false) {       
+            if (Install::isInstallPage() == true) {    
+                $disabled = Self::get('config')->getByPath('settings/disableInstallPage',false);     
+                if ($disabled != true) {                            
+                    $output = Self::get('page')->getHtmlCode('system:install');  
+                    echo $output;
+                    exit();    
+                }            
+                // disbled install page
+                $error = new Exception(Self::get('errors')->getError('INSTALL_PAGE_ERROR')); 
                 $output = $applicationError->renderError(Self::createRequest(),$error);            
                 echo $output;
-                exit();                                                  
-            }          
-        }
+                exit();                                             
+            }                   
+            if (Install::isApiInstallRequest() == true) {
+                return Self::$app->run();
+            } 
+            // redirect to install page
+            header('Location: ' . Install::getInstallPageUrl());
+            return;                                      
+        } 
+
+        $output = $applicationError->renderError(Self::createRequest(),$error);            
+        echo $output;
+        exit();                                                                     
     }
 
     /**

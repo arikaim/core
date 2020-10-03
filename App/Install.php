@@ -25,8 +25,20 @@ use Exception;
  */
 class Install 
 {
+    const INSTALL_PAGE_URL_PATH = 'admin/install';
+
     use TaskErrors;
     
+    /**
+     * Get install page url
+     *
+     * @return string
+     */
+    public static function getInstallPageUrl() : string
+    {
+        return DOMAIN . BASE_PATH . '/' . Self::INSTALL_PAGE_URL_PATH;
+    }
+
     /**
      * Check for install page url
      *
@@ -36,7 +48,7 @@ class Install
     {
         $uri = (isset($_SERVER['REQUEST_URI']) == true) ? $_SERVER['REQUEST_URI'] : '';
        
-        return (\substr($uri,-13) == 'admin/install');
+        return (\substr($uri,-13) == Self::INSTALL_PAGE_URL_PATH);
     }
 
     /**
