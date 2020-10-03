@@ -55,10 +55,10 @@ class Packages extends ControlPanelApiController
 
             $this->setResponse($result,function() use($package,$type) {            
                 $this
-                    ->message($type . '.install')
+                    ->message($type . '.download')
                     ->field('type',$type)   
                     ->field('name',$package);                  
-            },'errors.' . $type . '.install');
+            },'errors.' . $type . '.download');
 
         });
         $data->validate();       
@@ -96,11 +96,11 @@ class Packages extends ControlPanelApiController
             
             $this->setResponse($result,function() use($name,$type,$version) {            
                 $this
-                    ->message($type . '.update')
+                    ->message($type . '.download')
                     ->field('type',$type) 
                     ->field('type',$version)   
                     ->field('name',$name);                  
-            },'errors.' . $type . '.update');
+            },'errors.' . $type . '.download');
         });
         $data->validate();       
     }
