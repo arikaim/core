@@ -78,12 +78,21 @@ class PrepareCommand extends ConsoleCommand
 
         $this->style->newLine();
         $this->style->write("\t Set config file writable ");
-
         $result = File::setWritable(Arikaim::config()->getConfigFile());
         if ($result == true) {
             $this->style->write(ConsoleHelper::getLabelText("\t done"));
         } else {
             $this->showError("Error: Can't set config file writtable.");
+            return;
+        };
+
+        $this->style->newLine();
+        $this->style->write("\t Set config relations file writable ");
+        $result = File::setWritable(Path::CONFIG_PATH . 'relations.php');
+        if ($result == true) {
+            $this->style->write(ConsoleHelper::getLabelText("\t done"));
+        } else {
+            $this->showError("Error: Can't set config relations file writtable.");
             return;
         };
 

@@ -331,7 +331,7 @@ class Users extends Model implements UserProviderInterface
 
         // remove user permissions
         $permissions = DbModel::PermissionRelations();
-        $permissions = $permissions->getRelationsQuery($$this->id,'user');    
+        $permissions = $permissions->getRelationsQuery($this->id,'user');    
         $permissions->delete();
 
         return $this->delete();

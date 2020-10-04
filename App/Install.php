@@ -16,6 +16,7 @@ use Arikaim\Core\Db\Model;
 use Arikaim\Core\Access\Access;
 use Arikaim\Core\System\System;
 use Arikaim\Core\Utils\File;
+use Arikaim\Core\Utils\Path;
 
 use Arikaim\Core\System\Error\Traits\TaskErrors;
 use Exception;
@@ -25,10 +26,10 @@ use Exception;
  */
 class Install 
 {
-    const INSTALL_PAGE_URL_PATH = 'admin/install';
-
     use TaskErrors;
-    
+
+    const INSTALL_PAGE_URL_PATH = 'admin/install';
+ 
     /**
      * Get install page url
      *
@@ -61,6 +62,26 @@ class Install
         $uri = (isset($_SERVER['REQUEST_URI']) == true) ? $_SERVER['REQUEST_URI'] : '';
        
         return (\substr($uri,-17) == 'core/api/install/');
+    }
+
+    /**
+     * Set config files writable
+     *
+     * @return bool
+     */
+    public static function setConfigFilesWritable()
+    {
+        $result = true;
+        $configFile = Arikaim::config()->getConfigFile();
+        if (File::isWritable($configFile) == false) {
+            $result = (File::setWritable($configFile) == false) ? false : $result;
+        }
+        $relationsFile = PAth::CONFIG_PATH . 'relations.php';
+        if (File::isWritable($relationsFile) == false) {
+            $result = (File::setWritable($relationsFile) == false) ? false : $result;
+        }
+
+        return $result;
     }
 
     /**
@@ -121,12 +142,30 @@ class Install
         // set storage folders
         $this->initStorage();
 
-        // Install core modules
-        $modulesManager = Arikaim::packages()->create('module');
-        $result = $modulesManager->installAllPackages();
+        
 
         return ($this->hasError() == false);
     } 
+
+    /**
+     * Install all modules
+     *
+     * @return boolean
+     */
+    public function installModules()
+    {
+        System::setTimeLimit(0);
+
+        // clear errors before start
+        Arikaim::errors()->clear();
+        $this->clearErrors();
+
+        // Install modules
+        $modulesManager = Arikaim::packages()->create('module');
+        $modulesManager->installAllPackages();
+        
+        return ($this->hasError() == false);
+    }
 
     /**
      * Install all extensions packages
@@ -163,9 +202,10 @@ class Install
             Arikaim::storage()->createDir('public');
         } 
         // delete symlink
-        File::delete(ROOT_PATH . BASE_PATH . '/public');
+        $linkPath = ROOT_PATH . BASE_PATH . '/public';
+        File::delete($linkPath);
         // create symlink 
-        return @symlink(Arikaim::storage()->getFullPath('public'),ROOT_PATH . BASE_PATH . '/public');      
+        return @symlink(Arikaim::storage()->getFullPath('public'),$linkPath);      
     }
 
     /**

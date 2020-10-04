@@ -178,6 +178,7 @@ class SystemRoutes
         Arikaim::$app->group('/core/api/install',function($group) use($apiNamespace) {
            $group->post('/',$apiNamespace . '\Install:install');
            $group->put('/extensions',$apiNamespace . '\Install:installExtensions');
+           $group->put('/modules',$apiNamespace . '\Install:installModules');           
            $group->put('/actions',$apiNamespace . '\Install:postInstallActions');
         });
               

@@ -40,6 +40,12 @@ class Install extends ApiController
                 return;
             }
 
+            $result = SystemInstall::setConfigFilesWritable();              
+            if ($result === false) {
+                $this->error('Config files is not writtable.');
+                return;
+            }
+            
             // save config file               
             $this->get('config')->setValue('db/username',$data->get('username'));
             $this->get('config')->setValue('db/password',$data->get('password'));
@@ -64,17 +70,41 @@ class Install extends ApiController
             $result = $install->install();   
             
             $result = ($result == false) ? SystemInstall::isInstalled() : true;
-            if ($result == false) { 
-                $this->addErrors($install->getErrors());
-                return;
-            }
-            $this->message('Arikaim CMS was installed successfully.');                      
+            $this->setResponse($result,function() {
+                $this
+                    ->message('Arikaim CMS was installed successfully.');                    
+            },'Installation error');                       
         });
         $data
             ->addRule('text:min=2','database')
             ->addRule('text:min=2','username')
             ->addRule('text:min=2','password')
             ->validate();      
+    }
+
+    /**
+     * Install Arikaim modules
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+    */
+    public function installModulesController($request, $response, $data) 
+    {           
+        $this->onDataValid(function($data) {    
+            // clear cache
+            $this->get('cache')->clear();
+
+            // do install
+            $install = new SystemInstall();
+            $result = $install->installModules();   
+            $this->setResponse($result,function() {
+                $this
+                    ->message('Modules was installed successfully.');                    
+            },'Error install modules.');                          
+        });
+        $data->validate();      
     }
 
     /**
@@ -94,12 +124,10 @@ class Install extends ApiController
             // do install
             $install = new SystemInstall();
             $result = $install->installExtensions();   
-                       
-            if ($result == false) { 
-                $this->addErrors($install->getErrors());
-                return;
-            }
-            $this->message('Extensions was installed successfully.');                      
+            $this->setResponse($result,function() {
+                $this
+                    ->message('Extensions was installed successfully.');                    
+            },'Error install extensions.');                          
         });
         $data->validate();      
     }
@@ -120,13 +148,11 @@ class Install extends ApiController
 
             // do post install actions
             $errors = PostInstallActions::runPostInstallActions();
-                       
-            if ($errors > 0) { 
-                $this->error('Post install actions error');
-                return;
-            }
-            $this->field('complete','Arikaim was installed successfully.');        
-            $this->message('Post install actions completed successfully.');                      
+            $this->setResponse(($errors == 0),function() {
+                $this
+                    ->field('complete','Arikaim was installed successfully.')
+                    ->message('Post install actions completed successfully.');                    
+            },'Post install actions error.');                                   
         });
         $data->validate();      
     }
@@ -153,11 +179,10 @@ class Install extends ApiController
             // run post install actions
             PostInstallActions::runPostInstallActions();
 
-            if ($result == false) {  
-                $this->addErrors($install->getErrors());
-                return;
-            }
-            $this->message('Arikaim CMS was installed successfully.');                 
+            $this->setResponse($result,function() {
+                $this
+                    ->message('Arikaim CMS repair installation successfully.');                    
+            },'Repair installation error.');    
         });
         $data->validate();  
     }
