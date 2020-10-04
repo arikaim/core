@@ -47,9 +47,10 @@ class ServiceContainer
             $config = new \Arikaim\Core\System\Config('config.php',$cache,Path::CONFIG_PATH);         
             return $config;
         }; 
+        $cacheStatus = (bool)$container->get('config')->getByPath('settings/cache',false);
 
         // init cache status
-        $container->get('cache')->setStatus($container->get('config')['settings']['cache']);
+        $container->get('cache')->setStatus($cacheStatus);
         $container->get('cache')->setDriver($container->get('config')->getByPath('settings/cacheDriver',Cache::FILESYSTEM_DRIVER));
 
         // Events manager 
@@ -69,10 +70,10 @@ class ServiceContainer
             return new PackageManagerFactory($container['cache'],$container['storage'],$container['http']);          
         };
         // Init template view. 
-        $container['view'] = function ($container) {                        
-            $cache = (isset($container->get('config')['settings']['cache']) == true) ? Path::VIEW_CACHE_PATH : false;
+        $container['view'] = function ($container) use($cacheStatus) {                            
+            $cache = ($cacheStatus == true) ? Path::VIEW_CACHE_PATH : false;
             $debug = (isset($container->get('config')['settings']['debug']) == true) ? $container->get('config')['settings']['debug'] : true;
-            $demoModel = (isset($container->get('config')['settings']['demo_mode']) == true) ? $container->get('config')['settings']['demo_mode'] : false;
+            $demoMode = (isset($container->get('config')['settings']['demo_mode']) == true) ? $container->get('config')['settings']['demo_mode'] : false;
             return new \Arikaim\Core\View\View(
                 $container['cache'],
                 Path::VIEW_PATH,
@@ -81,7 +82,7 @@ class ServiceContainer
                 Path::COMPONENTS_PATH, [
                     'cache'      => $cache,
                     'debug'      => $debug,
-                    'demo_mode'  => $demoModel,
+                    'demo_mode'  => $demoMode,
                     'autoescape' => false
                 ]
             );           
