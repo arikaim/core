@@ -99,6 +99,10 @@ class Install extends ApiController
             // do install
             $install = new SystemInstall();
             $result = $install->installModules();   
+
+            // clear cache
+            $this->get('cache')->clear();
+
             $this->setResponse($result,function() {
                 $this
                     ->message('Modules was installed successfully.');                    
@@ -124,6 +128,10 @@ class Install extends ApiController
             // do install
             $install = new SystemInstall();
             $result = $install->installExtensions();   
+
+            // clear cache
+            $this->get('cache')->clear();
+
             $this->setResponse($result,function() {
                 $this
                     ->message('Extensions was installed successfully.');                    
@@ -148,6 +156,10 @@ class Install extends ApiController
 
             // do post install actions
             $errors = PostInstallActions::runPostInstallActions();
+
+            // clear cache
+            $this->get('cache')->clear();
+            
             $this->setResponse(($errors == 0),function() {
                 $this
                     ->field('complete','Arikaim was installed successfully.')
@@ -178,6 +190,9 @@ class Install extends ApiController
             $result = ($result == false) ? SystemInstall::isInstalled() : true;
             // run post install actions
             PostInstallActions::runPostInstallActions();
+
+            // clear cache
+            $this->get('cache')->clear();
 
             $this->setResponse($result,function() {
                 $this

@@ -202,10 +202,10 @@ class Install
             Arikaim::storage()->createDir('public');
         } 
         // delete symlink
-        $linkPath = ROOT_PATH . BASE_PATH . '/public';
+        $linkPath = ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'public';
         File::delete($linkPath);
         // create symlink 
-        return @symlink(Arikaim::storage()->getFullPath('public'),$linkPath);      
+        return @symlink(Arikaim::storage()->getFullPath('public'),'public');      
     }
 
     /**
