@@ -9,12 +9,12 @@
 */
 namespace Arikaim\Core\Api;
 
-use Arikaim\Core\Controllers\ApiController;
+use Arikaim\Core\Controllers\ControlPanelApiController;
 
 /**
  * System options controller
 */
-class Options extends ApiController
+class Options extends ControlPanelApiController
 {
     /**
      * Init controller
@@ -36,14 +36,17 @@ class Options extends ApiController
      */
     public function saveController($request, $response, $data) 
     {                
-        // access from contorl panel only 
-        $this->requireControlPanelPermission();
-
         $this->onDataValid(function($data) { 
             $extensionName = $data->get('extension_name',null);
             $autoLoad = $data->get('auto_load',false);
             $key = $data->get('key');
             $value = $data->get('value');
+
+            $demoMode = $this->get('config')->getByPath('settings/demo_mode',false);
+            if ($demoMode == true) {
+                $this->error('Options save is disabled in demo mode!');
+                return;
+            }
 
             $result = $this->get('options')->set($key,$value,$autoLoad,$extensionName);
 
@@ -88,12 +91,15 @@ class Options extends ApiController
      */
     public function saveOptionsController($request, $response, $data) 
     {    
-        // access from contorl panel only 
-        $this->requireControlPanelPermission();
-
         $this->onDataValid(function($data) {           
             $extensionName = $data->get('extension_name',null);
             $autoLoad = $data->get('auto_load',false);
+
+            $demoMode = $this->get('config')->getByPath('settings/demo_mode',false);
+            if ($demoMode == true) {
+                $this->error('Options save is disabled in demo mode!');
+                return;
+            }
 
             foreach ($data as $key => $value) {
                 $this->get('options')->set($key,$value,$autoLoad,$extensionName);
