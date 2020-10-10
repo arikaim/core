@@ -164,7 +164,7 @@ class Options extends Model implements OptionsStorageInterface
     public function searchOptions($searchKey)
     {
         $options = [];
-        $model = $this->where('key','like','$searchKey%')->select('key','value')->get();
+        $model = $this->where('key','like',$searchKey . '%')->select('key','value')->get();
       
         if (\is_object($model) == true) {
             $options = $model->mapWithKeys(function ($item) {
@@ -198,5 +198,16 @@ class Options extends Model implements OptionsStorageInterface
         $result = $model->delete();
 
         return $result;
+    }
+
+    /**
+     * Get extension options
+     *
+     * @param string $extensioName
+     * @return mixed
+     */
+    public function getExtensionOptions($extensioName)
+    {
+        return $this->where('extension','=',$extensioName)->select('key','value')->get();
     }
 }

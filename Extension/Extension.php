@@ -43,15 +43,6 @@ abstract class Extension implements ExtensionInterface
     private $primary;
 
     /**
-     * Constructor
-     */
-    public function __construct() 
-    {
-        $this->errors = [];
-        $this->primary = false;
-    }
-
-    /**
      * Extension console classes 
      *
      * @var array
@@ -64,7 +55,16 @@ abstract class Extension implements ExtensionInterface
      * @return void
      */
     abstract public function install();
-    
+
+    /**
+     * Constructor
+     */
+    public function __construct() 
+    {
+        $this->errors = [];
+        $this->primary = false;
+    }
+
     /**
      * UnInstall extension
      *
@@ -81,6 +81,25 @@ abstract class Extension implements ExtensionInterface
      */
     public function postInstall()
     {        
+    }
+
+    /**
+     * Call methods
+     *
+     * @param string $baseClass
+     * @param string $extension
+     * @param Closure $callback
+     * @return mixed|false
+     */
+    public static function run($baseClass, $extension, $callback) {
+        $class = Factory::getExtensionClassName($extension,$baseClass);
+        $instance = Factory::createInstance($class);
+    
+        if (\is_object($instance) == true) {
+            return (\is_callable($callback) == true) ? $callback($instance) : false;
+        }
+
+        return false;
     }
 
     /**

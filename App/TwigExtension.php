@@ -243,11 +243,11 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param string $routeName
      * @param string $extension
      * @param array $params
-     * @param boolean $full
+     * @param boolean $relative
      * @param string|null $language
      * @return string|false
      */
-    public function getPageUrl($routeName, $extension, $params = [], $full = true, $language = null)
+    public function getPageUrl($routeName, $extension, $params = [], $relative = true, $language = null)
     {
         $route = Arikaim::routes()->getRoutes([
             'name'           => $routeName,
@@ -259,7 +259,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         }
         $urlPath = Route::getRouteUrl($route[0]['pattern'],$params);
         
-        return Page::getUrl($urlPath,$full,$language);
+        return Page::getUrl($urlPath,$relative,$language);
     }
 
     /**

@@ -205,7 +205,7 @@ class Install
         $linkPath = ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'public';
         File::delete($linkPath);
         // create symlink 
-        return @symlink(Arikaim::storage()->getFullPath('public'),'public');      
+        return @symlink(Arikaim::storage()->getFullPath('public'),$linkPath);      
     }
 
     /**
@@ -279,6 +279,7 @@ class Install
         Arikaim::options()->createOption('mailer.smpt.host','',true);
         Arikaim::options()->createOption('mailer.username','',true);
         Arikaim::options()->createOption('mailer.password','',true);
+        Arikaim::options()->createOption('mailer.email.compillers',[],true);
         // email settings
         Arikaim::options()->createOption('mailer.from.email','',false);
         // logger

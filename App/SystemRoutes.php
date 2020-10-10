@@ -150,12 +150,6 @@ class SystemRoutes
             $group->put('/relation/delete',$apiNamespace . '\Orm\Relations:deleteRelation');
             $group->post('/relation',$apiNamespace . '\Orm\Relations:addRelation');
             $group->put('/options',$apiNamespace . '\Orm\Options:saveOptions');
-            $group->post('/options/type/add',$apiNamespace . '\Orm\Options:addOptionType');
-            $group->put('/options/type/update',$apiNamespace . '\Orm\Options:updateOptionType');
-            $group->put('/options/type/delete',$apiNamespace . '\Orm\Options:deleteOptionType');
-            $group->post('/options/list/add',$apiNamespace . '\Orm\Options:addOptionList');    
-            $group->put('/options/list/update',$apiNamespace . '\Orm\Options:updateOptionList');       
-            $group->put('/options/list/delete',$apiNamespace . '\Orm\Options:deleteOptionList');              
         })->add($sessionAuth);
         // Packages
         Arikaim::$app->group('/core/api/packages',function($group) use($apiNamespace) {

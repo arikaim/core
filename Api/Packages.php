@@ -199,6 +199,7 @@ class Packages extends ControlPanelApiController
           
             $type = $data->get('type',null);
             $name = $data->get('name',null);
+            $runPostInstall = $data->get('run_post_install',true);
 
             $packageManager = $this->get('packages')->create($type);
             $result = $packageManager->installPackage($name);
@@ -207,7 +208,12 @@ class Packages extends ControlPanelApiController
                 $this->addErrors($result);
                 return;
             }
-
+            
+            if ($runPostInstall == true) {
+                // post install actions
+                $packageManager->postInstallPackage($name);
+            }
+           
             $this->setResponse($result,function() use($name,$type) {                  
                 $this
                     ->message($type . '.install')
@@ -233,6 +239,7 @@ class Packages extends ControlPanelApiController
 
             $type = $data->get('type',null);
             $name = $data->get('name',null);
+            $runPostInstall = $data->get('run_post_install',true);
 
             $packageManager = $this->get('packages')->create($type);            
             $package = $packageManager->createPackage($name);
@@ -258,6 +265,11 @@ class Packages extends ControlPanelApiController
                 return;
             }
         
+            if ($runPostInstall == true) {
+                // run post install actions
+                $package->postInstall();
+            }
+           
             $this->setResponse($result,function() use($name,$type) {
                 $this
                     ->message($type . '.update')

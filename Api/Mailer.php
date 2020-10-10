@@ -45,10 +45,9 @@ class Mailer extends ControlPanelApiController
                 return;
             }       
     
-            $result = $this->get('mailer')->create()
+            $result = $this->get('mailer')->create('system:test')
                 ->to($user['email'],'Admin User')
-                ->from($user['email'],'Arikaim CMS')
-                ->loadComponent('system:admin.emails.test')
+                ->from($user['email'],'Arikaim CMS')               
                 ->send();
             
             $this->setResponse($result,'mailer.send',function() {

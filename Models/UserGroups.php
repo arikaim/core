@@ -55,6 +55,17 @@ class UserGroups extends Model
     protected $table = 'user_groups';
 
     /**
+     * Find group model by id, uuid, slug, title
+     *
+     * @param mixed $value
+     * @return Model|false
+     */
+    public function findGroup($value)
+    {
+        return $this->findByColumn($value,['id','uuid','slug','title']);
+    }
+
+    /**
      * Group members relation
      *
      * @return UserGroupMembers

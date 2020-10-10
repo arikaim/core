@@ -73,6 +73,17 @@ class Permissions extends Model
     }
 
     /**
+     * Find permission model by id, uuid, slug, name
+     *
+     * @param mixed $value
+     * @return Model|false
+     */
+    public function findPermission($value)
+    {
+        return $this->findByColumn($value,['id','uuid','slug','name']);
+    }
+
+    /**
      * Return true if permission item exist.
      *
      * @param string $name

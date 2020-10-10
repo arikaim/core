@@ -144,7 +144,8 @@ class ServiceContainer
         };     
         // Mailer
         $container['mailer'] = function($container) {
-            return new \Arikaim\Core\Mail\Mailer($container['options'],$container['page']);
+            $mailerOptions = $container['options']->searchOptions('mailer.');
+            return new \Arikaim\Core\Mail\Mailer($mailerOptions,$container['page']);
         };
         // Drivers
         $container['driver'] = function() {   
