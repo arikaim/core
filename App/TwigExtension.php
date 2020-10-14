@@ -526,10 +526,10 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function getFilters() 
     {      
-        $items = $this->container->get('cache')->fetch('arikaim.twig.filters');
-        if (\is_array($items) == true) {
-            return $items;
-        }
+       // $items = $this->container->get('cache')->fetch('arikaim.twig.filters');
+       // if (\is_array($items) == true) {
+       //     return $items;
+      //  }
 
         $items =  [
             // Html
@@ -570,7 +570,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('relativePath',['Arikaim\\Core\\Utils\\Path','getRelativePath'])
         ];
 
-        $this->container->get('cache')->save('arikaim.twig.filters',$items,Self::$cacheSaveTime);
+        //$this->container->get('cache')->save('arikaim.twig.filters',$items,Self::$cacheSaveTime);
         
         return $items;
     }
