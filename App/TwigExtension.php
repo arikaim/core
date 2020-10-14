@@ -153,10 +153,10 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function getFunctions() 
     {
-        $items = $this->container->get('cache')->fetch('arikaim.twig.functions');
-        if (\is_array($items) == true) {
-            return $items;
-        }
+       // $items = $this->container->get('cache')->fetch('arikaim.twig.functions');
+       // if (\is_array($items) == true) {
+       //     return $items;
+      //  }
 
         $items = [
             // html components
@@ -253,7 +253,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('createUuid',['Arikaim\\Core\\Utils\\Uuid','create']),
             new TwigFunction('createToken',['Arikaim\\Core\\Utils\\Utils','createToken']),
         ];
-        $this->container->get('cache')->save('arikaim.twig.functions',$items,Self::$cacheSaveTime);
+      //  $this->container->get('cache')->save('arikaim.twig.functions',$items,Self::$cacheSaveTime);
 
         return $items;
     }
@@ -582,10 +582,10 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function getTests() 
     {
-        $items = $this->container->get('cache')->fetch('twig.tests');
-        if (\is_array($items) == true) {
-            return $items;
-        }
+      //  $items = $this->container->get('cache')->fetch('twig.tests');
+      //  if (\is_array($items) == true) {
+       //     return $items;
+      //  }
         $items = [
             new TwigTest('haveSubItems',['Arikaim\\Core\\Utils\\Arrays','haveSubItems']),
             new TwigTest('object',['Arikaim\\Core\\View\\Template\\Tests','isObject']),
@@ -593,7 +593,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigTest('access',[$this,'hasAccess']),
             new TwigTest('versionCompare',['Arikaim\\Core\\View\\Template\\Tests','versionCompare'])
         ];
-        $this->container->get('cache')->save('twig.tests',$items,Self::$cacheSaveTime);
+       // $this->container->get('cache')->save('twig.tests',$items,Self::$cacheSaveTime);
 
         return $items;
     }
