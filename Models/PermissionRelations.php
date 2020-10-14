@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Access\Interfaces\PermissionsInterface;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Model as DbModel;
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Models\Permissions;
 use Arikaim\Core\Utils\Uuid as UuidFactory;
 
@@ -245,14 +244,13 @@ class PermissionRelations extends Model implements PermissionsInterface
      *
      * @param string|integer $name
      * @param array $access - ['read','write','delete','execute]
-     * @param integer|null $id user Id or group Id 
+     * @param integer $id user Id or group Id 
      * @param integer $type
      * @return Model|bool
      */
-    public function setPermission($name, $access, $id = null, $type = Self::USER) 
+    public function setPermission($name, $access, $id, $type = Self::USER) 
     {
         $permissions = $this->resolvePermissions($access); 
-        $id = ($id == null && $type == Self::USER) ? Arikaim::access()->getId() : $id;
         $permissionId = DbModel::Permissions()->getId($name);     
         if (empty($permissionId) == true) {
             return false;

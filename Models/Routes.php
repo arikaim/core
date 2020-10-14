@@ -44,6 +44,7 @@ class Routes extends Model implements RoutesStorageInterface
         'status',
         'template_name',      
         'options',  
+        'regex',
         'page_name'
     ];
     
@@ -60,6 +61,19 @@ class Routes extends Model implements RoutesStorageInterface
      * @var boolean
      */
     public $timestamps = false;
+
+    /**
+     * Get routes list for request method
+     *
+     * @param string $method
+     * @return array
+     */
+    public function searchRoutes($method)
+    {
+        $model = $this->where('status','=',1)->where('method','like','%' . $method . '%')->orderByDesc('type');
+    
+        return (\is_object($model) == true) ? $model->get()->toArray() : [];
+    }
 
     /**
      * Mutator (set) for options attribute.

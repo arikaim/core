@@ -9,177 +9,470 @@
  */
 namespace Arikaim\Core\App;
 
-use Arikaim\Core\Arikaim;
-use Arikaim\Core\Utils\Factory;
-
 /**
  * Routes
  */
 class SystemRoutes 
 {
     /**
-     * Map core routes
-     *   
+     * System routes
+     *
+     * @var array
+     */
+    public static $routes = [
+        'GET' => [           
+            // Ui component
+            [
+                'pattern'    => '/core/api/ui/component/properties/{name}[/{params:.*}]',
+                'handler'    => 'Arikaim\Core\Api\Ui\Component:componentProperties',
+                'middleware' => null               
+            ],
+            [
+                'pattern'    => '/core/api/ui/component/details/{name}[/{params:.*}]',
+                'handler'    => 'Arikaim\Core\Api\Ui\Component:componentDetails',
+                'middleware' => 'session'               
+            ],
+            [
+                'pattern'    => '/core/api/ui/component/{name}[/{params:.*}]',
+                'handler'    => 'Arikaim\Core\Api\Ui\Component:loadComponent',
+                'middleware' => null            
+            ],
+            // UI Page
+            [
+                'pattern'    => '/core/api/ui/page/{name}',
+                'handler'    => 'Arikaim\Core\Api\Ui\Page:loadPageHtml',
+                'middleware' => null            
+            ],
+            [
+                'pattern'    => '/core/api/ui/page/properties/',
+                'handler'    => 'Arikaim\Core\Api\Ui\Page:loadPageProperties',
+                'middleware' => null            
+            ],
+            // UI Library
+            [
+                'pattern'    => '/core/api/ui/library/{name}',
+                'handler'    => 'Arikaim\Core\Api\Ui\Page:loadLibraryDetails',
+                'middleware' => null            
+            ], 
+            // Paginator 
+            [
+                'pattern'    => '/core/api/ui/paginator/[{namespace}]',
+                'handler'    => 'Arikaim\Core\Api\Ui\Paginator:getPage',
+                'middleware' => null            
+            ],
+            [
+                'pattern'    => '/core/api/ui/paginator/view/type/[{namespace}]',
+                'handler'    => 'Arikaim\Core\Api\Ui\Paginator:getViewType',
+                'middleware' => null            
+            ],
+            // Order by column     
+            [
+                'pattern'    => '/core/api/ui/order/[{namespace}]',
+                'handler'    => 'Arikaim\Core\Api\Ui\OrderBy:getOrderBy',
+                'middleware' => 'session'            
+            ],
+            // Options 
+            [
+                'pattern'    => '/core/api/options/{key}',
+                'handler'    => 'Arikaim\Core\Api\Options:get',
+                'middleware' => 'session'            
+            ],
+            // Drivers 
+            [
+                'pattern'    => '/core/api/driver/config/{name}',
+                'handler'    => 'Arikaim\Core\Api\Drivers:readConfig',
+                'middleware' => 'session'            
+            ],  
+            // Update
+            [
+                'pattern'    => '/core/api/update/check/version',
+                'handler'    => 'Arikaim\Core\Api\Update:checkVersion',
+                'middleware' => 'session'            
+            ],
+            // Mailer 
+            [
+                'pattern'    => '/core/api/mailer/test/email',
+                'handler'    => 'Arikaim\Core\Api\Mailer:sendTestEmail',
+                'middleware' => 'session'            
+            ],
+            // Session
+            [
+                'pattern'    => '/core/api/session/',
+                'handler'    => 'Arikaim\Core\Api\Session:getInfo',
+                'middleware' => null       
+            ]
+        ],
+        'POST' => [
+            // Api routes
+            [
+                'pattern'    => '/core/api/create/token/',
+                'handler'    => 'Arikaim\Core\Api\Client:createToken',
+                'middleware' => null                
+            ],
+            [
+                'pattern'    => '/core/api/verify/request/',
+                'handler'    => 'Arikaim\Core\Api\Client:verifyRequest',
+                'middleware' => null                
+            ],
+            // Ui component
+            [
+                'pattern'    => '/core/api/ui/component/{name}[/{params:.*}]',
+                'handler'    => 'Arikaim\Core\Api\Ui\Component:loadComponent',
+                'middleware' => null            
+            ],
+            // User
+            [
+                'pattern'    => '/core/api/user/login',
+                'handler'    => 'Arikaim\Core\Api\Users:adminLogin',
+                'middleware' => null            
+            ],
+            [
+                'pattern'    => '/core/api/user/update',
+                'handler'    => 'Arikaim\Core\Api\Users:changeDetails',
+                'middleware' => null            
+            ],
+            [
+                'pattern'    => '/core/api/user/logout',
+                'handler'    => 'Arikaim\Core\Api\Users:logout',
+                'middleware' => null            
+            ],
+            // Languages  
+            [
+                'pattern'    => '/core/api/language/add',
+                'handler'    => 'Arikaim\Core\Api\Language:add',
+                'middleware' => 'session'            
+            ],
+            // Options 
+            [
+                'pattern'    => '/core/api/options/',
+                'handler'    => 'Arikaim\Core\Api\Options:saveOptions',
+                'middleware' => 'session'            
+            ],
+            // Options and relations used for all extensions  
+            [
+                'pattern'    => '/core/api/orm/relation',
+                'handler'    => 'Arikaim\Core\Api\Orm\Relations:addRelation',
+                'middleware' => 'session'            
+            ],
+            // Packages
+            [
+                'pattern'    => '/core/api/packages/upload',
+                'handler'    => 'Arikaim\Core\Api\UploadPackages:upload',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/packages/config',
+                'handler'    => 'Arikaim\Core\Api\Packages:saveConfig',
+                'middleware' => 'session'            
+            ],
+            // Install
+            [
+                'pattern'    => '/core/api/install/',
+                'handler'    => 'Arikaim\Core\Api\Install:install',
+                'middleware' => null         
+            ]
+        ],
+        'PUT' => [
+            // Paginator 
+            [
+                'pattern'    => '/core/api/ui/paginator/page-size',
+                'handler'    => 'Arikaim\Core\Api\Ui\Paginator:setPageSize',
+                'middleware' => null            
+            ],
+            [
+                'pattern'    => '/core/api/ui/paginator/page',
+                'handler'    => 'Arikaim\Core\Api\Ui\Paginator:setPage',
+                'middleware' => null            
+            ],
+            [
+                'pattern'    => '/core/api/ui/paginator/view/type',
+                'handler'    => 'Arikaim\Core\Api\Ui\Paginator:setViewType',
+                'middleware' => null            
+            ],     
+            // Search
+            [
+                'pattern'    => '/core/api/ui/search/',
+                'handler'    => 'Arikaim\Core\Api\Ui\Search:setSearch',
+                'middleware' => null            
+            ],
+            [
+                'pattern'    => '/core/api/ui/search/condition/[{namespace}]',
+                'handler'    => 'Arikaim\Core\Api\Ui\Search:setSearchCondition',
+                'middleware' => null            
+            ],
+            // Order by column     
+            [
+                'pattern'    => '/core/api/ui/order/[{namespace}]',
+                'handler'    => 'Arikaim\Core\Api\Ui\OrderBy:setOrderBy',
+                'middleware' => 'session'            
+            ],
+            // Position
+            [
+                'pattern'    => '/core/api/ui/position/shift',
+                'handler'    => 'Arikaim\Core\Api\Ui\Position:shift',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/ui/position/swap',
+                'handler'    => 'Arikaim\Core\Api\Ui\Position:swap',
+                'middleware' => 'session'            
+            ],
+            // Languages
+            [
+                'pattern'    => '/core/api/language/update',
+                'handler'    => 'Arikaim\Core\Api\Language:update',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/language/change/{language_code}',
+                'handler'    => 'Arikaim\Core\Api\Language:changeLanguage',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/language/status',
+                'handler'    => 'Arikaim\Core\Api\Language:setStatus',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/language/default',
+                'handler'    => 'Arikaim\Core\Api\Language:setDefault',
+                'middleware' => 'session'            
+            ],
+            // Options 
+            [
+                'pattern'    => '/core/api/options/',
+                'handler'    => 'Arikaim\Core\Api\Options:save',
+                'middleware' => 'session'            
+            ],
+            // Cron  
+            [
+                'pattern'    => '/core/api/queue/cron/install',
+                'handler'    => 'Arikaim\Core\Api\CronApi:installCron',
+                'middleware' => 'session'            
+            ],
+            // Jobs
+            [
+                'pattern'    => '/core/api/jobs/status',
+                'handler'    => 'Arikaim\Core\Api\Jobs:setStatus',
+                'middleware' => 'session'            
+            ],
+            // Drivers 
+            [
+                'pattern'    => '/core/api/driver/status',
+                'handler'    => 'Arikaim\Core\Api\Drivers:setStatus',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/driver/config',
+                'handler'    => 'Arikaim\Core\Api\Drivers:saveConfig',
+                'middleware' => 'session'            
+            ],
+            // Update  
+            [
+                'pattern'    => '/core/api/update/',
+                'handler'    => 'Arikaim\Core\Api\Update:update',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/update/last/version',
+                'handler'    => 'Arikaim\Core\Api\Update:getLastVersion',
+                'middleware' => 'session'            
+            ],
+            // Session
+            [
+                'pattern'    => '/core/api/session/recreate',
+                'handler'    => 'Arikaim\Core\Api\SessionApi:recreate',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/session/restart',
+                'handler'    => 'Arikaim\Core\Api\SessionApi:restart',
+                'middleware' => 'session'            
+            ],
+            // Settings
+            [
+                'pattern'    => '/core/api/settings/install-page',
+                'handler'    => 'Arikaim\Core\Api\Settings:disableInstallPage',
+                'middleware' => 'session'            
+            ],
+            // Cache
+            [
+                'pattern'    => '/core/api/cache/enable',
+                'handler'    => 'Arikaim\Core\Api\Cache:enable',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/cache/disable',
+                'handler'    => 'Arikaim\Core\Api\Cache:disable',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/cache/driver',
+                'handler'    => 'Arikaim\Core\Api\Cache:setDriver',
+                'middleware' => 'session'            
+            ],
+            // Options and relations used for all extensions
+            [
+                'pattern'    => '/core/api/orm/relation/delete',
+                'handler'    => 'Arikaim\Core\Api\Orm\Relations:deleteRelation',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/orm/options',
+                'handler'    => 'Arikaim\Core\Api\Orm\Options:saveOptions',
+                'middleware' => 'session'            
+            ],
+            // Packages
+            [
+                'pattern'    => '/core/api/packages/upload/confirm',
+                'handler'    => 'Arikaim\Core\Api\UploadPackages:confirmUpload',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/packages/install',
+                'handler'    => 'Arikaim\Core\Api\Packages:install',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/packages/composer/update',
+                'handler'    => 'Arikaim\Core\Api\Packages:updateComposerPackages',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/packages/repository/update',
+                'handler'    => 'Arikaim\Core\Api\Packages:repositoryUpdate',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/packages/repository/install',
+                'handler'    => 'Arikaim\Core\Api\Packages:repositoryInstall',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/packages/status',
+                'handler'    => 'Arikaim\Core\Api\Packages:setStatus',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/packages/uninstall',
+                'handler'    => 'Arikaim\Core\Api\Packages:unInstall',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/packages/update',
+                'handler'    => 'Arikaim\Core\Api\Packages:update',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/packages/primary',
+                'handler'    => 'Arikaim\Core\Api\Packages:setPrimary',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/packages/library/params',
+                'handler'    => 'Arikaim\Core\Api\Packages:setLibraryParams',
+                'middleware' => 'session'            
+            ],
+            // Install
+            [
+                'pattern'    => '/core/api/install/extensions',
+                'handler'    => 'Arikaim\Core\Api\Install:installExtensions',
+                'middleware' => null         
+            ],
+            [
+                'pattern'    => '/core/api/install/modules',
+                'handler'    => 'Arikaim\Core\Api\Install:installModules',
+                'middleware' => null         
+            ],
+            [
+                'pattern'    => '/core/api/install/actions',
+                'handler'    => 'Arikaim\Core\Api\Install:postInstallActions',
+                'middleware' => null         
+            ],
+            [
+                'pattern'    => '/core/api/install/repair',
+                'handler'    => 'Arikaim\Core\Api\Install:repair',
+                'middleware' => 'session'         
+            ]
+        ],
+        'DELETE' => [
+            // Paginator 
+            [
+                'pattern'    => '/core/api/ui/paginator/{namespace}',
+                'handler'    => 'Arikaim\Core\Api\Ui\Paginator:remove',
+                'middleware' => null            
+            ],
+            // Search
+            [
+                'pattern'    => '/core/api/ui/search/condition/{field}/[{namespace}]',
+                'handler'    => 'Arikaim\Core\Api\Ui\Search:deleteSearchCondition',
+                'middleware' => null            
+            ],
+            [
+                'pattern'    => '/core/api/ui/search/[{namespace}]',
+                'handler'    => 'Arikaim\Core\Api\Ui\Search:clearSearch',
+                'middleware' => null            
+            ],
+            // Order by column     
+            [
+                'pattern'    => '/core/api/ui/order/[{namespace}]',
+                'handler'    => 'Arikaim\Core\Api\Ui\OrderBy:deleteOrderBy',
+                'middleware' => 'session'            
+            ],
+            // Languages
+            [
+                'pattern'    => '/core/api/language/{uuid}',
+                'handler'    => 'Arikaim\Core\Api\Language:remove',
+                'middleware' => 'session'            
+            ],
+            // Cron  
+            [
+                'pattern'    => '/core/api/queue/cron/uninstall',
+                'handler'    => 'Arikaim\Core\Api\CronApi:unInstallCron',
+                'middleware' => 'session'            
+            ],
+            // Jobs
+            [
+                'pattern'    => '/core/api/jobs/delete/{uuid}',
+                'handler'    => 'Arikaim\Core\Api\Jobs:deleteJob',
+                'middleware' => 'session'            
+            ],
+            // Access tokens 
+            [
+                'pattern'    => '/core/api/tokens/delete/{uuid}',
+                'handler'    => 'Arikaim\Core\Api\AccessTokens:delete',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/tokens/delete/expired/{uuid}',
+                'handler'    => 'Arikaim\Core\Api\AccessTokens:deleteExpired',
+                'middleware' => 'session'            
+            ],
+            // Cache
+            [
+                'pattern'    => '/core/api/cache/clear',
+                'handler'    => 'Arikaim\Core\Api\Cache:clear',
+                'middleware' => 'session'            
+            ],
+            // Logs  
+            [
+                'pattern'    => '/core/api/logs/clear',
+                'handler'    => 'Arikaim\Core\Api\Logger:clear',
+                'middleware' => 'session'            
+            ]    
+        ]      
+    ];
+
+    /**
+     * Return true if request url is system api
+     *
+     * @param string $url
      * @return boolean
      */
-    public static function mapSystemRoutes()
+    public static function isSystemApiUrl($url)
     {
-        $apiNamespace = Factory::API_CONTROLLERS_NAMESPACE;
-        $sessionAuth = Arikaim::access()->middleware('session');
+        $path = \str_replace(BASE_PATH,'',$url);
 
-        // Control Panel
-        Arikaim::$app->get('/admin[/{language:[a-z]{2}}/]','Arikaim\Core\App\ControlPanel:loadControlPanel');    
-        // Api Access
-        Arikaim::$app->post('/core/api/create/token/',$apiNamespace . '\Client:createToken');
-        Arikaim::$app->post('/core/api/verify/request/',$apiNamespace . '\Client:verifyRequest');      
-        // UI Component
-        Arikaim::$app->get('/core/api/ui/component/properties/{name}[/{params:.*}]',$apiNamespace . '\Ui\Component:componentProperties');
-        Arikaim::$app->get('/core/api/ui/component/details/{name}[/{params:.*}]',$apiNamespace . '\Ui\Component:componentDetails')->add($sessionAuth);
-        Arikaim::$app->map(['GET','POST'],'/core/api/ui/component/{name}[/{params:.*}]',$apiNamespace . '\Ui\Component:loadComponent');      
-        // UI Page  
-        Arikaim::$app->get('/core/api/ui/page/{name}',$apiNamespace . '\Ui\Page:loadPageHtml');
-        Arikaim::$app->get('/core/api/ui/page/properties/',$apiNamespace . '\Ui\Page:loadPageProperties');  
-        // UI Library 
-        Arikaim::$app->get('/core/api/ui/library/{name}',$apiNamespace . '\Ui\Page:loadLibraryDetails');
-
-        // Paginator 
-        Arikaim::$app->group('/core/api/ui/paginator',function($group) use($apiNamespace) {  
-            $group->put('/page-size',$apiNamespace . '\Ui\Paginator:setPageSize');
-            $group->put('/page',$apiNamespace . '\Ui\Paginator:setPage');
-            $group->get('/[{namespace}]',$apiNamespace . '\Ui\Paginator:getPage');
-            $group->put('/view/type',$apiNamespace . '\Ui\Paginator:setViewType');
-            $group->get('/view/type/[{namespace}]',$apiNamespace . '\Ui\Paginator:getViewType');
-            $group->delete('/{namespace}',$apiNamespace . '\Ui\Paginator:remove');
-        });     
-        // Search 
-        Arikaim::$app->group('/core/api/ui/search',function($group) use($apiNamespace) { 
-            $group->put('/',$apiNamespace . '\Ui\Search:setSearch'); 
-            $group->put('/condition/[{namespace}]',$apiNamespace . '\Ui\Search:setSearchCondition');      
-            $group->delete('/condition/{field}/[{namespace}]',$apiNamespace . '\Ui\Search:deleteSearchCondition');
-            $group->delete('/[{namespace}]',$apiNamespace . '\Ui\Search:clearSearch');
-        });
-        // Order by column
-        Arikaim::$app->group('/core/api/ui/order',function($group) use($apiNamespace) { 
-            $group->put('/[{namespace}]',$apiNamespace . '\Ui\OrderBy:setOrderBy'); 
-            $group->get('/[{namespace}]',$apiNamespace . '\Ui\OrderBy:getOrderBy');      
-            $group->delete('/[{namespace}]',$apiNamespace . '\Ui\OrderBy:deleteOrderBy');
-        })->add($sessionAuth);        
-        // Position
-        Arikaim::$app->group('/core/api/ui/position',function($group) use($apiNamespace) { 
-            $group->put('/shift',$apiNamespace . '\Ui\Position:shift');
-            $group->put('/swap',$apiNamespace . '\Ui\Position:swap');
-        })->add($sessionAuth);              
-        // Control Panel user
-        Arikaim::$app->group('/core/api/user',function($group) use($apiNamespace) {  
-            $group->post('/login',$apiNamespace . '\Users:adminLogin');
-            $group->post('/update',$apiNamespace . '\Users:changeDetails');           
-            $group->get('/logout',$apiNamespace . '\Users:logout');
-        });      
-        // Languages  
-        Arikaim::$app->group('/core/api/language',function($group) use($apiNamespace) {      
-            $group->post('/add',$apiNamespace . '\Language:add');
-            $group->put('/update',$apiNamespace . '\Language:update');
-            $group->delete('/{uuid}',$apiNamespace . '\Language:remove');
-            $group->put('/change/{language_code}',$apiNamespace . '\Language:changeLanguage'); 
-            $group->put('/status',$apiNamespace . '\Language:setStatus');
-            $group->put('/default',$apiNamespace . '\Language:setDefault');
-        })->add($sessionAuth);        
-        // Options
-        Arikaim::$app->group('/core/api/options',function($group) use($apiNamespace) {
-            $group->get('/{key}',$apiNamespace . '\Options:get');
-            $group->put('/',$apiNamespace . '\Options:save');
-            $group->post('/',$apiNamespace . '\Options:saveOptions');
-        })->add($sessionAuth);
-        // Queue
-        Arikaim::$app->group('/core/api/queue',function($group) use($apiNamespace) {
-            $group->put('/cron/install',$apiNamespace . '\Queue:installCron');
-            $group->delete('/cron/uninstall',$apiNamespace . '\Queue:unInstallCron');
-            $group->delete('/jobs',$apiNamespace . '\Queue:deleteJobs');
-            $group->put('/worker/start',$apiNamespace . '\Queue:startWorker');
-            $group->delete('/worker/stop',$apiNamespace . '\Queue:stopWorker');
-        })->add($sessionAuth);
-        // Jobs
-        Arikaim::$app->group('/core/api/jobs',function($group) use($apiNamespace) {
-            $group->delete('/delete/{uuid}',$apiNamespace . '\Jobs:deleteJob');
-            $group->put('/status',$apiNamespace . '\Jobs:setStatus');          
-        })->add($sessionAuth);        
-        // Drivers
-        Arikaim::$app->group('/core/api/driver',function($group) use($apiNamespace) { 
-            $group->put('/status',$apiNamespace . '\Drivers:setStatus');          
-            $group->get('/config/{name}',$apiNamespace . '\Drivers:readConfig');
-            $group->put('/config',$apiNamespace . '\Drivers:saveConfig');               
-        })->add($sessionAuth);
-        // Update
-        Arikaim::$app->group('/core/api/update',function($group) use($apiNamespace) {
-            $group->put('/',$apiNamespace . '\Update:update');
-            $group->get('/check/version',$apiNamespace . '\Update:checkVersion'); 
-            $group->put('/last/version',$apiNamespace . '\Update:getLastVersion');           
-        })->add($sessionAuth);
-        // Session
-        Arikaim::$app->group('/core/api/session',function($group) use($apiNamespace) {        
-            $group->put('/recreate',$apiNamespace . '\SessionApi:recreate');
-            $group->put('/restart',$apiNamespace . '\SessionApi:restart');
-        })->add($sessionAuth);
-        // Access tokens
-        Arikaim::$app->group('/core/api/tokens',function($group) use($apiNamespace) {
-            $group->delete('/delete/{uuid}',$apiNamespace . '\AccessTokens:delete');
-            $group->delete('/delete/expired/{uuid}',$apiNamespace . '\AccessTokens:deleteExpired');
-        })->add($sessionAuth);
-        // Settings
-        Arikaim::$app->group('/core/api/settings',function($group) use($apiNamespace) {
-            $group->put('/debug',$apiNamespace . '\Settings:setDebug');
-            $group->put('/install-page',$apiNamespace . '\Settings:disableInstallPage');
-        })->add($sessionAuth);
-        // Mailer
-        Arikaim::$app->group('/core/api/mailer',function($group) use($apiNamespace) {
-            $group->get('/test/email',$apiNamespace . '\Mailer:sendTestEmail');
-        })->add($sessionAuth);
-        // Cache
-        Arikaim::$app->group('/core/api/cache',function($group) use($apiNamespace) {
-            $group->delete('/clear',$apiNamespace . '\Cache:clear');
-            $group->put('/enable',$apiNamespace . '\Cache:enable');
-            $group->put('/disable',$apiNamespace . '\Cache:disable');
-            $group->put('/driver',$apiNamespace . '\Cache:setDriver');    
-        })->add($sessionAuth);
-        // Logs
-        Arikaim::$app->group('/core/api/logs',function($group) use($apiNamespace) {
-            $group->delete('/clear',$apiNamespace . '\Logger:clear');
-        })->add($sessionAuth);
-        // options and relations used for all extensions
-        Arikaim::$app->group('/core/api/orm',function($group) use($apiNamespace) {
-            $group->put('/relation/delete',$apiNamespace . '\Orm\Relations:deleteRelation');
-            $group->post('/relation',$apiNamespace . '\Orm\Relations:addRelation');
-            $group->put('/options',$apiNamespace . '\Orm\Options:saveOptions');
-        })->add($sessionAuth);
-        // Packages
-        Arikaim::$app->group('/core/api/packages',function($group) use($apiNamespace) {
-            $group->post('/upload',$apiNamespace . '\UploadPackages:upload'); 
-            $group->put('/upload/confirm',$apiNamespace . '\UploadPackages:confirmUpload');                        
-            $group->put('/install',$apiNamespace . '\Packages:install');    
-            $group->put('/composer/update',$apiNamespace . '\Packages:updateComposerPackages');    
-            $group->put('/repository/update',$apiNamespace . '\Packages:repositoryUpdate');      
-            $group->put('/repository/install',$apiNamespace . '\Packages:repositoryInstall');          
-            $group->put('/status',$apiNamespace . '\Packages:setStatus');
-            $group->put('/uninstall',$apiNamespace . '\Packages:unInstall');
-            $group->put('/update',$apiNamespace . '\Packages:update');
-            $group->post('/config',$apiNamespace . '\Packages:saveConfig');
-            $group->put('/primary',$apiNamespace . '\Packages:setPrimary');          
-            $group->put('/library/params',$apiNamespace . '\Packages:setLibraryParams');
-        })->add($sessionAuth);
-        // Session
-        Arikaim::$app->get('/core/api/session/',$apiNamespace . '\Session:getInfo');
-        // Install
-        Arikaim::$app->group('/core/api/install',function($group) use($apiNamespace) {
-           $group->post('/',$apiNamespace . '\Install:install');
-           $group->put('/extensions',$apiNamespace . '\Install:installExtensions');
-           $group->put('/modules',$apiNamespace . '\Install:installModules');           
-           $group->put('/actions',$apiNamespace . '\Install:postInstallActions');
-        });
-              
-        Arikaim::$app->put('/core/api/install/repair',$apiNamespace . '\Install:repair',$sessionAuth);
-        // Install page
-        Arikaim::$app->get('/admin/install','Arikaim\Core\App\InstallPage:loadInstall');
-                   
-        return true;      
+        return (\substr($path,0,10) == '/core/api/');
     }
 }

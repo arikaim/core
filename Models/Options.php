@@ -159,18 +159,26 @@ class Options extends Model implements OptionsStorageInterface
      * Search for options
      *
      * @param string $searchKey
+     * @param bool $compactKeys
      * @return array
      */
-    public function searchOptions($searchKey)
+    public function searchOptions($searchKey, $compactKeys = false)
     {
         $options = [];
         $model = $this->where('key','like',$searchKey . '%')->select('key','value')->get();
-      
-        if (\is_object($model) == true) {
-            $options = $model->mapWithKeys(function ($item) {
-                return [$item['key'] => $item['value']];
-            })->toArray(); 
-        }     
+        
+        if (\is_object($model) == false) {
+            return [];
+        }
+       
+        $options = $model->mapWithKeys(function ($item) {
+            return [$item['key'] => $item['value']];
+        })->toArray(); 
+        
+        if ($compactKeys == true) {          
+            return $options;
+        }
+
         $values = Arrays::getValues($options,$searchKey);
         if (\is_array($values) == false) {
             return [];

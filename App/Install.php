@@ -288,10 +288,10 @@ class Install
         Arikaim::options()->createOption('logger.driver',null,true);
         // session
         Arikaim::options()->createOption('session.recreation.interval',0,false);
-        // cachek drivers
-        Arikaim::options()->createOption('cache.driver',null,true);
         // library params
         Arikaim::options()->createOption('library.params',[],true);
+        // language
+        Arikaim::options()->createOption('default.language','en',true);        
     }
 
     /**

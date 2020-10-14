@@ -27,26 +27,6 @@ class Settings extends ControlPanelApiController
     }
 
     /**
-     * Save debug setting
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @param Validator $data
-     * @return Psr\Http\Message\ResponseInterface
-     */
-    public function setDebugController($request, $response, $data)
-    {
-        $debug = $data->get('debug',false);
-        $this->get('cache')->clear();
-
-        $this->get('config')->setBooleanValue('settings/debug',$debug);
-        // save and reload config file
-        $result = $this->get('config')->save();
-        $this->setResponse($result,'settings.save','errors.settings.save');
-        $this->get('cache')->clear();       
-    }
-
-    /**
      * Disable install page
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request

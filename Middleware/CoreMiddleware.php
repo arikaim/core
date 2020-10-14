@@ -14,7 +14,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-use Arikaim\Core\Validator\Validator;
 use Arikaim\Core\Utils\ClientIp;
 use Arikaim\Core\Middleware\Middleware;
 use Arikaim\Core\Http\Session;
@@ -36,9 +35,13 @@ class CoreMiddleware extends Middleware implements MiddlewareInterface
         // set current path 
         Session::set('current.path',$request->getUri()->getPath());
         
-        // sanitize requets body
-        $request = $this->sanitizeRequest($request);
-        
+        // sanitize requets body  
+        $data = $request->getParsedBody();
+        $data = (\is_array($data) == true) ? $data : [];    
+        $data = $this->sanitizeArray($data);
+      
+        $request->withParsedBody($data);
+
         // get client ip address      
         $Ip = ClientIp::getClientIpAddress($request);
         $request->withAttribute('client_ip',$Ip);   
@@ -51,21 +54,17 @@ class CoreMiddleware extends Middleware implements MiddlewareInterface
     }
 
     /**
-     * Sanitize request 
+     * Sanitize array 
      *
-     * @param ServerRequestInterface $request
-     * @return ServerRequestInterface
+     * @param array $data
+     * @return array
      */
-    private function sanitizeRequest($request)
+    private function sanitizeArray(array $data) 
     {
-        $data = $request->getParsedBody();
-        $data = (\is_array($data) == true) ? $data : [];       
-        $validator = new Validator($data);
-  
-        $filter = $validator->filter()->trimSpace();
-        $validator->addFilter('*',$filter);
-        $validator->doFilter();
-    
-        return $request->withParsedBody($validator->toArray());
+        foreach ($data as $key => $value) {
+            $data[$key] = (\is_array($value) == true) ? $this->sanitizeArray($value) : \trim($value);
+        }
+
+        return $data;
     }
 }

@@ -14,13 +14,11 @@ use Arikaim\Core\Events\EventsManager;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Cache\Cache;
 use Arikaim\Core\Utils\Path;
-use Arikaim\Core\View\Template\Extension;
 use Arikaim\Core\App\TwigExtension;
 use Arikaim\Core\Packages\PackageManagerFactory;
 use Arikaim\Core\Routes\Routes;
 use Arikaim\Core\App\Install;
 use Arikaim\Core\View\Html\Page;
-use Arikaim\Core\Http\Session;
 use PDOException;
 
 /**
@@ -87,22 +85,11 @@ class ServiceContainer
                 ]
             );           
         };    
-        // Default language
-        $container['default.language'] = function($container) {                
-            $defaultLanguage = $container->get('cache')->fetch('default.language');
-            if (empty($defaultLanguage) == true) {
-                $defaultLanguage = Model::Language()->getDefaultLanguage();
-                $container->get('cache')->save('default.language',$defaultLanguage,2);                       
-            }
-            Session::set('default.language',$defaultLanguage);
-
-            return $defaultLanguage;
-        }; 
         // Init page components.
-        $container['page'] = function($container) {               
-            return new Page($container->get('view'),$container->get('options'));
+        $container['page'] = function($container) {         
+            Page::setDefaultLanguage($container->get('options')->get('default.language','en'));                
+            return new Page($container->get('view'),$container->get('options')->get('library.params',[]));
         }; 
-
         // Errors  
         $container['errors'] = function($container) use ($console) {
             $systemErrors = $container->get('config')->loadJsonConfigFile('errors.json');    
@@ -119,7 +106,7 @@ class ServiceContainer
             $permissins = Model::PermissionRelations();    
             $access = new \Arikaim\Core\Access\Access($permissins);
 
-            return new \Arikaim\Core\Access\Authenticate($user,$access,$container['errors']);
+            return new \Arikaim\Core\Access\Authenticate($user,$access);
         };
         // Init Eloquent ORM
         $container['db'] = function($container) {  
@@ -133,6 +120,10 @@ class ServiceContainer
             }      
             return $db;
         };     
+
+        // Boot db
+        $container['db']; 
+
         // Routes
         $container['routes'] = function($container) { 
             return new Routes(Model::Routes(),$container['cache']);  
@@ -167,12 +158,8 @@ class ServiceContainer
         $container['modules'] = function($container) {           
             return new \Arikaim\Core\Extension\Modules($container->get('cache'));
         }; 
-    
-        // Add template extensions
-        $extension = new Extension(BASE_PATH,Path::VIEW_PATH,$container->get('page'),$container->get('access'));
-        $container->get('view')->addExtension($extension);
-
-        $twigExtension = new TwigExtension($container->get('cache'),$container->get('access'),$container->get('options'));
+        // Add twig extension
+        $twigExtension = new TwigExtension(BASE_PATH,Path::VIEW_PATH,$container);
         $container->get('view')->addExtension($twigExtension);
 
         return $container;

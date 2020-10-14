@@ -10,33 +10,39 @@
 namespace Arikaim\Core;
 
 use Psr\Http\Message\ResponseInterface;
+use Http\Factory\Guzzle\StreamFactory;
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 use Slim\Routing\RouteContext;
-use Exception;
+use Slim\Middleware\ContentLengthMiddleware;
+use Slim\Middleware\OutputBufferingMiddleware;
+use Slim\Middleware\BodyParsingMiddleware;
 
 use Arikaim\Container\Container;
 use Arikaim\Core\Validator\ValidatorStrategy;
 use Arikaim\Core\App\ServiceContainer;
-use Arikaim\Core\App\SystemRoutes;
-use Arikaim\Core\Middleware\MiddlewareManager;
+
 use Arikaim\Core\System\Error\ApplicationError;
 use Arikaim\Core\Http\Session;
 use Arikaim\Core\Utils\Number;
 use Arikaim\Core\Utils\DateTime;
-use Arikaim\Core\Http\Url;
-use Arikaim\Core\Utils\Path;
-use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\System\Error\Renderer\HtmlPageErrorRenderer;
-use Arikaim\Core\System\Composer;
 use Arikaim\Core\App\Install;
-use Arikaim\Core\Models\AccessTokens;
+
+use Arikaim\Core\Http\Response;
+use Arikaim\Core\Middleware\CoreMiddleware;
+use Arikaim\Core\Db\Schema;
+use Arikaim\Core\Utils\Factory;
+use Arikaim\Core\Middleware\RoutingMiddleware;
+use Exception;
 
 /**
  * Arikaim core class
  */
 class Arikaim  
 {
+    const ARIKAIM_VERSION = '1.5.0';
+
     /**
      * Slim application object
      * 
@@ -114,14 +120,14 @@ class Arikaim
     }
 
     /**
-     * Create Arikaim system. Create container services, load system routes 
-     * 
-     * @param boolean $consoleMode - load routes 
-     * @param integer $showErrors
-     * @return void
+    * System init
+    *
+    * @param integer $showErrors
+    * @param bool $console
+    * @return void
     */
-    public static function init($showErrors = 0) 
-    {        
+    public static function systemInit($showErrors = 0, $console = false)
+    {
         \ini_set('display_errors',$showErrors);
         \ini_set('display_startup_errors',$showErrors);
         \error_reporting(E_ALL); 
@@ -134,10 +140,8 @@ class Arikaim
        
         Self::resolveEnvironment($_SERVER);
 
-        // Init constants   
-        if (defined('ROOT_PATH') == false) {
-            \define('ROOT_PATH',Self::getRootPath());
-        }
+        // Init constants           
+        \define('ROOT_PATH',Self::getRootPath());
         \define('BASE_PATH',Self::getBasePath());
         \define('DOMAIN',Self::getDomain());
         \define('APP_PATH',ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');  
@@ -148,54 +152,108 @@ class Arikaim
         ]);
         $loader->register();
         
-        Url::setAppUrl('/arikaim');
-        Path::setAppPath('arikaim');
-        Factory::setCoreNamespace('Arikaim\\Core');
-
-        // Load global functions
-        $loader->LoadClassFile('\\Arikaim\\Core\\App\\Globals');
-         
+        \define('APP_URL',DOMAIN . BASE_PATH . '/arikaim');
+        \define('CORE_NAMESPACE','Arikaim\\Core');
+        \define('ARIKAIM_PACKAGE_NAME','arikaim/core');
+        \define('CACHE_SAVE_TIME',4);
         \register_shutdown_function('\Arikaim\Core\Arikaim::end');
        
         // Create service container            
-        AppFactory::setContainer(ServiceContainer::init(new Container(),Self::isConsole()));
-        
+        AppFactory::setContainer(ServiceContainer::init(new Container(),$console)); 
         // Create app 
         Self::$app = AppFactory::create();
-        Self::$app->setBasePath(BASE_PATH);
-            
-        if (Self::isConsole() == false) {   
-            Session::start();
-                       
-            // Set router 
-            $validatorStrategy = new ValidatorStrategy(Self::get('event'),Self::get('errors'));
-            Self::$app->getRouteCollector()->setDefaultInvocationStrategy($validatorStrategy);
-        
-            Self::$app->getRouteCollector()->setCacheFile(Path::CACHE_PATH . '/routes.cache.php');     
-            // Map routes                       
-            SystemRoutes::mapSystemRoutes(); 
-            // Boot db
-            Self::get('db');  
-           
-            // Add default middleware
-            MiddlewareManager::init(Self::getContainer()->get('config')['settings']); 
-            
-            Self::mapRoutes();   
-            
-            // Set primary template           
-            Self::view()->setPrimaryTemplate(Self::options()->get('primary.template'));          
-            // DatTime and numbers format
-            Number::setFormats(Self::options()->get('number.format.items',[]),Self::options()->get('number.format',null));
-           
-            // Set time zone
-            DateTime::setTimeZone(Self::options()->get('time.zone'));
+        Self::$app->setBasePath(BASE_PATH);       
+    }
 
-            // Set date and time formats
-            DateTime::setDateFormats(Self::options()->get('date.format.items',[]),Self::options()->get('date.format',null));   
-            DateTime::setTimeFormats(Self::options()->get('date.format.items',[]),Self::options()->get('time.format',null));                  
-        }      
+    /**
+     * Create Arikaim system. Create container services, load system routes 
+     * 
+     * @param boolean $consoleMode - load routes 
+     * @param integer $showErrors
+     * @return void
+    */
+    public static function init($showErrors = 0) 
+    {        
+        Self::systemInit($showErrors);
+        Session::start();
+                    
+        // Set router       
+        Self::$app->getRouteCollector()->setDefaultInvocationStrategy(new ValidatorStrategy());
+                
+        // Add middlewares
+        Self::initMiddleware();
+        Self::addModulesMiddleware();    
+        
+        // Set primary template           
+        Self::view()->setPrimaryTemplate(Self::options()->get('primary.template'));          
+        // DatTime and numbers format
+        Number::setFormats(Self::options()->get('number.format.items',[]),Self::options()->get('number.format',null));
+        // Set time zone
+        DateTime::setTimeZone(Self::options()->get('time.zone'));
+        // Set date and time formats
+        DateTime::setDateFormats(Self::options()->get('date.format.items',[]),Self::options()->get('date.format',null));   
+        DateTime::setTimeFormats(Self::options()->get('date.format.items',[]),Self::options()->get('time.format',null));                            
     }
     
+    /**
+     * Init middleware
+     *
+     * @return void
+     */
+    public static function initMiddleware()
+    {
+        // add routing
+        $routingMiddleware = new RoutingMiddleware(
+            Self::$app->getRouteResolver(),          
+            Self::$app->getRouteCollector(),
+            Self::routes()
+        );
+        Self::$app->add($routingMiddleware);
+    
+        $errorMiddleware = Self::$app->addErrorMiddleware(true,true,true);
+        $errorRenderer = new HtmlPageErrorRenderer(Arikaim::errors());
+        $applicationError = new ApplicationError(Response::create(),$errorRenderer);
+        
+        $errorMiddleware->setDefaultErrorHandler($applicationError);
+        // sanitize request body and client ip
+        Self::$app->add(new CoreMiddleware(Self::getContainer()->get('config')['settings']));         
+        Self::$app->add(new ContentLengthMiddleware());        
+        Self::$app->add(new BodyParsingMiddleware());
+        Self::$app->add(new OutputBufferingMiddleware(new StreamFactory(),OutputBufferingMiddleware::APPEND));
+        
+        // add modules middlewares 
+        Self::addModules();  
+    }
+
+    /**
+     * Add modules middlewares
+     *   
+     * @return boolean
+     */
+    public static function addModulesMiddleware()
+    {
+        $modules = Self::cache()->fetch('middleware.list');
+        if (\is_array($modules) == false) {   
+            if (Schema::hasTable('modules') == false) {
+                return false;
+            }            
+            $modules = Arikaim::packages()->create('module')->getPackgesRegistry()->getPackagesList([
+                'type'   => 2, // MIDDLEWARE 
+                'status' => 1    
+            ]);         
+            Self::cache()->save('middleware.list',$modules,CACHE_SAVE_TIME);    
+        }    
+
+        foreach ($modules as $module) {             
+            $instance = Factory::createModule($module['name'],$module['class']);
+            if (\is_object($instance) == true) {
+                Self::$app->add($instance);  
+            }         
+        }
+        
+        return true;
+    }
+
     /**
      * Get version
      *
@@ -203,38 +261,9 @@ class Arikaim
      */
     public static function getVersion() 
     {
-        return Composer::getInstalledPackageVersion(ROOT_PATH . BASE_PATH,Self::getCorePackageName());        
+        return Self::ARIKAIM_VERSION;    
     }
 
-    /**
-     * Map routes
-     *     
-     * @return boolean
-     */
-    public static function mapRoutes()
-    {
-        $routes = Self::routes()->getAllRoutes();
-        $accessToken = new AccessTokens();
-
-        foreach($routes as $item) {
-            $methods = \explode(',',$item['method']);
-            $handler = $item['handler_class'] . ':' . $item['handler_method'];   
-
-            $route = Self::$app->map($methods,$item['pattern'],$handler);
-            // auth middleware
-            if ($item['auth'] > 0) {
-                $options['redirect'] = (empty($item['redirect_url']) == false) ? Url::BASE_URL . $item['redirect_url'] : null;      
-                
-                $userProvider = ($item['auth'] == 4) ? $accessToken : null;                
-                $middleware = Self::access()->middleware($item['auth'],$options,$userProvider);    
-    
-                if ($middleware != null && \is_object($route) == true) {
-                    $route->add($middleware);
-                }
-            }                                                   
-        }          
-    }
- 
     /**
      * Get route parser
      *
@@ -300,14 +329,11 @@ class Arikaim
      */
     public static function end() 
     {    
-        if (\error_reporting() == false) {
+        $error = \error_get_last();    
+        if (\error_reporting() == false || empty($error) == true) {
             return;
         }
-        $error = \error_get_last();    
-        if (empty($error) == true) {  
-            return;    
-        }
-
+       
         Self::get('cache')->clear();
         $renderer = new HtmlPageErrorRenderer(Self::errors());
         $applicationError = new ApplicationError(Self::response(),$renderer);  
@@ -427,7 +453,7 @@ class Arikaim
     */
     public static function isConsole()
     {
-        return (\php_sapi_name() == 'cli') ? true : false;         
+        return (\php_sapi_name() == 'cli');      
     }   
     
     /**
@@ -467,15 +493,5 @@ class Arikaim
         } elseif ($scriptDir !== '/' && \stripos($uri, $scriptDir) === 0) {
             Self::$basePath = $scriptDir;
         }       
-    }
-
-    /**
-     * Return composer core package name
-     *
-     * @return string
-     */
-    public static function getCorePackageName()
-    {
-        return 'arikaim/core';
     }
 }

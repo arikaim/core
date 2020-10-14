@@ -41,9 +41,7 @@ class UpdateCommand extends ConsoleCommand
     {
         $this->showTitle('Update Arikaim CMS');
       
-        $packageName = Arikaim::getCorePackageName();
-
-        $update = new Update($packageName);
+        $update = new Update(ARIKAIM_PACKAGE_NAME);
         $update->update(false,true);
         $currentVersion = $update->getCurrentVersion();
 

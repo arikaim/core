@@ -39,7 +39,7 @@ class Update extends ControlPanelApiController
     public function updateController($request, $response, $data) 
     {           
         $this->onDataValid(function($data) { 
-            $package = $data->get('package',Arikaim::getCorePackageName());
+            $package = $data->get('package',ARIKAIM_PACKAGE_NAME);
             $update = new SystemUpdate($package);
             $update->update();
             $version = $update->getCurrentVersion();
@@ -64,7 +64,7 @@ class Update extends ControlPanelApiController
      */
     public function getLastVersionController($request, $response, $data) 
     {           
-        $package = $data->get('package',Arikaim::getCorePackageName());
+        $package = $data->get('package',ARIKAIM_PACKAGE_NAME);
   
         $update = new SystemUpdate($package);
         $version = $update->getLastVersion();

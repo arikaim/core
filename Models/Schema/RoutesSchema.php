@@ -46,7 +46,9 @@ class RoutesSchema extends Schema
         $table->integer('auth')->nullable(true);
         $table->integer('type')->nullable(false)->default(0);               
         $table->text('options')->nullable(true);
-        $table->string('redirect_url')->nullable(true);     
+        $table->string('redirect_url')->nullable(true); 
+        $table->string('regex')->nullable(true);   
+         
         // indexes           
         $table->unique(['pattern','method']);          
         $table->unique(['name','extension_name']);
@@ -60,5 +62,8 @@ class RoutesSchema extends Schema
      */
     public function update($table)
     {       
+        if ($this->hasColumn('regex') == false) {
+            $table->string('regex')->nullable(true); 
+        } 
     }
 }
