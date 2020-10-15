@@ -472,7 +472,20 @@ class SystemRoutes
     public static function isSystemApiUrl($url)
     {
         $path = \str_replace(BASE_PATH,'',$url);
-
+ 
         return (\substr($path,0,10) == '/core/api/');
+    }
+
+    /**
+     * Return true if request url is admin page 
+     *
+     * @param string $url
+     * @return boolean
+     */
+    public static function isAdminPage($url)
+    {
+        $path = \str_replace(BASE_PATH,'',$url);
+
+        return (\substr($path,0,6) == '/admin');
     }
 }

@@ -30,6 +30,7 @@ use Arikaim\Core\Http\Url;
 use Arikaim\Core\Access\AuthFactory;
 
 use RuntimeException;
+use Exception;
 
 /**
  * Routing middleware
@@ -110,16 +111,11 @@ class RoutingMiddleware implements MiddlewareInterface
         $method = $request->getMethod();
         $path = $request->getUri()->getPath();
    
-        // map control panel page
-        $this->routeCollector->map(['GET'],'/admin[/{language:[a-z]{2}}/]','Arikaim\Core\App\ControlPanel:loadControlPanel');
-        // map install page
-        $this->routeCollector->map(['GET'],'/admin/install','Arikaim\Core\App\InstallPage:loadInstall');
-
         if (SystemRoutes::isSystemApiUrl($path) == true) {            
             // map system api routes
             $this->mapSystemRoutes($method,$path);          
-        } else {            
-            // map extensions and template routes         
+        } elseif (SystemRoutes::isAdminPage($path) == false) {            
+            // map extensions and template routes                    
             $this->mapRoutes($method,$path);           
         }
 
@@ -135,6 +131,12 @@ class RoutingMiddleware implements MiddlewareInterface
                 $route = $this->routeResolver
                     ->resolveRoute($routeIdentifier)
                     ->prepare($routeArguments);
+            
+                //  route params
+                $pattern = $route->getPattern();
+                $routeParams = $this->routes->getRoute('GET',$pattern);
+                $request = $request->withAttribute('route_params',$routeParams);
+
                 return $request->withAttribute('route', $route);
 
             case RoutingResults::NOT_FOUND:
@@ -182,12 +184,18 @@ class RoutingMiddleware implements MiddlewareInterface
      * @param string $method
      * @param string $path
      * @return boolean
+     * 
+     * @throws Exception
      */
     public function mapRoutes($method, $path)
     {      
-        $routes = $this->routes->searchRoutes($method);
-        $user = new Users();
-
+        try {
+            $routes = $this->routes->searchRoutes($method);
+            $user = new Users();
+        } catch(Exception $e) {
+            return false;
+        }
+       
         foreach($routes as $item) {
             $handler = $item['handler_class'] . ':' . $item['handler_method'];   
             $route = $this->routeCollector->map([$method],$item['pattern'],$handler);

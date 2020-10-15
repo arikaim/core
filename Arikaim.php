@@ -41,7 +41,7 @@ use Exception;
  */
 class Arikaim  
 {
-    const ARIKAIM_VERSION = '1.5.0';
+    const ARIKAIM_VERSION = '1.5.4';
 
     /**
      * Slim application object
@@ -131,13 +131,9 @@ class Arikaim
         \ini_set('display_errors',$showErrors);
         \ini_set('display_startup_errors',$showErrors);
         \error_reporting(E_ALL); 
-
-        if ($showErrors == 0) {
-            \set_error_handler(function () {
-                return Self::end();
-            });
-        }
-       
+        
+        \set_error_handler(Self::end());
+    
         Self::resolveEnvironment($_SERVER);
 
         // Init constants           
@@ -180,19 +176,26 @@ class Arikaim
         // Set router       
         Self::$app->getRouteCollector()->setDefaultInvocationStrategy(new ValidatorStrategy());
                 
+        // map control panel page
+        Self::$app->map(['GET'],'/admin[/{language:[a-z]{2}}/]','Arikaim\Core\App\ControlPanel:loadControlPanel');
+        // map install page
+        Self::$app->map(['GET'],'/admin/install','Arikaim\Core\App\InstallPage:loadInstall');
+
+        Self::db();
+        // Set primary template           
+        Self::view()->setPrimaryTemplate(Self::options()->get('primary.template'));    
+
         // Add middlewares
         Self::initMiddleware();
         Self::addModulesMiddleware();    
         
-        // Set primary template           
-        Self::view()->setPrimaryTemplate(Self::options()->get('primary.template'));          
         // DatTime and numbers format
         Number::setFormats(Self::options()->get('number.format.items',[]),Self::options()->get('number.format',null));
         // Set time zone
         DateTime::setTimeZone(Self::options()->get('time.zone'));
         // Set date and time formats
         DateTime::setDateFormats(Self::options()->get('date.format.items',[]),Self::options()->get('date.format',null));   
-        DateTime::setTimeFormats(Self::options()->get('date.format.items',[]),Self::options()->get('time.format',null));                            
+        DateTime::setTimeFormats(Self::options()->get('date.format.items',[]),Self::options()->get('time.format',null));  
     }
     
     /**
@@ -210,11 +213,6 @@ class Arikaim
         );
         Self::$app->add($routingMiddleware);
     
-        $errorMiddleware = Self::$app->addErrorMiddleware(true,true,true);
-        $errorRenderer = new HtmlPageErrorRenderer(Arikaim::errors());
-        $applicationError = new ApplicationError(Response::create(),$errorRenderer);
-        
-        $errorMiddleware->setDefaultErrorHandler($applicationError);
         // sanitize request body and client ip
         Self::$app->add(new CoreMiddleware(Self::getContainer()->get('config')['settings']));         
         Self::$app->add(new ContentLengthMiddleware());        
@@ -333,11 +331,11 @@ class Arikaim
         if (\error_reporting() == false || empty($error) == true) {
             return;
         }
-       
+    
         Self::get('cache')->clear();
         $renderer = new HtmlPageErrorRenderer(Self::errors());
         $applicationError = new ApplicationError(Self::response(),$renderer);  
-        if (Install::isInstalled() == false) {       
+        if (Install::isInstalled() == false) {                
             if (Install::isInstallPage() == true) {    
                 $disabled = Self::get('config')->getByPath('settings/disableInstallPage',false);     
                 if ($disabled != true) {                            

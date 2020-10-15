@@ -116,13 +116,12 @@ class ServiceContainer
             } catch(PDOException $e) {
                 if (Install::isInstalled() == true) {
                     $container->get('errors')->addError('DB_CONNECTION_ERROR');
+                } else {
+                    $container->get('errors')->addError('NOT_INSTALLED_ERROR');
                 }                
             }      
             return $db;
         };     
-
-        // Boot db
-        $container['db']; 
 
         // Routes
         $container['routes'] = function($container) { 
