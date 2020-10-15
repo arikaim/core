@@ -136,7 +136,6 @@ class Arikaim
             \error_reporting(E_ALL); 
         }
        
-        
         \set_error_handler(Self::end());
     
         Self::resolveEnvironment($_SERVER);
@@ -197,6 +196,12 @@ class Arikaim
             Self::checkInstall($applicationError);
             return;
         }
+
+        $errorMiddleware = Self::$app->addErrorMiddleware(true,true,true);
+        $errorRenderer = new HtmlPageErrorRenderer(Arikaim::errors());
+        $applicationError = new ApplicationError(Response::create(),$errorRenderer);
+        
+        $errorMiddleware->setDefaultErrorHandler($applicationError);
 
         // Set primary template           
         Self::view()->setPrimaryTemplate(Self::options()->get('primary.template'));   
