@@ -28,12 +28,12 @@ class Install extends ApiController
     */
     public function installController($request, $response, $data) 
     {           
-        $this->get('access')->logout();
+        //$this->get('access')->logout();
         
         $this->onDataValid(function($data) {    
             // clear cache
             $this->get('cache')->clear();
-             
+         
             $disabled = $this->get('config')->getByPath('settings/disableInstallPage',false);
             if ($disabled == true) {
                 $this->error('Install page is disabled.');

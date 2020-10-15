@@ -15,6 +15,40 @@ namespace Arikaim\Core\App;
 class SystemRoutes 
 {
     /**
+     * Install api routes
+     *
+     * @var array
+     */
+    public static $installRoutes = [
+        'POST' => [
+            // Install
+            [
+                'pattern'    => '/core/api/install/',
+                'handler'    => 'Arikaim\Core\Api\Install:install',
+                'middleware' => null         
+            ]
+        ],
+        'PUT' => [
+            // Install
+            [
+                'pattern'    => '/core/api/install/extensions',
+                'handler'    => 'Arikaim\Core\Api\Install:installExtensions',
+                'middleware' => null         
+            ],
+            [
+                'pattern'    => '/core/api/install/modules',
+                'handler'    => 'Arikaim\Core\Api\Install:installModules',
+                'middleware' => null         
+            ],
+            [
+                'pattern'    => '/core/api/install/actions',
+                'handler'    => 'Arikaim\Core\Api\Install:postInstallActions',
+                'middleware' => null         
+            ]
+        ]
+    ];
+
+    /**
      * System routes
      *
      * @var array
@@ -487,5 +521,17 @@ class SystemRoutes
         $path = \str_replace(BASE_PATH,'',$url);
 
         return (\substr($path,0,6) == '/admin');
+    }
+
+    /**
+     * Return true if request is for installation 
+     *
+     * @return boolean
+     */
+    public static function isApiInstallRequest()
+    {
+        $uri = (isset($_SERVER['REQUEST_URI']) == true) ? $_SERVER['REQUEST_URI'] : '';
+       
+        return (\substr($uri,-17) == 'core/api/install/');
     }
 }

@@ -57,11 +57,9 @@ class RoutingMiddleware implements MiddlewareInterface
     /**
      * Routes storage
      *
-     * @var RoutesInterface
+     * @var RoutesInterface|null
      */
     protected $routes;
-
-   
 
     /**
      * @param RouteResolverInterface $routeResolver
@@ -70,7 +68,7 @@ class RoutingMiddleware implements MiddlewareInterface
     public function __construct(
         RouteResolverInterface $routeResolver,
         RouteCollectorInterface $routeCollector,
-        RoutesInterface $routes
+        RoutesInterface $routes = null
     )
     {
         $this->routeResolver = $routeResolver;
@@ -112,10 +110,10 @@ class RoutingMiddleware implements MiddlewareInterface
         $path = $request->getUri()->getPath();
    
         if (SystemRoutes::isSystemApiUrl($path) == true) {            
-            // map system api routes
+            // map system api routes          
             $this->mapSystemRoutes($method,$path);          
         } elseif (SystemRoutes::isAdminPage($path) == false) {            
-            // map extensions and template routes                    
+            // map extensions and template routes                          
             $this->mapRoutes($method,$path);           
         }
 
@@ -134,7 +132,7 @@ class RoutingMiddleware implements MiddlewareInterface
             
                 //  route params
                 $pattern = $route->getPattern();
-                $routeParams = $this->routes->getRoute('GET',$pattern);
+                $routeParams = (empty($this->routes) == false) ? $this->routes->getRoute('GET',$pattern) : [];
                 $request = $request->withAttribute('route_params',$routeParams);
 
                 return $request->withAttribute('route', $route);
@@ -166,9 +164,14 @@ class RoutingMiddleware implements MiddlewareInterface
             return;
         }
       
-        $user = new Users();
-        $middleware = AuthFactory::createMiddleware('session',$user,[]);
-
+        if (SystemRoutes::isApiInstallRequest() == false) {
+            $user = new Users();
+            $middleware = AuthFactory::createMiddleware('session',$user,[]);
+        } else {
+            // get only install routes
+            $routes = SystemRoutes::$installRoutes[$method] ?? false;
+        }
+       
         foreach ($routes as $item) {          
             $route = $this->routeCollector->map([$method],$item['pattern'],$item['handler']);
             if (empty($item['middleware']) == false) {
@@ -189,8 +192,8 @@ class RoutingMiddleware implements MiddlewareInterface
      */
     public function mapRoutes($method, $path)
     {      
-        try {
-            $routes = $this->routes->searchRoutes($method);
+        try {          
+            $routes = (empty($this->routes) == false) ? $this->routes->searchRoutes($method) : [];
             $user = new Users();
         } catch(Exception $e) {
             return false;

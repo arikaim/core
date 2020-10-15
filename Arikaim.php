@@ -180,22 +180,28 @@ class Arikaim
         Self::$app->map(['GET'],'/admin[/{language:[a-z]{2}}/]','Arikaim\Core\App\ControlPanel:loadControlPanel');
         // map install page
         Self::$app->map(['GET'],'/admin/install','Arikaim\Core\App\InstallPage:loadInstall');
-
-        Self::db();
-        // Set primary template           
-        Self::view()->setPrimaryTemplate(Self::options()->get('primary.template'));    
-
+      
+        $hasDbError = Self::db()->hasError();
         // Add middlewares
-        Self::initMiddleware();
+        Self::initMiddleware($hasDbError);
         Self::addModulesMiddleware();    
         
+        if ($hasDbError == true) {
+            $renderer = new HtmlPageErrorRenderer(Self::errors());
+            $applicationError = new ApplicationError(Self::response(),$renderer);  
+            Self::checkInstall($applicationError);
+            return;
+        }
+
+        // Set primary template           
+        Self::view()->setPrimaryTemplate(Self::options()->get('primary.template'));   
         // DatTime and numbers format
         Number::setFormats(Self::options()->get('number.format.items',[]),Self::options()->get('number.format',null));
         // Set time zone
         DateTime::setTimeZone(Self::options()->get('time.zone'));
         // Set date and time formats
         DateTime::setDateFormats(Self::options()->get('date.format.items',[]),Self::options()->get('date.format',null));   
-        DateTime::setTimeFormats(Self::options()->get('date.format.items',[]),Self::options()->get('time.format',null));  
+        DateTime::setTimeFormats(Self::options()->get('date.format.items',[]),Self::options()->get('time.format',null));                 
     }
     
     /**
@@ -203,13 +209,14 @@ class Arikaim
      *
      * @return void
      */
-    public static function initMiddleware()
+    public static function initMiddleware($safeMode = false)
     {
+        $routes = ($safeMode == false) ? Self::routes() : null;
         // add routing
         $routingMiddleware = new RoutingMiddleware(
             Self::$app->getRouteResolver(),          
             Self::$app->getRouteCollector(),
-            Self::routes()
+            $routes
         );
         Self::$app->add($routingMiddleware);
     
@@ -231,15 +238,19 @@ class Arikaim
     public static function addModulesMiddleware()
     {
         $modules = Self::cache()->fetch('middleware.list');
-        if (\is_array($modules) == false) {   
-            if (Schema::hasTable('modules') == false) {
+        if (\is_array($modules) == false) {  
+            if (Self::db()->hasError() == true) {
                 return false;
-            }            
-            $modules = Arikaim::packages()->create('module')->getPackgesRegistry()->getPackagesList([
-                'type'   => 2, // MIDDLEWARE 
-                'status' => 1    
-            ]);         
-            Self::cache()->save('middleware.list',$modules,CACHE_SAVE_TIME);    
+            } 
+            try {                
+                $modules = Arikaim::packages()->create('module')->getPackgesRegistry()->getPackagesList([
+                    'type'   => 2, // MIDDLEWARE 
+                    'status' => 1    
+                ]);         
+                Self::cache()->save('middleware.list',$modules,CACHE_SAVE_TIME);   
+            } catch(Exception $e) {
+                return false;
+            }
         }    
 
         foreach ($modules as $module) {             
@@ -335,6 +346,21 @@ class Arikaim
         Self::get('cache')->clear();
         $renderer = new HtmlPageErrorRenderer(Self::errors());
         $applicationError = new ApplicationError(Self::response(),$renderer);  
+        Self::checkInstall($applicationError);
+
+        $output = $applicationError->renderError(Self::createRequest(),$error);            
+        echo $output;
+        exit();                                                                     
+    }
+
+    /**
+     * Check Arikaim install
+     *
+     * @param object $applicationError
+     * @return void
+     */
+    protected static function checkInstall($applicationError)
+    {
         if (Install::isInstalled() == false) {                
             if (Install::isInstallPage() == true) {    
                 $disabled = Self::get('config')->getByPath('settings/disableInstallPage',false);     
@@ -356,10 +382,6 @@ class Arikaim
             header('Location: ' . Install::getInstallPageUrl());
             return;                                      
         } 
-
-        $output = $applicationError->renderError(Self::createRequest(),$error);            
-        echo $output;
-        exit();                                                                     
     }
 
     /**

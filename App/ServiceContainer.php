@@ -123,14 +123,17 @@ class ServiceContainer
             return $db;
         };     
 
+        $container['db'];
+
         // Routes
-        $container['routes'] = function($container) { 
+        $container['routes'] = function($container) {            
             return new Routes(Model::Routes(),$container['cache']);  
         };
         // Options
         $container['options'] = function($container) { 
-            $options = Model::Options();  
-            return new \Arikaim\Core\Options\Options($options,$container->get('cache'));          
+            $options = ($container['db']->hasError() == false) ? Model::Options(): null;
+                    
+            return new \Arikaim\Core\Options\Options($container->get('cache'),$options);          
         };     
         // Mailer
         $container['mailer'] = function($container) {
