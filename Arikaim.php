@@ -130,7 +130,12 @@ class Arikaim
     {
         \ini_set('display_errors',$showErrors);
         \ini_set('display_startup_errors',$showErrors);
-        \error_reporting(E_ALL); 
+        if ($showErrors == 0) {
+            \error_reporting(0); 
+        } else {
+            \error_reporting(E_ALL); 
+        }
+       
         
         \set_error_handler(Self::end());
     
