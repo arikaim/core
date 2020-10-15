@@ -43,13 +43,6 @@ use Arikaim\Core\View\Template\Tags\MdTagParser;
 class TwigExtension extends AbstractExtension implements GlobalsInterface
 {
     /**
-     * Cache save time
-     *
-     * @var integer
-     */
-    public static $cacheSaveTime = 10;
-
-    /**
      * Model classes requires control panel access 
      *
      * @var array
@@ -125,8 +118,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         $this->basePath = $basePath;
         $this->viewPath = $viewPath;
         $this->container = $container;
-       
-        Self::$cacheSaveTime = \defined('CACHE_SAVE_TIME') ? \constant('CACHE_SAVE_TIME') : Self::$cacheSaveTime;
     }
 
     /**
@@ -153,12 +144,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function getFunctions() 
     {
-       // $items = $this->container->get('cache')->fetch('arikaim.twig.functions');
-       // if (\is_array($items) == true) {
-       //     return $items;
-      //  }
-
-        $items = [
+        return [
             // html components
             new TwigFunction('component',[$this,'loadComponent'],[
                 'needs_environment' => false,
@@ -169,22 +155,15 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('componentOptions',[$this,'getComponentOptions']),
             new TwigFunction('currentFramework',[$this,'getCurrentFramework']),
             new TwigFunction('currentTemplate',[$this,'getCurrentTemplate']),
-            // page
-            new TwigFunction('getPageFiles',[$this,'getPageFiles']),
-            new TwigFunction('getComponentsFiles',[$this,'getComponentsFiles']),    
+            // page              
             new TwigFunction('url',['Arikaim\\Core\\View\\Html\\Page','getUrl']),        
             new TwigFunction('currentUrl',['Arikaim\\Core\\View\\Html\\Page','getCurrentUrl']),
-            // template
-            new TwigFunction('getTemplateFiles',[$this,'getTemplateFiles']),  
-            new TwigFunction('getLibraryFiles',[$this,'getLibraryFiles']),      
+            // template          
             new TwigFunction('getPrimaryTemplate',[$this,'getPrimaryTemplate']),
             new TwigFunction('loadLibraryFile',[$this,'loadLibraryFile']),    
             new TwigFunction('loadComponentCssFile',[$this,'loadComponentCssFile']),  
             new TwigFunction('getLanguage',[$this,'getLanguage']),
-            new TwigFunction('sessionInfo',['Arikaim\\Core\\Http\\Session','getParams']),
-            // global vars
-            new TwigFunction('setVar',[$this,'setVar']),   
-            new TwigFunction('getVar',[$this,'getVar']),  
+            new TwigFunction('sessionInfo',['Arikaim\\Core\\Http\\Session','getParams']),         
             // macros
             new TwigFunction('macro',['Arikaim\\Core\\Utils\\Path','getMacroPath']),         
             new TwigFunction('systemMacro',[$this,'getSystemMacroPath']),
@@ -233,17 +212,14 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('fetch',[$this,'fetch']),
             new TwigFunction('extractArray',[$this,'extractArray'],['needs_context' => true]),
             new TwigFunction('arikaimStore',[$this,'arikaimStore']),
-
             // url
             new TwigFunction('getPageUrl',[$this,'getPageUrl']),         
             new TwigFunction('getTemplateUrl',['Arikaim\\Core\\Http\\Url','getTemplateUrl']),     
             new TwigFunction('getLibraryUrl',['Arikaim\\Core\\Http\\Url','getLibraryFileUrl']),  
             new TwigFunction('getExtensionViewUrl',['Arikaim\\Core\\Http\\Url','getExtensionViewUrl']),     
-
             // files
             new TwigFunction('getDirectoryFiles',[$this,'getDirectoryFiles']),
             new TwigFunction('isImage',['Arikaim\\Core\\Utils\\File','isImageMimeType']),
-
             // date and time
             new TwigFunction('getTimeZonesList',['Arikaim\\Core\\Utils\\DateTime','getTimeZonesList']),
             new TwigFunction('timeInterval',['Arikaim\\Core\\Utils\\TimeInterval','getInterval']),
@@ -252,10 +228,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             // unique Id
             new TwigFunction('createUuid',['Arikaim\\Core\\Utils\\Uuid','create']),
             new TwigFunction('createToken',['Arikaim\\Core\\Utils\\Utils','createToken']),
-        ];
-      //  $this->container->get('cache')->save('arikaim.twig.functions',$items,Self::$cacheSaveTime);
-
-        return $items;
+        ];       
     }
 
     /**
@@ -282,34 +255,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function getSystemMacroPath($macroName)
     {
         return Path::getMacroPath($macroName,'system');
-    }
-
-    /**
-     * Set global variable
-     *
-     * @param string $name
-     * @param mixed $value
-     * @return void
-     */
-    public function setVar($name, $value)
-    {
-        $name = 'template.var.' . $name;
-        $GLOBALS[$name] = $value;
-    }
-
-    /**
-     * Get global var
-     *
-     * @param string $name
-     * @param mixed|null $default
-     * @return mixed
-     */
-    public function getVar($name, $default = null)
-    {
-        $name = 'template.var.' . $name;
-        $value = (isset($GLOBALS[$name]) == true) ? $GLOBALS[$name] : $default;
-
-        return $value;
     }
 
     /**
@@ -359,46 +304,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function getPrimaryTemplate()
     {
         return $this->container->get('page')->getPrimaryTemplate();
-    }
-
-    /**
-     * Return library files
-     *
-     * @return array
-     */
-    public function getLibraryFiles()
-    {
-        return $this->container->get('page')->getLibraryFiles();
-    }
-
-    /**
-     * Get template files list
-     *
-     * @return array
-     */
-    public function getTemplateFiles()
-    {
-        return $this->container->get('page')->getTemplateFiles();       
-    }
-
-    /**
-     * Get page fles
-     *
-     * @return array
-     */
-    public function getComponentsFiles()
-    {
-        return $this->container->get('page')->getComponentsFiles();        
-    }
-
-    /**
-     * Get page fles
-     *
-     * @return array
-     */
-    public function getPageFiles()
-    {
-        return $this->container->get('page')->getPageFiles();        
     }
 
     /**
@@ -526,12 +431,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function getFilters() 
     {      
-       // $items = $this->container->get('cache')->fetch('arikaim.twig.filters');
-       // if (\is_array($items) == true) {
-       //     return $items;
-      //  }
-
-        $items =  [
+       return [
             // Html
             new TwigFilter('attr',['Arikaim\\Core\\View\\Template\\Filters','attr'],['is_safe' => ['html']]),
             new TwigFilter('tag',['Arikaim\\Core\\Utils\\Html','htmlTag'],['is_safe' => ['html']]),
@@ -569,10 +469,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('baseName',['Arikaim\\Core\\Utils\\File','baseName']),
             new TwigFilter('relativePath',['Arikaim\\Core\\Utils\\Path','getRelativePath'])
         ];
-
-        //$this->container->get('cache')->save('arikaim.twig.filters',$items,Self::$cacheSaveTime);
-        
-        return $items;
     }
 
     /**
@@ -582,20 +478,13 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function getTests() 
     {
-      //  $items = $this->container->get('cache')->fetch('twig.tests');
-      //  if (\is_array($items) == true) {
-       //     return $items;
-      //  }
-        $items = [
+        return [
             new TwigTest('haveSubItems',['Arikaim\\Core\\Utils\\Arrays','haveSubItems']),
             new TwigTest('object',['Arikaim\\Core\\View\\Template\\Tests','isObject']),
             new TwigTest('string',['Arikaim\\Core\\View\\Template\\Tests','isString']),
             new TwigTest('access',[$this,'hasAccess']),
             new TwigTest('versionCompare',['Arikaim\\Core\\View\\Template\\Tests','versionCompare'])
         ];
-       // $this->container->get('cache')->save('twig.tests',$items,Self::$cacheSaveTime);
-
-        return $items;
     }
 
     /**

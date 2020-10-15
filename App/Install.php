@@ -329,6 +329,29 @@ class Install
     }
 
     /**
+     * Set system tables rows format to dynamic
+     *
+     * @return bool
+     */
+    public function systemTablesRowFormat()
+    {
+        $classes = $this->getSystemSchemaClasses();
+       
+        foreach ($classes as $class) { 
+            $tableName = Schema::getTable($class);
+            if ($tableName !== true) {
+                $format = Arikaim::db()->getRowFormat($tableName);
+                if (\strtolower($format) != 'dynamic') {
+                    Schema::setRowFormat($tableName);
+                }            
+            }
+
+        }
+        
+        return true;
+    }
+
+    /**
      * Check if system is installed.
      *
      * @return boolean
