@@ -68,12 +68,14 @@ class Install extends ApiController
             // do install
             $install = new SystemInstall();
             $result = $install->install();   
-            
-            $result = ($result == false) ? SystemInstall::isInstalled() : true;
+            $errors = ($result == false) ?  $install->getErrors() : [];
+
             $this->setResponse($result,function() {
                 $this
                     ->message('Arikaim CMS was installed successfully.');                    
-            },'Installation error');                       
+            },function() use($errors) {
+                $this->addErrors($errors);              
+            });                       
         });
         $data
             ->addRule('text:min=2','database')

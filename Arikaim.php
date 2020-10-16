@@ -302,10 +302,10 @@ class Arikaim
     /**
      * Start Arikaim
      * 
-     * @param integer $showErrors
+     * @param bool $showErrors
      * @return void
     */
-    public static function run($showErrors = 0) 
+    public static function run($showErrors = false) 
     {      
         Self::init($showErrors);    
         Self::$app->run();            
