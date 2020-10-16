@@ -134,6 +134,12 @@ class SystemRoutes
                 'pattern'    => '/core/api/session/',
                 'handler'    => 'Arikaim\Core\Api\Session:getInfo',
                 'middleware' => null       
+            ],
+            // Logout
+            [
+                'pattern'    => '/core/api/user/logout',
+                'handler'    => 'Arikaim\Core\Api\Users:logout',
+                'middleware' => null            
             ]
         ],
         'POST' => [
@@ -163,11 +169,6 @@ class SystemRoutes
             [
                 'pattern'    => '/core/api/user/update',
                 'handler'    => 'Arikaim\Core\Api\Users:changeDetails',
-                'middleware' => null            
-            ],
-            [
-                'pattern'    => '/core/api/user/logout',
-                'handler'    => 'Arikaim\Core\Api\Users:logout',
                 'middleware' => null            
             ],
             // Languages  
