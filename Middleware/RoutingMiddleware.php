@@ -31,6 +31,7 @@ use Arikaim\Core\Access\AuthFactory;
 
 use RuntimeException;
 use Exception;
+use Closure;
 
 /**
  * Routing middleware
@@ -59,7 +60,7 @@ class RoutingMiddleware implements MiddlewareInterface
      *
      * @var RoutesInterface|null
      */
-    protected $routes;
+    protected $routes = null;
 
     /**
      * @param RouteResolverInterface $routeResolver
@@ -68,13 +69,25 @@ class RoutingMiddleware implements MiddlewareInterface
     public function __construct(
         RouteResolverInterface $routeResolver,
         RouteCollectorInterface $routeCollector,
-        RoutesInterface $routes = null
+        Closure $routesClosure = null
     )
     {
         $this->routeResolver = $routeResolver;
         $this->routeParser = $routeCollector->getRouteParser();
         $this->routeCollector = $routeCollector;
-        $this->routes = $routes;
+        $this->routesClosure = $routesClosure;
+    }
+
+    /**
+     * Resolve routes ref
+     *
+     * @return void
+     */
+    protected function resolveRoutes()
+    {
+        if (is_callable($this->routesClosure) == true && empty($this->routes) == true) {
+            return $this->routes = ($this->routesClosure)();
+        }
     }
 
     /**
@@ -192,6 +205,8 @@ class RoutingMiddleware implements MiddlewareInterface
      */
     public function mapRoutes($method, $path)
     {      
+        $this->resolveRoutes();
+
         try {          
             $routes = (empty($this->routes) == false) ? $this->routes->searchRoutes($method) : [];
             $user = new Users();

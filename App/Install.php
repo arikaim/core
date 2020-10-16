@@ -111,6 +111,7 @@ class Install
         }          
 
         Arikaim::db()->initConnection(Arikaim::config()->get('db'));     
+        Arikaim::options()->setStorageAdapter(Model::Options());
 
         // Create Arikaim DB tables
         $result = $this->createDbTables();      
@@ -141,8 +142,6 @@ class Install
         
         // set storage folders
         $this->initStorage();
-
-        
 
         return ($this->hasError() == false);
     } 
@@ -204,8 +203,13 @@ class Install
         // delete symlink
         $linkPath = ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'public';
         File::delete($linkPath);
-        // create symlink 
-        return @symlink(Arikaim::storage()->getFullPath('public'),$linkPath);      
+
+        if (File::exists($linkPath) == false) {
+            // create symlink 
+            return @symlink(Arikaim::storage()->getFullPath('public'),$linkPath); 
+        }
+       
+        return true;     
     }
 
     /**

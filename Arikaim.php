@@ -27,13 +27,11 @@ use Arikaim\Core\Http\Session;
 use Arikaim\Core\Utils\Number;
 use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\System\Error\Renderer\HtmlPageErrorRenderer;
-use Arikaim\Core\App\Install;
-
 use Arikaim\Core\Http\Response;
 use Arikaim\Core\Middleware\CoreMiddleware;
-use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Middleware\RoutingMiddleware;
+use Arikaim\Core\Middleware\ErrorMiddleware;
 use Exception;
 
 /**
@@ -41,7 +39,7 @@ use Exception;
  */
 class Arikaim  
 {
-    const ARIKAIM_VERSION = '1.5.4';
+    const ARIKAIM_VERSION = '1.5.8';
 
     /**
      * Slim application object
@@ -122,26 +120,20 @@ class Arikaim
     /**
     * System init
     *
-    * @param integer $showErrors
+    * @param bool $showErrors
     * @param bool $console
     * @return void
     */
-    public static function systemInit($showErrors = 0, $console = false)
+    public static function systemInit($showErrors = false, $console = false)
     {
-        \ini_set('display_errors',$showErrors);
-        \ini_set('display_startup_errors',$showErrors);
-        if ($showErrors == 0) {
-            \error_reporting(0); 
-        } else {
-            \error_reporting(E_ALL); 
-        }
-       
-        \set_error_handler(Self::end());
-    
+        \ini_set('display_errors',(int)$showErrors);
+        \ini_set('display_startup_errors',(int)$showErrors);
+        \error_reporting(($showErrors == true) ? E_ALL : 0); 
+        
         Self::resolveEnvironment($_SERVER);
 
         // Init constants           
-        \define('ROOT_PATH',Self::getRootPath());
+        (\defined('ROOT_PATH') == false) ? \define('ROOT_PATH',Self::getRootPath()) : null;
         \define('BASE_PATH',Self::getBasePath());
         \define('DOMAIN',Self::getDomain());
         \define('APP_PATH',ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');  
@@ -156,7 +148,6 @@ class Arikaim
         \define('CORE_NAMESPACE','Arikaim\\Core');
         \define('ARIKAIM_PACKAGE_NAME','arikaim/core');
         \define('CACHE_SAVE_TIME',4);
-        \register_shutdown_function('\Arikaim\Core\Arikaim::end');
        
         // Create service container            
         AppFactory::setContainer(ServiceContainer::init(new Container(),$console)); 
@@ -169,10 +160,10 @@ class Arikaim
      * Create Arikaim system. Create container services, load system routes 
      * 
      * @param boolean $consoleMode - load routes 
-     * @param integer $showErrors
+     * @param boolean $showErrors
      * @return void
     */
-    public static function init($showErrors = 0) 
+    public static function init($showErrors = false) 
     {        
         Self::systemInit($showErrors);
         Session::start();
@@ -185,24 +176,10 @@ class Arikaim
         // map install page
         Self::$app->map(['GET'],'/admin/install','Arikaim\Core\App\InstallPage:loadInstall');
       
-        $hasDbError = Self::db()->hasError();
         // Add middlewares
-        Self::initMiddleware($hasDbError);
+        Self::initMiddleware();       
         Self::addModulesMiddleware();    
-        
-        if ($hasDbError == true) {
-            $renderer = new HtmlPageErrorRenderer(Self::errors());
-            $applicationError = new ApplicationError(Self::response(),$renderer);  
-            Self::checkInstall($applicationError);
-            return;
-        }
-
-        $errorMiddleware = Self::$app->addErrorMiddleware(true,true,true);
-        $errorRenderer = new HtmlPageErrorRenderer(Arikaim::errors());
-        $applicationError = new ApplicationError(Response::create(),$errorRenderer);
-        
-        $errorMiddleware->setDefaultErrorHandler($applicationError);
-
+ 
         // Set primary template           
         Self::view()->setPrimaryTemplate(Self::options()->get('primary.template'));   
         // DatTime and numbers format
@@ -211,7 +188,7 @@ class Arikaim
         DateTime::setTimeZone(Self::options()->get('time.zone'));
         // Set date and time formats
         DateTime::setDateFormats(Self::options()->get('date.format.items',[]),Self::options()->get('date.format',null));   
-        DateTime::setTimeFormats(Self::options()->get('date.format.items',[]),Self::options()->get('time.format',null));                 
+        DateTime::setTimeFormats(Self::options()->get('date.format.items',[]),Self::options()->get('time.format',null));                          
     }
     
     /**
@@ -219,14 +196,15 @@ class Arikaim
      *
      * @return void
      */
-    public static function initMiddleware($safeMode = false)
+    public static function initMiddleware()
     {
-        $routes = ($safeMode == false) ? Self::routes() : null;
         // add routing
         $routingMiddleware = new RoutingMiddleware(
             Self::$app->getRouteResolver(),          
             Self::$app->getRouteCollector(),
-            $routes
+            function() {
+                return Self::routes();
+            }
         );
         Self::$app->add($routingMiddleware);
     
@@ -236,8 +214,13 @@ class Arikaim
         Self::$app->add(new BodyParsingMiddleware());
         Self::$app->add(new OutputBufferingMiddleware(new StreamFactory(),OutputBufferingMiddleware::APPEND));
         
-        // add modules middlewares 
-        Self::addModules();  
+        $errorMiddleware = new ErrorMiddleware(true,true,true);
+        Self::$app->add($errorMiddleware);
+
+        $errorRenderer = new HtmlPageErrorRenderer(Arikaim::errors());
+        $applicationError = new ApplicationError(Response::create(),$errorRenderer);
+        
+        $errorMiddleware->setDefaultErrorHandler($applicationError);
     }
 
     /**
@@ -344,54 +327,18 @@ class Arikaim
     /**
      * End handler
      *
-     * @return void
+     * @return boolean
+     * 
+     * @throws Exception
      */
-    public static function end() 
+    private static function errorHandler() 
     {    
-        $error = \error_get_last();    
+        $error = \error_get_last();   
         if (\error_reporting() == false || empty($error) == true) {
             return;
         }
-    
-        Self::get('cache')->clear();
-        $renderer = new HtmlPageErrorRenderer(Self::errors());
-        $applicationError = new ApplicationError(Self::response(),$renderer);  
-        Self::checkInstall($applicationError);
-
-        $output = $applicationError->renderError(Self::createRequest(),$error);            
-        echo $output;
-        exit();                                                                     
-    }
-
-    /**
-     * Check Arikaim install
-     *
-     * @param object $applicationError
-     * @return void
-     */
-    protected static function checkInstall($applicationError)
-    {
-        if (Install::isInstalled() == false) {                
-            if (Install::isInstallPage() == true) {    
-                $disabled = Self::get('config')->getByPath('settings/disableInstallPage',false);     
-                if ($disabled != true) {                            
-                    $output = Self::get('page')->getHtmlCode('system:install');  
-                    echo $output;
-                    exit();    
-                }            
-                // disbled install page
-                $error = new Exception(Self::get('errors')->getError('INSTALL_PAGE_ERROR')); 
-                $output = $applicationError->renderError(Self::createRequest(),$error);            
-                echo $output;
-                exit();                                             
-            }                   
-            if (Install::isApiInstallRequest() == true) {
-                return Self::$app->run();
-            } 
-            // redirect to install page
-            header('Location: ' . Install::getInstallPageUrl());
-            return;                                      
-        } 
+        
+        return true;                                                          
     }
 
     /**
