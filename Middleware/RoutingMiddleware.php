@@ -22,13 +22,13 @@ use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 
 use Arikaim\Core\Interfaces\RoutesInterface;
-
 use Arikaim\Core\App\SystemRoutes;
 use Arikaim\Core\Models\Users;
 use Arikaim\Core\Models\AccessTokens;
 use Arikaim\Core\Http\Url;
 use Arikaim\Core\Access\AuthFactory;
-
+use Arikaim\Core\Routes\MiddlewareFactory;
+use Arikaim\Core\Routes\RouteType;
 use RuntimeException;
 use Exception;
 use Closure;
@@ -85,7 +85,7 @@ class RoutingMiddleware implements MiddlewareInterface
      */
     protected function resolveRoutes()
     {
-        if (is_callable($this->routesClosure) == true && empty($this->routes) == true) {
+        if (\is_callable($this->routesClosure) == true && empty($this->routes) == true) {
             return $this->routes = ($this->routesClosure)();
         }
     }
@@ -122,14 +122,30 @@ class RoutingMiddleware implements MiddlewareInterface
         $method = $request->getMethod();
         $path = $request->getUri()->getPath();
    
-        if (SystemRoutes::isSystemApiUrl($path) == true) {            
-            // map system api routes          
-            $this->mapSystemRoutes($method,$path);          
-        } elseif (SystemRoutes::isAdminPage($path) == false) {            
-            // map extensions and template routes                          
-            $this->mapRoutes($method,$path);           
+        // set current path       
+        $type = RouteType::getType($path);
+     
+        switch($type) {
+            case RouteType::HOME_PAGE_URL: 
+                // home page route                 
+                $this->mapRoutes($method,3);
+                break;
+            case RouteType::ADMIN_PAGE_URL: 
+                // map control panel page
+                $this->routeCollector->map(['GET'],'/admin[/{language:[a-z]{2}}/]','Arikaim\Core\App\ControlPanel:loadControlPanel');
+                break;
+            case RouteType::SYSTEM_API_URL: 
+                $this->mapSystemRoutes($method);       
+                break;
+            case RouteType::API_URL: 
+                // api routes only 
+                $this->mapRoutes($method,2);    
+                break;
+            case RouteType::UNKNOW_TYPE:                 
+                $this->mapRoutes($method,1);
+                break;            
         }
-
+      
         $routingResults = $this->routeResolver->computeRoutingResults($path,$method);
         $routeStatus = $routingResults->getRouteStatus();
 
@@ -143,12 +159,14 @@ class RoutingMiddleware implements MiddlewareInterface
                     ->resolveRoute($routeIdentifier)
                     ->prepare($routeArguments);
             
-                //  route params
+                // route params
                 $pattern = $route->getPattern();
                 $routeParams = (empty($this->routes) == false) ? $this->routes->getRoute('GET',$pattern) : [];
                 $request = $request->withAttribute('route_params',$routeParams);
 
-                return $request->withAttribute('route', $route);
+                return $request
+                            ->withAttribute('route',$route)
+                            ->withAttribute('current_path',$path);
 
             case RoutingResults::NOT_FOUND:
                 throw new HttpNotFoundException($request);
@@ -167,17 +185,16 @@ class RoutingMiddleware implements MiddlewareInterface
      * Map system routes
      *
      * @param string $method
-     * @param string $path
      * @return void
      */
-    protected function mapSystemRoutes($method, $path)
+    protected function mapSystemRoutes($method)
     {       
         $routes = SystemRoutes::$routes[$method] ?? false;  
         if ($routes === false) {
             return;
         }
       
-        if (SystemRoutes::isApiInstallRequest() == false) {
+        if (RouteType::isApiInstallRequest() == false) {
             $user = new Users();
             $middleware = AuthFactory::createMiddleware('session',$user,[]);
         } else {
@@ -198,37 +215,51 @@ class RoutingMiddleware implements MiddlewareInterface
      * Map extensons and templates routes
      *     
      * @param string $method
-     * @param string $path
+     * @param int|null $type
      * @return boolean
      * 
      * @throws Exception
      */
-    public function mapRoutes($method, $path)
+    public function mapRoutes($method, $type = null)
     {      
         $this->resolveRoutes();
 
-        try {          
-            $routes = (empty($this->routes) == false) ? $this->routes->searchRoutes($method) : [];
+        try {   
+            $routes = [];      
+            if (empty($this->routes) == false) {
+                $routes = ($type == 3) ? [$this->routes->getHomePageRoute()] : $this->routes->searchRoutes($method,$type);                
+            }           
             $user = new Users();
+            $accessTokens = new AccessTokens();
         } catch(Exception $e) {
             return false;
         }
        
         foreach($routes as $item) {
-            $handler = $item['handler_class'] . ':' . $item['handler_method'];   
+            $handler = $item['handler_class'] . ':' . $item['handler_method'];  
+            $middlewares = (empty($item['middlewares']) == false) ? \json_decode($item['middlewares'],true) : false; 
             $route = $this->routeCollector->map([$method],$item['pattern'],$handler);
             // auth middleware
             if ($item['auth'] > 0) {
                 $options['redirect'] = (empty($item['redirect_url']) == false) ? Url::BASE_URL . $item['redirect_url'] : null;      
                 
-                $userProvider = ($item['auth'] == 4) ? new AccessTokens() : $user;     
-                $middleware = AuthFactory::createMiddleware($item['auth'],$userProvider,$options);
-
-                if ($middleware != null && \is_object($route) == true) {
+                $userProvider = ($item['auth'] == 4) ? $accessTokens : $user;     
+                $authMiddleware = AuthFactory::createMiddleware($item['auth'],$userProvider,$options);               
+                if ($authMiddleware != null && \is_object($route) == true) {
                     // add middleware 
-                    $route->add($middleware);
+                    $route->add($authMiddleware);
                 }
-            }                                                   
+            } 
+            // add middlewares                     
+            if ($middlewares !== false) {              
+                foreach ($middlewares as $class) {
+                    $instance = MiddlewareFactory::create($class);
+                    if ($instance != null && \is_object($route) == true) {   
+                        // add middleware                 
+                        $route->add($instance);
+                    }                   
+                }                  
+            }                                        
         }          
     }
 }

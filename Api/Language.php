@@ -184,6 +184,7 @@ class Language extends ControlPanelApiController
     { 
         $this->onDataValid(function($data) {
             $language = $data->get('language_code'); 
+            $this->get('options')->set('current.language',$language,true);        
             $this->get('page')->setLanguage($language);
 
             $this->field('language','language');

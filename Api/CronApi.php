@@ -11,8 +11,6 @@ namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ControlPanelApiController;
 use Arikaim\Core\Queue\Cron;
-use Arikaim\Core\Queue\QueueWorker;
-use Arikaim\Core\System\Error\PhpError;
 
 /**
  * Cron api controller

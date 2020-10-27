@@ -101,8 +101,7 @@ class Component extends ApiController
         $params = \array_merge($params,$data->toArray());
       
         $language = $this->getPageLanguage($params);
-        $this->get('view')->addGlobal('current_language',$language);
-      
+       
         return $this->load($data['name'],$params,$language);
     }
 
@@ -116,11 +115,13 @@ class Component extends ApiController
      */
     public function load($name, $params = [], $language)
     {   
-        $framework = (isset($params['framework']) == true) ? $params['framework'] : null;
-        if (empty($framework) == true) {
+        $framework = $params['framework'] ?? false;
+        if ($framework === false) {
             $template = ResourceLocator::getTemplateName($name,$this->get('view')->getPrimaryTemplate());
             $framework = $this->get('page')->getFramework($template);      
         }
+        $params['current_path'] = $this->get('options')->get('current.path','');
+    
         $component = $this->get('page')->createHtmlComponent($name,$params,$language,true,$framework);
      
         if (\is_object($component) == false) {
@@ -129,7 +130,7 @@ class Component extends ApiController
             ])->getResponse();  
         }
      
-        $component = $component->renderComponentData($component->getComponentData(),$params);
+        $component = $component->renderComponentDescriptor($component->getComponentData(),$params);
     
         if ($component->hasError() == true) {
             $error = $component->getError();
@@ -146,7 +147,6 @@ class Component extends ApiController
         $files = $this->get('page')->getComponentsFiles();
         
         $result = [
-            'html'       => $component->getHtmlCode(),
             'css_files'  => (isset($files['css']) == true) ? Arrays::arrayColumns($files['css'],['url','params']) : [],
             'js_files'   => (isset($files['js']) == true)  ? Arrays::arrayColumns($files['js'],['url','params'])  : [],
             'properties' => \json_encode($component->getProperties()),
@@ -165,15 +165,9 @@ class Component extends ApiController
      */
     private function getHeaderParams($request)
     {       
-        $headerParams = (isset($request->getHeader('Params')[0]) == true) ? $request->getHeader('Params')[0] : null;
+        $params = $request->getHeader('Params');
+        $headerParams = $params[0] ?? null;
         
-        if ($headerParams != null) {
-            $headerParams = \json_decode($headerParams,true);
-            if (\is_array($headerParams) == true) {
-                return $headerParams;
-            }
-        }
-
-        return [];
+        return (empty($headerParams) == false) ? \json_decode($headerParams,true) : [];         
     }
 }

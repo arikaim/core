@@ -36,7 +36,8 @@ class OptionsSchema extends Schema
         $table->string('key')->nullable(false);
         $table->text('value')->nullable(true);    
         $table->string('extension')->nullable(true);       
-        $table->integer('auto_load')->nullable(false)->default(1);       
+        $table->integer('auto_load')->nullable(false)->default(1);     
+        $table->string('type')->nullable(true);       
         // indexes
         $table->unique('key');  
     }
@@ -48,6 +49,9 @@ class OptionsSchema extends Schema
      * @return void
      */
     public function update($table) 
-    {       
+    {    
+        if ($this->hasColumn('type') == false) {
+            $table->string('type')->nullable(true); 
+        }    
     } 
 }

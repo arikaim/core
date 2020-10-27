@@ -12,6 +12,7 @@ namespace Arikaim\Core\Models;
 use Illuminate\Database\Eloquent\Model;
 
 use Arikaim\Core\Collection\Arrays;
+use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Interfaces\OptionsStorageInterface;
 use Exception;
 
@@ -75,7 +76,7 @@ class Options extends Model implements OptionsStorageInterface
      */
     public function createOption($key, $value, $autoLoad = false, $extension = null)
     {
-        return ($this->hasOption($key) == true) ? false : $this->saveOption($key,$value,$autoLoad,$extension);       
+        return ($this->hasOption($key) == true) ? false : $this->saveOption($key,$value,$extension,$autoLoad);       
     }
 
     /**
@@ -100,29 +101,33 @@ class Options extends Model implements OptionsStorageInterface
      *
      * @param string $key
      * @param mixed $value
-     * @param boolean $autoLoad
      * @param string $extension
+     * @param int|null $autoLoad
      * @return bool
      */
-    public function saveOption($key, $value, $autoLoad = false, $extension = null) 
+    public function saveOption($key, $value, $extension = null, $autoLoad = null) 
     {
-        $key = \trim($key);
-        if (empty($key) == true) {
-            return false;
-        }
-        $key = \str_replace('_','.',$key);
-        
+        $key = \trim(\str_replace('_','.',$key));
+        $type = \gettype($value);
+
         if (\is_array($value) == true) {            
             $value = \json_encode($value);
+            $type = 'json';
+        }
+        if (\is_string($value) == true) {
+            $type = (Utils::isJson($value) == true) ? 'json' : $type;
         }
 
         $data = [
             'key'       => $key,
             'value'     => $value,
-            'auto_load' => ($autoLoad == true) ? 1 : 0,      
+            'type'      => $type,
             'extension' => $extension
         ];
 
+        if (empty($autoLoad) == false) {
+            $data['auto_load'] = $autoLoad;
+        }
         if ($this->hasOption($key) == true) {
             $result = $this->where('key','=',$key)->update($data);
             return ($result !== false);
@@ -171,7 +176,7 @@ class Options extends Model implements OptionsStorageInterface
             return [];
         }
        
-        $options = $model->mapWithKeys(function ($item) {
+        $options = $model->mapWithKeys(function($item) {
             return [$item['key'] => $item['value']];
         })->toArray(); 
         

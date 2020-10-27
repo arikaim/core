@@ -46,11 +46,13 @@ class Users extends ApiController
             $result = $this->get('access')->authenticate($credentials);
             if ($result === false) {           
                 $this->error('errors.login');  
+                $this->logError('Not valid Contro Panel login details',$credentials);
                 return; 
             }  
             // check for control panel permission
             if ($this->get('access')->hasControlPanelAccess() == false) {
                 $this->error('errors.login');   
+                return;
             }
             // update login date time
             $userId = $this->get('access')->getId();  

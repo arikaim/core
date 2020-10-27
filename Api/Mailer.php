@@ -49,7 +49,7 @@ class Mailer extends ControlPanelApiController
                 ->to($user['email'],'Admin User')
                 ->from($user['email'],'Arikaim CMS')               
                 ->send();
-            
+
             $this->setResponse($result,'mailer.send',function() {
                 $error = $this->get('mailer')->getErrorMessage();
                 $error = (empty($error) == true) ? 'errors.mailer.send' : $error;

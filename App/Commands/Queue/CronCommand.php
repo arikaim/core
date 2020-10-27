@@ -13,6 +13,8 @@ use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\System\System;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Utils\DateTime;
+use Arikaim\Core\Interfaces\Job\JobOutputInterface;
+use Arikaim\Core\Interfaces\Job\JobLogInterface;
 use Exception;
 
 /**
@@ -60,6 +62,12 @@ class CronCommand extends ConsoleCommand
                 $this->style->writeLn('ExecuteJob: ' . $name);
                 try {
                     Arikaim::queue()->executeJob($job);
+                    if ($job instanceof JobOutputInterface) {
+                        $job->render();
+                    }
+                    if ($job instanceof JobLogInterface) {
+                        Arikaim::logger()->info($job->getLogMessage(),$job->getLogContext());
+                    }
                 } catch (Exception $e) {
                     Arikaim::logger()->error('Failed to execute cron job, details: ' . $e->getMessage());
                 }

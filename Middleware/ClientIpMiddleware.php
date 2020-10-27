@@ -13,12 +13,15 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+
+use Arikaim\Core\Utils\ClientIp;
 use Arikaim\Core\Middleware\Middleware;
+use Arikaim\Core\Http\Session;
 
 /**
- * Core middleware
+ * Cient Ip middleware
  */
-class CoreMiddleware extends Middleware implements MiddlewareInterface
+class ClientIpMiddleware extends Middleware implements MiddlewareInterface
 { 
     /**
      * Process middleware
@@ -29,12 +32,11 @@ class CoreMiddleware extends Middleware implements MiddlewareInterface
     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     { 
-        $headers = $this->getParam('headers',[]);
-        $cacheControl = $headers['CacheControl'] ?? 'max-age=3600,public';
-
-        $response = $handler->handle($request);
-    
-        // set cache control header
-        return $response->withHeader('Cache-Control',$this->getParam('CacheControl',$cacheControl));      
+        // get client ip address      
+        $ip = ClientIp::getClientIpAddress($request);
+        $request = $request->withAttribute('client_ip',$ip);   
+        Session::set('client_ip',$ip);
+        
+        return $handler->handle($request);             
     }    
 }

@@ -32,8 +32,9 @@ class ServiceContainer
      * @param boolean $cosole
      * @return Container
      */
-    public static function init($container, $console = false)
+    public static function create($console = false)
     {
+        $container = new Container();
         // Cache 
         $container['cache'] = function($container) {                    
             $routeCacheFile = Path::CACHE_PATH . '/routes.cache.php';                   
@@ -70,8 +71,9 @@ class ServiceContainer
         // Init template view. 
         $container['view'] = function ($container) use($cacheStatus) {                            
             $cache = ($cacheStatus == true) ? Path::VIEW_CACHE_PATH : false;
-            $debug = (isset($container->get('config')['settings']['debug']) == true) ? $container->get('config')['settings']['debug'] : true;
-            $demoMode = (isset($container->get('config')['settings']['demo_mode']) == true) ? $container->get('config')['settings']['demo_mode'] : false;
+            $debug = $container->get('config')['settings']['debug'] ?? true;
+            $demoMode = $container->get('config')['settings']['demo_mode'] ?? false;
+            $primaryTemplate = $container->get('options')->get('primary.template',null);
             return new \Arikaim\Core\View\View(
                 $container['cache'],
                 Path::VIEW_PATH,
@@ -82,13 +84,16 @@ class ServiceContainer
                     'debug'      => $debug,
                     'demo_mode'  => $demoMode,
                     'autoescape' => false
-                ]
+                ],
+                $primaryTemplate
             );           
         };    
         // Init page components.
-        $container['page'] = function($container) {         
-            Page::setDefaultLanguage($container->get('options')->get('default.language','en'));                
-            return new Page($container->get('view'),$container->get('options')->get('library.params',[]));
+        $container['page'] = function($container) {                     
+            $libraryPrams = $container->get('options')->get('library.params',[]);
+            $defaultLanguage = $container->get('options')->get('default.language','en');     
+                      
+            return new Page($container->get('view'),$defaultLanguage,$libraryPrams);
         }; 
         // Errors  
         $container['errors'] = function($container) use ($console) {
@@ -98,7 +103,7 @@ class ServiceContainer
                 $systemErrors = \array_merge($systemErrors,$consoleErrors);
             }               
             
-            return new \Arikaim\Core\System\Error\Errors($container['page'],$systemErrors);          
+            return new \Arikaim\Core\System\Error\Errors($systemErrors);          
         };
         // Access
         $container['access'] = function($container) {
@@ -145,11 +150,11 @@ class ServiceContainer
             return new \Arikaim\Core\Driver\DriverManager(Model::Drivers());  
         };
         // Logger
-        $container['logger'] = function($container) {                     
-            $logger = new \Arikaim\Core\Logger\Logger(Path::LOGS_PATH);
-            if ($container->get('options')->get('logger',true) == false) {
-                $logger->disable();
-            }
+        $container['logger'] = function($container) {   
+            $enabled = $container->get('options')->get('logger',true); 
+            $handlerName = $container->get('options')->get('logger.handler','file'); 
+
+            $logger = new \Arikaim\Core\Logger\Logger(Path::LOGS_PATH . 'errors.log',$enabled,$handlerName);
             return $logger;
         };      
         // Jobs queue

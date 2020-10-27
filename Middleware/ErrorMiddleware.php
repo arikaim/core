@@ -10,16 +10,23 @@
 namespace Arikaim\Core\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpException;
-use Slim\Interfaces\ErrorHandlerInterface;
 
+use Arikaim\Core\System\Error\ErrorHandlerInterface;
+use Arikaim\Core\System\Error\Renderer\HtmlPageErrorRenderer;
+use Arikaim\Core\System\Error\ApplicationError;
+use Arikaim\Core\Interfaces\View\HtmlPageInterface;
 use Arikaim\Core\App\Install;
+use Arikaim\Core\Routes\RouteType;
+use Arikaim\Core\Http\Request;
 use Throwable;
 use PDOException;
 use RuntimeException;
+use Closure;
 
 /**
  * Error middleware class
@@ -29,40 +36,64 @@ class ErrorMiddleware implements MiddlewareInterface
     /**
      * @var bool
      */
-    protected $displayErrorDetails;
-
-    /**
-     * @var bool
-     */
     protected $logErrors;
 
     /**
-     * @var bool
+     * Page
+     *
+     * @var HtmlPageInterface|null
      */
-    protected $logErrorDetails;
+    protected $page = null;
 
     /**
-     * @var array
+     * @var ResponseFactoryInterface
      */
-    protected $handlers = [];
+    protected $responseFactory;
 
     /**
-     * @var object|null
+     * Page resolver
+     *
+     * @var Closure
      */
-    protected $defaultErrorHandler;
+    protected $pageResolver;
 
     /**
      * Constructor 
      * 
      * @param bool $displayErrorDetails
      * @param bool $logErrors
-     * @param bool $logErrorDetails
      */
-    public function __construct(bool $displayErrorDetails, bool $logErrors, bool $logErrorDetails) 
+    public function __construct(Closure $pageResolver, ResponseFactoryInterface $responseFactory, bool $logErrors = true) 
     {       
-        $this->displayErrorDetails = $displayErrorDetails;
-        $this->logErrors = $logErrors;
-        $this->logErrorDetails = $logErrorDetails;
+        $this->pageResolver = $pageResolver;
+        $this->responseFactory = $responseFactory; 
+        $this->logErrors = $logErrors;       
+    }
+
+    /**
+     * Get page ref
+     *
+     * @return HtmlPageInterface
+     */
+    protected function getPage()
+    {
+        if (empty($this->page) == true) {
+            $this->page = ($this->pageResolver)();
+        }
+
+        return $this->page;
+    }
+
+    /**
+     * Create error handler
+     *
+     * @return ErrorHandlerInterface
+     */
+    protected function createErrroHandler()
+    {
+        $errorRenderer = new HtmlPageErrorRenderer($this->getPage());
+
+        return new ApplicationError($errorRenderer);  
     }
 
     /**
@@ -100,71 +131,23 @@ class ErrorMiddleware implements MiddlewareInterface
         if ($exception instanceof HttpException) {
             $request = $exception->getRequest();
         }
+        $errorHandler = $this->createErrroHandler();
+        $response = $this->responseFactory->createResponse();
 
         if (Install::isInstalled() == false) {                
-            if (Install::isApiInstallRequest() == true) {
+            if (RouteType::isApiInstallRequest() == true) {
                 return $handler->handle($request); 
-            } elseif (Install::isInstallPage() == false) {                  
-                return $this->defaultErrorHandler->getResponse()->withHeader('Location',Install::getInstallPageUrl());                  
+            } elseif (RouteType::isInstallPage() == false) {                  
+                return $response->withHeader('Location',RouteType::getInstallPageUrl());                  
             } 
            
             return $handler->handle($request);
         }
-
-        $exceptionType = \get_class($exception);
-        $handler = $this->getErrorHandler($exceptionType);
-
-        return $handler($request, $exception, $this->displayErrorDetails, $this->logErrors, $this->logErrorDetails);
-    }
-
-    /**
-     * Get error handler 
-     * 
-     * @param string $type Exception/Throwable name. ie: RuntimeException::class
-     * @return object
-     */
-    public function getErrorHandler(string $type)
-    {
-        if (isset($this->handlers[$type]) == true) {
-            return $this->handlers[$type];
-        }
-
-        return $this->getDefaultErrorHandler();
-    }
-
-    /**
-     * Get default error handler
-     *
-     * @return object
-     */
-    public function getDefaultErrorHandler()
-    {
-        return $this->defaultErrorHandler;
-    }
-
-    /**
-     * Set callable as the default Slim application error handler.
-     *
-     * @param object $handler
-     * @return self
-     */
-    public function setDefaultErrorHandler($handler): self
-    {
-        $this->defaultErrorHandler = $handler;
-
-        return $this;
-    }
-
-    /**
-     * Set callable to handle scenarios where an error
-     *
-     * @param string $type Exception/Throwable name. ie: RuntimeException::class
-     * @param ErrorHandlerInterface $handler
-     * @return self
-     */
-    public function setErrorHandler(string $type, $handler): self
-    {
-        $this->handlers[$type] = $handler;
-        return $this;
-    }
+        // render errror
+        $renderType = (Request::acceptJson($request) == true) ? 'json' : 'html';
+        $output = $errorHandler->renderError($exception,$renderType);
+        $response->getBody()->write($output);
+        
+        return $response;
+    }  
 }

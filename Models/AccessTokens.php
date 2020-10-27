@@ -90,12 +90,12 @@ class AccessTokens extends Model implements UserProviderInterface
      */
     public function getUserByCredentials(array $credentials)
     {
-        $token = (isset($credentials['token']) == true) ? $credentials['token'] : null;
+        $token = $credentials['token'] ?? null;
         
         if (empty($token) == true) {
             return false;
         }
-        if ($this->isExpired($token) == true) {           
+        if ($this->isExpired($token) == true) {                  
             return false;
         }
 

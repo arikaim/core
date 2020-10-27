@@ -139,7 +139,7 @@ class Module implements ModuleInterface
             return $this->config;
         }
 
-        return (isset($this->config[$key]) == true) ? $this->config[$key] : null;
+        return $this->config[$key] ?? null;
     }
 
     /**

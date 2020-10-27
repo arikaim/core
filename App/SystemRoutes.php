@@ -497,42 +497,4 @@ class SystemRoutes
             ]    
         ]      
     ];
-
-    /**
-     * Return true if request url is system api
-     *
-     * @param string $url
-     * @return boolean
-     */
-    public static function isSystemApiUrl($url)
-    {
-        $path = \str_replace(BASE_PATH,'',$url);
- 
-        return (\substr($path,0,10) == '/core/api/');
-    }
-
-    /**
-     * Return true if request url is admin page 
-     *
-     * @param string $url
-     * @return boolean
-     */
-    public static function isAdminPage($url)
-    {
-        $path = \str_replace(BASE_PATH,'',$url);
-
-        return (\substr($path,0,6) == '/admin');
-    }
-
-    /**
-     * Return true if request is for installation 
-     *
-     * @return boolean
-     */
-    public static function isApiInstallRequest()
-    {
-        $uri = (isset($_SERVER['REQUEST_URI']) == true) ? $_SERVER['REQUEST_URI'] : '';
-       
-        return (\substr($uri,-17) == 'core/api/install/');
-    }
 }

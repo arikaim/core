@@ -6,7 +6,9 @@
  * @copyright   Copyright (c)  Konstantin Atanasov <info@arikaim.com>
  * @license     http://www.arikaim.com/license
  * 
- */
+*/
+
+use \Arikaim\Core\Utils\Utils;
 
 /**
  * Create event obj
@@ -14,33 +16,31 @@
  * @param array $params Event params
  * @return Arikaim\Core\Events\Event 
  */
-function createEvent($params = [])
+function createEvent(array $params = [])
 {
-    return new Arikaim\Core\Events\Event($params);
+    return new \Arikaim\Core\Events\Event($params);
 }
 
 /**
- * Return default value if variable is null or empty.
+ * Add profile pin
  *
- * @param mixed $variable
- * @param mixed $default
- * @return mixed
+ * @param string $label
+ * @return void
  */
-function defaultValue($variable, $default)
-{
-    return (empty($variable) == true) ? $default : $variable; 
+function addProfilerPin(string $label): void
+{   
+    $GLOBALS['profilePins'][] = [
+        'label' => $label,
+        'time'  => Utils::getExecutionTime()
+    ];
 }
 
 /**
- * Call closure
+ * Get profiler data
  *
- * @param mixed $value
- * @param \Closure $closure
- * @return mixed
+ * @return array
  */
-function call($value, $closure)
+function getProfilerData(): array
 {
-    $closure($value);
-    
-    return $value;
-}
+    return $GLOBALS['profilePins'] ?? [];
+} 

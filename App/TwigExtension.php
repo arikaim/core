@@ -131,8 +131,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             'system_template_name'  => Page::SYSTEM_TEMPLATE_NAME,
             'domain'                => (\defined('DOMAIN') == true) ? DOMAIN : null,
             'base_url'              => Url::BASE_URL,     
-            'DIRECTORY_SEPARATOR'   => DIRECTORY_SEPARATOR,
-            'base_path'             => $this->basePath,                
+            'base_path'             => $this->basePath,        
+            'DIRECTORY_SEPARATOR'   => DIRECTORY_SEPARATOR,        
             'ui_path'               => $this->basePath . $this->viewPath,   
         ];
     }
@@ -156,8 +156,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('currentFramework',[$this,'getCurrentFramework']),
             new TwigFunction('currentTemplate',[$this,'getCurrentTemplate']),
             // page              
-            new TwigFunction('url',['Arikaim\\Core\\View\\Html\\Page','getUrl']),        
-            new TwigFunction('currentUrl',['Arikaim\\Core\\View\\Html\\Page','getCurrentUrl']),
+            new TwigFunction('url',[$this,'getUrl']),        
+            new TwigFunction('currentUrl',[$this,'getCurrentUrl']),
             // template          
             new TwigFunction('getPrimaryTemplate',[$this,'getPrimaryTemplate']),
             new TwigFunction('loadLibraryFile',[$this,'loadLibraryFile']),    
@@ -167,8 +167,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             // macros
             new TwigFunction('macro',['Arikaim\\Core\\Utils\\Path','getMacroPath']),         
             new TwigFunction('systemMacro',[$this,'getSystemMacroPath']),
-
-            // 
+            // mobile
             new TwigFunction('isMobile',['Arikaim\\Core\\Utils\\Mobile','mobile']),
             // paginator
             new TwigFunction('paginate',['Arikaim\\Core\\Paginator\\SessionPaginator','create']),
@@ -232,6 +231,32 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
+     * Return url link with current language code
+     *
+     * @param string $path
+     * @param boolean $full
+     * @param string|null $language
+     * @return string
+     */
+    public static function getUrl($path = null, $full = false, $language = null)
+    {
+        return Page::getUrl($path,$full,$language);
+    }
+
+    /**
+     * Return url link with current language code
+     *
+     * @param boolean $full
+     * @return string
+    */
+    public function getCurrentUrl($full = true)
+    {
+        $curentPath = $this->container->get('options')->get('current.path','');
+
+        return ($full == true) ? DOMAIN . $curentPath : $curentPath;           
+    }
+
+    /**
      * Load component
      *
      * @param string $name
@@ -241,7 +266,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function loadComponent(&$context, $name, $params = [])
     {        
         $language = $this->container->get('page')->getLanguage();   
-        $framework = (isset($context['component_framework']) == true) ? $context['component_framework'] : null;
+        $framework = $context['component_framework'] ?? null;
  
         return $this->container->get('page')->createHtmlComponent($name,$params,$language,true,$framework)->load();     
     }
@@ -278,7 +303,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         $file = $this->container->get('page')->getComponentFiles($componentName,'css');
         $content = (empty($file[0]) == false) ? File::read($file[0]['full_path'] . $file[0]['file_name']) : '';
         
-        return ($content == null) ? '' : $content;
+        return $content ?? '';
     }
 
     /**
@@ -293,7 +318,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         $file = $this->viewPath . 'library' . DIRECTORY_SEPARATOR . $library . DIRECTORY_SEPARATOR . $fileName;
         $content = File::read($file);
 
-        return ($content == null) ? '' : $content;
+        return $content ?? '';
     }
 
     /**
@@ -323,7 +348,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function getCurrentFramework()
     {
-        return $this->container->get('page')->getFramework($this->container->get('page')->getCurrentTemplate());
+        return $this->container->get('page')->getFramework();
     }
 
     /**
@@ -434,9 +459,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
        return [
             // Html
             new TwigFilter('attr',['Arikaim\\Core\\View\\Template\\Filters','attr'],['is_safe' => ['html']]),
-            new TwigFilter('tag',['Arikaim\\Core\\Utils\\Html','htmlTag'],['is_safe' => ['html']]),
-            new TwigFilter('singleTag',['Arikaim\\Core\\Utils\\Html','htmlSingleTag'],['is_safe' => ['html']]),
-            new TwigFilter('startTag',['Arikaim\\Core\\Utils\\Html','htmlStartTag'],['is_safe' => ['html']]),
             new TwigFilter('getAttr',['Arikaim\\Core\\Utils\\Html','getAttributes'],['is_safe' => ['html']]),
             new TwigFilter('decode',['Arikaim\\Core\\Utils\\Html','specialcharsDecode'],['is_safe' => ['html']]),
             // other

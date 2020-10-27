@@ -40,7 +40,7 @@ class Middleware
      */
     public function getParam($name, $default = null)
     {
-        return (isset($this->params[$name]) == true) ? $this->params[$name] : $default;
+        return $this->params[$name] ?? $default;
     }
 
     /**

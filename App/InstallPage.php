@@ -31,7 +31,7 @@ class InstallPage extends Controller
 
         $disableInstallPage = $this->get('config')->getByPath('settings/disableInstallPage'); 
         if ($disableInstallPage == true) {           
-            return $this->get('errors')->loadPageNotFound($response); 
+            return $this->pageNotFound($response,$data->toArray()); 
         }
 
         if (Install::isInstalled() == false) { 
@@ -39,6 +39,6 @@ class InstallPage extends Controller
         }
         $this->get('errors')->addError('INSTALLED_ERROR');
         
-        return $this->get('errors')->loadSystemError($response); 
+        return $this->pageSystemError($response,$data->toArray()); 
     }
 }

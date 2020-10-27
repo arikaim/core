@@ -28,42 +28,6 @@ class Install
 {
     use TaskErrors;
 
-    const INSTALL_PAGE_URL_PATH = 'admin/install';
- 
-    /**
-     * Get install page url
-     *
-     * @return string
-     */
-    public static function getInstallPageUrl() : string
-    {
-        return DOMAIN . BASE_PATH . '/' . Self::INSTALL_PAGE_URL_PATH;
-    }
-
-    /**
-     * Check for install page url
-     *
-     * @return boolean
-     */
-    public static function isInstallPage()
-    {
-        $uri = (isset($_SERVER['REQUEST_URI']) == true) ? $_SERVER['REQUEST_URI'] : '';
-       
-        return (\substr($uri,-13) == Self::INSTALL_PAGE_URL_PATH);
-    }
-
-    /**
-     * Return true if request is for installation 
-     *
-     * @return boolean
-     */
-    public static function isApiInstallRequest()
-    {
-        $uri = (isset($_SERVER['REQUEST_URI']) == true) ? $_SERVER['REQUEST_URI'] : '';
-       
-        return (\substr($uri,-17) == 'core/api/install/');
-    }
-
     /**
      * Set config files writable
      *
@@ -202,11 +166,12 @@ class Install
         } 
         // delete symlink
         $linkPath = ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'public';
+        $linkTarget = Arikaim::storage()->getFullPath('public') . DIRECTORY_SEPARATOR;
         File::delete($linkPath);
 
         if (File::exists($linkPath) == false) {
             // create symlink 
-            return @symlink(Arikaim::storage()->getFullPath('public'),$linkPath); 
+            return @symlink($linkTarget,$linkPath); 
         }
        
         return true;     
@@ -267,12 +232,10 @@ class Install
         // add time format options
         Arikaim::options()->createOption('time.format.items',$formats['time'],true);    
         Arikaim::options()->createOption('time.format',$formats['time']['24-long'],true);
-    
         // add number format options
         $items = Arikaim::config()->loadJsonConfigFile('number-format.json');
         Arikaim::options()->createOption('number.format.items',$items,true);
         Arikaim::options()->createOption('number.format','default',true);
-
         // primary template
         Arikaim::options()->createOption('primary.template','blog',true);
         // set default time zone 
@@ -287,15 +250,18 @@ class Install
         // email settings
         Arikaim::options()->createOption('mailer.from.email','',false);
         // logger
-        Arikaim::options()->createOption('logger',true,true);
-        Arikaim::options()->createOption('logger.stats',true,true);
-        Arikaim::options()->createOption('logger.driver',null,true);
+        Arikaim::options()->createOption('logger',true,true);     
+        Arikaim::options()->createOption('logger.handler','file',true);
         // session
         Arikaim::options()->createOption('session.recreation.interval',0,false);
         // library params
         Arikaim::options()->createOption('library.params',[],true);
         // language
-        Arikaim::options()->createOption('default.language','en',true);        
+        Arikaim::options()->createOption('current.language','en',true);        
+        Arikaim::options()->createOption('default.language','en',true); 
+        // page
+        Arikaim::options()->createOption('current.page','',true); 
+        Arikaim::options()->createOption('current.path','',true); 
     }
 
     /**
@@ -478,7 +444,8 @@ class Install
             'OptionsSchema',
             'PermissionsSchema',
             'AccessTokensSchema',
-            'DriversSchema'
+            'DriversSchema',
+            'LogsSchema'
         ];
     }
 

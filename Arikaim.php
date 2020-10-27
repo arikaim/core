@@ -10,28 +10,18 @@
 namespace Arikaim\Core;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Container\ContainerInterface;
 use Http\Factory\Guzzle\StreamFactory;
 use Slim\Factory\AppFactory;
-use Slim\Factory\ServerRequestCreatorFactory;
-use Slim\Routing\RouteContext;
-use Slim\Middleware\ContentLengthMiddleware;
 use Slim\Middleware\OutputBufferingMiddleware;
-use Slim\Middleware\BodyParsingMiddleware;
 
-use Arikaim\Container\Container;
 use Arikaim\Core\Validator\ValidatorStrategy;
 use Arikaim\Core\App\ServiceContainer;
-
-use Arikaim\Core\System\Error\ApplicationError;
 use Arikaim\Core\Http\Session;
-use Arikaim\Core\Utils\Number;
-use Arikaim\Core\Utils\DateTime;
-use Arikaim\Core\System\Error\Renderer\HtmlPageErrorRenderer;
-use Arikaim\Core\Http\Response;
 use Arikaim\Core\Middleware\CoreMiddleware;
-use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Middleware\RoutingMiddleware;
 use Arikaim\Core\Middleware\ErrorMiddleware;
+use Arikaim\Core\Middleware\BodyParsingMiddleware;
 use Exception;
 
 /**
@@ -39,7 +29,7 @@ use Exception;
  */
 class Arikaim  
 {
-    const ARIKAIM_VERSION = '1.5.8';
+    const ARIKAIM_VERSION = '1.6.0';
 
     /**
      * Slim application object
@@ -53,21 +43,21 @@ class Arikaim
      * 
      * @var string
     */
-    private static $scheme;
+    private static $scheme = null;
 
     /**
      * Host
      * 
      * @var string
     */
-    private static $host;
+    private static $host = null;
 
     /**
      * App base path
      *
      * @var string
      */
-    private static $basePath;
+    private static $basePath = null;
 
     /**
      * Get container service
@@ -89,10 +79,6 @@ class Arikaim
      */
     public static function get($name)
     {
-        if (Self::$app->getContainer() == null) {
-            return null;
-        }
-
         return (Self::$app->getContainer()->has($name) == true) ? Self::$app->getContainer()->get($name) : null;
     }
 
@@ -110,7 +96,7 @@ class Arikaim
     /**
      * Return service container object.
      *
-     * @return object
+     * @return ContainerInterface
     */
     public static function getContainer()
     {
@@ -150,10 +136,13 @@ class Arikaim
         \define('CACHE_SAVE_TIME',4);
        
         // Create service container            
-        AppFactory::setContainer(ServiceContainer::init(new Container(),$console)); 
+        AppFactory::setContainer(ServiceContainer::create($console)); 
         // Create app 
         Self::$app = AppFactory::create();
         Self::$app->setBasePath(BASE_PATH);       
+        Self::$app->getContainer()['responseFactory'] = function() {
+            return Self::$app->getResponseFactory();
+        };
     }
 
     /**
@@ -170,25 +159,12 @@ class Arikaim
                     
         // Set router       
         Self::$app->getRouteCollector()->setDefaultInvocationStrategy(new ValidatorStrategy());
-                
-        // map control panel page
-        Self::$app->map(['GET'],'/admin[/{language:[a-z]{2}}/]','Arikaim\Core\App\ControlPanel:loadControlPanel');
+                       
         // map install page
         Self::$app->map(['GET'],'/admin/install','Arikaim\Core\App\InstallPage:loadInstall');
       
         // Add middlewares
-        Self::initMiddleware();       
-        Self::addModulesMiddleware();    
- 
-        // Set primary template           
-        Self::view()->setPrimaryTemplate(Self::options()->get('primary.template'));   
-        // DatTime and numbers format
-        Number::setFormats(Self::options()->get('number.format.items',[]),Self::options()->get('number.format',null));
-        // Set time zone
-        DateTime::setTimeZone(Self::options()->get('time.zone'));
-        // Set date and time formats
-        DateTime::setDateFormats(Self::options()->get('date.format.items',[]),Self::options()->get('date.format',null));   
-        DateTime::setTimeFormats(Self::options()->get('date.format.items',[]),Self::options()->get('time.format',null));                          
+        Self::initMiddleware();             
     }
     
     /**
@@ -207,53 +183,17 @@ class Arikaim
             }
         );
         Self::$app->add($routingMiddleware);
-    
-        // sanitize request body and client ip
-        Self::$app->add(new CoreMiddleware(Self::getContainer()->get('config')['settings']));         
-        Self::$app->add(new ContentLengthMiddleware());        
+            
+        Self::$app->add(new CoreMiddleware(Self::config()->get('settings',[])));           
         Self::$app->add(new BodyParsingMiddleware());
         Self::$app->add(new OutputBufferingMiddleware(new StreamFactory(),OutputBufferingMiddleware::APPEND));
         
-        $errorMiddleware = new ErrorMiddleware(true,true,true);
-        Self::$app->add($errorMiddleware);
-
-        $errorRenderer = new HtmlPageErrorRenderer(Arikaim::errors());
-        $applicationError = new ApplicationError(Response::create(),$errorRenderer);
-        
-        $errorMiddleware->setDefaultErrorHandler($applicationError);
-    }
-
-    /**
-     * Add modules middlewares
-     *   
-     * @return boolean
-     */
-    public static function addModulesMiddleware()
-    {
-        $modules = Self::cache()->fetch('middleware.list');
-        if (\is_array($modules) == false) {  
-            if (Self::db()->hasError() == true) {
-                return false;
-            } 
-            try {                
-                $modules = Arikaim::packages()->create('module')->getPackgesRegistry()->getPackagesList([
-                    'type'   => 2, // MIDDLEWARE 
-                    'status' => 1    
-                ]);         
-                Self::cache()->save('middleware.list',$modules,CACHE_SAVE_TIME);   
-            } catch(Exception $e) {
-                return false;
-            }
-        }    
-
-        foreach ($modules as $module) {             
-            $instance = Factory::createModule($module['name'],$module['class']);
-            if (\is_object($instance) == true) {
-                Self::$app->add($instance);  
-            }         
-        }
-        
-        return true;
+        $errorMiddleware = new ErrorMiddleware(
+            function() {
+                return Self::page();
+            },
+            Self::$app->getResponseFactory());
+        Self::$app->add($errorMiddleware);        
     }
 
     /**
@@ -274,19 +214,6 @@ class Arikaim
     public static function getRouteParser()
     {
         return Self::$app->getRouteCollector()->getRouteParser();
-    }
-
-    /**
-     * Create request
-     *
-     * @return ServerRequestInterface
-     */
-    public static function createRequest()
-    {
-        $serverRequestCreator = ServerRequestCreatorFactory::create();
-        $request = $serverRequestCreator->createServerRequestFromGlobals();
-
-        return $request;
     }
 
     /**
@@ -311,36 +238,6 @@ class Arikaim
         Self::$app->run();            
     }
     
-    /**
-     * Get current route from request
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @return Route|null
-     */
-    public static function getCurrentRoute($request)
-    {
-        $routeContext = RouteContext::fromRequest($request);
-        
-        return $routeContext->getRoute();
-    }
-
-    /**
-     * End handler
-     *
-     * @return boolean
-     * 
-     * @throws Exception
-     */
-    private static function errorHandler() 
-    {    
-        $error = \error_get_last();   
-        if (\error_reporting() == false || empty($error) == true) {
-            return;
-        }
-        
-        return true;                                                          
-    }
-
     /**
      * Return error message
      *
@@ -438,10 +335,14 @@ class Arikaim
      *
      * @param array $env
      *
-     * @return self
+     * @return void
      */
     public static function resolveEnvironment(array $env)
     {
+        if (empty(Self::$scheme) == false) {
+            return;
+        }
+
         // scheme
         $isHttps = 
             (isset($env['HTTPS']) == true && $env['HTTPS'] !== 'off') || 
@@ -470,5 +371,22 @@ class Arikaim
         } elseif ($scriptDir !== '/' && \stripos($uri, $scriptDir) === 0) {
             Self::$basePath = $scriptDir;
         }       
+    }
+
+    /**
+     * End handler
+     *
+     * @return boolean
+     * 
+     * @throws Exception
+     */
+    private static function errorHandler() 
+    {    
+        $error = \error_get_last();   
+        if (\error_reporting() == false || empty($error) == true) {
+            return;
+        }
+        
+        return true;                                                          
     }
 }

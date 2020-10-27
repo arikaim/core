@@ -28,15 +28,15 @@ class Page extends ApiController
      */
     public function loadPageHtml($request, $response, $data, $pageName = null) 
     {        
-        $pageName = (empty($pageName) == true) ? $this->resolvePageName($request,$data) : $pageName;
+        $pageName = $pageName ?? $this->resolvePageName($request,$data);
 
         $component = $this->get('page')->render($pageName);
-        $files = $this->get('view')->properties()->get('include.page.files',[]);
-
+        $files = $component->getFiles();
+      
         $result = [
             'html'       => $component->getHtmlCode(),
-            'css_files'  => (isset($files['css']) == true) ? $files['css'] : [],
-            'js_files'   => (isset($files['js']) == true)  ? $files['js'] : [],
+            'css_files'  => $files['css'] ?? [],
+            'js_files'   => $files['js']  ?? [],
             'properties' => \json_encode($component->getProperties())
         ];
 
@@ -76,11 +76,8 @@ class Page extends ApiController
      */
     public function loadPageProperties($request, $response, $data)
     {       
-        $pageName = $data->get('name',$this->get('page')->getCurrent());    
-    
         $result['properties'] = [
-            'name'              => $pageName,            
-            'library'           => $this->get('page')->getIncludedLibraries(),
+            'name'              => $this->get('options')->get('current.page'),            
             'language'          => $this->getPageLanguage($data),       
             'site_url'          => Url::BASE_URL
         ];

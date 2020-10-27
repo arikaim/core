@@ -45,6 +45,7 @@ class Routes extends Model implements RoutesStorageInterface
         'template_name',      
         'options',  
         'regex',
+        'middlewares',
         'page_name'
     ];
     
@@ -63,14 +64,29 @@ class Routes extends Model implements RoutesStorageInterface
     public $timestamps = false;
 
     /**
+     * Get home page route
+     *
+     * @return array
+     */
+    public function getHomePageRoute()
+    {
+        return $this->where('status','=',1)->where('type','=',3)->first()->toArray();
+    }
+
+    /**
      * Get routes list for request method
      *
      * @param string $method
+     * @param int|null $type
      * @return array
      */
-    public function searchRoutes($method)
+    public function searchRoutes($method, $type = null)
     {
-        $model = $this->where('status','=',1)->where('method','like','%' . $method . '%')->orderByDesc('type');
+        $model = $this->where('status','=',1);
+        if (empty($type) == false) {
+            $model = $model->where('type','=',$type);
+        }
+        $model = $model->where('method','like','%' . $method . '%')->orderByDesc('type');
     
         return (\is_object($model) == true) ? $model->get()->toArray() : [];
     }
@@ -94,7 +110,17 @@ class Routes extends Model implements RoutesStorageInterface
      */
     public function getOptionsAttribute()
     {
-        return \json_decode($this->attributes['options'],true);
+        return (empty($this->options) == false) ? \json_decode($this->options,true) : [];       
+    }
+
+    /**
+     * Mutator (get) for middleware attribute.
+     *
+     * @return array
+     */
+    public function getMiddlewareAttribute()
+    {
+        return (empty($this->middlewares) == false) ? \json_decode($this->middlewares,true) : [];
     }
 
     /**

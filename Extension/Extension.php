@@ -118,6 +118,30 @@ abstract class Extension implements ExtensionInterface
     }
 
     /**
+     * Create extension storage folder
+     *
+     * @param boolean $public
+     * @return bool
+     */
+    public function createStorageFolder($public = false)
+    {
+        $path = ($public == true) ? Path::STORAGE_PUBLIC_PATH : Path::STORAGE_PATH;
+        $storagePath = $path . $this->getName() . DIRECTORY_SEPARATOR;
+
+        if (File::exists($storagePath) == false) {
+            File::makeDir($storagePath);
+        }
+
+        $result = File::exists($storagePath);
+        if ($result === false) {
+            // add error
+            $this->addError(Arikaim::errors()->getError("Can't craate extension storage folder.",['path' => $storagePath]));
+        } 
+        
+        return $result;
+    }
+    
+    /**
      * Set extension as primary (override all existing routes)
      *
      * @return void

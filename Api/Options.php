@@ -37,8 +37,7 @@ class Options extends ControlPanelApiController
     public function saveController($request, $response, $data) 
     {                
         $this->onDataValid(function($data) { 
-            $extensionName = $data->get('extension_name',null);
-            $autoLoad = $data->get('auto_load',false);
+            $extensionName = $data->get('extension_name',null);          
             $key = $data->get('key');
             $value = $data->get('value');
 
@@ -48,7 +47,7 @@ class Options extends ControlPanelApiController
                 return;
             }
 
-            $result = $this->get('options')->set($key,$value,$autoLoad,$extensionName);
+            $result = $this->get('options')->set($key,$value,$extensionName);
 
             $this->setResponse($result,function() use($key,$value) {
                 $this
@@ -93,8 +92,7 @@ class Options extends ControlPanelApiController
     {    
         $this->onDataValid(function($data) {           
             $extensionName = $data->get('extension_name',null);
-            $autoLoad = $data->get('auto_load',false);
-
+         
             $demoMode = $this->get('config')->getByPath('settings/demo_mode',false);
             if ($demoMode == true) {
                 $this->error('Options save is disabled in demo mode!');
@@ -102,7 +100,7 @@ class Options extends ControlPanelApiController
             }
 
             foreach ($data as $key => $value) {
-                $this->get('options')->set($key,$value,$autoLoad,$extensionName);
+                $this->get('options')->set($key,$value,$extensionName);
             }
             $this->message('options.save');
         });
