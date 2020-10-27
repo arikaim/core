@@ -481,6 +481,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('timeFormat',['Arikaim\\Core\\Utils\\DateTime','timeFormat']),
             // numbers
             new TwigFilter('numberFormat',['Arikaim\\Core\\Utils\\Number','format']),
+            new TwigFilter('toNumber',['Arikaim\\Core\\Utils\\Number','toNumber']),
             // text
             new TwigFilter('mask',['Arikaim\\Core\\Utils\\Text','mask']),
             new TwigFilter('pad',['Arikaim\\Core\\Utils\\Text','pad']),
