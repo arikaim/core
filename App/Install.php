@@ -251,7 +251,7 @@ class Install
         Arikaim::options()->createOption('mailer.from.email','',false);
         // logger
         Arikaim::options()->createOption('logger',true,true);     
-        Arikaim::options()->createOption('logger.handler','file',true);
+        Arikaim::options()->createOption('logger.handler','db',true);
         // session
         Arikaim::options()->createOption('session.recreation.interval',0,false);
         // library params

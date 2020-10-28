@@ -377,7 +377,7 @@ class Packages extends ControlPanelApiController
     {        
         $this->onDataValid(function($data) { 
             $name = $data['name'];
-            $libraryParams = \json_decode($data->get('params'),true);
+            $libraryParams = $data->get('params',[]);
             $result = [];
         
             foreach ($libraryParams as $item) {
@@ -387,10 +387,43 @@ class Packages extends ControlPanelApiController
             $params = $this->get('options')->get('library.params',[]);
             $params[$name] = $result;
             $result = $this->get('options')->set('library.params',$params);
-          
+            
+            $this->get('cache')->clear();
+            
             $this->setResponse($result,function() use($name) {                        
                 $this
                     ->message('library.params')
+                    ->field('name',$name);         
+            },'errors.library.params'); 
+        });
+        $data->validate();            
+    }
+
+     /**
+     * Set ui library status
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+     */
+    public function setLibraryStatusController($request, $response, $data)
+    {        
+        $this->onDataValid(function($data) { 
+            $name =  $data->get('name');
+            $status = (bool)$data->get('status',false);
+
+            $packageManager = $this->get('packages')->create('library');
+            $library = $packageManager->createPackage($name);
+            $library->setStatus($status);
+
+            $result = $library->savePackageProperties();
+            $this->get('cache')->clear();
+
+            $this->setResponse($result,function() use($name,$status) {                        
+                $this
+                    ->message('library.status')
+                    ->field('status',$status)
                     ->field('name',$name);         
             },'errors.library.params'); 
         });

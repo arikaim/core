@@ -403,9 +403,15 @@ class SystemRoutes
                 'handler'    => 'Arikaim\Core\Api\Packages:setPrimary',
                 'middleware' => 'session'            
             ],
+            // Ui library
             [
                 'pattern'    => '/core/api/packages/library/params',
                 'handler'    => 'Arikaim\Core\Api\Packages:setLibraryParams',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/packages/library/status',
+                'handler'    => 'Arikaim\Core\Api\Packages:setLibraryStatus',
                 'middleware' => 'session'            
             ],
             // Install
