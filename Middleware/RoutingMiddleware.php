@@ -237,7 +237,7 @@ class RoutingMiddleware implements MiddlewareInterface
        
         foreach($routes as $item) {
             $handler = $item['handler_class'] . ':' . $item['handler_method'];  
-            $middlewares = (empty($item['middlewares']) == false) ? \json_decode($item['middlewares'],true) : false; 
+            $middlewares = $item['middlewares'] ?? [];
             $route = $this->routeCollector->map([$method],$item['pattern'],$handler);
             // auth middleware
             if ($item['auth'] > 0) {

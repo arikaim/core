@@ -50,6 +50,40 @@ class Routes extends Model implements RoutesStorageInterface
     ];
     
     /**
+     * Attribute casting
+     *
+     * @var array
+     */
+    protected $casts = [
+        'options'     => 'array',
+        'middlewares' => 'array'
+    ];
+
+    /**
+     * Visible attributes
+     *
+     * @var array
+     */
+    protected $visible = [
+        'uuid',
+        'name',
+        'pattern',
+        'method',
+        'handler_class',
+        'handler_method',
+        'extension_name',
+        'redirect_url',
+        'auth',
+        'type',
+        'status',
+        'template_name',      
+        'options',  
+        'regex',
+        'middlewares',
+        'page_name'      
+    ];
+
+    /**
      * Db table name
      *
      * @var string
@@ -101,26 +135,6 @@ class Routes extends Model implements RoutesStorageInterface
     {
         $value = (\is_array($value) == true) ? $value : [];    
         $this->attributes['options'] = \json_encode($value);
-    }
-
-    /**
-     * Mutator (get) for options attribute.
-     *
-     * @return array
-     */
-    public function getOptionsAttribute()
-    {
-        return (empty($this->options) == false) ? \json_decode($this->options,true) : [];       
-    }
-
-    /**
-     * Mutator (get) for middleware attribute.
-     *
-     * @return array
-     */
-    public function getMiddlewareAttribute()
-    {
-        return (empty($this->middlewares) == false) ? \json_decode($this->middlewares,true) : [];
     }
 
     /**
