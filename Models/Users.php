@@ -232,7 +232,7 @@ class Users extends Model implements UserProviderInterface
      */
     public function isControlPanelUser($id = null)
     {
-        $id = (empty($id) == true) ? $this->id : $id;
+        $id = $id  ?? $this->id;
         $permisisonId = DbModel::Permissions()->getId(Access::CONTROL_PANEL);
         if ($permisisonId == false) {
             return false;

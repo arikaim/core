@@ -160,6 +160,19 @@ class UserGroups extends Model
     }
 
     /**
+     * Deleet user form all groups
+     *
+     * @param int $userId
+     * @return bool
+     */
+    public function deleteUser($userId)
+    {
+        $model = $this->members()->where('user_id','=',$userId);
+
+        return (\is_object($model) == true) ? $model->delete() : true;
+    }
+
+    /**
      * Create group
      *
      * @param string $title

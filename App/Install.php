@@ -191,11 +191,7 @@ class Install
         // UI Library
         Arikaim::event()->registerEvent('core.library.download','After download UI Library.');
         // System       
-        Arikaim::event()->registerEvent('core.update','After update.');
-        // Jobs
-        Arikaim::event()->registerEvent('core.jobs.before.execute','Before run job.');
-        Arikaim::event()->registerEvent('core.jobs.after.execute','After run job.');
-        Arikaim::event()->registerEvent('core.jobs.queue.run','After run jobs queue.');       
+        Arikaim::event()->registerEvent('core.update','After update.');             
     } 
 
     /**
@@ -262,6 +258,7 @@ class Install
         // page
         Arikaim::options()->createOption('current.page','',true); 
         Arikaim::options()->createOption('current.path','',true); 
+        Arikaim::options()->createOption('current.framework','fomantic',true); 
     }
 
     /**

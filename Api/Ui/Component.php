@@ -118,7 +118,7 @@ class Component extends ApiController
         $framework = $params['framework'] ?? false;
         if ($framework === false) {
             $template = ResourceLocator::getTemplateName($name,$this->get('view')->getPrimaryTemplate());
-            $framework = $this->get('page')->getFramework($template);      
+            $framework = $this->get('options')->get('current.framework');             
         }
         $params['current_path'] = $this->get('options')->get('current.path','');
     
