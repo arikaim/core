@@ -236,8 +236,8 @@ class RoutingMiddleware implements MiddlewareInterface
         }
        
         foreach($routes as $item) {
-            $handler = $item['handler_class'] . ':' . $item['handler_method'];  
-            $middlewares = $item['middlewares'] ?? [];
+            $handler = $item['handler_class'] . ':' . $item['handler_method'];          
+            $middlewares = (empty($item['middlewares']) == false) ? \json_decode($item['middlewares'],true) : [];
             $route = $this->routeCollector->map([$method],$item['pattern'],$handler);
             // auth middleware
             if ($item['auth'] > 0) {
@@ -250,7 +250,7 @@ class RoutingMiddleware implements MiddlewareInterface
                     $route->add($authMiddleware);
                 }
             } 
-            // add middlewares                     
+            // add middlewares    
             if ($middlewares !== false) {              
                 foreach ($middlewares as $class) {
                     $instance = MiddlewareFactory::create($class);

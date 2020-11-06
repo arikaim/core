@@ -238,7 +238,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param string|null $language
      * @return string
      */
-    public static function getUrl($path = null, $full = false, $language = null)
+    public function getUrl($path = '', $full = false, $language = null)
     {
         return Page::getUrl($path,$full,$language);
     }
