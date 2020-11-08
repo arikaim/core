@@ -251,7 +251,7 @@ class RoutingMiddleware implements MiddlewareInterface
                 }
             } 
             // add middlewares    
-            if ($middlewares !== false) {              
+            if (\is_array($middlewares) == true) {              
                 foreach ($middlewares as $class) {
                     $instance = MiddlewareFactory::create($class);
                     if ($instance != null && \is_object($route) == true) {   
