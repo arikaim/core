@@ -29,7 +29,7 @@ use Exception;
  */
 class Arikaim  
 {
-    const ARIKAIM_VERSION = '1.6.4';
+    const ARIKAIM_VERSION = '1.6.6';
 
     /**
      * Slim application object

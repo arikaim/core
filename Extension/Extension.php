@@ -318,9 +318,10 @@ abstract class Extension implements ExtensionInterface
      *
      * @param string $class
      * @param string|null $name
+     * @param bool $disabled
      * @return boolean
      */
-    public function addJob($class, $name = null)
+    public function addJob($class, $name = null, $disabled = false)
     {       
         $job = $this->createJob($class,$name);
         if (\is_object($job) == false) {
@@ -329,7 +330,7 @@ abstract class Extension implements ExtensionInterface
             return false;
         }
 
-        $result = Arikaim::queue()->addJob($job,$this->getName());
+        $result = Arikaim::queue()->addJob($job,$this->getName(),$disabled);
         if ($result !== true) {
             $this->addError(Arikaim::errors()->getError('REGISTER_JOB_ERROR',['name' => $name])); 
         }

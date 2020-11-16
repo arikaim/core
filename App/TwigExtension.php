@@ -221,7 +221,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('isImage',['Arikaim\\Core\\Utils\\File','isImageMimeType']),
             // date and time
             new TwigFunction('getTimeZonesList',['Arikaim\\Core\\Utils\\DateTime','getTimeZonesList']),
-            new TwigFunction('timeInterval',['Arikaim\\Core\\Utils\\TimeInterval','getInterval']),
+            new TwigFunction('timeInterval',['Arikaim\\Core\\Utils\\TimeInterval','getInterval']),          
             new TwigFunction('currentYear',[$this,'currentYear']),
             new TwigFunction('today',['Arikaim\\Core\\Utils\\DateTime','getTimestamp']),
             // unique Id
