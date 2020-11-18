@@ -30,11 +30,11 @@ class CoreMiddleware extends Middleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     { 
         $headers = $this->getParam('headers',[]);
-        $cacheControl = $headers['CacheControl'] ?? 'max-age=3600,public';
-
-        $response = $handler->handle($request);
-    
-        // set cache control header
-        return $response->withHeader('Cache-Control',$this->getParam('CacheControl',$cacheControl));      
+        $cacheControl = $headers['CacheControl'] ?? null;
+        if (empty($cacheControl) == false) {
+            \header('Cache-Control: ' . $cacheControl,true);
+        }
+         
+        return $handler->handle($request);        
     }    
 }

@@ -261,6 +261,7 @@ class RoutingMiddleware implements MiddlewareInterface
                     }                   
                 }                  
             }                                        
-        }          
+        }    
+        
     }
 }

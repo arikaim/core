@@ -137,8 +137,14 @@ class ErrorMiddleware implements MiddlewareInterface
         if (Install::isInstalled() == false) {                
             if (RouteType::isApiInstallRequest() == true) {
                 return $handler->handle($request); 
-            } elseif (RouteType::isInstallPage() == false) {                  
-                return $response->withHeader('Location',RouteType::getInstallPageUrl());                  
+            } elseif (RouteType::isInstallPage() == false) {
+                $url = RouteType::getInstallPageUrl();                  
+                return $response->withoutHeader('Cache-Control')
+                    ->withHeader('Cache-Control','no-cache, must-revalidate')
+                    ->withHeader('Content-Length','0')    
+                    ->withHeader('Expires','Sat, 26 Jul 1997 05:00:00 GMT')        
+                    ->withHeader('Location',$url)
+                    ->withStatus(307);                  
             } 
            
             return $handler->handle($request);
