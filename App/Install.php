@@ -167,11 +167,10 @@ class Install
         // delete symlink
         $linkPath = ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'public';
         $linkTarget = Arikaim::storage()->getFullPath('public') . DIRECTORY_SEPARATOR;
-        File::delete($linkPath);
-
-        if (File::exists($linkPath) == false) {
+      
+        if (@\is_link($linkPath) == false) {
             // create symlink 
-            return @symlink($linkTarget,$linkPath); 
+            return @\symlink($linkTarget,$linkPath); 
         }
        
         return true;     
