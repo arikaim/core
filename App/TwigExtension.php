@@ -121,6 +121,16 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
+     * Get service container
+     *
+     * @return ContainerInterface
+     */
+    public function getContainer()
+    {
+        return $this->container;
+    }
+
+    /**
      * Rempate engine global variables
      *
      * @return array
@@ -152,8 +162,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'is_safe' => ['html']
             ]),
             new TwigFunction('componentProperties',[$this,'getProperties']),
-            new TwigFunction('componentOptions',[$this,'getComponentOptions']),
-            new TwigFunction('currentFramework',[$this,'getCurrentFramework']),
+            new TwigFunction('componentOptions',[$this,'getComponentOptions']),         
             new TwigFunction('currentTemplate',[$this,'getCurrentTemplate']),
             // page              
             new TwigFunction('url',[$this,'getUrl']),        
@@ -227,6 +236,9 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             // unique Id
             new TwigFunction('createUuid',['Arikaim\\Core\\Utils\\Uuid','create']),
             new TwigFunction('createToken',['Arikaim\\Core\\Utils\\Utils','createToken']),
+            // collections
+            new TwigFunction('createCollection',['Arikaim\\Core\\Collection\\Collection','create']),
+            new TwigFunction('createProperties',['Arikaim\\Core\\Collection\\PropertiesFactory','createFromArray']),
         ];       
     }
 
@@ -266,9 +278,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function loadComponent(&$context, $name, $params = [])
     {        
         $language = $this->container->get('page')->getLanguage();   
-        $framework = $context['component_framework'] ?? null;
- 
-        return $this->container->get('page')->createHtmlComponent($name,$params,$language,true,$framework)->load();     
+      
+        return $this->container->get('page')->createHtmlComponent($name,$params,$language,true)->load();     
     }
 
     /**
@@ -339,16 +350,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function getCurrentTemplate()
     {
         return $this->container->get('page')->getCurrentTemplate();
-    }
-
-    /**
-     * Get current framework
-     *
-     * @return string
-     */
-    public function getCurrentFramework()
-    {
-        return $this->container->get('page')->getFramework();
     }
 
     /**
@@ -458,7 +459,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     {      
        return [
             // Html
-            new TwigFilter('attr',['Arikaim\\Core\\View\\Template\\Filters','attr'],['is_safe' => ['html']]),
+            new TwigFilter('attr',['Arikaim\\Core\\View\\Template\\Filters','attr'],['is_safe' => ['html']]),           
             new TwigFilter('getAttr',['Arikaim\\Core\\Utils\\Html','getAttributes'],['is_safe' => ['html']]),
             new TwigFilter('decode',['Arikaim\\Core\\Utils\\Html','specialcharsDecode'],['is_safe' => ['html']]),
             // other

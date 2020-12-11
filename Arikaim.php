@@ -22,14 +22,13 @@ use Arikaim\Core\Middleware\CoreMiddleware;
 use Arikaim\Core\Middleware\RoutingMiddleware;
 use Arikaim\Core\Middleware\ErrorMiddleware;
 use Arikaim\Core\Middleware\BodyParsingMiddleware;
-use Exception;
 
 /**
  * Arikaim core class
  */
 class Arikaim  
 {
-    const ARIKAIM_VERSION = '1.6.8';
+    const ARIKAIM_VERSION = '1.6.9';
 
     /**
      * Slim application object
@@ -75,11 +74,11 @@ class Arikaim
      * Get item from container
      *
      * @param string $name
-     * @return mixed|null
+     * @return mixed
      */
     public static function get($name)
     {
-        return (Self::$app->getContainer()->has($name) == true) ? Self::$app->getContainer()->get($name) : null;
+        return Self::$app->getContainer()->get($name);
     }
 
     /**
@@ -248,7 +247,7 @@ class Arikaim
     */
     public static function getError($errorCode, array $params = [], $default = 'UNKNOWN_ERROR') 
     {
-        return Self::errors()->getError($errorCode,$params, $default);
+        return Self::errors()->getError($errorCode,$params,$default);
     }
 
     /**
@@ -342,7 +341,6 @@ class Arikaim
         if (empty(Self::$scheme) == false) {
             return;
         }
-
         // scheme
         $isHttps = 
             (isset($env['HTTPS']) == true && $env['HTTPS'] !== 'off') || 
@@ -352,8 +350,8 @@ class Arikaim
         Self::$scheme = ($isHttps == true) ? 'https' : 'http';
               
         // host
-        $serverName = (isset($env['SERVER_NAME']) == true) ? $env['SERVER_NAME'] : '';            
-        $host = (isset($env['HTTP_HOST']) == true) ? $env['HTTP_HOST'] : $serverName;   
+        $serverName = $env['SERVER_NAME'] ?? '';            
+        $host = $env['HTTP_HOST'] ?? $serverName;   
 
         if (\preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/',$host,$matches) == false) {           
             $host = (\strpos($host,':') !== false) ? \strstr($host,':', true) : $host;                             
@@ -363,30 +361,13 @@ class Arikaim
         // path
         $scriptName = (string)\parse_url($env['SCRIPT_NAME'],PHP_URL_PATH);
         $scriptDir = \dirname($scriptName);      
-        $uri = (isset($env['REQUEST_URI']) == true) ? $env['REQUEST_URI'] : '';  
+        $uri = $env['REQUEST_URI'] ?? '';  
         $uri = (string)\parse_url(Self::getDomain() . $uri,PHP_URL_PATH);
         
         if (\stripos($uri,$scriptName) === 0) {
             Self::$basePath = $scriptName;
-        } elseif ($scriptDir !== '/' && \stripos($uri, $scriptDir) === 0) {
+        } elseif ($scriptDir !== '/' && \stripos($uri,$scriptDir) === 0) {
             Self::$basePath = $scriptDir;
         }       
-    }
-
-    /**
-     * End handler
-     *
-     * @return boolean
-     * 
-     * @throws Exception
-     */
-    private static function errorHandler() 
-    {    
-        $error = \error_get_last();   
-        if (\error_reporting() == false || empty($error) == true) {
-            return;
-        }
-        
-        return true;                                                          
     }
 }

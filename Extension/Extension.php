@@ -66,6 +66,17 @@ abstract class Extension implements ExtensionInterface
     }
 
     /**
+     * Call function
+     *
+     * @param string $method
+     * @param array $args
+     * @return mixed
+     */
+    public function __call($method, $args)
+    {
+    }
+
+    /**
      * UnInstall extension
      *
      * @return void

@@ -123,4 +123,16 @@ class UserGroupMembers extends Model
 
         return \is_object($model);
     }
+
+    /**
+     * User goroups scope
+     *
+     * @param Builder $query
+     * @param int $userId
+     * @return Builder
+     */
+    public function scopeUserGroups($query, $userId)
+    {
+        return $query->where('user_id','=',$userId);
+    } 
 }

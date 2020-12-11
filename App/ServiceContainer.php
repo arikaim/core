@@ -65,7 +65,7 @@ class ServiceContainer
             return new \Arikaim\Core\Http\HttpClient();
         }; 
         // Package manager factory
-        $container['packages'] = function ($container) {     
+        $container['packages'] = function($container) {     
             return new PackageManagerFactory($container['cache'],$container['storage'],$container['http']);          
         };
         // Init template view. 
@@ -79,7 +79,7 @@ class ServiceContainer
                 Path::VIEW_PATH,
                 Path::EXTENSIONS_PATH, 
                 Path::TEMPLATES_PATH,
-                Path::COMPONENTS_PATH, [
+                Path::COMPONENTS_PATH,[
                     'cache'      => $cache,
                     'debug'      => $debug,
                     'demo_mode'  => $demoMode,

@@ -74,10 +74,9 @@ class Component extends ApiController
             return $this->withError($this->get('errors')->getError($error['code'],$error['params']))->getResponse();            
         }
         $details = [
-                'properties' => $component->getProperties(),
-                'options'    => $component->getOptions(),
-                'framework'  => $component->getFramework(),
-                'files'      => $component->getFiles()
+            'properties' => $component->getProperties(),
+            'options'    => $component->getOptions(),
+            'files'      => $component->getFiles()
         ];
         
         return $this->setResult($details)->getResponse();       
@@ -115,14 +114,8 @@ class Component extends ApiController
      */
     public function load($name, $params = [], $language)
     {   
-        $framework = $params['framework'] ?? false;
-        if ($framework === false) {
-            $template = ResourceLocator::getTemplateName($name,$this->get('view')->getPrimaryTemplate());
-            $framework = $this->get('options')->get('current.framework','fomantic');             
-        }
         $params['current_path'] = $this->get('options')->get('current.path','');
-    
-        $component = $this->get('page')->createHtmlComponent($name,$params,$language,true,$framework);
+        $component = $this->get('page')->createHtmlComponent($name,$params,$language,true);
      
         if (\is_object($component) == false) {
             return $this->withError('TEMPLATE_COMPONENT_NOT_FOUND',[
@@ -150,7 +143,6 @@ class Component extends ApiController
             'css_files'  => (isset($files['css']) == true) ? Arrays::arrayColumns($files['css'],['url','params']) : [],
             'js_files'   => (isset($files['js']) == true)  ? Arrays::arrayColumns($files['js'],['url','params'])  : [],
             'properties' => \json_encode($component->getProperties()),
-            'framework'  => $component->getFramework(),
             'html'       => $component->getHtmlCode()           
         ];
   

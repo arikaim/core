@@ -68,6 +68,7 @@ class Drivers extends Model implements DriverRegistryInterface
     public function setConfigAttribute($value)
     {
         $value = (\is_array($value) == true) ? $value : [$value];    
+
         $this->attributes['config'] = \json_encode($value);
     }
 
@@ -91,7 +92,7 @@ class Drivers extends Model implements DriverRegistryInterface
     public function addDriver($name, $data)
     {
         if ($this->hasDriver($name) == true) {
-            $model = $this->findByColumn($name,'name');
+            $model = $this->findByColumn($name,'name');          
             $result = $model->update($data);
             
             return ($result !== false);

@@ -257,7 +257,6 @@ class Install
         // page
         Arikaim::options()->createOption('current.page','',true); 
         Arikaim::options()->createOption('current.path','',true); 
-        Arikaim::options()->createOption('current.framework','fomantic',true); 
     }
 
     /**
