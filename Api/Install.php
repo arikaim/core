@@ -27,9 +27,7 @@ class Install extends ApiController
      * @return Psr\Http\Message\ResponseInterface
     */
     public function installController($request, $response, $data) 
-    {           
-        //$this->get('access')->logout();
-        
+    {            
         $this->onDataValid(function($data) {    
             // clear cache
             $this->get('cache')->clear();

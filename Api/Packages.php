@@ -236,7 +236,7 @@ class Packages extends ControlPanelApiController
     {
         $this->onDataValid(function($data) {  
             $this->get('cache')->clear();
-
+        
             $type = $data->get('type',null);
             $name = $data->get('name',null);
             $runPostInstall = $data->get('run_post_install',true);
@@ -256,6 +256,7 @@ class Packages extends ControlPanelApiController
             $this->get('cache')->clear();
            
             $result = $package->install($primary);
+
             if ($primary == true) { 
                 $package->setPrimary();
             }
