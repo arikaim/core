@@ -197,6 +197,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             // other
             new TwigFunction('getConstant',['Arikaim\\Core\\Db\\Model','getConstant']),
             new TwigFunction('hasExtension',[$this,'hasExtension']),
+            new TwigFunction('hasModule',[$this,'hasModule']),
             new TwigFunction('getFileType',[$this,'getFileType']),         
             new TwigFunction('system',[$this,'system']),  
             new TwigFunction('getSystemRequirements',[$this,'getSystemRequirements']),                      
@@ -277,8 +278,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function loadComponent(&$context, $name, $params = [])
     {        
-        $language = $this->container->get('page')->getLanguage();   
-      
+        $language = $context['current_language'] ?? null;
+    
         return $this->container->get('page')->createHtmlComponent($name,$params,$language,true)->load();     
     }
 
@@ -480,6 +481,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('dateFormat',['Arikaim\\Core\\Utils\\DateTime','dateFormat']),
             new TwigFilter('dateTimeFormat',['Arikaim\\Core\\Utils\\DateTime','dateTimeFormat']),
             new TwigFilter('timeFormat',['Arikaim\\Core\\Utils\\DateTime','timeFormat']),
+            new TwigFilter('convertDate',['Arikaim\\Core\\Utils\\DateTime','convert']),
             // numbers
             new TwigFilter('numberFormat',['Arikaim\\Core\\Utils\\Number','format']),
             new TwigFilter('toNumber',['Arikaim\\Core\\Utils\\Number','toNumber']),
@@ -698,6 +700,18 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
         return \is_object($model);          
     }
+
+    /**
+     * Return true if module exists
+     *
+     * @param string $name
+     * @return boolean
+     */
+    public function hasModule($name)
+    {
+        return $this->container->get('modules')->hasModule($name);              
+    }
+
 
     /**
      * Return file type

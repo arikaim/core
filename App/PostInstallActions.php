@@ -45,15 +45,14 @@ class PostInstallActions
      */
     public static function runAction(array $action)
     {
-        $command = (isset($action['command']) == true) ? $action['command'] : null;
+        $command = $action['command'] ?? null;
         if (empty($command) == true) {
             return false;
         }
 
-        $theme = (isset($action['theme']) == true) ? $action['theme'] : null;
-        $extension = (isset($action['extension']) == true) ? $action['extension'] : null;
+        $theme = $action['theme'] ?? null;
+        $extension = $action['extension'] ?? null;
         $packageName = (empty($extension) == false) ? $extension : $theme;
-
         $packageType = (empty($extension) == false) ? 'extension' : 'template';
 
         switch($command) {
@@ -84,6 +83,6 @@ class PostInstallActions
         $result = $package->install(true);
         $package->setPrimary();
 
-        return ($result === true) ? true : false;
+        return ($result === true);
     }
 }

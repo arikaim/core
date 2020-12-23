@@ -104,7 +104,9 @@ class Routes extends Model implements RoutesStorageInterface
      */
     public function getHomePageRoute()
     {
-        return $this->where('status','=',1)->where('type','=',3)->first()->toArray();
+        $model = $this->where('status','=',1)->where('type','=',3)->first();
+
+        return (empty($model) == false) ? $model->toArray() : [];
     }
 
     /**

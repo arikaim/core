@@ -100,7 +100,7 @@ class Component extends ApiController
         $params = \array_merge($params,$data->toArray());
       
         $language = $this->getPageLanguage($params);
-       
+        
         return $this->load($data['name'],$params,$language);
     }
 

@@ -28,7 +28,7 @@ use Arikaim\Core\Middleware\BodyParsingMiddleware;
  */
 class Arikaim  
 {
-    const ARIKAIM_VERSION = '1.6.10';
+    const ARIKAIM_VERSION = '1.6.11';
 
     /**
      * Slim application object
@@ -337,27 +337,26 @@ class Arikaim
      * @return void
      */
     public static function resolveEnvironment(array $env)
-    {
-        if (empty(Self::$scheme) == false) {
-            return;
-        }
+    {       
         // scheme
         $isHttps = 
             (isset($env['HTTPS']) == true && $env['HTTPS'] !== 'off') || 
             (isset($env['REQUEST_SCHEME']) && $env['REQUEST_SCHEME'] === 'https') || 
             (isset($env['HTTP_X_FORWARDED_PROTO']) && $env['HTTP_X_FORWARDED_PROTO'] === 'https');
        
-        Self::$scheme = ($isHttps == true) ? 'https' : 'http';
-              
+        Self::$scheme = ($isHttps == true) ? 'https' : 'http';  
+
         // host
-        $serverName = $env['SERVER_NAME'] ?? '';            
-        $host = $env['HTTP_HOST'] ?? $serverName;   
-
-        if (\preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/',$host,$matches) == false) {           
-            $host = (\strpos($host,':') !== false) ? \strstr($host,':', true) : $host;                             
-        } 
-        Self::$host = $host;
-
+        if (empty($env['HTTP_HOST']) == false) {
+            Self::$host = $env['HTTP_HOST'];
+        } else {             
+            $host = $env['SERVER_NAME'] ?? '';    
+            if (\preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/',$host,$matches) == false) {           
+                $host = (\strpos($host,':') !== false) ? \strstr($host,':', true) : $host;                             
+            } 
+            Self::$host = $host;
+        }
+      
         // path
         $scriptName = (string)\parse_url($env['SCRIPT_NAME'],PHP_URL_PATH);
         $scriptDir = \dirname($scriptName);      
