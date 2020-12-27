@@ -18,6 +18,7 @@ use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\Console\ConsoleHelper;
 use Arikaim\Core\App\Install;
 use Arikaim\Core\Arikaim;
+use Arikaim\Core\App\PostInstallActions;
 
 /**
  * Install command class
@@ -59,7 +60,7 @@ class InstallCommand extends ConsoleCommand
             if ($item['status'] == 1) {
                 $label = "\t" . ConsoleHelper::checkMark() . ' ' . ConsoleHelper::getLabelText($item['message'],'green');               
             } else {
-                $label = "\t" . ' ' . ConsoleHelper::getLabelText($item['message'],'red');    
+                $label = "\t " . ConsoleHelper::getLabelText($item['message'],'red');    
             }
             $this->style->writeLn($label);
         }
@@ -113,13 +114,67 @@ class InstallCommand extends ConsoleCommand
                 return;
             }
             $install = new Install();
-            $result = $install->install();   
+            $doneMsg = '  ' . ConsoleHelper::checkMark() . ' ';
+            $this->style->text(ConsoleHelper::getDescriptionText('Core'));
+
+            $result = $install->install(
+                function($message) use($doneMsg) {                  
+                    $this->style->writeLn($doneMsg . $message);
+                },function($error) {                  
+                    $this->style->writeLn("\t " . ConsoleHelper::getLabelText($error,'red'));  
+                }
+            );   
+          
             if ($result == true) {
-                $this->showCompleted();  
-                return;          
+                // install modules
+                $this->style->newLine();
+                $this->style->text(ConsoleHelper::getDescriptionText('Modules'));
+                $result = $install->installModules(
+                    function($name) use($doneMsg) {                  
+                        $this->style->writeLn($doneMsg . $name);
+                    },function($name) {                  
+                        $this->style->writeLn("\t " . ConsoleHelper::getLabelText('Error: ' . $name . ' module.','red'));  
+                    }
+                );                       
+            } else {
+                $this->showError('Error');
+                return;
             } 
-            $this->showError('Error');
+
+            if ($result == true) {
+                // install extensions
+                $this->style->newLine();
+                $this->style->text(ConsoleHelper::getDescriptionText('Extensions'));
+                $result = $install->installExtensions(
+                    function($name) use($doneMsg) {                  
+                        $this->style->writeLn($doneMsg . $name);
+                    },function($name) {                  
+                        $this->style->writeLn("\t " . ConsoleHelper::getLabelText('Error: ' . $name . ' extension.','red'));  
+                    }
+                );                
+            } else {
+                $this->showError('Error');
+                return;
+            } 
+
+            if ($result == true) {
+                // run post install actions
+                $this->style->newLine();
+                $this->style->text(ConsoleHelper::getDescriptionText('Post install actions'));
+                PostInstallActions::run(
+                    function($package) use($doneMsg) {   
+                        $this->style->writeLn($doneMsg . $package . ' action executed.');
+                    },function($package) { 
+                        $error = 'Error in package ' . $package;  
+                        $this->style->writeLn("\t " . ConsoleHelper::getLabelText($error,'red'));
+                    }
+                );
+            } else {
+                $this->showError('Error');
+                return;
+            } 
+
+            $this->showCompleted();  
         }
-        return;
     }
 }

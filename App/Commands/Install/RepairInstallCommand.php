@@ -15,6 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\App\Install;
 use Arikaim\Core\App\PostInstallActions;
+use Arikaim\Core\Console\ConsoleHelper;
 
 /**
  * Repair (reinstall) command class
@@ -42,13 +43,36 @@ class RepairInstallCommand extends ConsoleCommand
         $this->showTitle('Arikaim CMS Repair Installation');
       
         $install = new Install();
-        $result = $install->install();   
+        $doneMsg = '  ' . ConsoleHelper::checkMark() . ' ';
+        $this->style->text(ConsoleHelper::getDescriptionText('Core'));
+        $this->style->newLine();
+        $result = $install->install(
+            function($message) use($doneMsg) {                  
+                $this->style->writeLn($doneMsg . $message);
+            },function($error) {                  
+                $this->style->writeLn("\t " . ConsoleHelper::getLabelText($error,'red'));  
+            }
+        );   
+
+        if ($result == false) {
+            $this->showError('Error');
+            return;
+        }
 
         // set row format to dynamic 
         $install->systemTablesRowFormat();
       
         // run post install actions
-        PostInstallActions::runPostInstallActions();
+        $this->style->newLine();
+        $this->style->text(ConsoleHelper::getDescriptionText('Post install actions'));
+        PostInstallActions::run(
+            function($package) use($doneMsg) {   
+                $this->style->writeLn($doneMsg . $package . ' action executed.');
+            },function($package) { 
+                $error = 'Error in package ' . $package;  
+                $this->style->writeLn("\t " . ConsoleHelper::getLabelText($error,'red'));
+            }
+        );
 
         if ($result == true) {
             $this->showCompleted();  

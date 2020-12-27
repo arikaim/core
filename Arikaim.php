@@ -28,7 +28,7 @@ use Arikaim\Core\Middleware\BodyParsingMiddleware;
  */
 class Arikaim  
 {
-    const ARIKAIM_VERSION = '1.6.11';
+    const ARIKAIM_VERSION = '1.6.12';
 
     /**
      * Slim application object
@@ -185,7 +185,8 @@ class Arikaim
             
         Self::$app->add(new CoreMiddleware(Self::config()->get('settings',[])));           
         Self::$app->add(new BodyParsingMiddleware());
-        Self::$app->add(new OutputBufferingMiddleware(new StreamFactory(),OutputBufferingMiddleware::APPEND));
+        // disabled for task progress api calls
+        // Self::$app->add(new OutputBufferingMiddleware(new StreamFactory(),OutputBufferingMiddleware::APPEND));
         
         $errorMiddleware = new ErrorMiddleware(
             function() {

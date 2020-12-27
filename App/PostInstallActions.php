@@ -19,22 +19,61 @@ class PostInstallActions
     /**
      * Run post install actions
      *
-     * @return integer
+     * @param Closure|null $onProgress
+     * @param Closure|null $onProgressError
+     * @return bool
      */
-    public static function runPostInstallActions()
+    public static function run($onProgress = null, $onProgressError = null)
     {
         // Run post install actions on all extensions      
         $extensionManager = Arikaim::packages()->create('extension');
         $extensionManager->postInstallAllPackages();
 
+        if (Self::hasActions() == false) {
+            return true;
+        }
+
         $actions = Arikaim::config()->loadJsonConfigFile('post-install.json');
         $errors = 0;
         foreach ($actions as $action) {           
             $result = Self::runAction($action);
-            $errors += ($result == false) ? 1 : 0;
+            if ($result === false) {
+                if (\is_callable($onProgressError) == true) {
+                    $onProgressError(Self::getPackageName($action));
+                }
+                $errors++;
+            } else {
+                if (\is_callable($onProgress) == true) {
+                    $onProgress(Self::getPackageName($action));
+                }
+            }          
         }
 
-        return $errors;
+        return ($errors == 0);
+    }
+
+    /**
+     * Check if pst actions fiel exist
+     *
+     * @return boolean
+     */
+    public static function hasActions()
+    {
+        return Arikaim::config()->hasConfigFile('post-install.json');
+    } 
+
+    /**
+     * Get action package name
+     *
+     * @param array $action
+     * @return string
+     */
+    protected static function getPackageName(array $action)
+    {
+        $theme = $action['theme'] ?? null;
+        $extension = $action['extension'] ?? null;
+
+        return (empty($extension) == false) ? $extension : $theme;
     }
 
     /**
@@ -50,13 +89,12 @@ class PostInstallActions
             return false;
         }
 
-        $theme = $action['theme'] ?? null;
         $extension = $action['extension'] ?? null;
-        $packageName = (empty($extension) == false) ? $extension : $theme;
+        $packageName = Self::getPackageName($action);
         $packageType = (empty($extension) == false) ? 'extension' : 'template';
 
         switch($command) {
-            case 'set-primary': {
+            case 'set-primary': {              
                 return Self::setPrimaryPackage($packageName,$packageType);
             }
         }
@@ -74,7 +112,7 @@ class PostInstallActions
     public static function setPrimaryPackage($name, $type = 'extension')
     {
         $packageManager = Arikaim::packages()->create($type);
-        if ($packageManager->hasPackage($name) == false) {
+        if ($packageManager->hasPackage($name) == false) {           
             return false;
         }
 
@@ -83,6 +121,6 @@ class PostInstallActions
         $result = $package->install(true);
         $package->setPrimary();
 
-        return ($result === true);
+        return $result;      
     }
 }

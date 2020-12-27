@@ -12,12 +12,15 @@ namespace Arikaim\Core\Api;
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\App\Install as SystemInstall;
 use Arikaim\Core\App\PostInstallActions;
+use Arikaim\Core\Controllers\Traits\TaskProgress;
 
 /**
  * Install controller
 */
 class Install extends ApiController
 {
+    use TaskProgress;
+
     /**
      * Install Arikaim 
      *
@@ -62,18 +65,23 @@ class Install extends ApiController
                 $this->error('Not valid database connection username or password.');
                 return; 
             }
-
+           
             // do install
             $install = new SystemInstall();
-            $result = $install->install();   
-            $errors = ($result == false) ?  $install->getErrors() : [];
+            $this->initTaskProgress();
 
-            $this->setResponse($result,function() {
-                $this
-                    ->message('Arikaim CMS was installed successfully.');                    
-            },function() use($errors) {
-                $this->addErrors($errors);              
-            });                       
+            $result = $install->install(
+                function($message) {                  
+                    $this->setResponse(true,$message,'error');
+                    $this->sendProgressResponse();       
+                },function($error) {                  
+                    $this->setResponse(false,'',$error);             
+                    $this->sendProgressResponse();       
+                }
+            );   
+          
+            $this->taskProgressEnd();
+            $this->setResponse($result,'Arikaim CMS was installed successfully.','Install Error');                       
         });
         $data
             ->addRule('text:min=2','database')
@@ -96,17 +104,32 @@ class Install extends ApiController
             // clear cache
             $this->get('cache')->clear();
 
+            $disabled = $this->get('config')->getByPath('settings/disableInstallPage',false);
+            if ($disabled == true) {
+                $this->error('Install page is disabled.');
+                return;
+            }
+
             // do install
             $install = new SystemInstall();
-            $result = $install->installModules();   
+            $this->initTaskProgress();
 
+            $result = $install->installModules(
+                function($name) {   
+                    $message = $name . ' module installed successfully.';               
+                    $this->setResponse(true,$message,'');
+                    return $this->sendProgressResponse();       
+                },function($name) {       
+                    $error = 'Error module installation ' . $name;                
+                    $this->setResponse(false,'',$error);             
+                    return $this->sendProgressResponse();       
+                }
+            );   
             // clear cache
             $this->get('cache')->clear();
+            $this->taskProgressEnd();
 
-            $this->setResponse($result,function() {
-                $this
-                    ->message('Modules was installed successfully.');                    
-            },'Error install modules.');                          
+            $this->setResponse($result,'Modules was installed successfully.','Error install modules.');                          
         });
         $data->validate();      
     }
@@ -125,17 +148,32 @@ class Install extends ApiController
             // clear cache
             $this->get('cache')->clear();
 
+            $disabled = $this->get('config')->getByPath('settings/disableInstallPage',false);
+            if ($disabled == true) {
+                $this->error('Install page is disabled.');
+                return;
+            }
+
             // do install
             $install = new SystemInstall();
-            $result = $install->installExtensions();   
+            $this->initTaskProgress();
 
+            $result = $install->installExtensions(
+                function($name) {   
+                    $message = $name . ' extension installed successfully.';               
+                    $this->setResponse(true,$message,'');
+                    return $this->sendProgressResponse();       
+                },function($name) {       
+                    $error = 'Error extension installation ' . $name;                
+                    $this->setResponse(false,'',$error);             
+                    return $this->sendProgressResponse();       
+                }
+            );  
             // clear cache
             $this->get('cache')->clear();
+            $this->taskProgressEnd();
 
-            $this->setResponse($result,function() {
-                $this
-                    ->message('Extensions was installed successfully.');                    
-            },'Error install extensions.');                          
+            $this->setResponse($result,'Extensions was installed successfully.','Error install extensions.');                          
         });
         $data->validate();      
     }
@@ -154,17 +192,36 @@ class Install extends ApiController
             // clear cache
             $this->get('cache')->clear();
 
-            // do post install actions
-            $errors = PostInstallActions::runPostInstallActions();
+            $disabled = $this->get('config')->getByPath('settings/disableInstallPage',false);
+            if ($disabled == true) {
+                $this->error('Install page is disabled.');
+                return;
+            }
 
+            if (PostInstallActions::hasActions() == false) {
+                $this->setResponse(true,'Success.',''); 
+                return;
+            }
+
+            $this->initTaskProgress();
+
+            // do post install actions
+            $result = PostInstallActions::run(
+                function($package) {   
+                    $message = $package . ' package action executed.';               
+                    $this->setResponse(true,$message,'');
+                    return $this->sendProgressResponse();       
+                },function($package) {       
+                    $error = 'Error execution action on package ' . $package;                
+                    $this->setResponse(false,'',$error);             
+                    return $this->sendProgressResponse();       
+                }
+            );
             // clear cache
             $this->get('cache')->clear();
             
-            $this->setResponse(($errors == 0),function() {
-                $this
-                    ->field('complete','Arikaim was installed successfully.')
-                    ->message('Post install actions completed successfully.');                    
-            },'Post install actions error.');                                   
+            $this->taskProgressEnd();
+            $this->setResponse($result,'Success.','Post install actions error.');                                   
         });
         $data->validate();      
     }
@@ -189,15 +246,12 @@ class Install extends ApiController
             $result = $install->install();   
             $result = ($result == false) ? SystemInstall::isInstalled() : true;
             // run post install actions
-            PostInstallActions::runPostInstallActions();
+            PostInstallActions::run();
 
             // clear cache
             $this->get('cache')->clear();
 
-            $this->setResponse($result,function() {
-                $this
-                    ->message('Arikaim CMS repair installation successfully.');                    
-            },'Repair installation error.');    
+            $this->setResponse($result,'Arikaim CMS repair installation successfully.','Repair installation error.');                  
         });
         $data->validate();  
     }

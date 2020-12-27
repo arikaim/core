@@ -32,14 +32,16 @@ class Component extends ApiController
         $component = $this->get('page')->createHtmlComponent($data['name'],[],$language);
 
         if (\is_object($component) == false) {
-            return $this->withError('TEMPLATE_COMPONENT_NOT_FOUND')->getResponse();  
+            $error = $this->get('errors')->getError('TEMPLATE_COMPONENT_NOT_FOUND',['full_component_name' => $data['name']]);
+            return $this->withError($error)->getResponse();  
         }
         
         $component = $component->renderComponent();
 
         if ($component->hasError() == true) {
-            $error = $component->getError();           
-            return $this->withError($this->get('errors')->getError($error['code'],$error['params']))->getResponse();  
+            $error = $component->getError();  
+            $error = $this->get('errors')->getError($error['code'],['full_component_name' => $data['name']]);                   
+            return $this->withError($error)->getResponse();  
         }
         // deny requets 
         if ($component->getOption('access/deny-request') == true) {

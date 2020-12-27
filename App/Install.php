@@ -17,17 +17,14 @@ use Arikaim\Core\Access\Access;
 use Arikaim\Core\System\System;
 use Arikaim\Core\Utils\File;
 use Arikaim\Core\Utils\Path;
-
-use Arikaim\Core\System\Error\Traits\TaskErrors;
 use Exception;
+use Closure;
 
 /**
  * Arikaim install
  */
 class Install 
 {
-    use TaskErrors;
-
     /**
      * Set config files writable
      *
@@ -49,17 +46,30 @@ class Install
     }
 
     /**
+     * Call closure
+     *
+     * @param Closure $closure
+     * @param string $message
+     * @return void
+     */
+    protected function callback($closure, $message)
+    {
+        if (\is_callable($closure) == true) {
+            $closure($message);
+        }
+    }
+
+    /**
      * Install Arikaim
      *
-     * @return boolean;
+     * @param Closeure|null $onProgress
+     * @param Closeure|null $onProgressError
+     * @param Closeure|null $onProgressCompleted
+     * @return boolean
      */
-    public function install() 
-    {    
+    public function install($onProgress = null, $onProgressError = null) 
+    {         
         System::setTimeLimit(0);
-
-        // clear errors before start
-        Arikaim::errors()->clear();
-        $this->clearErrors();
 
         // create database if not exists  
         $databaseName = Arikaim::config()->getByPath('db/database');
@@ -69,85 +79,114 @@ class Install
             $collation = Arikaim::config()->getByPath('db/collation');
             $result = Arikaim::db()->createDb($databaseName,$charset,$collation); 
             if ($result == false) {
-                $error = Arikaim::errors()->getError('DB_DATABASE_ERROR');
-                $this->addError($error);
-            }            
+                $this->callback($onProgressError,'Error create database ' . $databaseName);              
+                return false;                
+            }         
+            $this->callback($onProgress,'Database created.');          
         }          
 
-        Arikaim::db()->initConnection(Arikaim::config()->get('db'));     
+        // check db
+        Arikaim::db()->initConnection(Arikaim::config()->get('db'));  
+        if (Arikaim::db()->has($databaseName) == false) {
+            $error = Arikaim::errors()->getError('DB_DATABASE_ERROR');          
+            $this->callback($onProgressError,$error); 
+            return false;
+        }
+        $this->callback($onProgress,'Database status ok.');
+       
         Arikaim::options()->setStorageAdapter(Model::Options());
 
         // Create Arikaim DB tables
-        $result = $this->createDbTables();      
-    
-        // add control panel permisison item 
+        $result = $this->createDbTables(function($class) use ($onProgress) {
+            $this->callback($onProgress,'Db table model created ' . $class);
+        },function($error) use ($onProgressError) {
+            $this->callback($onProgressError,$error);
+        });      
+
+        if ($result !== true) {           
+            return false;
+        } 
+        $this->callback($onProgress,'System db tables created.'); 
+
+        // Add control panel permisison item       
         $result = Arikaim::access()->addPermission(Access::CONTROL_PANEL,Access::CONTROL_PANEL,'Arikaim control panel access.');
         if ($result == false) {    
             if (Model::Permissions()->has(Access::CONTROL_PANEL) == false) {
                 $error = Arikaim::errors()->getError('REGISTER_PERMISSION_ERROR',['name' => 'ContorlPanel']);
-                $this->addError($error);
+                $this->callback($onProgressError,$error);
+                return false;
             }           
-        }   
+        } else {
+            $this->callback($onProgress,'Control panel permission added.');
+        }
 
         // register core events
         $this->registerCoreEvents();
+        $this->callback($onProgress,'Register system events');      
 
         // reload seystem options
         Arikaim::options()->load();
       
-        // create admin user if not exists 
-        $this->createDefaultAdminUser();
-      
-        // add date, time, number format items
+        // create admin user if not exists       
+       
+        $result = $this->createDefaultAdminUser();
+        if ($result === false) {
+            $this->callback($onProgressError,'Error creating control panel user');
+            return false;
+        }
+        $this->callback($onProgress,'Control panel user created.');      
+       
+        // add date, time, number format items     
         $this->initDefaultOptions();
+        $this->callback($onProgress,'Default system options saved.');   
 
         // install drivers
-        $this->installDrivers();
-        
-        // set storage folders
-        $this->initStorage();
+        $result = $this->installDrivers();
+        if ($result === false) {
+            $this->callback($onProgressError,'Error register cache driver');
+        }
 
-        return ($this->hasError() == false);
+        // set storage folders              
+        $this->initStorage();
+        $this->callback($onProgress,'Storage folders created.'); 
+
+        return true;
     } 
 
     /**
      * Install all modules
-     *
+     *     
+     * @param Closure|null $onProgress
+     * @param Closure|null $onProgressError
      * @return boolean
      */
-    public function installModules()
-    {
+    public function installModules($onProgress = null, $onProgressError = null)
+    {      
         System::setTimeLimit(0);
-
-        // clear errors before start
-        Arikaim::errors()->clear();
-        $this->clearErrors();
 
         // Install modules
         $modulesManager = Arikaim::packages()->create('module');
-        $modulesManager->installAllPackages();
-        
-        return ($this->hasError() == false);
+        $result = $modulesManager->installAllPackages($onProgress,$onProgressError);
+           
+        return $result;  
     }
 
     /**
      * Install all extensions packages
-     *
+     *   
+     * @param Closure|null $onProgress
+     * @param Closure|null $onProgressError
      * @return boolean
      */
-    public function installExtensions()
-    {
+    public function installExtensions($onProgress = null, $onProgressError = null)
+    {      
         System::setTimeLimit(0);
-
-        // clear errors before start
-        Arikaim::errors()->clear();
-        $this->clearErrors();
-        
+ 
         // Install extensions      
         $extensionManager = Arikaim::packages()->create('extension');
-        $extensionManager->installAllPackages();
+        $result = $extensionManager->installAllPackages($onProgress,$onProgressError);
 
-        return ($this->hasError() == false);
+        return $result;
     }
 
     /**
@@ -170,9 +209,9 @@ class Install
       
         if (@\is_link($linkPath) == false) {
             // create symlink 
-            return @\symlink($linkTarget,$linkPath); 
+            @\symlink($linkTarget,$linkPath); 
         }
-       
+      
         return true;     
     }
 
@@ -190,7 +229,7 @@ class Install
         // UI Library
         Arikaim::event()->registerEvent('core.library.download','After download UI Library.');
         // System       
-        Arikaim::event()->registerEvent('core.update','After update.');             
+        Arikaim::event()->registerEvent('core.update','After update.'); 
     } 
 
     /**
@@ -204,11 +243,11 @@ class Install
         if ($user == false) {
             $user = Model::Users()->createUser('admin','admin');  
             if (empty($user->id) == true) {
-                Arikaim::errors()->addError('CONTROL_PANEL_USER_ERROR','Error create control panel user.');
+                $error = Arikaim::errors()->getError('CONTROL_PANEL_USER_ERROR','Error create control panel user.');
                 return false;
             }    
         }
-              
+    
         return Model::PermissionRelations()->setUserPermission(Access::CONTROL_PANEL,Access::FULL,$user->id);
     }
 
@@ -256,41 +295,49 @@ class Install
         Arikaim::options()->createOption('default.language','en',true); 
         // page
         Arikaim::options()->createOption('current.page','',true); 
-        Arikaim::options()->createOption('current.path','',true); 
+        Arikaim::options()->createOption('current.path','',true);      
     }
 
     /**
      * Install drivers
      *
-     * @return void
+     * @return bool
      */
     public function installDrivers()
     {
         // cache
-        Arikaim::driver()->install('filesystem','Doctrine\\Common\\Cache\\FilesystemCache','cache','Filesystem cache','Filesystem cache driver','1.8.0',[]);
+        return Arikaim::driver()->install(
+            'filesystem',
+            'Doctrine\\Common\\Cache\\FilesystemCache',
+            'cache',
+            'Filesystem cache',
+            'Filesystem cache driver',
+            '1.8.0',
+            []
+        );
     }
 
     /**
      * Create core db tables
      *
-     * @return bool
+     * @return string|false
      */
-    private function createDbTables()
-    {                 
+    private function createDbTables($onSuccess = null, $onError = null)
+    {                        
         $classes = $this->getSystemSchemaClasses();
-        $errors = 0;     
-
-        foreach ($classes as $class) {        
-            $installed = Schema::install($class);
-                  
-            if ($installed == false) {
-                $errors++;       
-                $error = "Error create database table '" . Schema::getTable($class) . "'";
-                $this->addError($error);
-            } 
+    
+        foreach ($classes as $class) {     
+            $installed = Schema::install($class);                  
+            if ($installed === false) {                    
+                $error = "Error create database table '" . Schema::getTable($class) . "'";               
+                $this->callback($onError,$error);
+                return $error;           
+            } else {
+                $this->callback($onSuccess,$class);   
+            }
         }      
-
-        return ($errors == 0);   
+      
+        return true;
     }
 
     /**
@@ -310,7 +357,6 @@ class Install
                     Schema::setRowFormat($tableName);
                 }            
             }
-
         }
         
         return true;
@@ -468,5 +514,5 @@ class Install
             'access_tokens',
             'drivers'
         ];
-    }
+    } 
 }
