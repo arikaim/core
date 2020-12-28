@@ -12,6 +12,7 @@ namespace Arikaim\Core\Models;
 use Illuminate\Database\Eloquent\Model;
 
 use Arikaim\Core\Access\Access;
+use Arikaim\Core\Utils\Utils;
 
 use Arikaim\Core\Db\Traits\Uuid;
 use Arikaim\Core\Db\Traits\Find;
@@ -114,6 +115,7 @@ class Permissions extends Model
         return $this->create([
             'name'        => $name,
             'title'       => $title,
+            'slug'        => Utils::slug($title),
             'description' => $description,
             'editable'    => true
         ]);

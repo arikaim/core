@@ -16,6 +16,7 @@ use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Model as DbModel;
 use Arikaim\Core\Models\Permissions;
 use Arikaim\Core\Utils\Uuid as UuidFactory;
+use Arikaim\Core\Utils\Utils;
 
 use Arikaim\Core\Db\Traits\Uuid;
 use Arikaim\Core\Db\Traits\Find;
@@ -314,6 +315,7 @@ class PermissionRelations extends Model implements PermissionsInterface
             'name'           => $name,
             'extension_name' => $extension,
             'title'          => $title,
+            'slug'           => Utils::slug($title),
             'description'    => $description
         ];
         $permission = $model->create($item);
