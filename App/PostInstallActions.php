@@ -30,6 +30,7 @@ class PostInstallActions
         $extensionManager->postInstallAllPackages();
 
         if (Self::hasActions() == false) {
+            $onProgress('No actions to execute.');
             return true;
         }
 

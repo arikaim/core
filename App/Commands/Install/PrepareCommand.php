@@ -15,9 +15,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Arikaim\Core\Console\ConsoleCommand;
 use Arikaim\Core\Console\ConsoleHelper;
 use Arikaim\Core\App\Install;
-use Arikaim\Core\Arikaim;
-use Arikaim\Core\Utils\File;
-use Arikaim\Core\Utils\Path;
 
 /**
  * Prepare install command class
@@ -43,60 +40,37 @@ class PrepareCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        $this->showTitle('Check instalation requirements');
-      
+        $this->showTitle(' Check instalation requirements');
+        $install = new Install();
+
         //Requirements             
         $requirements = Install::checkSystemRequirements();
-
-        // status - 0 red , 1 - ok,  2 - oarange
-        foreach ($requirements['items'] as $item) {
+        // status - 0 red , 1 - ok,  2 - warning
+        foreach ($requirements['items'] as $item) {            
             if ($item['status'] == 1) {
-                $label = "\t" . ConsoleHelper::checkMark() . ' ' . ConsoleHelper::getLabelText($item['message'],'green');               
-            } else {
-                $label = "\t" . ' ' . ConsoleHelper::getLabelText($item['message'],'red');    
-            }
-            $this->style->writeLn($label);
-        }
-
-        if (count($requirements['errors']) > 0) {
-            $this->style->newLine();
-            $this->style->writeLn(ConsoleHelper::getDescriptionText('Errors'));
-            foreach ($requirements['errors'] as $error) {
-                $label = ConsoleHelper::getLabelText($error,'red');
-                $this->style->writeLn($label);
-            }
-        }
-        $this->style->newLine();
-        $this->style->write("\t Set cache directory writable ");
-        $result = File::setWritable(Path::CACHE_PATH); 
-        if ($result == true) {
-            $this->style->write(ConsoleHelper::getLabelText("\t done"));
-        } else {
-            $this->showError("Error: Can't set cache folder writtable.");
-            return;
+                $label = ConsoleHelper::checkMark();            
+            } elseif ($item['status'] == 2) {
+                $label = ConsoleHelper::warning();   
+            }         
+            $this->style->writeLn($label . $item['message']);
         }
 
         $this->style->newLine();
-        $this->style->write("\t Set config file writable ");
-        $result = File::setWritable(Arikaim::config()->getConfigFile());
-        if ($result == true) {
-            $this->style->write(ConsoleHelper::getLabelText("\t done"));
-        } else {
-            $this->showError("Error: Can't set config file writtable.");
-            return;
-        };
 
-        $this->style->newLine();
-        $this->style->write("\t Set config relations file writable ");
-        $result = File::setWritable(Path::CONFIG_PATH . 'relations.php');
-        if ($result == true) {
-            $this->style->write(ConsoleHelper::getLabelText("\t done"));
-        } else {
-            $this->showError("Error: Can't set config relations file writtable.");
-            return;
-        };
+        $result = $install->prepare(
+            function($messge) {
+                $msg =  ConsoleHelper::checkMark() . $messge;
+                $this->style->writeLn($msg);
+            },
+            function($error) {
+                $this->style->writeLn(ConsoleHelper::errorMark() . ConsoleHelper::getLabelText($error,'red'));
+            },$requirements
+        );
 
-        $this->style->newLine();       
-        $this->style->newLine();       
+        if ($result == true) {
+            $this->showCompleted();  
+        } else {
+            $this->showError('Error');  
+        }
     }
 }

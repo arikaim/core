@@ -46,6 +46,47 @@ class Install
     }
 
     /**
+     * Prepare install
+     *
+     * @param Closure|null $onError
+     * @param Closure|null $onProgress
+     * @param array|null $requirements
+     * @return bool
+     */
+    public function prepare($onProgress = null, $onError = null, array $requirements = null)
+    {
+        $status = true;
+        // check requirments
+        $requirements = $requirements ?? Self::checkSystemRequirements();
+        foreach ($requirements['errors'] as $error) {
+            $this->callback($onError,$error);
+        }
+        if (count($requirements['errors']) > 0) {
+            $status = false;
+        }
+
+        // cache dir
+        File::makeDir(Path::CACHE_PATH,0777);
+        $result = File::isWritable(Path::CACHE_PATH); 
+        if ($result == false) {
+            $this->callback($onError,"Can't set cache dir writable.");
+            $status = false;
+        } else {
+            $this->callback($onProgress,"Cache directory set writable.");
+        }
+        // set config files writable
+        $result = Self::setConfigFilesWritable();
+        if ($result == false) {
+            $this->callback($onError,"Can't set config files writable.");
+            $status = false;
+        } else {
+            $this->callback($onProgress,"Config files set writable.");
+        }
+
+        return $status;
+    }
+
+    /**
      * Call closure
      *
      * @param Closure $closure
@@ -82,11 +123,12 @@ class Install
                 $this->callback($onProgressError,'Error create database ' . $databaseName);              
                 return false;                
             }         
-            $this->callback($onProgress,'Database created.');          
+            $this->callback($onProgress,'Database created.');    
+            // reboot db    
+            Arikaim::db()->reboot(Arikaim::config()->get('db')); 
         }          
 
         // check db
-        Arikaim::db()->initConnection(Arikaim::config()->get('db'));  
         if (Arikaim::db()->has($databaseName) == false) {
             $error = Arikaim::errors()->getError('DB_DATABASE_ERROR');          
             $this->callback($onProgressError,$error); 
@@ -99,11 +141,12 @@ class Install
         // Create Arikaim DB tables
         $result = $this->createDbTables(function($class) use ($onProgress) {
             $this->callback($onProgress,'Db table model created ' . $class);
-        },function($error) use ($onProgressError) {
-            $this->callback($onProgressError,$error);
+        },function($class) use ($onProgressError) {
+            $this->callback($onProgressError,'Error creatinng db table model ' . $class);
         });      
 
-        if ($result !== true) {           
+        if ($result !== true) {    
+            $this->callback($onProgressError,"Error creating system db tables.");        
             return false;
         } 
         $this->callback($onProgress,'System db tables created.'); 
@@ -164,10 +207,14 @@ class Install
     {      
         System::setTimeLimit(0);
 
-        // Install modules
-        $modulesManager = Arikaim::packages()->create('module');
-        $result = $modulesManager->installAllPackages($onProgress,$onProgressError);
-           
+        try {
+            // Install modules
+            $modulesManager = Arikaim::packages()->create('module');
+            $result = $modulesManager->installAllPackages($onProgress,$onProgressError);
+        } catch (Exception $e) {
+            return false;
+        }
+     
         return $result;  
     }
 
@@ -181,10 +228,14 @@ class Install
     public function installExtensions($onProgress = null, $onProgressError = null)
     {      
         System::setTimeLimit(0);
- 
-        // Install extensions      
-        $extensionManager = Arikaim::packages()->create('extension');
-        $result = $extensionManager->installAllPackages($onProgress,$onProgressError);
+        
+        try {
+            // Install extensions      
+            $extensionManager = Arikaim::packages()->create('extension');
+            $result = $extensionManager->installAllPackages($onProgress,$onProgressError);
+        } catch (Exception $e) {
+            return false;
+        }
 
         return $result;
     }
@@ -320,24 +371,37 @@ class Install
     /**
      * Create core db tables
      *
+     * @param Closure|null $onProgress
+     * @param Closure|null $onError
+     * @param bool $stopOnError
      * @return string|false
      */
-    private function createDbTables($onSuccess = null, $onError = null)
+    private function createDbTables($onProgress = null, $onError = null, $stopOnError = true)
     {                        
         $classes = $this->getSystemSchemaClasses();
-    
-        foreach ($classes as $class) {     
-            $installed = Schema::install($class);                  
-            if ($installed === false) {                    
-                $error = "Error create database table '" . Schema::getTable($class) . "'";               
-                $this->callback($onError,$error);
-                return $error;           
-            } else {
-                $this->callback($onSuccess,$class);   
+        $result = true;
+        try {
+            foreach ($classes as $class) {     
+                $installed = Schema::install($class);                  
+                if ($installed === false) {                                            
+                    $this->callback($onError,$class);
+                    if ($stopOnError == true) {
+                        return false;
+                    }
+                    $result = false;       
+                } else {
+                    $this->callback($onProgress,$class);   
+                }
+            }      
+        } catch (Exception $e) {
+            $this->callback($onError,$e->getMessage());
+            if ($stopOnError == true) {
+                return false;
             }
-        }      
+            $result = false;    
+        }
       
-        return true;
+        return $result;
     }
 
     /**
@@ -396,7 +460,8 @@ class Install
 
     /**
      * Verify system requirements
-     *
+     * status   1 - ok, 2 - warning, 0 - error
+     * 
      * @return array
      */
     public static function checkSystemRequirements()
@@ -409,7 +474,7 @@ class Install
         $phpVersion = System::getPhpVersion();
         $item['message'] = 'PHP ' . $phpVersion;
         $item['status'] = 0; // error   
-        if (version_compare($phpVersion,'7.1','>=') == true) {               
+        if (\version_compare($phpVersion,'7.1','>=') == true) {               
             $item['status'] = 1; // ok                    
         } else {
             \array_push($errors,Arikaim::errors()->getError('PHP_VERSION_ERROR'));

@@ -32,15 +32,17 @@ class Install extends ApiController
     public function installController($request, $response, $data) 
     {            
         $this->onDataValid(function($data) {    
-            // clear cache
-            $this->get('cache')->clear();
-         
             $disabled = $this->get('config')->getByPath('settings/disableInstallPage',false);
             if ($disabled == true) {
                 $this->error('Install page is disabled.');
                 return;
             }
+            $install = new SystemInstall();
+            $result = $install->prepare();
 
+            // clear cache
+            $this->get('cache')->clear();
+         
             $result = SystemInstall::setConfigFilesWritable();              
             if ($result === false) {
                 $this->error('Config files is not writtable.');
@@ -66,22 +68,24 @@ class Install extends ApiController
                 return; 
             }
            
-            // do install
-            $install = new SystemInstall();
+            // do install        
             $this->initTaskProgress();
 
             $result = $install->install(
-                function($message) {                  
+                function($message) {       
+                    $this->clearResult();           
                     $this->setResponse(true,$message,'error');
                     $this->sendProgressResponse();       
-                },function($error) {                  
+                },function($error) {    
+                    $this->clearResult();                   
                     $this->setResponse(false,'',$error);             
                     $this->sendProgressResponse();       
                 }
             );   
-          
+            $this->clearResult();    
             $this->taskProgressEnd();
-            $this->setResponse($result,'Arikaim CMS was installed successfully.','Install Error');                       
+             
+            $this->setResponse($result,'Arikaim CMS was installed successfully.','Install Error');   
         });
         $data
             ->addRule('text:min=2','database')
@@ -100,15 +104,15 @@ class Install extends ApiController
     */
     public function installModulesController($request, $response, $data) 
     {           
-        $this->onDataValid(function($data) {    
-            // clear cache
-            $this->get('cache')->clear();
-
+        $this->onDataValid(function($data) {  
             $disabled = $this->get('config')->getByPath('settings/disableInstallPage',false);
             if ($disabled == true) {
                 $this->error('Install page is disabled.');
                 return;
             }
+
+            // clear cache
+            $this->get('cache')->clear();
 
             // do install
             $install = new SystemInstall();
@@ -144,15 +148,15 @@ class Install extends ApiController
     */
     public function installExtensionsController($request, $response, $data) 
     {           
-        $this->onDataValid(function($data) {    
-            // clear cache
-            $this->get('cache')->clear();
-
+        $this->onDataValid(function($data) {   
             $disabled = $this->get('config')->getByPath('settings/disableInstallPage',false);
             if ($disabled == true) {
                 $this->error('Install page is disabled.');
                 return;
             }
+
+            // clear cache
+            $this->get('cache')->clear();
 
             // do install
             $install = new SystemInstall();
@@ -189,19 +193,14 @@ class Install extends ApiController
     public function postInstallActionsController($request, $response, $data) 
     {           
         $this->onDataValid(function($data) {    
-            // clear cache
-            $this->get('cache')->clear();
-
             $disabled = $this->get('config')->getByPath('settings/disableInstallPage',false);
             if ($disabled == true) {
                 $this->error('Install page is disabled.');
                 return;
             }
 
-            if (PostInstallActions::hasActions() == false) {
-                $this->setResponse(true,'Success.',''); 
-                return;
-            }
+            // clear cache
+            $this->get('cache')->clear();
 
             $this->initTaskProgress();
 
