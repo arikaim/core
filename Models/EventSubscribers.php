@@ -115,9 +115,6 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
         return $model->where('extension_name','=',$extension);       
     }
 
-    
-    
-
     /**
      * Save subscriber info to db table. 
      *
@@ -125,9 +122,16 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
      * @param string $class
      * @param string|null $extension
      * @param integer $priority
+     * @param string|null $hadnlerMethod
      * @return bool
      */
-    public function addSubscriber($eventName, $class, $extension = null, $priority = 0, $hadnlerMethod = null)
+    public function addSubscriber(
+        string $eventName, 
+        string $class, 
+        ?string $extension = null, 
+        int $priority = 0, 
+        ?string $hadnlerMethod = null
+    ): bool
     {
         if ($this->hasSubscriber($eventName,$extension) == true) {
             return false;
@@ -141,7 +145,9 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
             'handler_method' => $hadnlerMethod
         ];
       
-        return $this->create($subscriber);       
+        $subscriber = $this->create($subscriber);   
+
+        return \is_object($subscriber);
     }   
 
     /**
