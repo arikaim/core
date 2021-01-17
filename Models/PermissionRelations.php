@@ -163,7 +163,7 @@ class PermissionRelations extends Model implements PermissionsInterface
     /**
      * Get user permission
      *
-     * @param string $name Permission name or slug
+     * @param string|integer $name Permission name, slug or id
      * @param integer|string $userId
      * @return Model|false
      */
@@ -217,7 +217,7 @@ class PermissionRelations extends Model implements PermissionsInterface
     /**
      * Return permission for user or group
      *
-     * @param string|integer $name Permission name or slug
+     * @param string|integer $name Permission name, slug or id
      * @param integer $id
      * @param integer $type
      * @return Model|bool
@@ -269,18 +269,18 @@ class PermissionRelations extends Model implements PermissionsInterface
     /**
      * Check for permissions in current object
      *
+     * @param string|int name
+     * @param mixed $userId
      * @param array $permissions
-     * @param string name
-     * @param mixed id
      * @return boolean
      */
-    public function hasPermissions($name, $id, $permissions)
+    public function hasPermissions($name, $userId, array $permissions): bool
     {
-        if (\is_array($permissions) == false || count($permissions) == 0) {
+        if (\count($permissions) == 0) {
             return false;
         } 
       
-        $model = $this->getUserPermission($name,$id);       
+        $model = $this->getUserPermission($name,$userId);       
         if (\is_object($model) == false) {
             return false;
         }
@@ -303,7 +303,7 @@ class PermissionRelations extends Model implements PermissionsInterface
      * @param string|null $extension
      * @return boolean
      */
-    public function addPermission($name, $title = null, $description = null, $extension = null)
+    public function addPermission(string $name, ?string $title = null, ?string $description = null, ?string $extension = null): bool
     {
         $model = DbModel::Permissions();
 

@@ -22,7 +22,7 @@ class DisableCommand extends ConsoleCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('drivers:disable')->setDescription('Disable driver');
         $this->addOptionalArgument('name','Driver name');
@@ -37,6 +37,7 @@ class DisableCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {       
+        $this->showTitle(); 
         $name = $input->getArgument('name');
         if (empty($name) == true) {
             $error = Arikaim::errors()->getError('ARGUMENT_ERROR',['name' => 'name']);
@@ -44,6 +45,8 @@ class DisableCommand extends ConsoleCommand
             return;
         }
         
+        $this->writeFieldLn('Name',$name);
+      
         if (Arikaim::driver()->has($name) == false) {
             $error = Arikaim::errors()->getError('DRIVER_NOT_EXISTS_ERROR',['name' => $name]);
             $this->showError($error);

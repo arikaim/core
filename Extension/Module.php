@@ -30,7 +30,7 @@ class Module implements ModuleInterface
      *
      * @var string|null
      */
-    protected $serviceName;
+    protected $serviceName = null;
     
     /**
      * test error
@@ -61,7 +61,15 @@ class Module implements ModuleInterface
       * @param array $config
       * @return boolean|Model
     */
-    public function installDriver($name, $class = null, $category = null, $title = null, $description = null, $version = null, $config = [])
+    public function installDriver(
+        $name, 
+        ?string $class = null, 
+        ?string $category = null,
+        ?string $title = null, 
+        ?string $description = null,
+        ?string $version = null, 
+        array $config = []
+    )
     {
         return Arikaim::driver()->install($name,$class,$category,$title,$description,$version,$config);
     }
@@ -81,7 +89,7 @@ class Module implements ModuleInterface
      *
      * @return string|null
      */
-    public function getServiceName()
+    public function getServiceName(): ?string
     {
         return $this->serviceName;
     }
@@ -92,9 +100,9 @@ class Module implements ModuleInterface
      * @param string $name
      * @return void
      */
-    public function setServiceName($name)
+    public function setServiceName(string $name): void
     {
-        return $this->serviceName = $name;
+        $this->serviceName = $name;
     }
 
     /**
@@ -110,9 +118,9 @@ class Module implements ModuleInterface
     /**
      * Get test error
      *
-     * @return string
+     * @return string|null
      */
-    public function getTestError()
+    public function getTestError(): ?string
     {
         return $this->error;
     }
@@ -122,7 +130,7 @@ class Module implements ModuleInterface
      * @param array $config
      * @return void
      */
-    public function setConfig($config)
+    public function setConfig(array $config): void
     {
         $this->config = $config;
     }
@@ -133,7 +141,7 @@ class Module implements ModuleInterface
      * @param string|null $key
      * @return array
      */
-    public function getConfig($key = null)
+    public function getConfig(?string $key = null): ?array
     {
         if (empty($key) == true) {
             return $this->config;
@@ -148,7 +156,7 @@ class Module implements ModuleInterface
      * @param string $name
      * @return bool
      */
-    protected function loadConfig($name)
+    protected function loadConfig(string $name): bool
     {
         $model = Model::Modules()->findByColumn($name,'name');
         if (\is_object($model) == true) {

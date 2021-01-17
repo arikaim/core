@@ -22,7 +22,7 @@ class ClearLogsCommand extends ConsoleCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('logs:clear')->setDescription('Clear logs');
     }
@@ -36,13 +36,10 @@ class ClearLogsCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        $this->style->writeLn('Clear Logs');
+        $this->showTitle();
     
-        $result = Arikaim::logger()->deleteSystemLogs();
-        if ($result == true) {
-            $this->showCompleted();
-        } else {
-            $this->showError("Can't remove logs file!");
-        }
+         Arikaim::logger()->deleteSystemLogs();
+       
+        $this->showCompleted();
     }
 }

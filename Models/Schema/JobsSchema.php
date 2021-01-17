@@ -43,10 +43,13 @@ class JobsSchema extends Schema
         $table->integer('executed')->nullable(false)->default(0);
         $table->dateCreated();        
         $table->dateColumn('schedule_time');
-        $table->dateColumn('date_executed');                     
+        $table->dateColumn('date_executed');   
+        $table->text('config')->nullable(true);
+        $table->string('queue')->nullable(true);
         // indexes         
         $table->unique('name');
         $table->index('recuring_interval');  
+        $table->index('queue');  
     }
 
     /**
@@ -56,6 +59,12 @@ class JobsSchema extends Schema
      * @return void
      */
     public function update($table)
-    {       
+    {   
+        if ($this->hasColumn('config') == false) {
+            $table->text('config')->nullable(true);
+        } 
+        if ($this->hasColumn('queue') == false) {
+            $table->string('queue')->nullable(true);
+        }       
     }
 }

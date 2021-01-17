@@ -9,7 +9,6 @@
  */
 namespace Arikaim\Core\App\Commands\Extensions;
 
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -27,7 +26,7 @@ class ListCommand extends ConsoleCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('extensions:list')->setDescription('Extensions list');
     }
@@ -41,29 +40,28 @@ class ListCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {       
-        $table = new Table($output);
-        $table->setHeaders(['Name','Version','Status','Installed']);
-        $table->setStyle('compact');
+        $this->showTitle();
 
-        $this->showTitle('Extensions');
-     
+        $this->table()->setHeaders(['Name','Version','Status','Installed']);
+        $this->table()->setStyle('compact');
+
         $manager = Arikaim::packages()->create('extension');
         $items = $manager->getPackages();
-        
-        $rows = [];
+    
         foreach ($items as $name) {
             $package = $manager->createPackage($name);
             $extension = $package->getProperties();
 
             $status = ConsoleHelper::getStatusText($extension->status);
             $installed = ConsoleHelper::getYesNoText($extension->installed);
+            $row = [$extension->name,$extension->version,$status,$installed]; 
 
-            $row = [$extension->name,$extension->version,$status,$installed];
-            \array_push($rows,$row);
+            $this->table()->addRow($row);
         }
         
-        $table->setRows($rows);
-        $table->render();
-        $this->style->newLine();
+        $this->table()->render();
+        $this->newLine();
+
+        $this->showCompleted();
     }
 }

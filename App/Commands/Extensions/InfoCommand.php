@@ -9,7 +9,6 @@
  */
 namespace Arikaim\Core\App\Commands\Extensions;
 
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -27,7 +26,7 @@ class InfoCommand extends ConsoleCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('extensions:info')->setDescription('Extension Info');
         $this->addOptionalArgument('name','Extension Name');
@@ -42,17 +41,19 @@ class InfoCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {       
-        $table = new Table($output);
-        $table->setHeaders(['', '']);
-        $table->setStyle('compact');
-
+        $this->showTitle();
+     
+        $this->table()->setHeaders(['', '']);
+        $this->table()->setStyle('compact');
 
         $name = $input->getArgument('name');
         if (empty($name) == true) {
             $this->showError('Extension name required!');
             return;
         }
-    
+        
+        $this->writeFieldLn('Name',$name);
+
         $manager = Arikaim::packages()->create('extension');
         $package = $manager->createPackage($name);
         if ($package == false) {
@@ -60,10 +61,10 @@ class InfoCommand extends ConsoleCommand
             return;
         }
         $extension = $package->getProperties();
+        $this->newLine();
+        $this->writeLn(ConsoleHelper::getDescriptionText($extension->description)); 
+        $this->newLine();
 
-        $this->showTitle('Extension ' . ConsoleHelper::getLabelText($name,'green'));
-        $this->style->writeLn(ConsoleHelper::getDescriptionText($extension->description)); 
-       
         $rows = [
             ['Version',$extension->version],
             ['Class',$extension->class],
@@ -71,8 +72,10 @@ class InfoCommand extends ConsoleCommand
             ['Installed',ConsoleHelper::getYesNoText($extension->installed)]
         ];
             
-        $table->setRows($rows);
-        $table->render();
-        $this->style->newLine();
+        $this->table()->setRows($rows);
+        $this->table()->render();
+        $this->newLine();
+
+        $this->showCompleted();
     }
 }

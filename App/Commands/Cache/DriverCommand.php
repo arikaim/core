@@ -10,7 +10,6 @@
 namespace Arikaim\Core\App\Commands\Cache;
 
 use Arikaim\Core\Console\ConsoleCommand;
-use Arikaim\Core\Console\ConsoleHelper;
 use Arikaim\Core\Arikaim;
 
 /**
@@ -24,7 +23,7 @@ class DriverCommand extends ConsoleCommand
      * name cache:clear 
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('cache:driver')->setDescription('Cache driver info');
     }
@@ -38,17 +37,14 @@ class DriverCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        $this->showTitle('Cache driver'); 
+        $this->showTitle();
+         
         $driver = Arikaim::cache()->getDriver();
+        $driverClass = \get_class($driver);
 
-        $this->style->write(ConsoleHelper::getLabelText('Class ','cyan')); 
-        $this->style->write(get_class($driver));
-        $this->style->newLine();
-        $this->style->write(ConsoleHelper::getLabelText('Name ','cyan')); 
-        $this->style->write(Arikaim::cache()->getDriverName());
-       
-        $this->style->newLine();
+        $this->writeFieldLn('Class',$driverClass);
+        $this->writeFieldLn('Name',Arikaim::cache()->getDriverName());
+      
         $this->showCompleted();
-        $this->style->newLine();
     }
 }

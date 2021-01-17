@@ -9,7 +9,6 @@
  */
 namespace Arikaim\Core\App\Commands\Queue;
 
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -27,9 +26,9 @@ class JobsCommand extends ConsoleCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
-        $this->setName('queue:jobs')->setDescription('Show jobs list.');
+        $this->setName('queue:jobs')->setDescription('Jobs list.');
     }
 
     /**
@@ -41,43 +40,36 @@ class JobsCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     { 
-        $this->showTitle('Queue');  
+        $this->showTitle();  
         $this->showTitle('Recurring Jobs');
         
-        $table = new Table($output);
-        $table->setHeaders(['','Next Run Time','Handler']);
-        $table->setStyle('compact');
+        $this->table()->setHeaders(['','Next Run Time','Handler']);
+        $this->table()->setStyle('compact');
 
         // Recurring jobs
         $items = Arikaim::queue()->getRecuringJobs();
-        $rows = [];
         foreach ($items as $item) {                  
-            $row = ['',DateTime::dateTimeFormat($item['due_date']),$item['handler_class']];
-            \array_push($rows,$row);
-        }
-        if (empty($rows) == true) {
-            \array_push($rows,['','..','']);
-        }
-        $table->setRows($rows);
-        $table->render();
+            $row = ['',DateTime::dateTimeFormat($item['due_date']),$item['handler_class']];          
+            $this->table()->addRow($row);
+        }       
+        $this->table()->render();
 
         // Scheduled jobs
+        $this->showTitle('Scheduled Jobs');
+        $this->table()->setHeaders(['','Scheduled Time','Handler']);
+
         $items = Arikaim::queue()->getJobs(['schedule_time' => '*']);
         $rows = [];
         foreach ($items as $item) {                  
             $row = ['',DateTime::dateTimeFormat($item['schedule_time']),$item['handler_class']];
-            \array_push($rows,$row);
+            $rows[] = $row;
         }
-        if (empty($rows) == true) {
-            \array_push($rows,['','..','']);
+        if (\count($rows) == 0) {
+            $rows[] = ['..',''];
         }
+        $this->table()->setRows($rows);
+        $this->table()->render();
 
-        $this->showTitle('Scheduled Jobs');
-        $table->setHeaders(['','Scheduled Time','Handler']);
-
-        $table->setRows($rows);
-        $table->render();
-
-        $this->style->newLine();
+        $this->showCompleted(); 
     }    
 }

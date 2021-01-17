@@ -22,7 +22,7 @@ class RestartCommand extends ConsoleCommand
      * name cache:clear 
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('session:restart')->setDescription('Clear session varibales and start new session');
     }
@@ -38,7 +38,7 @@ class RestartCommand extends ConsoleCommand
     {
         Session::restart();
 
-        $this->showTitle('Restart session.');
+        $this->showTitle('Restart session.');        
         $this->showCompleted();
     }
 }

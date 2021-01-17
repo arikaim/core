@@ -189,7 +189,7 @@ class RoutingMiddleware implements MiddlewareInterface
      */
     protected function mapSystemRoutes($method)
     {       
-        $routes = SystemRoutes::$routes[$method] ?? false;  
+        $routes = SystemRoutes::$routes[$method] ?? false;
         if ($routes === false) {
             return;
         }

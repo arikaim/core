@@ -26,7 +26,7 @@ class PrepareCommand extends ConsoleCommand
      * name: install
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('install:prepare')->setDescription('Check install requirements.');
     }
@@ -40,7 +40,7 @@ class PrepareCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        $this->showTitle(' Check instalation requirements');
+        $this->showTitle();
         $install = new Install();
 
         //Requirements             

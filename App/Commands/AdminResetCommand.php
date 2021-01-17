@@ -24,7 +24,7 @@ class AdminResetCommand extends ConsoleCommand
      * name: install
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('admin:reset')->setDescription('Reset control panel user password');
     }
@@ -38,7 +38,7 @@ class AdminResetCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        $this->showTitle('Reset control panel user password');
+        $this->showTitle();
          
         $helper = $this->getHelper('question');
         $validator = function($value) {                
@@ -48,11 +48,11 @@ class AdminResetCommand extends ConsoleCommand
             }
             return $value;
         };
-        $question = new Question('Enter new password: ',null);    
+        $question = new Question(' Enter new password: ',null);    
         $question->setValidator($validator);      
         $newPassword = \trim($helper->ask($input, $output, $question));
         
-        $question = new Question('Repeat new passsord: ');
+        $question = new Question(' Repeat new passsord: ');
         $repeatPasword = \trim($helper->ask($input, $output, $question));
 
         if ($newPassword != $repeatPasword) {

@@ -25,7 +25,7 @@ class EnableCommand extends ConsoleCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('extensions:enable')->setDescription('Enable extension');
         $this->addOptionalArgument('name','Extension Name');
@@ -40,12 +40,15 @@ class EnableCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {       
+        $this->showTitle();
+
         $name = $input->getArgument('name');
         if (empty($name) == true) {
             $this->showError('Extension name required!');
             return;
         }
-    
+        $this->writeFieldLn('Name',$name);
+
         $manager = Arikaim::packages()->create('extension');
         $package = $manager->createPackage($name);
         if ($package == false) {
@@ -61,11 +64,11 @@ class EnableCommand extends ConsoleCommand
         $result = $manager->enablePackage($name);
 
         Arikaim::cache()->clear();
-        
         if ($result == false) {
             $this->showError("Can't enable extension!");
             return;
         }
+
         $this->showCompleted();
     }
 }

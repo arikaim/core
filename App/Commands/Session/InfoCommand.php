@@ -23,7 +23,7 @@ class InfoCommand extends ConsoleCommand
      * name cache:clear 
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('session:info')->setDescription('Session info');
     }
@@ -37,16 +37,15 @@ class InfoCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        $this->showTitle('Session info.');
+        $this->showTitle();
         
         $params = Session::getParams();
-
         $label = ($params['use_cookies'] == true) ? 'true' : 'false';
 
-        $this->style->writeLn('Id: ' . Session::getId());
-        $this->style->writeLn('Use cookies: ' . $label);
-        $this->style->writeLn('Save Path: ' . ini_get('session.save_path'));      
-        $this->style->writeLn('Lifetime: ' . Session::getLifetime());
+        $this->writeFieldLn('Id',Session::getId());
+        $this->writeFieldLn('Use cookies',$label);
+        $this->writeFieldLn('Save Path',\ini_get('session.save_path'));
+        $this->writeFieldLn('Lifetime',Session::getLifetime());
 
         $this->showCompleted();
     }

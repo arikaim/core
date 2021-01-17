@@ -9,7 +9,6 @@
  */
 namespace Arikaim\Core\App\Commands\Template;
 
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -27,7 +26,7 @@ class ListCommand extends ConsoleCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('theme:list')->setDescription('Themes list');
     }
@@ -41,29 +40,25 @@ class ListCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        $this->showTitle('Themes');
+        $this->showTitle();
       
-        $table = new Table($output);
-        $table->setHeaders(['Name','Version','Status']);
-        $table->setStyle('compact');
+        $this->table()->setHeaders(['Name','Version','Status']);
+        $this->table()->setStyle('compact');
         
         $current = Arikaim::options()->get('current.template',null);
     
         $manager = Arikaim::packages()->create('template');
         $items = $manager->getPackages();
 
-        $rows = [];
         foreach ($items as $name) {
             $package = $manager->createPackage($name);
             $template = $package->getProperties();
             $label = ($template['name'] == $current) ? ConsoleHelper::getLabelText('current','cyan') : '';
             $row = [$template['name'],$template['version'],$label];
-
-            \array_push($rows,$row);
+            $this->table()->addRow($row);          
         }
-
-        $table->setRows($rows);
-        $table->render();
-        $this->style->newLine();
+        $this->table()->render();
+        
+        $this->showCompleted();
     }
 }

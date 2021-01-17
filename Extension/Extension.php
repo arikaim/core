@@ -102,7 +102,8 @@ abstract class Extension implements ExtensionInterface
      * @param Closure $callback
      * @return mixed|false
      */
-    public static function run($baseClass, $extension, $callback) {
+    public static function run(string $baseClass, string $extension, $callback) 
+    {
         $class = Factory::getExtensionClassName($extension,$baseClass);
         $instance = Factory::createInstance($class);
     
@@ -120,7 +121,7 @@ abstract class Extension implements ExtensionInterface
      * @param string $extensionName
      * @return array
      */
-    public static function loadJsonConfigFile($fileName, $extensionName)
+    public static function loadJsonConfigFile(string $fileName, string $extensionName)
     {
         $configDir = Path::EXTENSIONS_PATH . $extensionName . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR;
         $data = File::readJsonFile($configDir . $fileName);
@@ -131,13 +132,15 @@ abstract class Extension implements ExtensionInterface
     /**
      * Create extension storage folder
      *
+     * @param string|null $dir
      * @param boolean $public
      * @return bool
      */
-    public function createStorageFolder($public = false)
+    public function createStorageFolder(?string $dir = null, bool $public = false)
     {
         $path = ($public == true) ? Path::STORAGE_PUBLIC_PATH : Path::STORAGE_PATH;
-        $storagePath = $path . $this->getName() . DIRECTORY_SEPARATOR;
+        $dir = $dir ?? $this->getName();
+        $storagePath = $path . $dir . DIRECTORY_SEPARATOR;
 
         if (File::exists($storagePath) == false) {
             File::makeDir($storagePath);
@@ -146,7 +149,7 @@ abstract class Extension implements ExtensionInterface
         $result = File::exists($storagePath);
         if ($result === false) {
             // add error
-            $this->addError(Arikaim::errors()->getError("Can't craate extension storage folder.",['path' => $storagePath]));
+            $this->addError(Arikaim::errors()->getError('EXTENSION_STORAGE_FOLDER',['path' => $storagePath]));
         } 
         
         return $result;
@@ -180,7 +183,7 @@ abstract class Extension implements ExtensionInterface
      * @param string|null $description
      * @return boolean
      */
-    public function addPermission($name, $title = null, $description = null)
+    public function addPermission(string $name, ?string $title = null, ?string $description = null)
     {
         return Arikaim::access()->addPermission($name,$title,$description,$this->getName());            
     }
@@ -192,7 +195,7 @@ abstract class Extension implements ExtensionInterface
      * @param string $modelClass
      * @return void
      */
-    public function addRelationMap($type, $modelClass)
+    public function addRelationMap(string $type, string $modelClass)
     {
         $relations = Arikaim::config()->load('relations.php');       
         $relations[$type] = Factory::getModelClass($modelClass,$this->getName());
@@ -215,7 +218,7 @@ abstract class Extension implements ExtensionInterface
      * @param boolean $autoLoad
      * @return bool
      */
-    public function createOption($key, $value, $autoLoad = true)
+    public function createOption(string $key, $value, bool $autoLoad = true): bool
     {
         $result = Arikaim::options()->createOption($key,$value,$autoLoad,$this->getName());
         if ($result !== true) {
@@ -242,7 +245,15 @@ abstract class Extension implements ExtensionInterface
       * @param array $config
       * @return boolean|Model
     */
-    public function installDriver($name, $class = null, $category = null, $title = null, $description = null, $version = null, $config = [])
+    public function installDriver(
+        $name, 
+        ?string $class = null, 
+        ?string $category = null, 
+        ?string $title = null, 
+        ?string $description = null, 
+        ?string $version = null, 
+        array $config = []
+    )
     {
         $result = Arikaim::driver()->install($name,$class,$category,$title,$description,$version,$config,$this->getName());
         if ($result !== true) {
@@ -259,7 +270,7 @@ abstract class Extension implements ExtensionInterface
      * @param string $name Driver name   
      * @return boolean
     */
-    public function unInstallDriver($name)
+    public function unInstallDriver(string $name)
     {
         $result = Arikaim::driver()->unInstall($name);
         if ($result !== true) {
@@ -298,7 +309,7 @@ abstract class Extension implements ExtensionInterface
      * @param string $class
      * @return bool
      */
-    public function registerConsoleCommand($class)
+    public function registerConsoleCommand(string $class)
     {
         $class = Factory::getExtensionConsoleClassName($this->getName(),Utils::getBaseClassName($class));
         if (\class_exists($class) == false) {
@@ -313,18 +324,6 @@ abstract class Extension implements ExtensionInterface
     }
 
     /**
-     * Create job
-     *
-     * @param string $class
-     * @param string|null $name
-     * @return JobInterface
-     */
-    public function createJob($class, $name = null)
-    {       
-        return Factory::createJob($class,$this->getName(),$name);
-    }
-
-    /**
      * Add job to queue
      *
      * @param string $class
@@ -332,9 +331,10 @@ abstract class Extension implements ExtensionInterface
      * @param bool $disabled
      * @return boolean
      */
-    public function addJob($class, $name = null, $disabled = false)
+    public function addJob(string $class, ?string $name = null, bool $disabled = false)
     {       
-        $job = $this->createJob($class,$name);
+        $job = Factory::createJob($class,$this->getName(),$name);
+
         if (\is_object($job) == false) {
             $this->addError(Arikaim::errors()->getError('REGISTER_JOB_ERROR',['name' => $name])); 
 
@@ -353,11 +353,11 @@ abstract class Extension implements ExtensionInterface
      * Register extension event
      *
      * @param string $name Event name
-     * @param string $title Event title
-     * @param string $description Event description
+     * @param string|null $title Event title
+     * @param string|null $description Event description
      * @return bool
      */
-    public function registerEvent($name, $title = null, $description = null)
+    public function registerEvent(string $name, ?string $title = null, ?string $description = null)
     {
         $result = Arikaim::event()->registerEvent($name,$title,$this->getName(),$description);
         if ($result !== true) {
@@ -373,7 +373,7 @@ abstract class Extension implements ExtensionInterface
      * @param string $class
      * @return string
      */
-    public function getControllerClassName($class)
+    public function getControllerClassName(string $class)
     {
         return ((\substr($class,0,7) == 'Arikaim') == true) ? $class : Factory::getExtensionControllerClass($this->getName(),$class);       
     }
@@ -390,7 +390,15 @@ abstract class Extension implements ExtensionInterface
      * @param boolean $withLanguage    
      * @return bool
      */
-    public function addHomePageRoute($pattern, $class = null, $handlerMethod = null, $pageName = null, $auth = null, $routeName = null, $withLanguage = false)
+    public function addHomePageRoute(
+        string $pattern, 
+        ?string $class = null, 
+        ?string $handlerMethod = null, 
+        ?string $pageName = null, 
+        $auth = null, 
+        ?string $routeName = null, 
+        bool $withLanguage = false
+    )
     {       
         if ($this->primary == true) {                      
             Arikaim::routes()->deleteHomePage();                     
@@ -418,7 +426,16 @@ abstract class Extension implements ExtensionInterface
      * @param integer $type
      * @return bool
      */
-    public function addPageRoute($pattern, $class = null, $handlerMethod = null, $pageName = null, $auth = null, $routeName = null, $withLanguage = false, $type = 1)
+    public function addPageRoute(
+        string $pattern, 
+        ?string $class = null, 
+        ?string $handlerMethod = null, 
+        ?string $pageName = null, 
+        $auth = null, 
+        ?string $routeName = null, 
+        bool $withLanguage = false, 
+        int $type = 1
+    )
     {
         $class = ($class == null) ? Factory::getControllerClass('Controller') : $this->getControllerClassName($class);
         $handlerMethod = ($handlerMethod == null) ? 'pageLoad' : $handlerMethod;
@@ -448,7 +465,7 @@ abstract class Extension implements ExtensionInterface
      * @param boolean $withLanguage
      * @return bool
      */
-    public function addShowPageRoute($pattern, $pageName, $auth = null, $withLanguage = true, $routeName = null)
+    public function addShowPageRoute(string $pattern, string $pageName, $auth = null, bool $withLanguage = true, ?string $routeName = null)
     {                  
         return $this->addPageRoute($pattern,null,'pageLoad',$pageName,$auth,$routeName,$withLanguage);
     }
@@ -461,7 +478,7 @@ abstract class Extension implements ExtensionInterface
      * @param string $url
      * @return boolean
     */
-    public function setRouteRedirectUrl($method, $pattern, $url)
+    public function setRouteRedirectUrl(string $method, string $pattern, string $url)
     {
         return Arikaim::routes()->setRedirectUrl($method,$pattern,$url);
     }
@@ -476,7 +493,7 @@ abstract class Extension implements ExtensionInterface
      * @param null|integer|string $auth
      * @return bool
      */
-    public function addApiRoute($method, $pattern, $class, $handlerMethod, $auth = null)
+    public function addApiRoute(string $method, string $pattern, string $class, string $handlerMethod, $auth = null)
     {
         $auth = Arikaim::access()->resolveAuthType($auth);
         $class = ($class == null) ? Factory::getControllerClass('Controller') : $this->getControllerClassName($class);
@@ -495,7 +512,7 @@ abstract class Extension implements ExtensionInterface
      * @param string $schemaClass
      * @return boolean
      */
-    public function createDbTable($schemaClass)
+    public function createDbTable(string $schemaClass)
     {       
         $result = Schema::install($schemaClass,$this->getName());   
         if ($result !== true) {
@@ -511,7 +528,7 @@ abstract class Extension implements ExtensionInterface
      * @param string $schemaClass
      * @return boolean
      */
-    public function dropDbTable($schemaClass)
+    public function dropDbTable(string $schemaClass)
     {
         $result = Schema::unInstall($schemaClass,$this->getName());
         if ($result !== true) {

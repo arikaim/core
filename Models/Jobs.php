@@ -16,7 +16,6 @@ use Arikaim\Core\Interfaces\Job\QueueStorageInterface;
 use Arikaim\Core\Queue\Jobs\RecuringJob;
 use Arikaim\Core\Interfaces\Job\JobInterface;
 use Arikaim\Core\Interfaces\Job\RecuringJobInterface;
-use Arikaim\Core\Interfaces\Job\ScheduledJobInterface;
 
 use Arikaim\Core\Db\Traits\DateCreated;
 use Arikaim\Core\Db\Traits\Uuid;
@@ -49,6 +48,8 @@ class Jobs extends Model implements QueueStorageInterface
         'date_created',
         'date_executed',
         'executed',
+        'config',
+        'queue'
     ];
     
     /**
@@ -96,7 +97,7 @@ class Jobs extends Model implements QueueStorageInterface
      */
     public function isRecurring()
     {
-        return (empty($this->recuring_interval) == true) ? false : true;
+        return (empty($this->recuring_interval) == false);
     }
 
     /**
@@ -106,7 +107,7 @@ class Jobs extends Model implements QueueStorageInterface
      */
     public function isScheduled()
     {
-        return (empty($this->schedule_time) == true) ? false : true;
+        return (empty($this->schedule_time) == false);
     }
 
     /**
@@ -178,9 +179,9 @@ class Jobs extends Model implements QueueStorageInterface
      * Get job
      *
      * @param string|integer $id Job id, uiid or name
-     * @return array|false
+     * @return array|null
      */
-    public function getJob($id)
+    public function getJob($id): ?array
     {
         $model = $this->findById($id);
 
@@ -188,7 +189,29 @@ class Jobs extends Model implements QueueStorageInterface
             $model = $this->findByColumn($id,'name');
         }
         
-        return (\is_object($model) == true) ? $model->toArray() : false;
+        return (\is_object($model) == true) ? $model->toArray() : null;
+    }
+
+    /**
+     * Save job config
+     *
+     * @param string|int $id
+     * @param array $config
+     * @return boolean
+     */
+    public function saveJobConfig($id, array $config): bool
+    {
+        $model = $this->findById($id);
+        if (empty($model) == true) {
+            $model = $this->findByColumn($id,'name');
+        }
+        if (empty($model) == true) {
+            return false;
+        }
+
+        return (bool)$model->update([
+            'config' => \json_encode($config)
+        ]);
     }
 
     /**
@@ -213,7 +236,7 @@ class Jobs extends Model implements QueueStorageInterface
      * @param array $filter   
      * @return array
      */
-    public function getJobs($filter = [])
+    public function getJobs($filter = []): ?array
     {  
         $model = $this;
         foreach ($filter as $key => $value) {
@@ -221,14 +244,14 @@ class Jobs extends Model implements QueueStorageInterface
         }
         $model = $model->get();
 
-        return (\is_object($model) == true) ? $model->toArray() : [];
+        return (\is_object($model) == true) ? $model->toArray() : null;
     }
 
     /**
      * Update execution status
      *
      * @param string|integer $id
-     * @param integer        $status
+     * @param integer $status
      * @return boolean
      */
     public function setJobStatus($id, $status)
@@ -249,54 +272,68 @@ class Jobs extends Model implements QueueStorageInterface
      */
     public function updateExecutionStatus(JobInterface $job)
     {       
-        $id = (empty($job->getId()) == true) ? $job->uuid : $job->getId();
+        $id = (empty($job->getId()) == true) ? $job->getName() : $job->getId();
         $model = $this->findByIdQuery($id);
     
         if (\is_object($model->first()) == false) {
             return false;
         } 
-        if ($job instanceof RecuringJobInterface) {
-            $info = ['date_executed' => DateTime::toTimestamp()];
+        if ($job->getStatus() != JobInterface::STATUS_EXECUTED) {
+            return false;
         }
-        if ($job instanceof ScheduledJobInterface) {
-            $info = ['date_executed' => DateTime::toTimestamp(),'status' => $model->first()->COMPLETED()];
-        }
+        $status = ($job instanceof RecuringJobInterface) ? JobInterface::STATUS_EXECUTED : JobInterface::STATUS_COMPLETED;
+        $info = [
+            'date_executed' => DateTime::toTimestamp(),
+            'status'        => $status
+        ];
+
         // increment execution counter
         $model->increment('executed');
-        $result = $model->update($info);     
 
-        return ($result == null) ? true : $result;
+        return $model->update($info);            
     }
 
     /**
      * Get next Job
      *
-     * @return array|false
+     * @return array|null
      */
-    public function getNext()
+    public function getNext(): ?array
     {       
-        $model = $this
-            ->where('status','<>',$this->COMPLETED())
-            ->whereNull('schedule_time')
-            ->whereNull('recuring_interval')
-            ->orderBy('priority','desc')->first();
+        $query = $this->getJobsDueQuery();       
+        $model = $query->orderBy('priority','desc')->first();
 
-        return (\is_object($model) == false) ? false : $model->toArray();           
+        return (\is_object($model) == true) ? $model->toArray() : null;           
     }
 
     /**
      * Get all jobs due
      * 
-     * @return array
+     * @return array|null
      */
-    public function getJobsDue()
+    public function getJobsDue(): ?array
     {
-        $model = $this
-            ->where('status','=',$this->ACTIVE())          
+        $query = $this->getJobsDueQuery();       
+        $model = $query->orderBy('priority','desc')->get();
+
+        return (\is_object($model) == true) ? $model->toArray() : null;
+    }
+
+    /**
+     * Get jobs due query
+     *
+     * @return Builder
+     */
+    public function getJobsDueQuery()
+    {
+        return $this
+            ->where('status','<>',JobInterface::STATUS_COMPLETED)        
+            ->where('status','<>',JobInterface::STATUS_ERROR)      
+            ->where('status','<>',JobInterface::STATUS_SUSPENDED)          
             ->where(function($query) {
-                $query->where('recuring_interval','<>','')->orWhere('schedule_time','<',DateTime::toTimestamp());
-            })->orderBy('priority','desc')->get();
-            
-        return (\is_object($model) == true) ? $model->toArray() : [];
+                //$query->where('recuring_interval','<>','')->orWhere('schedule_time','<',DateTime::toTimestamp());
+                $query->whereNull('schedule_time')->orWhere('schedule_time','<',DateTime::toTimestamp());
+            }
+        );    
     }
 }

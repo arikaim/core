@@ -143,6 +143,12 @@ class SystemRoutes
             ]
         ],
         'POST' => [
+            // Arikaim Store
+            [
+                'pattern'    => '/core/api/store/product',
+                'handler'    => 'Arikaim\Core\Api\Store:saveOrder',
+                'middleware' => null                
+            ],
             // Api routes
             [
                 'pattern'    => '/core/api/create/token/',

@@ -46,7 +46,7 @@ class Users extends ApiController
             $result = $this->get('access')->authenticate($credentials);
             if ($result === false) {           
                 $this->error('errors.login');  
-                $this->logError('Not valid Contro Panel login details',$credentials);
+                $this->logError('Not valid Contro Panel login details',['user_name' => $credentials['user_name']]);
                 return; 
             }  
             // check for control panel permission

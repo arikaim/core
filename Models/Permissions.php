@@ -11,7 +11,7 @@ namespace Arikaim\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-use Arikaim\Core\Access\Access;
+use Arikaim\Core\Interfaces\Access\AccessInterface;
 use Arikaim\Core\Utils\Utils;
 
 use Arikaim\Core\Db\Traits\Uuid;
@@ -147,6 +147,6 @@ class Permissions extends Model
      */
     public function getListQuery()
     {
-        return $this->where('name','<>',Access::CONTROL_PANEL)->orderBy('name');
+        return $this->where('name','<>',AccessInterface::CONTROL_PANEL)->orderBy('name');
     }
 }

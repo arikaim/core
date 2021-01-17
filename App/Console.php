@@ -22,7 +22,7 @@ class Console
      *
      * @return array
      */
-    public static function getCoreCommands()
+    public static function getCoreCommands(): array
     {
         $commands = Arikaim::config()->load('console.php',false);
 
@@ -34,7 +34,7 @@ class Console
      *
      * @return array
      */
-    public static function getExtensionsCommands()
+    public static function getExtensionsCommands(): array
     {
         if (Arikaim::db()->isValidPdoConnection() == false) {
             return [];
@@ -60,7 +60,7 @@ class Console
      *
      * @return array
      */
-    public static function getModulesCommands()
+    public static function getModulesCommands(): array
     {
         if (Arikaim::db()->isValidPdoConnection() == false) {
             return [];

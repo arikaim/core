@@ -11,9 +11,7 @@ namespace Arikaim\Core;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
-use Http\Factory\Guzzle\StreamFactory;
 use Slim\Factory\AppFactory;
-use Slim\Middleware\OutputBufferingMiddleware;
 
 use Arikaim\Core\Validator\ValidatorStrategy;
 use Arikaim\Core\App\ServiceContainer;
@@ -28,7 +26,7 @@ use Arikaim\Core\Middleware\BodyParsingMiddleware;
  */
 class Arikaim  
 {
-    const ARIKAIM_VERSION = '1.6.14';
+    const ARIKAIM_VERSION = '1.7.0';
 
     /**
      * Slim application object
@@ -76,7 +74,7 @@ class Arikaim
      * @param string $name
      * @return mixed
      */
-    public static function get($name)
+    public static function get(string $name)
     {
         return Self::$app->getContainer()->get($name);
     }
@@ -87,7 +85,7 @@ class Arikaim
      * @param string $name Item name.
      * @return boolean
     */
-    public static function has($name)
+    public static function has(string $name): bool
     {
         return Self::$app->getContainer()->has($name);
     }
@@ -109,7 +107,7 @@ class Arikaim
     * @param bool $console
     * @return void
     */
-    public static function systemInit($showErrors = false, $console = false)
+    public static function systemInit(bool $showErrors = false, bool $console = false): void
     {
         \ini_set('display_errors',(int)$showErrors);
         \ini_set('display_startup_errors',(int)$showErrors);
@@ -151,7 +149,7 @@ class Arikaim
      * @param boolean $showErrors
      * @return void
     */
-    public static function init($showErrors = false) 
+    public static function init(bool $showErrors = false): void 
     {        
         Self::systemInit($showErrors);
         Session::start();
@@ -171,7 +169,7 @@ class Arikaim
      *
      * @return void
      */
-    public static function initMiddleware()
+    public static function initMiddleware(): void
     {
         // add routing
         $routingMiddleware = new RoutingMiddleware(
@@ -185,8 +183,6 @@ class Arikaim
             
         Self::$app->add(new CoreMiddleware(Self::config()->get('settings',[])));           
         Self::$app->add(new BodyParsingMiddleware());
-        // disabled for task progress api calls
-        // Self::$app->add(new OutputBufferingMiddleware(new StreamFactory(),OutputBufferingMiddleware::APPEND));
         
         $errorMiddleware = new ErrorMiddleware(
             function() {
@@ -201,7 +197,7 @@ class Arikaim
      *
      * @return string
      */
-    public static function getVersion() 
+    public static function getVersion(): string 
     {
         return Self::ARIKAIM_VERSION;    
     }
@@ -232,7 +228,7 @@ class Arikaim
      * @param bool $showErrors
      * @return void
     */
-    public static function run($showErrors = false) 
+    public static function run(bool $showErrors = false): void 
     {      
         Self::init($showErrors);    
         Self::$app->run();            
@@ -246,7 +242,7 @@ class Arikaim
      * @param string|null $default
      * @return string
     */
-    public static function getError($errorCode, array $params = [], $default = 'UNKNOWN_ERROR') 
+    public static function getError(string $errorCode, array $params = [], ?string $default = 'UNKNOWN_ERROR'): string 
     {
         return Self::errors()->getError($errorCode,$params,$default);
     }
@@ -256,7 +252,7 @@ class Arikaim
      *
      * @return string
     */
-    public static function getConsoleRootPath()
+    public static function getConsoleRootPath(): string
     {
         return (\defined('ROOT_PATH') == true) ? ROOT_PATH : $_SERVER['PWD'];
     }
@@ -266,7 +262,7 @@ class Arikaim
      *
      * @return string
      */
-    public static function getConsoleBasePath()
+    public static function getConsoleBasePath(): string
     {
         return (\defined('BASE_PATH') == true) ? BASE_PATH : '';       
     }
@@ -276,7 +272,7 @@ class Arikaim
      *
      * @return string
     */
-    public static function getRootPath() 
+    public static function getRootPath(): string 
     {
         if (Self::isConsole() == false) {
             return \rtrim(\realpath($_SERVER['DOCUMENT_ROOT']),DIRECTORY_SEPARATOR);
@@ -290,10 +286,10 @@ class Arikaim
      *
      * @return string
     */
-    public static function getBasePath() 
+    public static function getBasePath(): string 
     {        
         if (Self::isConsole() == false) {
-            $path = \rtrim(\str_ireplace('index.php','',Self::$basePath), DIRECTORY_SEPARATOR);
+            $path = \rtrim(\str_ireplace('index.php','',Self::$basePath),DIRECTORY_SEPARATOR);
             return ($path == '/') ? '' : $path;               
         } 
         
@@ -305,7 +301,7 @@ class Arikaim
      *
      * @return string
     */
-    public static function getDomain() 
+    public static function getDomain(): string 
     {      
         return Self::$scheme . '://' . Self::$host;
     }
@@ -315,7 +311,7 @@ class Arikaim
      *
      * @return string
      */
-    public static function getHost() 
+    public static function getHost(): string 
     {      
         return Self::$host;
     }
@@ -325,7 +321,7 @@ class Arikaim
      *
      * @return boolean
     */
-    public static function isConsole()
+    public static function isConsole(): bool
     {
         return (\php_sapi_name() == 'cli');      
     }   
@@ -337,7 +333,7 @@ class Arikaim
      *
      * @return void
      */
-    public static function resolveEnvironment(array $env)
+    public static function resolveEnvironment(array $env): void
     {       
         // scheme
         $isHttps = 

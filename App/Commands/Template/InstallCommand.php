@@ -22,7 +22,7 @@ class InstallCommand extends ConsoleCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('theme:install')->setDescription('Install theme');
         $this->addOptionalArgument('name','Theme Name');
@@ -37,12 +37,16 @@ class InstallCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {       
+        $this->showTitle();
+
         $name = $input->getArgument('name');
         if (empty($name) == true) {
             $this->showError('Theme name required!');
             return;
         }
-    
+        
+        $this->writeFieldLn('Name',$name);
+        
         $manager = Arikaim::packages()->create('template');
         $package = $manager->createPackage($name);
         if ($package == false) {
@@ -54,7 +58,7 @@ class InstallCommand extends ConsoleCommand
      
         Arikaim::cache()->clear();
         
-        if ($result == false) {
+        if ($result === false) {
             $this->showError("Can't install theme!");
             return;
         }

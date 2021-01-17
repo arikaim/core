@@ -25,7 +25,7 @@ class Modules
     /**
      * Container
      * 
-     * @var ContainerInterface
+     * @var ContainerInterface|null
     */
     private static $container;
 
@@ -52,7 +52,7 @@ class Modules
      * @param string $name
      * @return ModuleInterface|null
      */
-    public function create($name)
+    public function create(string $name)
     {        
         $module = $this->cache->fetch('module.' . $name);
         if (\is_array($module) == false) {
@@ -73,7 +73,7 @@ class Modules
      * @param string $name
      * @return boolean
      */
-    public function hasModule($name)
+    public function hasModule(string $name): bool
     {
         $module = $this->cache->fetch('module.' . $name);
         if (\is_array($module) == true) {
@@ -81,7 +81,7 @@ class Modules
         }
         $module = Model::Modules()->getPackage($name);
         
-        return \is_array($module);
+        return (\is_array($module) == true);
     }
 
     /**
@@ -90,7 +90,7 @@ class Modules
      * @param string $name Item name.
      * @return boolean
     */
-    public static function has($name)
+    public static function has(string $name): bool
     {
         return Self::$container->has($name);
     }
@@ -111,7 +111,7 @@ class Modules
      * @param ContainerInterface $container
      * @return void
      */
-    public static function setContainer($container)
+    public static function setContainer($container): void
     {
         Self::$container = $container;
     }

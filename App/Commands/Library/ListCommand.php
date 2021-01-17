@@ -9,7 +9,6 @@
  */
 namespace Arikaim\Core\App\Commands\Library;
 
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -27,7 +26,7 @@ class ListCommand extends ConsoleCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('library:list')->setDescription('UI library list');
     }
@@ -41,27 +40,23 @@ class ListCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        $this->showTitle('UI library');
+        $this->showTitle();
       
-        $table = new Table($output);
-        $table->setHeaders(['Name','Version','Type']);
-        $table->setStyle('compact');
+        $this->table()->setHeaders(['Name','Version','Type']);
+        $this->table()->setStyle('compact');
 
         $manager = Arikaim::packages()->create('library');
         $items = $manager->getPackages();
 
-        $rows = [];
         foreach ($items as $name) {
-            $library_package = $manager->createPackage($name);
-
-            $library = $library_package->getProperties();
+            $package = $manager->createPackage($name);
+            $library = $package->getProperties();
             $label = ($library->framework == true) ? ConsoleHelper::getLabelText('framework','cyan') : '';
             $row = [$library->name,$library->version,$label];
-            \array_push($rows,$row);
+            $this->table()->addRow($row);
         }
-
-        $table->setRows($rows);
-        $table->render();
-        $this->style->newLine();
+        $this->table()->render();
+        
+        $this->showCompleted();    
     }
 }

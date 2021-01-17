@@ -24,7 +24,7 @@ class EnableInstallCommand extends ConsoleCommand
      * Command config
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('install:enable')->setDescription('Enable install page');
     }
@@ -38,7 +38,7 @@ class EnableInstallCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        $this->showTitle('Enable install page');
+        $this->showTitle();
       
         Arikaim::get('config')->setBooleanValue('settings/disableInstallPage',false);
         // save and reload config file

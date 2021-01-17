@@ -26,7 +26,7 @@ class RepairInstallCommand extends ConsoleCommand
      * Command config
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('install:repair')->setDescription('Arikaim CMS Repair Installation');
     }
@@ -40,7 +40,7 @@ class RepairInstallCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        $this->showTitle('Arikaim CMS Repair Installation');
+        $this->showTitle();
       
         $install = new Install();
         $doneMsg = '  ' . ConsoleHelper::checkMark() . ' ';
@@ -77,7 +77,7 @@ class RepairInstallCommand extends ConsoleCommand
         if ($result == true) {
             $this->showCompleted();  
         } else {
-            $this->showError('Error repair installation');
+            $this->showError('Error');
         }
     }
 }

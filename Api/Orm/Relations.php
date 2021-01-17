@@ -71,8 +71,9 @@ class Relations extends ControlPanelApiController
                 return;
             }
 
-            $result = $model->saveRelation($data['id'],$data['type'],$data['relation_id']);
-            
+            $model = $model->saveRelation($data['id'],$data['type'],$data['relation_id']);
+            $result = (\is_object($model) == true) ? true : $model;
+
             $this->setResponse($result,'relations.add','errors.relations.add');
         });
         $data->validate();

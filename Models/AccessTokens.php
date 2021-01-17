@@ -41,6 +41,13 @@ class AccessTokens extends Model implements UserProviderInterface
     protected $table = 'access_tokens';
 
     /**
+     * Auth id column name
+     *
+     * @var string
+     */
+    protected $authIdColumn = 'user_id';
+
+    /**
      * Fillable attributes
      *
      * @var array
@@ -123,7 +130,7 @@ class AccessTokens extends Model implements UserProviderInterface
      * @param string $password
      * @return bool
      */
-    public function verifyPassword($password)
+    public function verifyPassword(string $password): bool
     {
         $model = $this->findByColumn($password,'token'); 
 

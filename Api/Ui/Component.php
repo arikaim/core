@@ -11,7 +11,6 @@ namespace Arikaim\Core\Api\Ui;
 
 use Arikaim\Core\Controllers\ApiController;
 use Arikaim\Core\Collection\Arrays;
-use Arikaim\Core\View\Html\ResourceLocator;
 
 /**
  * Component Api controller
@@ -31,7 +30,7 @@ class Component extends ApiController
         $language = $this->getPageLanguage($data); 
         $component = $this->get('page')->createHtmlComponent($data['name'],[],$language);
 
-        if (\is_object($component) == false) {
+        if (\is_object($component) == false) {          
             $error = $this->get('errors')->getError('TEMPLATE_COMPONENT_NOT_FOUND',['full_component_name' => $data['name']]);
             return $this->withError($error)->getResponse();  
         }
@@ -39,13 +38,14 @@ class Component extends ApiController
         $component = $component->renderComponent();
 
         if ($component->hasError() == true) {
-            $error = $component->getError();  
+            $error = $component->getError();            
             $error = $this->get('errors')->getError($error['code'],['full_component_name' => $data['name']]);                   
             return $this->withError($error)->getResponse();  
         }
         // deny requets 
         if ($component->getOption('access/deny-request') == true) {
-            return $this->withError($this->get('errors')->getError('ACCESS_DENIED'))->getResponse();           
+            $error = $this->get('errors')->getError('ACCESS_DENIED');
+            return $this->withError($error)->getResponse();           
         }
         
         return $this->setResult($component->getProperties())->getResponse();        
@@ -114,30 +114,30 @@ class Component extends ApiController
      * @param string $language
      * @return JSON 
      */
-    public function load($name, $params = [], $language)
+    public function load(string $name, array $params = [], ?string $language)
     {   
         $params['current_path'] = $this->get('options')->get('current.path','');
         $component = $this->get('page')->createHtmlComponent($name,$params,$language,true);
      
-        if (\is_object($component) == false) {
-            return $this->withError('TEMPLATE_COMPONENT_NOT_FOUND',[
-                'full_component_name' => $name
-            ])->getResponse();  
+        if (\is_object($component) == false) {          
+            $error = $this->get('errors')->getError('TEMPLATE_COMPONENT_NOT_FOUND',['full_component_name' => $name]);  
+
+            return $this->withError($error)->getResponse();  
         }
      
         $component = $component->renderComponentDescriptor($component->getComponentData(),$params);
     
         if ($component->hasError() == true) {
-            $error = $component->getError();
             $this->setResultField('redirect',$component->getOption('access/redirect')); 
-                      
-            return $this->withError($error['message'])->getResponse();          
+            $error = $component->getError();         
+            $error = $error['message'] ?? $this->get('errors')->getError($error['code'] ?? null,['full_component_name' => $name]);  
+            return $this->withError($error)->getResponse();          
         }
       
         if ($component->getOption('access/deny-request') == true) {
             $this->setResultField('redirect',$component->getOption('access/redirect')); 
-
-            return $this->withError('ACCESS_DENIED',['name' => $component->getFullName()])->getResponse();           
+            $error = $this->$this->get('errors')->getError('ACCESS_DENIED',['name' => $component->getFullName()]);
+            return $this->withError($error)->getResponse();           
         }
         $files = $this->get('page')->getComponentsFiles();
         

@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Models\UserGroupMembers;
 use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Utils\Uuid as UuidCreate;
-use Arikaim\Core\Access\Access;
+use Arikaim\Core\Interfaces\Access\AccessInterface;
 use Arikaim\Core\Access\Interfaces\UserProviderInterface;
 use Arikaim\Core\Db\Model as DbModel;
 
@@ -209,7 +209,7 @@ class Users extends Model implements UserProviderInterface
      */
     public function getControlPanelUser()
     {
-        $permisisonId = DbModel::Permissions()->getId(Access::CONTROL_PANEL);
+        $permisisonId = DbModel::Permissions()->getId(AccessInterface::CONTROL_PANEL);
         if ($permisisonId == false) {
             return false;
         }
@@ -233,7 +233,7 @@ class Users extends Model implements UserProviderInterface
     public function isControlPanelUser($id = null)
     {
         $id = $id  ?? $this->id;
-        $permisisonId = DbModel::Permissions()->getId(Access::CONTROL_PANEL);
+        $permisisonId = DbModel::Permissions()->getId(AccessInterface::CONTROL_PANEL);
         if ($permisisonId == false) {
             return false;
         }

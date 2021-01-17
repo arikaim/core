@@ -23,7 +23,7 @@ class DisableCommand extends ConsoleCommand
      * name cache:clear 
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('cache:disable')->setDescription('Disable cache');
     }
@@ -37,7 +37,7 @@ class DisableCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        $this->showTitle('Disable cache.');
+        $this->showTitle();
         Arikaim::cache()->clear();
         
         Arikaim::config()->setBooleanValue('settings/cache',false);

@@ -23,7 +23,7 @@ class EnableCommand extends ConsoleCommand
      * name cache:clear 
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('cache:enable')->setDescription('Enable cache');
     }
@@ -37,7 +37,7 @@ class EnableCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        $this->showTitle('Enable cache.');
+        $this->showTitle();
         
         Arikaim::config()->setBooleanValue('settings/cache',true);
         $result = Arikaim::config()->save();

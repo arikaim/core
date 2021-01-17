@@ -32,7 +32,7 @@ class ServiceContainer
      * @param boolean $cosole
      * @return Container
      */
-    public static function create($console = false)
+    public static function create(bool $console = false)
     {
         $container = new Container();
         // Cache 
@@ -74,7 +74,7 @@ class ServiceContainer
             $debug = $container->get('config')['settings']['debug'] ?? true;
             $demoMode = $container->get('config')['settings']['demo_mode'] ?? false;
             $primaryTemplate = $container->get('options')->get('primary.template',null);
-            return new \Arikaim\Core\View\View(
+            $view = new \Arikaim\Core\View\View(
                 $container['cache'],
                 Path::VIEW_PATH,
                 Path::EXTENSIONS_PATH, 
@@ -87,6 +87,12 @@ class ServiceContainer
                 ],
                 $primaryTemplate
             );           
+
+            // Add twig extension
+            $twigExtension = new TwigExtension(BASE_PATH,Path::VIEW_PATH,$container);
+            $view->addExtension($twigExtension);
+
+            return $view;
         };    
         // Init page components.
         $container['page'] = function($container) {                     
@@ -97,21 +103,17 @@ class ServiceContainer
         }; 
         // Errors  
         $container['errors'] = function($container) use ($console) {
-            $systemErrors = $container->get('config')->loadJsonConfigFile('errors.json');    
-            if ($console == true) {
-                $consoleErrors = $container->get('config')->loadJsonConfigFile('console-errors.json'); 
-                $systemErrors = \array_merge($systemErrors,$consoleErrors);
-            }               
-            
-            return new \Arikaim\Core\System\Error\Errors($systemErrors);          
+            return new \Arikaim\Core\System\Error\Errors(
+                Path::CONFIG_PATH . 'errors.json',
+                Path::CONFIG_PATH . 'console-errors.json',
+                $console
+            );          
         };
         // Access
         $container['access'] = function($container) {
             $user = Model::Users();  
             $permissins = Model::PermissionRelations();    
-            $access = new \Arikaim\Core\Access\Access($permissins);
-
-            return new \Arikaim\Core\Access\Authenticate($user,$access);
+            return new \Arikaim\Core\Access\Access($permissins,$user);          
         };
         // Init Eloquent ORM
         $container['db'] = function($container) {  
@@ -119,10 +121,8 @@ class ServiceContainer
                 $relations = $container->get('config')->load('relations.php');
                 $db = new \Arikaim\Core\Db\Db($container->get('config')['db'],$relations);
             } catch(PDOException $e) {
-                if (Install::isInstalled() == true) {
-                    $container->get('errors')->addError('DB_CONNECTION_ERROR');
-                } else {
-                    $container->get('errors')->addError('NOT_INSTALLED_ERROR');
+                if (Install::isInstalled() == false) {
+                    // not installed
                 }                
             }      
             return $db;
@@ -166,10 +166,7 @@ class ServiceContainer
         $container['modules'] = function($container) {           
             return new \Arikaim\Core\Extension\Modules($container->get('cache'));
         }; 
-        // Add twig extension
-        $twigExtension = new TwigExtension(BASE_PATH,Path::VIEW_PATH,$container);
-        $container->get('view')->addExtension($twigExtension);
-
+     
         return $container;
     }
 }

@@ -25,7 +25,7 @@ class InstallCommand extends ConsoleCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('extensions:install')->setDescription('Install extension');
         $this->addOptionalArgument('name','Extension Name');
@@ -40,12 +40,15 @@ class InstallCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {       
+        $this->showTitle();
+
         $name = $input->getArgument('name');
         if (empty($name) == true) {
             $this->showError('Extension name required!');
             return;
         }
-    
+        $this->writeFieldLn('Name',$name);
+
         $manager = Arikaim::packages()->create('extension');
         $package = $manager->createPackage($name);
         if ($package == false) {

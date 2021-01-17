@@ -243,6 +243,7 @@ class Install extends ApiController
              
             $install = new SystemInstall();
             $result = $install->install();   
+
             $result = ($result == false) ? SystemInstall::isInstalled() : true;
             // run post install actions
             PostInstallActions::run();

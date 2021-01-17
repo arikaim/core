@@ -27,7 +27,7 @@ class ListCommand extends ConsoleCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('drivers:list')->setDescription('Drivers list');
     }
@@ -41,23 +41,22 @@ class ListCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        $this->showTitle('Drivers');
+        $this->showTitle();
       
-        $table = new Table($output);
-        $table->setHeaders(['Status','Name','Display Name','Category','Version']);
-        $table->setStyle('compact');
+        $this->table()->setHeaders(['Status','Name','Display Name','Category','Version']);
+        $this->table()->setStyle('compact');
 
         $items = Arikaim::driver()->getList();
 
-        $rows = [];
         foreach ($items as $driver) {
             $label = ($driver['status'] == 1) ? ConsoleHelper::getLabelText('enabled','green') : ConsoleHelper::getLabelText('disabled','red');
             $row = [$label,$driver['name'],$driver['title'],$driver['category'],$driver['version']];
-            \array_push($rows,$row);
+            $this->table()->addRow($row);
         }
+     
+        $this->table()->render();
+        $this->newLine();
 
-        $table->setRows($rows);
-        $table->render();
-        $this->style->newLine();
+        $this->showCompleted();
     }
 }

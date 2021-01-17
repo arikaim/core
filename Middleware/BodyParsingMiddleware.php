@@ -110,34 +110,26 @@ class BodyParsingMiddleware implements MiddlewareInterface
      */
     protected function registerDefaultBodyParsers(): void
     {
-        $this->registerBodyParser('application/json',function($input) {
+        // json
+        $jsonCallable = function($input) {
             $result = \json_decode($input,true);
-            if (\is_array($result) == false) {
-                return null;
-            }
+            return (\is_array($result) == false) ? null : $result;         
+        };
+        $this->registerBodyParser('application/json',$jsonCallable);
 
-            return $result;
-        });
-
+        // form
         $this->registerBodyParser('application/x-www-form-urlencoded',function($input) {
             \parse_str($input,$data);
             return $data;
         });
 
-        $xmlCallable = function($input) {
-            $backup = \libxml_disable_entity_loader(true);
-            $backup_errors = \libxml_use_internal_errors(true);
+        // xml
+        $xmlCallable = function($input) {          
             $result = \simplexml_load_string($input);
-
-            \libxml_disable_entity_loader($backup);
             \libxml_clear_errors();
-            \libxml_use_internal_errors($backup_errors);
+            \libxml_use_internal_errors(true);
 
-            if ($result === false) {
-                return null;
-            }
-
-            return $result;
+            return ($result === false) ? null : $result;             
         };
 
         $this->registerBodyParser('application/xml',$xmlCallable);

@@ -17,15 +17,12 @@ use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 use Psr\Container\ContainerInterface;
 
-use Arikaim\Core\Interfaces\Access\AuthInterface;
-
 use Arikaim\Core\View\Html\Page;
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Access\Csrf;
 use Arikaim\Core\System\System;
 use Arikaim\Core\System\Composer;
-use Arikaim\Core\System\Update;
 use Arikaim\Core\App\Install;
 use Arikaim\Core\Http\Url;
 use Arikaim\Core\Http\Session;
@@ -194,6 +191,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('applyOrderBy',['Arikaim\\Core\\Db\\OrderBy','apply']),
             new TwigFunction('createModel',[$this,'createModel']),
             new TwigFunction('showSql',['Arikaim\\Core\\Db\\Model','getSql']),
+            new TwigFunction('relationsMap',[$this,'getRelationsMap']),
             // other
             new TwigFunction('getConstant',['Arikaim\\Core\\Db\\Model','getConstant']),
             new TwigFunction('hasExtension',[$this,'hasExtension']),
@@ -210,6 +208,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('getLastVersion',[$this,'getLastVersion']),
             new TwigFunction('composerPackages',[$this,'getComposerPackages']),
             new TwigFunction('modules',[$this,'getModulesService']),
+            new TwigFunction('create',[$this,'create']),  
 
             // session vars
             new TwigFunction('getSessionVar',[$this,'getSessionVar']),
@@ -244,6 +243,16 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
+     * Get relatins type map (morph map)
+     *
+     * @return array|null
+     */
+    public function getRelationsMap(): ?array
+    {
+        return $this->container->get('db')->getRelationsMap();
+    }
+
+    /**
      * Return url link with current language code
      *
      * @param string $path
@@ -273,7 +282,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * Load component
      *
      * @param string $name
-     * @param array $params
+     * @param array|null $params
      * @return string
      */
     public function loadComponent(&$context, $name, $params = [])
@@ -373,7 +382,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function getProperties($name, $language = null)
     {
-        return $this->container->get('page')->createHtmlComponent($name,null,$language)->getProperties();
+        return $this->container->get('page')->createHtmlComponent($name,[],$language)->getProperties();
     }
 
     /**
@@ -529,7 +538,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Get accesss
      *
-     * @return AuthInterface
+     * @return object
      */
     public function getAccess()
     {
@@ -606,9 +615,9 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function getLastVersion($packageName = null)
     {
         $packageName = (empty($packageName) == true) ? ARIKAIM_PACKAGE_NAME : $packageName;
-        $update = new Update($packageName);
+        $tokens = explode('/',$packageName);
         
-        return $update->getLastVersion();
+        return Composer::getLastVersion($tokens[0],$tokens[1]);        
     }
 
     /**
@@ -775,15 +784,13 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * Create obj
      *
      * @param string $class
-     * @param string|null $extension
+     * @param string $extension
      * @return object|null
      */
-    public function create($class, $extension = null)
+    public function create(string $class, string $extension)
     {
-        if (\class_exists($class) == false) {
-            $class = (empty($extension) == false) ? Factory::getExtensionClassName($extension,$class) : Factory::getFullClassName($class);
-        }
-     
+        $class = Factory::getExtensionClassName($extension,$class);
+        
         return Factory::createInstance($class);            
     }
     

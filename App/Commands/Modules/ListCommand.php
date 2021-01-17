@@ -27,9 +27,9 @@ class ListCommand extends ConsoleCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
-        $this->setName('modules:list')->setDescription('Show modules list.');
+        $this->setName('modules:list')->setDescription('Modules list.');
     }
 
     /**
@@ -41,16 +41,14 @@ class ListCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {       
-        $this->showTitle('Modules');
+        $this->showTitle();
         
-        $table = new Table($output);
-        $table->setHeaders(['Name','Version','Type','Status']);
-        $table->setStyle('compact');
+        $this->table()->setHeaders(['Name','Version','Type','Status']);
+        $this->table()->setStyle('compact');
 
         $manager = Arikaim::packages()->create('module');
         $items = $manager->getPackages();
 
-        $rows = [];
         foreach ($items as $name) {
             $package = $manager->createPackage($name);
             $module = $package->getProperties(true);
@@ -59,11 +57,10 @@ class ListCommand extends ConsoleCommand
             $statusLabel = ($module->status == 1) ?  ConsoleHelper::getLabelText('enabled','green') : '';
             $label = $installedLabel . ' ' . $statusLabel;
             $row = [$module->name,$module->version,$module->type,$label];
-            \array_push($rows,$row);
+            $this->table()->addRow($row);
         }
-
-        $table->setRows($rows);
-        $table->render();
-        $this->style->newLine();
+        $this->table()->render();
+        
+        $this->showCompleted(); 
     }    
 }

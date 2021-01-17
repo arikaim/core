@@ -9,7 +9,6 @@
  */
 namespace Arikaim\Core\App\Commands\Modules;
 
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -26,9 +25,9 @@ class InfoCommand extends ConsoleCommand
      *
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
-        $this->setName('modules:info')->setDescription('Show module details');
+        $this->setName('modules:info')->setDescription('Module details');
         $this->addOptionalArgument('name','Module Name');
     }
 
@@ -41,6 +40,8 @@ class InfoCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {       
+        $this->showTitle();
+
         $name = $input->getArgument('name');
         if (empty($name) == true) {
             $this->showError('Missing module name option!');
@@ -52,15 +53,14 @@ class InfoCommand extends ConsoleCommand
             $this->showError('Module ' . $name . ' not exists!');
             return;
         }
+
         $package = $manager->createPackage($name);
         $module = $package->getProperties(true);
 
-        $this->style->text('Module ' . $name);
-        $this->style->newLine();
+        $this->writeFieldLn('Name',$name);
 
-        $table = new Table($output);
-        $table->setHeaders(['','']);
-        $table->setStyle('compact');
+        $this->table()->setHeaders(['','']);
+        $this->table()->setStyle('compact');
         
         $bootable = ($module['bootable'] == 1) ? 'yes' : 'no';
         $installed = ($module['installed'] == true) ? 'yes' : 'no';
@@ -77,8 +77,9 @@ class InfoCommand extends ConsoleCommand
             ['Installed',$installed]
         ];
 
-        $table->setRows($rows);
-        $table->render();
-        $this->style->newLine();
+        $this->table()->setRows($rows);
+        $this->table()->render();
+       
+        $this->showCompleted(); 
     }    
 }

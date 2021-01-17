@@ -9,11 +9,11 @@
  */
 namespace Arikaim\Core\App;
 
+use Arikaim\Core\Interfaces\Access\AccessInterface;
 use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\Access\Access;
 use Arikaim\Core\System\System;
 use Arikaim\Core\Utils\File;
 use Arikaim\Core\Utils\Path;
@@ -30,7 +30,7 @@ class Install
      *
      * @return bool
      */
-    public static function setConfigFilesWritable()
+    public static function setConfigFilesWritable(): bool
     {
         $result = true;
         $configFile = Arikaim::config()->getConfigFile();
@@ -53,7 +53,7 @@ class Install
      * @param array|null $requirements
      * @return bool
      */
-    public function prepare($onProgress = null, $onError = null, array $requirements = null)
+    public function prepare($onProgress = null, $onError = null, array $requirements = null): bool
     {
         $status = true;
         // check requirments
@@ -89,11 +89,11 @@ class Install
     /**
      * Call closure
      *
-     * @param Closure $closure
+     * @param Closure|null $closure
      * @param string $message
      * @return void
      */
-    protected function callback($closure, $message)
+    protected function callback($closure, $message): void
     {
         if (\is_callable($closure) == true) {
             $closure($message);
@@ -108,7 +108,7 @@ class Install
      * @param Closeure|null $onProgressCompleted
      * @return boolean
      */
-    public function install($onProgress = null, $onProgressError = null) 
+    public function install($onProgress = null, $onProgressError = null): bool 
     {         
         System::setTimeLimit(0);
 
@@ -152,9 +152,13 @@ class Install
         $this->callback($onProgress,'System db tables created.'); 
 
         // Add control panel permisison item       
-        $result = Arikaim::access()->addPermission(Access::CONTROL_PANEL,Access::CONTROL_PANEL,'Arikaim control panel access.');
+        $result = Arikaim::access()->addPermission(
+            AccessInterface::CONTROL_PANEL,
+            AccessInterface::CONTROL_PANEL,
+            'Arikaim control panel access.'
+        );
         if ($result == false) {    
-            if (Model::Permissions()->has(Access::CONTROL_PANEL) == false) {
+            if (Model::Permissions()->has(AccessInterface::CONTROL_PANEL) == false) {
                 $error = Arikaim::errors()->getError('REGISTER_PERMISSION_ERROR',['name' => 'ContorlPanel']);
                 $this->callback($onProgressError,$error);
                 return false;
@@ -245,7 +249,7 @@ class Install
      *
      * @return boolean
      */
-    public function initStorage()
+    public function initStorage(): bool
     {   
         if (Arikaim::storage()->has('bin') == false) {          
             Arikaim::storage()->createDir('bin');
@@ -271,7 +275,7 @@ class Install
      *
      * @return void
      */
-    private function registerCoreEvents()
+    private function registerCoreEvents(): void
     {
         Arikaim::event()->registerEvent('core.extension.update','After update extension.');
         Arikaim::event()->registerEvent('core.extension.download','After download extension.');
@@ -288,7 +292,7 @@ class Install
      *
      * @return boolean
      */
-    private function createDefaultAdminUser()
+    private function createDefaultAdminUser(): bool
     {
         $user = Model::Users()->getControlPanelUser();
         if ($user == false) {
@@ -299,7 +303,11 @@ class Install
             }    
         }
     
-        return Model::PermissionRelations()->setUserPermission(Access::CONTROL_PANEL,Access::FULL,$user->id);
+        return Model::PermissionRelations()->setUserPermission(
+            AccessInterface::CONTROL_PANEL,
+            AccessInterface::FULL,
+            $user->id
+        );
     }
 
     /**
@@ -307,7 +315,7 @@ class Install
      *
      * @return void
      */
-    private function initDefaultOptions()
+    private function initDefaultOptions(): void
     {
         $formats = Arikaim::config()->loadJsonConfigFile('date-time-format.json');
 
@@ -354,7 +362,7 @@ class Install
      *
      * @return bool
      */
-    public function installDrivers()
+    public function installDrivers(): bool
     {
         // cache
         return Arikaim::driver()->install(
@@ -409,7 +417,7 @@ class Install
      *
      * @return bool
      */
-    public function systemTablesRowFormat()
+    public function systemTablesRowFormat(): bool
     {
         $classes = $this->getSystemSchemaClasses();
        
@@ -431,7 +439,7 @@ class Install
      *
      * @return boolean
      */
-    public static function isInstalled() 
+    public static function isInstalled(): bool 
     {
         $errors = 0;      
         try {

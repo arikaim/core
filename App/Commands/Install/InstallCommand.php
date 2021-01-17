@@ -30,9 +30,9 @@ class InstallCommand extends ConsoleCommand
      * name: install
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
-        $this->setName('install')->setDescription('Arikaim Install');
+        $this->setName('install')->setDescription('Arikaim CMS Install');
     }
 
     /**
@@ -44,16 +44,18 @@ class InstallCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        $this->showTitle('Arikaim CMS installation');
+        $this->showTitle();
         $install = new Install();
 
-        if (Install::isInstalled() == true) {           
-            $this->style->newLine();
+        if (Install::isInstalled() == true) {   
+            $this->writeLn('Installed, use install:repair command to repair installation.');        
+            $this->newLine();
+            return;
         }
        
         // Requirements
         $this->style->text('Requirements');
-        $this->style->newLine();
+        $this->newLine();
         $requirements = Install::checkSystemRequirements();
         // status - 0 red , 1 - ok,  2 - warning
         foreach ($requirements['items'] as $item) {            

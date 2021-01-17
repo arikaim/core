@@ -24,7 +24,7 @@ class HelpCommand extends ConsoleCommand
      * name: help
      * @return void
      */
-    protected function configure()
+    protected function configure(): void 
     {
         $this->setName('help')->setDescription('Arikaim Cli Help');
     }
@@ -38,9 +38,11 @@ class HelpCommand extends ConsoleCommand
      */
     protected function executeCommand($input, $output)
     {
-        $this->showTitle('Help');
+        $this->showTitle();
 
         $command = $this->getApplication()->find('list');
         $command->run($input, $output);
+
+        $this->showCompleted();       
     }
 }

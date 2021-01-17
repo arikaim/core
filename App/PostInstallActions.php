@@ -23,7 +23,7 @@ class PostInstallActions
      * @param Closure|null $onProgressError
      * @return bool
      */
-    public static function run($onProgress = null, $onProgressError = null)
+    public static function run($onProgress = null, $onProgressError = null): bool
     {
         // Run post install actions on all extensions      
         $extensionManager = Arikaim::packages()->create('extension');
@@ -60,9 +60,9 @@ class PostInstallActions
      *
      * @return boolean
      */
-    public static function hasActions()
+    public static function hasActions(): bool
     {
-        return Arikaim::config()->hasConfigFile('post-install.json');
+        return (bool)Arikaim::config()->hasConfigFile('post-install.json');
     } 
 
     /**
@@ -71,7 +71,7 @@ class PostInstallActions
      * @param array $action
      * @return string
      */
-    protected static function getPackageName(array $action)
+    protected static function getPackageName(array $action): string
     {
         $theme = $action['theme'] ?? null;
         $extension = $action['extension'] ?? null;
@@ -112,7 +112,7 @@ class PostInstallActions
      * @param string $type
      * @return boolean
      */
-    public static function setPrimaryPackage($name, $type = 'extension')
+    public static function setPrimaryPackage(string $name, $type = 'extension'): bool
     {
         $packageManager = Arikaim::packages()->create($type);
         if ($packageManager->hasPackage($name) == false) {           
@@ -121,8 +121,8 @@ class PostInstallActions
 
         $package = $packageManager->createPackage($name);
         $package->unInstall();        
-        $result = $package->install(true);
-        $package->setPrimary();
+        $package->install(true);
+        $result = $package->setPrimary();
 
         return $result;      
     }
