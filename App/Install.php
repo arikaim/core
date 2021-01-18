@@ -303,11 +303,13 @@ class Install
             }    
         }
     
-        return Model::PermissionRelations()->setUserPermission(
+        $result = Model::PermissionRelations()->setUserPermission(
             AccessInterface::CONTROL_PANEL,
             AccessInterface::FULL,
             $user->id
         );
+
+        return (\is_object($result) == true) ? true : $result;
     }
 
     /**
