@@ -615,7 +615,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function getLastVersion($packageName = null)
     {
         $packageName = (empty($packageName) == true) ? ARIKAIM_PACKAGE_NAME : $packageName;
-        $tokens = explode('/',$packageName);
+        $tokens = \explode('/',$packageName);
         
         return Composer::getLastVersion($tokens[0],$tokens[1]);        
     }

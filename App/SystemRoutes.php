@@ -214,6 +214,12 @@ class SystemRoutes
             ]
         ],
         'PUT' => [
+            // Arikaim Store remove order
+            [
+                'pattern'    => '/core/api/store/product/remove',
+                'handler'    => 'Arikaim\Core\Api\Store:removeOrder',
+                'middleware' => null                
+            ],
             // Paginator 
             [
                 'pattern'    => '/core/api/ui/paginator/page-size',
@@ -380,13 +386,8 @@ class SystemRoutes
                 'middleware' => 'session'            
             ],
             [
-                'pattern'    => '/core/api/packages/repository/update',
-                'handler'    => 'Arikaim\Core\Api\Packages:repositoryUpdate',
-                'middleware' => 'session'            
-            ],
-            [
-                'pattern'    => '/core/api/packages/repository/install',
-                'handler'    => 'Arikaim\Core\Api\Packages:repositoryInstall',
+                'pattern'    => '/core/api/packages/repository/download',
+                'handler'    => 'Arikaim\Core\Api\Repository:repositoryDownload',
                 'middleware' => 'session'            
             ],
             [

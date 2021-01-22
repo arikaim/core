@@ -10,10 +10,7 @@
 namespace Arikaim\Core\App;
 
 use Arikaim\Core\Utils\Curl;
-use Arikaim\Core\Http\Url;
 use Arikaim\Core\Utils\Path;
-use Arikaim\Core\Utils\File;
-use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\System\Config;
 
 /**
@@ -21,32 +18,14 @@ use Arikaim\Core\System\Config;
 */
 class ArikaimStore 
 {       
-    const HOST          = 'http://arikaim.com';
-    const SIGNUP_URL    = Self::HOST . '/signup';  
-    const LOGIN_API_URL = '';
-
-    const ORDER_TYPE_ENVATO = 'envato';
-
-    /**
-     * product
-     *
-     * @var array
-     */
-    protected $product = [];
-
-    /**
-     * Packages
-     *
-     * @var array
-     */
-    protected $packages = [];
-
-    /**
-     * Account
-     *
-     * @var array
-     */
-    protected $account;
+    const HOST                 = 'http://arikaim.com';
+    const SIGNUP_URL           = Self::HOST . '/signup';  
+    const LOGIN_API_URL        = '';
+    const PACKAGE_VERSION_URL  = Self::HOST . '/api/repository/package/version/';
+    const PACKAGE_DOWNLOAD_URL = Self::HOST . '/api/repository/package/download';
+    const ORDER_REGISTER_URL   = Self::HOST . '/api/arikaim/order/register';
+ 
+    const ORDER_TYPE_ENVATO   = 'envato';
 
     /**
      * Data config file name
@@ -70,28 +49,52 @@ class ArikaimStore
     public function __construct(string $configfileName = 'arikaim-store.php')
     {         
         $this->configFile = Path::CONFIG_PATH . $configfileName;
-        $this->clear();
-
+      
         $this->config = new Config($configfileName,null,Path::CONFIG_PATH);
         if ($this->config->hasConfigFile($configfileName) == false) {
-            $this->config->withData($this->toArray());
+            $this->clear();
             $this->config->save();
         }
     }
 
+    /**
+     * Get config refernce
+     *
+     * @return Collection
+     */
     public function getConfig()
     {
         return $this->config;
     }
 
     /**
-     * Return true if cust have  account token
+     * Get package key
+     *
+     * @param string $repository
+     * @return string|null
+     */
+    public function getPackageKey(string $repository): ?string
+    {
+        $packages = $this->getPackages();
+        foreach($packages as $package) {
+            if ($package['repository'] == $repository) {
+                return $package['key'] ?? null;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Return true if cust have account token
      *
      * @return boolean
      */
     public function isLogged(): bool
     {
-        return (empty($this->account['token']) == false);
+        $token = $this->config->getByPath('account/token',null);
+        
+        return (empty($token) == false);
     }
 
     /**
@@ -101,7 +104,21 @@ class ArikaimStore
      */
     public function getProduct(): array
     {
-        return $this->product;
+        $product = $this->config->get('product',[]);
+
+        return (\is_array($product) == false) ? [] : $product;
+    }
+
+    /**
+     * Get packages
+     *
+     * @return array
+     */
+    public function getPackages(): array
+    {
+        $packages = $this->config->get('packages',[]);
+
+        return (\is_array($packages) == false) ? [] : $packages;
     }
 
     /**
@@ -109,11 +126,13 @@ class ArikaimStore
      *
      * @return void
      */
-    protected function clear(): void
+    public function clear(): void
     {
-        $this->account = ['token' => ''];
-        $this->product = [];
-        $this->packages = [];
+        $this->config->withData([
+            'account'  => [],
+            'packages' => [],
+            'product'  => []
+        ]);
     }
 
     /**
@@ -122,22 +141,8 @@ class ArikaimStore
      * @return boolean
      */
     public function logout(): bool
-    {
-        $this->account = ['token' => ''];
-        
-        return $this->saveConfig();
-    }
-
-    /**
-     * Save data to file
-     *
-     * @return boolean
-     */
-    protected function saveConfig(): bool
-    {
-        $data = $this->toArray();
-
-        return File::write($this->configFile,Utils::jsonEncode($data));       
+    { 
+        return true;
     }
 
     /**
@@ -147,11 +152,7 @@ class ArikaimStore
      */
     protected function toArray(): array
     {
-        return [
-            'account'  => $this->account,
-            'product'  => $this->product,
-            'packages' => $this->packages
-        ];
+        return $this->config->toArray();
     }
 
     /**
@@ -188,10 +189,32 @@ class ArikaimStore
      */
     public function fetchPackageDetails(string $uuid)
     {
-        $url = Url::BASE_URL . '/api/products/product/details/' . $uuid;
-          
+        $url = $this->getPackageDetailsUrl($uuid);
+                
         return Curl::get($url);
     }
+
+    /**
+     * Gte package details requets url
+     *
+     * @param string $uuid
+     * @return string
+     */
+    public function getPackageDetailsUrl(string $uuid): string
+    {
+        return Self::HOST . '/api/products/product/details/' . $uuid;
+    }
+
+    /**
+     * Get package version url
+     *
+     * @param string $packageName
+     * @return string
+     */
+    public function getPackageVersionUrl(string $packageName): string
+    {
+        return Self::PACKAGE_VERSION_URL . $packageName;        
+    }    
 
     /**
      * Get signup url
