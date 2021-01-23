@@ -70,11 +70,15 @@ class ArikaimStore
     /**
      * Get package key
      *
-     * @param string $repository
+     * @param string|null $repository
      * @return string|null
      */
-    public function getPackageKey(string $repository): ?string
+    public function getPackageKey(?string $repository): ?string
     {
+        if (empty($repository) == true) {
+            return null;
+        }
+
         $packages = $this->getPackages();
         foreach($packages as $package) {
             if ($package['repository'] == $repository) {

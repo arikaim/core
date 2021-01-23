@@ -50,7 +50,7 @@ class Repository extends ControlPanelApiController
                 return false;
             }
             $store = new ArikaimStore();
-            $accessKey = $store->getPackageKey($package);
+            $accessKey = $store->getPackageKey($reposioryName);
 
             $repository = $packageManager->getRepository($package,$accessKey);
             if (empty($repository) == true) {               
@@ -58,6 +58,10 @@ class Repository extends ControlPanelApiController
             }
             if (\is_object($repository) == false) {
                 $this->error('Not valid package name or repository.');
+                return false;
+            }
+            if (($repository->isPrivate() == true) && (empty($accessKey) == true)) {
+                $this->error('Missing package license key.');
                 return false;
             }
             // backup
