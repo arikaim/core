@@ -10,7 +10,6 @@
 namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ControlPanelApiController;
-use Arikaim\Core\Packages\PackageManager;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\System\Composer;
 

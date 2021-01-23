@@ -53,9 +53,8 @@ class Repository extends ControlPanelApiController
             $accessKey = $store->getPackageKey($package);
 
             $repository = $packageManager->getRepository($package,$accessKey);
-            if (empty($repository) == true) {
-                $repoUrl = PackageManager::createRepositoryUrl($reposioryName,$reposioryType);
-                $repository = $packageManager->createRepository($repoUrl,$accessKey);
+            if (empty($repository) == true) {               
+                $repository = $packageManager->createRepository($reposioryName,$accessKey,$reposioryType);
             }
             if (\is_object($repository) == false) {
                 $this->error('Not valid package name or repository.');
