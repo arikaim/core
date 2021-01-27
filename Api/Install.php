@@ -50,6 +50,7 @@ class Install extends ApiController
             }
             
             // save config file               
+            $this->get('config')->setValue('db/host',$data->get('host','localhost'));
             $this->get('config')->setValue('db/username',$data->get('username'));
             $this->get('config')->setValue('db/password',$data->get('password'));
             $this->get('config')->setValue('db/database',$data->get('database')); 
