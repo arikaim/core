@@ -110,13 +110,7 @@ class SystemRoutes
                 'pattern'    => '/core/api/options/{key}',
                 'handler'    => 'Arikaim\Core\Api\Options:get',
                 'middleware' => 'session'            
-            ],
-            // Drivers 
-            [
-                'pattern'    => '/core/api/driver/config/{name}',
-                'handler'    => 'Arikaim\Core\Api\Drivers:readConfig',
-                'middleware' => 'session'            
-            ],  
+            ],          
             // Update
             [
                 'pattern'    => '/core/api/update/check/version',
@@ -301,6 +295,11 @@ class SystemRoutes
             [
                 'pattern'    => '/core/api/jobs/status',
                 'handler'    => 'Arikaim\Core\Api\Jobs:setStatus',
+                'middleware' => 'session'            
+            ],
+            [
+                'pattern'    => '/core/api/jobs/config',
+                'handler'    => 'Arikaim\Core\Api\Jobs:saveConfig',
                 'middleware' => 'session'            
             ],
             // Drivers 

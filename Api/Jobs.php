@@ -9,12 +9,13 @@
 */
 namespace Arikaim\Core\Api;
 
-use Arikaim\Core\Controllers\ApiController;
+use Arikaim\Core\Controllers\ControlPanelApiController;
+use Arikaim\Core\Collection\PropertiesFactory;
 
 /**
  * Jobs controller
 */
-class Jobs extends ApiController
+class Jobs extends ControlPanelApiController
 {
     /**
      * Init controller
@@ -36,8 +37,6 @@ class Jobs extends ApiController
      */
     public function deleteJobController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-        
         $this->onDataValid(function($data) {       
             $uuid = $data->get('uuid');
 
@@ -63,8 +62,6 @@ class Jobs extends ApiController
      */
     public function setStatusController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-
         $this->onDataValid(function($data) {   
             $uuid = $data->get('uuid');  
             $status = $data->get('status',1);
@@ -78,5 +75,31 @@ class Jobs extends ApiController
             },'errors.jobs.status');
         });
         $data->validate();          
+    }
+
+    /**
+     * Save job config
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+    */
+    public function saveConfigController($request, $response, $data)
+    {
+        $this->onDataValid(function($data) {            
+            $jobName = $data->get('name');           
+            $data->offsetUnset('name');
+
+            $job = $this->get('queue')->getJob($jobName);
+            // change config valus
+            $config = PropertiesFactory::createFromArray($job['config']); 
+            $config->setPropertyValues($data->toArray());
+
+            $result = $this->get('queue')->saveJobConfig($jobName,$config->toArray());
+        
+            $this->setResponse($result,'jobs.config','errors.jobs.config');
+        });
+        $data->validate();       
     }
 }

@@ -158,9 +158,9 @@ class ServiceContainer
             return $logger;
         };      
         // Jobs queue
-        $container['queue'] = function() {           
+        $container['queue'] = function($container) {           
             $jobs = Model::Jobs();
-            return new \Arikaim\Core\Queue\QueueManager($jobs);          
+            return new \Arikaim\Core\Queue\QueueManager($jobs,$container['logger']);          
         };          
         // Modules manager
         $container['modules'] = function($container) {           

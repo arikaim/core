@@ -29,13 +29,6 @@ abstract class Extension implements ExtensionInterface
     use TaskErrors;
 
     /**
-     * Errors lits
-     *
-     * @var array
-     */
-    private $errors;
-
-    /**
      * Primary extension
      *
      * @var boolean
@@ -60,8 +53,7 @@ abstract class Extension implements ExtensionInterface
      * Constructor
      */
     public function __construct() 
-    {
-        $this->errors = [];
+    {       
         $this->primary = false;
     }
 

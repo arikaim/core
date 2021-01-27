@@ -11,7 +11,6 @@ namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ControlPanelApiController;
 use Arikaim\Core\System\Update as SystemUpdate;
-use Arikaim\Core\Arikaim;
 
 /**
  * Update controller

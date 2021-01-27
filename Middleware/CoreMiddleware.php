@@ -35,6 +35,11 @@ class CoreMiddleware extends Middleware implements MiddlewareInterface
             \header('Cache-Control: ' . $cacheControl,true);
         }
          
+        $cors = $headers['Access-Control-Allow-Origin'] ?? null;
+        if (empty($cors) == false) {
+            \header('Access-Control-Allow-Origin: ' . $cors,true);
+        }
+
         return $handler->handle($request);        
     }    
 }

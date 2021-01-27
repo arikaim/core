@@ -9,12 +9,12 @@
 */
 namespace Arikaim\Core\Api;
 
-use Arikaim\Core\Controllers\ApiController;
+use Arikaim\Core\Controllers\ControlPanelApiController;
 
 /**
  * Drivers controller
 */
-class Drivers extends ApiController
+class Drivers extends ControlPanelApiController
 {
     /**
      * Init controller
@@ -51,26 +51,6 @@ class Drivers extends ApiController
         $data->validate();       
     }
 
-     /**
-     * Read driver config
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @param Validator $data
-     * @return Psr\Http\Message\ResponseInterface
-     */
-    public function readConfigController($request, $response, $data)
-    {
-        $this->onDataValid(function($data) {            
-            $driverName = $data->get('name'); 
-            $result = $this->get('driver')->getConfig($driverName);
-
-            $this->setResponse($result,'drivers.config','errors.drivers.config');
-        });
-        $data->validate();       
-    }
-
-
     /**
      * Set driver driver status (enable, disable)
      *
@@ -81,8 +61,6 @@ class Drivers extends ApiController
      */
     public function setStatusController($request, $response, $data)
     {
-        $this->requireControlPanelPermission();
-
         $this->onDataValid(function($data) {    
             $name = $data->get('name');
             $status = $data->get('status');
