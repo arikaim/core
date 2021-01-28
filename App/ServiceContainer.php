@@ -73,7 +73,8 @@ class ServiceContainer
             $cache = ($cacheStatus == true) ? Path::VIEW_CACHE_PATH : false;
             $debug = $container->get('config')['settings']['debug'] ?? true;
             $demoMode = $container->get('config')['settings']['demo_mode'] ?? false;
-            $primaryTemplate = $container->get('options')->get('primary.template',null);
+            $primaryTemplate = $container->get('options')->get('primary.template',Page::SYSTEM_TEMPLATE_NAME);
+           
             $view = new \Arikaim\Core\View\View(
                 $container['cache'],
                 Path::VIEW_PATH,

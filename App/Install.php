@@ -332,7 +332,7 @@ class Install
         Arikaim::options()->createOption('number.format.items',$items,true);
         Arikaim::options()->createOption('number.format','default',true);
         // primary template
-        Arikaim::options()->createOption('primary.template','blog',true);
+        Arikaim::options()->createOption('primary.template','system',true);
         // set default time zone 
         Arikaim::options()->createOption('time.zone',DateTime::getTimeZoneName(),false);
         // mailer
