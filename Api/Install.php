@@ -121,10 +121,12 @@ class Install extends ApiController
 
             $result = $install->installModules(
                 function($name) {   
+                    $this->clearResult();   
                     $message = $name . ' module installed successfully.';               
                     $this->setResponse(true,$message,'');
                     return $this->sendProgressResponse();       
                 },function($name) {       
+                    $this->clearResult();   
                     $error = 'Error module installation ' . $name;                
                     $this->setResponse(false,'',$error);             
                     return $this->sendProgressResponse();       
@@ -165,10 +167,12 @@ class Install extends ApiController
 
             $result = $install->installExtensions(
                 function($name) {   
+                    $this->clearResult();   
                     $message = $name . ' extension installed successfully.';               
                     $this->setResponse(true,$message,'');
                     return $this->sendProgressResponse();       
-                },function($name) {       
+                },function($name) {      
+                    $this->clearResult();    
                     $error = 'Error extension installation ' . $name;                
                     $this->setResponse(false,'',$error);             
                     return $this->sendProgressResponse();       
@@ -208,10 +212,12 @@ class Install extends ApiController
             // do post install actions
             $result = PostInstallActions::run(
                 function($package) {   
+                    $this->clearResult();   
                     $message = $package . ' package action executed.';               
                     $this->setResponse(true,$message,'');
                     return $this->sendProgressResponse();       
-                },function($package) {       
+                },function($package) {    
+                    $this->clearResult();      
                     $error = 'Error execution action on package ' . $package;                
                     $this->setResponse(false,'',$error);             
                     return $this->sendProgressResponse();       
