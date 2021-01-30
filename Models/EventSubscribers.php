@@ -62,14 +62,15 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
      * @param array $filter
      * @return array
      */
-    public function getSubscribers(array $filter = [])
+    public function getSubscribers(array $filter = []): array
     {
         $model = $this;
         foreach ($filter as $key => $value) {
             $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
         }
+        $model = $model->get();
 
-        return (\is_object($model) == true) ? $model->get()->toArray() : [];
+        return (\is_object($model) == true) ? $model->toArray() : [];
     }
 
     /**
@@ -78,24 +79,24 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
      * @param array $filter
      * @return bool
      */
-    public function deleteSubscribers(array $filter)
+    public function deleteSubscribers(array $filter): bool
     {
         $model = $this;
         foreach ($filter as $key => $value) {
             $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
         }
 
-        return (\is_object($model) == true) ? $model->delete() : false;
+        return (\is_object($model) == true) ? (bool)$model->delete() : false;
     }
 
     /**
      * Return true if event have subscriber(s)
      *
      * @param string $eventName
-     * @param string $extension
+     * @param string|null $extension
      * @return boolean
      */
-    public function hasSubscriber($eventName, $extension)
+    public function hasSubscriber(string $eventName, ?string $extension): bool
     {
         $model = $this->getSubscribersQuery($eventName,$extension)->get();
     
@@ -106,13 +107,17 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
      * Return subscribers query builder
      *
      * @param string $eventName
-     * @param string $extension
+     * @param string|null $extension
      * @return Builder
      */
-    public function getSubscribersQuery($eventName, $extension)
+    public function getSubscribersQuery(string $eventName, ?string $extension)
     {
-        $model = $this->where('name','=',$eventName);
-        return $model->where('extension_name','=',$extension);       
+        $query = $this->where('name','=',$eventName);
+        if (empty($extension) == false) {
+            $query = $query->where('extension_name','=',$extension);       
+        }
+     
+        return $query;
     }
 
     /**
@@ -156,7 +161,7 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
      * @param string $extension
      * @return bool
      */
-    public function disableExtensionSubscribers($extension) 
+    public function disableExtensionSubscribers(string $extension): bool 
     {  
         return $this->changeStatus(null,$extension,Status::$DISABLED);
     }
@@ -167,7 +172,7 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
      * @param string $extension
      * @return bool
      */
-    public function enableExtensionSubscribers($extension) 
+    public function enableExtensionSubscribers(string $extension): bool 
     {  
        return $this->changeStatus(null,$extension,Status::$ACTIVE);
     }
@@ -175,34 +180,36 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
     /**
      * Enable all subscribers for event.
      *
-     * @param string $eventName
+     * @param string|null $eventName
+     * @param string|null $extension
      * @return bool
      */
-    public function enableSubscribers($eventName)
+    public function enableSubscribers(?string $eventName, ?string $extension = null): bool
     {
-        return $this->changeStatus($eventName,null,Status::$ACTIVE);
+        return $this->changeStatus($eventName,$extension,Status::$ACTIVE);
     }
 
     /**
      * Disable all subscribers for event.
      *
-     * @param string $eventName
+     * @param string|null $eventName
+     * @param string|null $extension
      * @return bool
      */
-    public function disableSubscribers($eventName)
+    public function disableSubscribers(?string $eventName, ?string $extension = null): bool
     {
-        return $this->changeStatus($eventName,null,Status::$DISABLED);
+        return $this->changeStatus($eventName,$extension,Status::$DISABLED);
     }
 
     /**
      * Change subscriber status
      *
-     * @param string $eventName
-     * @param string $extension
-     * @param string $status
+     * @param string|null $eventName
+     * @param string|null $extension
+     * @param int $status
      * @return bool
      */
-    private function changeStatus($eventName = null, $extension = null, $status) 
+    private function changeStatus(?string $eventName = null, ?string $extension = null, int $status): bool 
     {
         if ($eventName != null) {
             $this->where('name','=',$eventName);
@@ -211,6 +218,6 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
             $this->where('extension_name','=',$extension);
         }
         
-        return $this->update(['status' => $status]);       
+        return (bool)$this->update(['status' => $status]);       
     }
 }

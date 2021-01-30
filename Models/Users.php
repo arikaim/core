@@ -79,7 +79,7 @@ class Users extends Model implements UserProviderInterface
     /**
      * User groups relation
      *
-     * @return void
+     * @return Relation
      */
     public function groups()
     {
@@ -93,7 +93,7 @@ class Users extends Model implements UserProviderInterface
      * @param integer $id
      * @return boolean
      */
-    public function verifyUserName($userName, $id) 
+    public function verifyUserName(string $userName, int $id): bool 
     {
         $model = $this->where('user_name','=',trim($userName))->first();
 
@@ -110,7 +110,7 @@ class Users extends Model implements UserProviderInterface
      * @param string $userName    
      * @return boolean
      */
-    public function hasUserName($userName) 
+    public function hasUserName(string $userName): bool 
     {
         $model = $this->where('user_name','=',trim($userName))->first();
 
@@ -123,7 +123,7 @@ class Users extends Model implements UserProviderInterface
      * @param string $email    
      * @return boolean
      */
-    public function hasUserEmail($email) 
+    public function hasUserEmail(string $email): bool 
     {
         $model = $this->where('email','=',trim($email))->first();
 
@@ -137,7 +137,7 @@ class Users extends Model implements UserProviderInterface
      * @param integer $id
      * @return array|false
      */
-    public function verifyEmail($email, $id) 
+    public function verifyEmail(string $email, int $id): bool 
     {
         $model = $this->where('email','=',trim($email))->first();
         if (\is_object($model) == true) {
@@ -152,11 +152,11 @@ class Users extends Model implements UserProviderInterface
      *
      * @return boolean
      */
-    public function updateLoginDate()
+    public function updateLoginDate(): bool
     {
         $this->date_login = DateTime::getTimestamp();
 
-        return $this->save();
+        return (bool)$this->save();
     }
 
     /**
@@ -230,9 +230,9 @@ class Users extends Model implements UserProviderInterface
      * @param integer|null $id 
      * @return boolean
      */
-    public function isControlPanelUser($id = null)
+    public function isControlPanelUser($id = null): bool
     {
-        $id = $id  ?? $this->id;
+        $id = $id ?? $this->id;
         $permisisonId = DbModel::Permissions()->getId(AccessInterface::CONTROL_PANEL);
         if ($permisisonId == false) {
             return false;
@@ -248,7 +248,7 @@ class Users extends Model implements UserProviderInterface
      *
      * @return boolean
      */
-    public function hasControlPanelUser() 
+    public function hasControlPanelUser(): bool 
     {
         return \is_object($this->getControlPanelUser());
     }
@@ -260,7 +260,7 @@ class Users extends Model implements UserProviderInterface
      * @param string|null $email
      * @return Model|false
      */
-    public function getUser($userName, $email = null)
+    public function getUser(?string $userName, ?string $email = null)
     {       
         if (empty($userName) == false) {
             $model = $this->where('user_name','=',$userName)->first();
@@ -286,7 +286,7 @@ class Users extends Model implements UserProviderInterface
      * @param string|null $email
      * @return Model|false
      */
-    public function createUser($userName, $password, $email = null)
+    public function createUser(string $userName, string $password, ?string $email = null)
     {
         $user = $this->getUser($userName,$email);
         if (\is_object($user) == true) {           
@@ -323,7 +323,7 @@ class Users extends Model implements UserProviderInterface
      *
      * @return boolean
      */
-    public function deleteUser()
+    public function deleteUser(): bool
     {
         // remove user form groups
         $members = DbModel::UserGroupMembers();      
@@ -334,7 +334,7 @@ class Users extends Model implements UserProviderInterface
         $permissions = $permissions->getRelationsQuery($this->id,'user');    
         $permissions->delete();
 
-        return $this->delete();
+        return (bool)$this->delete();
     }
 
     /**
@@ -343,7 +343,7 @@ class Users extends Model implements UserProviderInterface
      * @param string $userName
      * @return Model|false
      */
-    public function findUser($userName)
+    public function findUser(string $userName)
     {
         $user = $this->where('user_name','=',$userName)->whereNotNull('user_name')->first();    
         if (\is_object($user) == false) {

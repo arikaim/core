@@ -74,7 +74,7 @@ class Language extends Model
      * @param integer $status
      * @return boolean
      */
-    public function has($code, $status = null)
+    public function has(string $code, ?int $status = null): bool
     {
         $model = $this->where('code','=',$code);
         if ($status == true) {
@@ -101,12 +101,13 @@ class Language extends Model
      *
      * @return string
      */
-    public function getDefaultLanguage()
+    public function getDefaultLanguage(): string
     {
         try {
             $model = $this->getDefault();
             return (is_object($model) == true) ? $model->code : 'en';                    
         } catch(\Exception $e) {
+            return 'en';
         }
         
         return 'en';

@@ -87,7 +87,7 @@ class Extensions extends Model implements PackageRegistryInterface
     /**
      * Mutator (set) for console_commands attribute.
      *
-     * @param array:null $value
+     * @param array|null $value
      * @return void
      */
     public function setConsoleCommandsAttribute($value)

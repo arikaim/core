@@ -61,22 +61,25 @@ class Events extends Model implements EventRegistryInterface
      * @param string $name
      * @return bool
      */
-    public function deleteEvent($name) 
+    public function deleteEvent(string $name): bool 
     {           
         $model = $this->where('name','=',$name);
 
-        return ($model->isEmpty() == false) ? $model->delete() : true;           
+        return ($model->isEmpty() == false) ? (bool)$model->delete() : true;           
     }
 
     /**
      * Get event subscribers
      *
+     * @param string|null $name
      * @return object
      */
-    public function subscribers()
+    public function subscribers(?string $name = null)
     {
+        $name = $name ?? $this->name;
+
         $model = DbModel::create('EventSubscribers');
-        $items = $model->where('name','=',$this->name)->get();
+        $items = $model->where('name','=',$name)->get();
         
         return (\is_object($model) == true) ? $items : $model;
     }
@@ -87,14 +90,14 @@ class Events extends Model implements EventRegistryInterface
      * @param array $filter
      * @return bool
      */
-    public function deleteEvents(array $filter)
+    public function deleteEvents(array $filter): bool
     {
         $model = $this;
         foreach ($filter as $key => $value) {
             $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
         }
 
-        return (\is_object($model) == true) ? $model->delete() : false;             
+        return (\is_object($model) == true) ? (bool)$model->delete() : false;             
     }
 
     /**
@@ -103,7 +106,7 @@ class Events extends Model implements EventRegistryInterface
      * @param string $name
      * @return boolean
      */
-    public function hasEvent($name)
+    public function hasEvent(string $name): bool
     {
         $model = $this->where('name','=',$name)->get();
       
@@ -115,11 +118,11 @@ class Events extends Model implements EventRegistryInterface
      *
      * @param string $name
      * @param string $title
-     * @param string $extension
-     * @param string $description
+     * @param string|null $extension
+     * @param string|null $description
      * @return bool
      */
-    public function registerEvent($name, $title, $extension = null, $description = null)
+    public function registerEvent(string $name, string $title, ?string $extension = null, ?string $description = null): bool
     {
         if ($this->hasEvent($name) == true) {
             return false;
@@ -142,14 +145,15 @@ class Events extends Model implements EventRegistryInterface
      * @param array $filter
      * @return array
      */
-    public function getEvents(array $filter = [])
+    public function getEvents(array $filter = []): array
     {
         $model = $this;
         foreach ($filter as $key => $value) {
             $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
         }
+        $model = $model->get();
 
-        return (\is_object($model) == true) ? $model->get()->toArray() : [];
+        return (\is_object($model) == true) ? $model->toArray() : [];
     }
 
     /**
@@ -159,13 +163,13 @@ class Events extends Model implements EventRegistryInterface
      * @param integer $status
      * @return boolean
      */
-    public function setEventsStatus(array $filter = [], $status)
+    public function setEventsStatus(array $filter = [], int $status): bool
     {
         $model = $this;
         foreach ($filter as $key => $value) {
             $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
         }
 
-        return (\is_object($model) == true) ? $model->update(['status' => $status]) : false;
+        return (\is_object($model) == true) ? (bool)$model->update(['status' => $status]) : false;
     }
 }

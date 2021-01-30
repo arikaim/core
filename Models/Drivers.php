@@ -62,7 +62,7 @@ class Drivers extends Model implements DriverRegistryInterface
     /**
      * Mutator (set) for config attribute.
      *
-     * @param array $value
+     * @param array|string $value
      * @return void
      */
     public function setConfigAttribute($value)
@@ -89,7 +89,7 @@ class Drivers extends Model implements DriverRegistryInterface
       * @param array  $data     Driver data
       * @return boolean
     */
-    public function addDriver($name, $data)
+    public function addDriver(string $name, array $data): bool
     {
         if ($this->hasDriver($name) == true) {
             $model = $this->findByColumn($name,'name');          
@@ -109,11 +109,11 @@ class Drivers extends Model implements DriverRegistryInterface
      * @param string $name   
      * @return boolean
     */
-    public function removeDriver($name)
+    public function removeDriver(string $name): bool
     {
         $model = $this->findByColumn($name,'name');
 
-        return (\is_object($model) == false) ? true : $model->delete();
+        return (\is_object($model) == false) ? true : (bool)$model->delete();
     }
     
     /**
@@ -122,7 +122,7 @@ class Drivers extends Model implements DriverRegistryInterface
      * @param string $name  
      * @return boolean
      */
-    public function hasDriver($name)
+    public function hasDriver(string $name): bool
     {
         $model = $this->findByColumn($name,'name');
         
@@ -136,12 +136,12 @@ class Drivers extends Model implements DriverRegistryInterface
      * @param array $config
      * @return boolean
      */
-    public function saveConfig($name, $config)
+    public function saveConfig(string $name, array $config): bool
     {
         $model = $this->findByColumn($name,'name');
         if (\is_object($model) == true) {
             $model->config = $config;
-            return $model->save();
+            return (bool)$model->save();
         }
 
         return false;
@@ -151,14 +151,14 @@ class Drivers extends Model implements DriverRegistryInterface
      * Save driver config
      *
      * @param string $name Driver name
-     * @param integer $status    
+     * @param integer|string $status    
      * @return boolean
      */
-    public function setDriverStatus($name, $status)
+    public function setDriverStatus(string $name, $status): bool
     {
         $model = $this->findByColumn($name,'name');
 
-        return $model->setStatus($status);
+        return (empty($model) == false) ? $model->setStatus($status) : false;
     }
 
     /**
@@ -167,11 +167,11 @@ class Drivers extends Model implements DriverRegistryInterface
      * @param string $name Driver name
      * @return array
      */
-    public function getDriverConfig($name)
+    public function getDriverConfig(string $name)
     {
         $model = $this->findByColumn($name,'name');
         
-        return (\is_object($model) == true) ? $model->config : [];
+        return (empty($model) == false) ? $model->config : [];
     }
 
     /**
@@ -181,7 +181,7 @@ class Drivers extends Model implements DriverRegistryInterface
      * @param integer|null $status
      * @return array
      */
-    public function getDriversList($category = null, $status = null)
+    public function getDriversList(?string $category = null, ?int $status = null): array
     {   
         $model = $this;
         if (empty($category) == false) {
@@ -190,8 +190,9 @@ class Drivers extends Model implements DriverRegistryInterface
         if (empty($status) == false) {
             $model = $model->where('status','=',$status);
         }
+        $model = $model->get();
 
-        return $model->get()->toArray();
+        return (empty($model) == false) ? $model->toArray() : [];
     }
 
     /**
@@ -200,7 +201,7 @@ class Drivers extends Model implements DriverRegistryInterface
      * @param string|integer $name Driver name
      * @return array|false
      */
-    public function getDriver($name)
+    public function getDriver(string $name)
     {
         $model = $this->findByColumn($name,'name');
         

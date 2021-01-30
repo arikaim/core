@@ -58,7 +58,7 @@ class UserGroups extends Model
      * Find group model by id, uuid, slug, title
      *
      * @param mixed $value
-     * @return Model|false
+     * @return Model|null
      */
     public function findGroup($value)
     {
@@ -68,7 +68,7 @@ class UserGroups extends Model
     /**
      * Group members relation
      *
-     * @return UserGroupMembers
+     * @return Relation
      */
     public function members()
     {
@@ -82,7 +82,7 @@ class UserGroups extends Model
      * @param object|null $model
      * @return boolean
      */
-    public function hasUser($userId, $model = null)
+    public function hasUser(int $userId, $model = null): bool
     {
         $model = (\is_object($model) == false) ? $this : $model;
         $model = $model->members()->where('user_id','=',$userId)->first();
@@ -97,7 +97,7 @@ class UserGroups extends Model
      * @param integer $userId
      * @return bool
      */
-    public function inGroup($groupId, $userId)
+    public function inGroup($groupId, $userId): bool
     {
         $model = $this->findById($groupId);
         if (\is_object($model) == false) {
@@ -113,7 +113,7 @@ class UserGroups extends Model
      * @param integer $userId
      * @return Model
      */
-    public function getUserGroups($userId)
+    public function getUserGroups(int $userId)
     {
         $model = UserGroupMembers::where('user_id','=',$userId)->get();
 
@@ -128,7 +128,7 @@ class UserGroups extends Model
      * @param integer|null $dateExpire
      * @return bool
      */
-    public function addUser($groupId, $userId, $dateExpire = null)
+    public function addUser($groupId, $userId, ?int $dateExpire = null): bool
     {
         if ($this->findById($userId) == true) {
             return true;
@@ -151,12 +151,12 @@ class UserGroups extends Model
      * @param integer $userId
      * @return bool
      */
-    public function removeUser($groupId, $userId)
+    public function removeUser(int $groupId, int $userId): bool
     {       
         $model = $this->members()->where('group_id','=',$groupId);
         $model = $model->where('user_id','=',$userId);
         
-        return $model->delete();
+        return (bool)$model->delete();
     }
 
     /**
@@ -165,11 +165,11 @@ class UserGroups extends Model
      * @param int $userId
      * @return bool
      */
-    public function deleteUser($userId)
+    public function deleteUser(int $userId): bool
     {
         $model = $this->members()->where('user_id','=',$userId);
 
-        return (\is_object($model) == true) ? $model->delete() : true;
+        return (\is_object($model) == true) ? (bool)$model->delete() : true;
     }
 
     /**
@@ -179,7 +179,7 @@ class UserGroups extends Model
      * @param string $description
      * @return Model|false
      */
-    public function createGroup($title, $description = '')
+    public function createGroup(string $title, string $description = '')
     {
         $model = $this->findByColumn($title,'title');
 

@@ -41,7 +41,7 @@ class Modules
      *
      * @param CacheInterface $cache
      */
-    public function __construct(CacheInterface $cache = null)
+    public function __construct(?CacheInterface $cache = null)
     {
         $this->cache = $cache;
     } 
@@ -121,7 +121,7 @@ class Modules
      *
      * @return void
      */
-    public static function init(CacheInterface $cache)
+    public static function init(CacheInterface $cache): void
     {
         Self::$container = new Container();
 

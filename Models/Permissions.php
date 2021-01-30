@@ -90,7 +90,7 @@ class Permissions extends Model
      * @param string $name
      * @return boolean
      */
-    public function has($name)
+    public function has(string $name): bool
     {
         $model = $this->where('name','=',$name)->first();
 
@@ -105,7 +105,7 @@ class Permissions extends Model
      * @param string|null $description
      * @return Model|false
      */
-    public function createPermission($name, $title = '', $description = null)
+    public function createPermission(string $name, string $title = '', ?string $description = null)
     {
         $model = $this->findByColumn($name,'name');
         if (\is_object($model) == true) {
@@ -127,7 +127,7 @@ class Permissions extends Model
      * @param string $name  Name or Slug
      * @return integer|false
      */
-    public function getId($name)
+    public function getId(string $name)
     {
         // find with slug
         $model = $this->where('slug','=',$name)->first();

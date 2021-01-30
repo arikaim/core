@@ -54,7 +54,7 @@ class Options extends Model implements OptionsStorageInterface
      * @param mixed $default
      * @return mixed|null
      */
-    public function read($key, $default = null) 
+    public function read(string $key, $default = null) 
     {
         try {
             $model = $this->where('key','=',$key)->first();
@@ -74,7 +74,7 @@ class Options extends Model implements OptionsStorageInterface
      * @param string|null $extension
      * @return boolean
      */
-    public function createOption($key, $value, $autoLoad = false, $extension = null)
+    public function createOption(string $key, $value, bool $autoLoad = false, ?string $extension = null): bool
     {
         return ($this->hasOption($key) == true) ? false : $this->saveOption($key,$value,$extension,$autoLoad);       
     }
@@ -85,7 +85,7 @@ class Options extends Model implements OptionsStorageInterface
      * @param string $key
      * @return boolean
      */
-    public function hasOption($key)
+    public function hasOption(string $key): bool
     {
         try {
             $model = $this->where('key','=',$key)->first();
@@ -102,10 +102,10 @@ class Options extends Model implements OptionsStorageInterface
      * @param string $key
      * @param mixed $value
      * @param string $extension
-     * @param int|null $autoLoad
+     * @param bool $autoLoad
      * @return bool
      */
-    public function saveOption($key, $value, $extension = null, $autoLoad = null) 
+    public function saveOption(string $key, $value, ?string $extension = null, bool $autoLoad = false): bool 
     {
         $key = \trim(\str_replace('_','.',$key));
         $type = \gettype($value);
@@ -122,12 +122,10 @@ class Options extends Model implements OptionsStorageInterface
             'key'       => $key,
             'value'     => $value,
             'type'      => $type,
+            'auto_load' => ($autoLoad == true) ? 1 : 0,
             'extension' => $extension
         ];
-
-        if (empty($autoLoad) == false) {
-            $data['auto_load'] = $autoLoad;
-        }
+ 
         if ($this->hasOption($key) == true) {
             $result = $this->where('key','=',$key)->update($data);
             return ($result !== false);
@@ -142,7 +140,7 @@ class Options extends Model implements OptionsStorageInterface
      *
      * @return array
      */
-    public function loadOptions()
+    public function loadOptions(): array
     {             
         try {
             $model = $this->where('auto_load','=','1')->select('key','value')->get();
@@ -155,6 +153,7 @@ class Options extends Model implements OptionsStorageInterface
             }               
         
         } catch (Exception $e) {
+            return [];
         }
       
         return [];
@@ -163,11 +162,11 @@ class Options extends Model implements OptionsStorageInterface
     /**
      * Search for options
      *
-     * @param string $searchKey
+     * @param string|null $searchKey
      * @param bool $compactKeys
      * @return array
      */
-    public function searchOptions($searchKey, $compactKeys = false)
+    public function searchOptions(?string $searchKey, bool $compactKeys = false): array
     {
         $options = [];
         $model = $this->where('key','like',$searchKey . '%')->select('key','value')->get();
@@ -188,7 +187,7 @@ class Options extends Model implements OptionsStorageInterface
         if (\is_array($values) == false) {
             return [];
         }
-        $result = null;
+        $result = [];
         foreach ($values as $key => $value) {
             $result = Arrays::setValue($result,$key,$value,'.');
         }      
@@ -203,12 +202,12 @@ class Options extends Model implements OptionsStorageInterface
      * @param string|null $extension
      * @return bool
      */
-    public function remove($key = null, $extension = null)
+    public function remove(?string $key = null, ?string $extension = null): bool
     {
         $model = (empty($extension) == false) ? $this->where('extension','=',$extension) : $this;
         $model = (empty($key) == false) ? $this->where('key','=',$extension) : $model;
 
-        $result = $model->delete();
+        $result = (bool)$model->delete();
 
         return $result;
     }
@@ -219,7 +218,7 @@ class Options extends Model implements OptionsStorageInterface
      * @param string $extensioName
      * @return mixed
      */
-    public function getExtensionOptions($extensioName)
+    public function getExtensionOptions(string $extensioName)
     {
         return $this->where('extension','=',$extensioName)->select('key','value')->get();
     }

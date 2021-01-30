@@ -78,7 +78,7 @@ class Jobs extends Model implements QueueStorageInterface
     /**
      * Get attribute mutator for due_date
      *
-     * @return integer
+     * @return integer|null
      */
     public function getDueDateAttribute()
     {
@@ -95,7 +95,7 @@ class Jobs extends Model implements QueueStorageInterface
      *
      * @return boolean
      */
-    public function isRecurring()
+    public function isRecurring(): bool
     {
         return (empty($this->recuring_interval) == false);
     }
@@ -105,7 +105,7 @@ class Jobs extends Model implements QueueStorageInterface
      *
      * @return boolean
      */
-    public function isScheduled()
+    public function isScheduled(): bool
     {
         return (empty($this->schedule_time) == false);
     }
@@ -130,11 +130,10 @@ class Jobs extends Model implements QueueStorageInterface
     /**
      * Add job
      *
-     * @param string|integer $id Job id, uiid or name
      * @param array $data
      * @return boolean
      */
-    public function addJob(array $data)
+    public function addJob(array $data): bool
     {
         $model = $this->findByColumn($data['name'],'name');
 
@@ -152,11 +151,11 @@ class Jobs extends Model implements QueueStorageInterface
      * @param string|integer $id
      * @return boolean
      */
-    public function deleteJob($id)
+    public function deleteJob($id): bool
     {
         $model = $this->findById($id);
 
-        return (\is_object($model) == true) ? $model->delete() : false;
+        return (\is_object($model) == true) ? (bool)$model->delete() : false;
     }
 
     /**
@@ -165,14 +164,14 @@ class Jobs extends Model implements QueueStorageInterface
      * @param array $filter
      * @return boolean
      */
-    public function deleteJobs($filter = [])
+    public function deleteJobs(array $filter = []): bool
     {
         $model = $this;
         foreach ($filter as $key => $value) {
             $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
         }
 
-        return $model->delete();
+        return (bool)$model->delete();
     }
 
     /**
@@ -220,7 +219,7 @@ class Jobs extends Model implements QueueStorageInterface
      * @param string|integer $id Job id, uiid
      * @return boolean
      */
-    public function hasJob($id)
+    public function hasJob($id): bool
     {
         $model = $this->findById($id);
         if (\is_object($model) == false) {
@@ -236,7 +235,7 @@ class Jobs extends Model implements QueueStorageInterface
      * @param array $filter   
      * @return array
      */
-    public function getJobs($filter = []): ?array
+    public function getJobs(array $filter = []): ?array
     {  
         $model = $this;
         foreach ($filter as $key => $value) {
@@ -254,14 +253,14 @@ class Jobs extends Model implements QueueStorageInterface
      * @param integer $status
      * @return boolean
      */
-    public function setJobStatus($id, $status)
+    public function setJobStatus($id, int $status): bool
     {
         $model = $this->findById($id);
         if (\is_object($model) == false) {
             return false;
         } 
 
-        return $model->update(['status' => $status]);
+        return (bool)$model->update(['status' => $status]);
     }
 
     /**
@@ -270,7 +269,7 @@ class Jobs extends Model implements QueueStorageInterface
      * @param JobInterface $job
      * @return bool
      */
-    public function updateExecutionStatus(JobInterface $job)
+    public function updateExecutionStatus(JobInterface $job): bool
     {       
         $id = (empty($job->getId()) == true) ? $job->getName() : $job->getId();
         $model = $this->findByIdQuery($id);
@@ -290,7 +289,7 @@ class Jobs extends Model implements QueueStorageInterface
         // increment execution counter
         $model->increment('executed');
 
-        return $model->update($info);            
+        return (bool)$model->update($info);            
     }
 
     /**

@@ -10,6 +10,7 @@
 namespace Arikaim\Core\App;
 
 use Arikaim\Core\Arikaim;
+use Closure;
 
 /**
  * Post install actions
@@ -23,7 +24,7 @@ class PostInstallActions
      * @param Closure|null $onProgressError
      * @return bool
      */
-    public static function run($onProgress = null, $onProgressError = null): bool
+    public static function run(?Closure $onProgress = null, ?Closure $onProgressError = null): bool
     {
         // Run post install actions on all extensions      
         $extensionManager = Arikaim::packages()->create('extension');
@@ -112,7 +113,7 @@ class PostInstallActions
      * @param string $type
      * @return boolean
      */
-    public static function setPrimaryPackage(string $name, $type = 'extension'): bool
+    public static function setPrimaryPackage(string $name, string $type = 'extension'): bool
     {
         $packageManager = Arikaim::packages()->create($type);
         if ($packageManager->hasPackage($name) == false) {           

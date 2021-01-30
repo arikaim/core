@@ -69,7 +69,7 @@ class AccessTokens extends Model implements UserProviderInterface
     /**
      * User relation
      *
-     * @return Model
+     * @return Relation|null
      */
     public function user()
     {
@@ -82,7 +82,7 @@ class AccessTokens extends Model implements UserProviderInterface
      * @param string $token
      * @return integer|null
      */
-    public function getType($token)
+    public function getType(string $token): ?int
     {
         $model = $this->getToken($token);
         
@@ -152,10 +152,16 @@ class AccessTokens extends Model implements UserProviderInterface
      *
      * @param integer $userId
      * @param integer $type
-     * @param integer $expire_period
+     * @param integer $expireTime
+     * @param bool $deleteExpired
      * @return array|false
      */
-    public function createToken($userId, $type = TokenAuthProvider::PAGE_ACCESS_TOKEN, $expireTime = 1800, $deleteExpired = true)
+    public function createToken(
+        int $userId, 
+        int $type = TokenAuthProvider::PAGE_ACCESS_TOKEN, 
+        int $expireTime = 1800, 
+        bool $deleteExpired = true
+    )
     {
         $expireTime = ($expireTime < 1000) ? 1000 : $expireTime;
         $dateExpired = DateTime::getTimestamp() + $expireTime;
@@ -191,11 +197,11 @@ class AccessTokens extends Model implements UserProviderInterface
      * @param string $token
      * @return boolean
      */
-    public function removeToken($token)
+    public function removeToken(string $token): bool
     {
         $model = $this->findByColumn($token,['uuid','token']);
 
-        return (\is_object($model) == true) ? $model->delete() : true;           
+        return (\is_object($model) == true) ? (bool)$model->delete() : true;           
     }
 
     /**
@@ -204,7 +210,7 @@ class AccessTokens extends Model implements UserProviderInterface
      * @param  string $token
      * @return Model|null
      */
-    public function getToken($token)
+    public function getToken(string $token)
     {      
         $model = $this->findByColumn($token,'token');
 
@@ -217,7 +223,7 @@ class AccessTokens extends Model implements UserProviderInterface
      * @param string|null $token
      * @return boolean
      */
-    public function isExpired($token = null)
+    public function isExpired(?string $token = null): bool
     {
         $model = (empty($token) == true) ? $this : $this->findByColumn($token,'token');
         if (\is_object($model) == false) {
@@ -227,7 +233,7 @@ class AccessTokens extends Model implements UserProviderInterface
             return false;
         }
 
-        return (DateTime::getTimestamp() > $model->date_expired || empty($model->date_expired) == true) ? true : false;
+        return ((DateTime::getTimestamp() > $model->date_expired) || (empty($model->date_expired) == true));
     }
 
     /**
@@ -237,7 +243,7 @@ class AccessTokens extends Model implements UserProviderInterface
      * @param integer $type
      * @return Model|false
      */
-    public function getTokenByUser($userId, $type = TokenAuthProvider::PAGE_ACCESS_TOKEN)
+    public function getTokenByUser(int $userId, int $type = TokenAuthProvider::PAGE_ACCESS_TOKEN)
     {
         $model = $this->where('user_id','=',$userId)->where('type','=',$type)->first();
 
@@ -251,7 +257,7 @@ class AccessTokens extends Model implements UserProviderInterface
      * @param integer $type
      * @return boolean
      */
-    public function hasToken($userId, $type = TokenAuthProvider::PAGE_ACCESS_TOKEN)
+    public function hasToken(int $userId, int $type = TokenAuthProvider::PAGE_ACCESS_TOKEN): bool
     {    
         return \is_object($this->getTokenByUser($userId,$type));
     }
@@ -263,14 +269,14 @@ class AccessTokens extends Model implements UserProviderInterface
      * @param integer|null $type
      * @return boolean
      */
-    public function deleteUserToken($userId, $type = TokenAuthProvider::PAGE_ACCESS_TOKEN)
+    public function deleteUserToken(int $userId, ?int $type = TokenAuthProvider::PAGE_ACCESS_TOKEN): bool
     {
         $model = $this->where('user_id','=', $userId);
         if (empty($type) == false) {
             $model = $model->where('type','=',$type);
         }
        
-        return $model->delete();
+        return (bool)$model->delete();
     }
 
     /**
@@ -280,18 +286,18 @@ class AccessTokens extends Model implements UserProviderInterface
      * @param integer|null $type
      * @return boolean
      */
-    public function deleteExpired($userId, $type = TokenAuthProvider::PAGE_ACCESS_TOKEN)
+    public function deleteExpired(int $userId, ?int $type = null): bool
     {
         $model = $this
             ->where('date_expired','<',DateTime::getTimestamp())
             ->where('date_expired','<>',-1)
-            ->where('user_id','=', $userId);
+            ->where('user_id','=',$userId);
         
         if ($type != null) {
             $model = $model->where('type','=',$type);
         }
 
-        return $model->delete();
+        return (bool)$model->delete();
     }
 
     /**
@@ -299,9 +305,9 @@ class AccessTokens extends Model implements UserProviderInterface
      *
      * @return bool
      */
-    public function deleteExpiredTokens()
+    public function deleteExpiredTokens(): bool
     {
-        return $this->where('date_expired','<',DateTime::getTimestamp())->where('date_expired','<>',-1)->delete();
+        return (bool)$this->where('date_expired','<',DateTime::getTimestamp())->where('date_expired','<>',-1)->delete();
     }
 
     /**
@@ -310,7 +316,7 @@ class AccessTokens extends Model implements UserProviderInterface
      * @param integer $userId
      * @return null|Model
      */
-    public function getUserTokens($userId)
+    public function getUserTokens(int $userId)
     {
         return $this->where('user_id','=',$userId)->get();
     }

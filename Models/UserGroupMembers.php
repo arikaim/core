@@ -56,7 +56,7 @@ class UserGroupMembers extends Model
     /**
      * User group relation
      *
-     * @return void
+     * @return Relation|null
      */
     public function group()
     {
@@ -66,7 +66,7 @@ class UserGroupMembers extends Model
     /**
      * User relation
      *
-     * @return void
+     * @return Relation|null
      */
     public function user()
     {
@@ -117,7 +117,7 @@ class UserGroupMembers extends Model
      * @param integer $groupId
      * @return boolean
     */
-    public function isMember($userId, $groupId)
+    public function isMember(int $userId, int $groupId): bool
     {
         $model = $this->where('user_id','=',$userId)->where('group_id','=',$groupId)->first();
 
@@ -131,7 +131,7 @@ class UserGroupMembers extends Model
      * @param int $userId
      * @return Builder
      */
-    public function scopeUserGroups($query, $userId)
+    public function scopeUserGroups($query, int $userId)
     {
         return $query->where('user_id','=',$userId);
     } 

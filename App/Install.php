@@ -53,7 +53,7 @@ class Install
      * @param array|null $requirements
      * @return bool
      */
-    public function prepare($onProgress = null, $onError = null, array $requirements = null): bool
+    public function prepare(?Closure $onProgress = null, ?Closure $onError = null, array $requirements = null): bool
     {
         $status = true;
         // check requirments
