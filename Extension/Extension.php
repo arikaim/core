@@ -67,7 +67,20 @@ abstract class Extension implements ExtensionInterface
     {
         return Arikaim::get('packages')->create('extension')->hasPackage($name);
     }
-    
+
+    /**
+     * Return true if extension is installed
+     *
+     * @param string $name
+     * @return boolean
+     */
+    public function hasInstalledExtension(string $name): bool
+    {
+        $package = Arikaim::get('packages')->create('extension')->createPackage($name);
+
+        return (\is_object($package) == true) ? $package->isInstalled() : false;
+    }
+
     /**
      * Return true if module exist
      *
