@@ -58,6 +58,28 @@ abstract class Extension implements ExtensionInterface
     }
 
     /**
+     * Return true if extension exist
+     *
+     * @param string $name
+     * @return boolean
+     */
+    public function hasExtension(string $name): bool
+    {
+        return Arikaim::get('packages')->create('extension')->hasPackage($name);
+    }
+    
+    /**
+     * Return true if module exist
+     *
+     * @param string $name
+     * @return boolean
+    */
+    public function hasModule(string $name): bool
+    {
+        return Arikaim::get('packages')->create('modules')->hasPackage($name);
+    }
+
+    /**
      * Call function
      *
      * @param string $method

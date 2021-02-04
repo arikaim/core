@@ -53,7 +53,7 @@ class Install
      * @param array|null $requirements
      * @return bool
      */
-    public function prepare(?Closure $onProgress = null, ?Closure $onError = null, array $requirements = null): bool
+    public function prepare(?Closure $onProgress = null, ?Closure $onError = null, ?array $requirements = null): bool
     {
         $status = true;
         // check requirments
@@ -61,7 +61,7 @@ class Install
         foreach ($requirements['errors'] as $error) {
             $this->callback($onError,$error);
         }
-        if (count($requirements['errors']) > 0) {
+        if (\count($requirements['errors']) > 0) {
             $status = false;
         }
 
