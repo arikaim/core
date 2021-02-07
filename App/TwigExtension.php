@@ -22,7 +22,7 @@ use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Access\Csrf;
 use Arikaim\Core\System\System;
-use Arikaim\Core\System\Composer;
+use Arikaim\Core\Packages\Composer;
 use Arikaim\Core\App\Install;
 use Arikaim\Core\Http\Url;
 use Arikaim\Core\Http\Session;
@@ -205,8 +205,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('access',[$this,'getAccess']),   
             new TwigFunction('getCurrentLanguage',[$this,'getCurrentLanguage']),
             new TwigFunction('getVersion',[$this,'getVersion']),
-            new TwigFunction('getLastVersion',[$this,'getLastVersion']),
-            new TwigFunction('composerPackages',[$this,'getComposerPackages']),
+            new TwigFunction('getLastVersion',[$this,'getLastVersion']),          
             new TwigFunction('modules',[$this,'getModulesService']),
             new TwigFunction('create',[$this,'create']),  
 
@@ -546,22 +545,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     } 
 
     /**
-     * Get composer packages info
-     *
-     * @param array $packagesList
-     * @return array|false
-     */
-    public function getComposerPackages(array $packagesList)
-    {
-        // Control Panel only
-        if ($this->container->get('access')->hasControlPanelAccess() == false) {           
-            return false;
-        }
-
-        return Composer::getLocalPackagesInfo(ROOT_PATH . BASE_PATH,$packagesList);
-    }
-
-    /**
      * Create arikaim store instance
      *
      * @return ArikaimStore
@@ -634,6 +617,11 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
         if (\in_array($name,$this->userProtectedServices) == true) {
             return ($this->container->get('access')->isLogged() == true) ? $this->container->get($name) : false;           
+        }
+
+        if ($this->container->has($name) == false) {
+            // try from service container
+            return $this->container->get('service')->get($name);
         }
 
         return $this->container->get($name);

@@ -11,7 +11,7 @@ namespace Arikaim\Core\Api;
 
 use Arikaim\Core\Controllers\ControlPanelApiController;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\System\Composer;
+use Arikaim\Core\Packages\Composer;
 
 /**
  * Packages controller

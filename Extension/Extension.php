@@ -331,6 +331,48 @@ abstract class Extension implements ExtensionInterface
     }
 
     /**
+     * Register service provider
+     *
+     * @param string $serviceProvider
+     * @return boolean
+     */
+    public function registerService(string $serviceProvider): bool
+    {
+        if (\class_exists($serviceProvider) == false) {
+            $serviceProvider = Factory::getExtensionNamespace($this->getName()) . "\\Service\\$serviceProvider";
+        }
+      
+        $result = Arikaim::get('service')->register($serviceProvider);
+        if ($result == false) {
+            $error = Arikaim::errors()->getError('NOT_VALID_SERVICE_CLASS',['class' => $serviceProvider]);
+            $this->addError($error);
+        }
+
+        return $result;
+    }
+
+    /**
+     * UnRegister service provider
+     *
+     * @param string $serviceProvider
+     * @return boolean
+     */
+    public function unRegisterService(string $serviceProvider): bool
+    {
+        if (\class_exists($serviceProvider) == false) {
+            $serviceProvider = Factory::getExtensionNamespace($this->getName()) . "\\Service\\$serviceProvider";
+        }
+      
+        $result = Arikaim::get('service')->unRegister($serviceProvider);
+        if ($result == false) {
+            $error = Arikaim::errors()->getError('NOT_VALID_SERVICE_CLASS',['class' => $serviceProvider]);
+            $this->addError($error);
+        }
+
+        return $result;
+    }
+
+    /**
      * Register console command class
      *
      * @param string $class

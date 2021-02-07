@@ -24,7 +24,7 @@ use PDOException;
 /**
  * Create system services
  */
-class ServiceContainer
+class AppContainer
 {
     /**
      * Init default services
@@ -167,7 +167,12 @@ class ServiceContainer
         $container['modules'] = function($container) {           
             return new \Arikaim\Core\Extension\Modules($container->get('cache'));
         }; 
-     
+        
+        // Service manager
+        $container['service'] = function() {           
+            return new \Arikaim\Core\Service\ServiceContainer();
+        }; 
+
         return $container;
     }
 }

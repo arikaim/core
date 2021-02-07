@@ -15,7 +15,7 @@ use Arikaim\Core\Console\ConsoleHelper;
 use Arikaim\Core\Console\ConsoleCommand;
 use Symfony\Component\Console\Output\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Arikaim\Core\System\Composer;
+use Arikaim\Core\Packages\Composer;
 
 /**
  * Composer command class

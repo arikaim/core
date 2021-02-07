@@ -26,13 +26,6 @@ class Module implements ModuleInterface
     protected $config = [];
 
     /**
-     * Service container item name
-     *
-     * @var string|null
-     */
-    protected $serviceName = null;
-    
-    /**
      * test error
      *
      * @var string|null
@@ -84,27 +77,6 @@ class Module implements ModuleInterface
         return true;
     }
     
-    /**
-     * Get service container item name
-     *
-     * @return string|null
-     */
-    public function getServiceName(): ?string
-    {
-        return $this->serviceName;
-    }
-
-    /**
-     * Set service container item name
-     *
-     * @param string $name
-     * @return void
-     */
-    public function setServiceName(string $name): void
-    {
-        $this->serviceName = $name;
-    }
-
     /**
      * Test module function
      * 

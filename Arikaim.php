@@ -14,7 +14,7 @@ use Psr\Container\ContainerInterface;
 use Slim\Factory\AppFactory;
 
 use Arikaim\Core\Validator\ValidatorStrategy;
-use Arikaim\Core\App\ServiceContainer;
+use Arikaim\Core\App\AppContainer;
 use Arikaim\Core\Http\Session;
 use Arikaim\Core\Middleware\CoreMiddleware;
 use Arikaim\Core\Middleware\RoutingMiddleware;
@@ -26,7 +26,7 @@ use Arikaim\Core\Middleware\BodyParsingMiddleware;
  */
 class Arikaim  
 {
-    const ARIKAIM_VERSION = '1.7.12';
+    const ARIKAIM_VERSION = '1.8.0';
 
     /**
      * Slim application object
@@ -133,7 +133,7 @@ class Arikaim
         \define('CACHE_SAVE_TIME',4);
        
         // Create service container            
-        AppFactory::setContainer(ServiceContainer::create($console)); 
+        AppFactory::setContainer(AppContainer::create($console)); 
         // Create app 
         Self::$app = AppFactory::create();
         Self::$app->setBasePath(BASE_PATH);       

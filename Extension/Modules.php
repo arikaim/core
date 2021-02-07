@@ -9,26 +9,16 @@
  */
 namespace Arikaim\Core\Extension;
 
-use Arikaim\Container\Container;
 use Arikaim\Core\Utils\Factory;
-use Arikaim\Core\Packages\ModulePackage;
 use Arikaim\Core\Db\Model;
-
-use Psr\Container\ContainerInterface;
 use Arikaim\Core\Interfaces\CacheInterface;
+use Arikaim\Core\Interfaces\ModuleInterface;
 
 /**
  * Modules service locator
  */
 class Modules  
 {
-    /**
-     * Container
-     * 
-     * @var ContainerInterface|null
-    */
-    private static $container;
-
     /**
      * Cache
      *
@@ -82,72 +72,5 @@ class Modules
         $module = Model::Modules()->getPackage($name);
         
         return (\is_array($module) == true);
-    }
-
-    /**
-     * Check item exists in container
-     *
-     * @param string $name Item name.
-     * @return boolean
-    */
-    public static function has(string $name): bool
-    {
-        return Self::$container->has($name);
-    }
-
-    /**
-     * Return service container object.
-     *
-     * @return ContainerInterface
-    */
-    public static function getContainer()
-    {
-        return Self::$container;
-    }
-
-    /**
-     * Set container
-     *
-     * @param ContainerInterface $container
-     * @return void
-     */
-    public static function setContainer($container): void
-    {
-        Self::$container = $container;
-    }
-
-    /**
-     * Add module services in container
-     *
-     * @return void
-     */
-    public static function init(CacheInterface $cache): void
-    {
-        Self::$container = new Container();
-
-        $modules = $cache->fetch('services.list');
-        if (\is_array($modules) == false) {
-            $modules = Model::Modules()->getPackagesList([
-                'type'   => ModulePackage::getTypeId('service'), 
-                'status' => 1
-            ]);
-            $cache->save('services.list',$modules,2);    
-        } 
-        
-        foreach ($modules as $module) {
-            $serviceName = $module['service_name'];
-            if (empty($serviceName) == false) {
-                // add to container
-                $container[$serviceName] = function() use($module) {
-                    return Factory::createModule($module['name'],$module['class']);
-                };
-            }
-            if ($module['bootable'] == true) {
-                $service = $container->get($serviceName);
-                if (\is_object($service) == true) {
-                    $service->boot();
-                }
-            }           
-        }      
     }
 }
