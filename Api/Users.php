@@ -40,9 +40,10 @@ class Users extends ApiController
     {
         $this->onDataValid(function($data) {  
             $credentials = [
-                    'user_name' => $data->get('user_name'),
-                    'password' => $data->get('password')
+                'user_name' => $data->get('user_name'),
+                'password' => $data->get('password')
             ];
+          
             $result = $this->get('access')->authenticate($credentials);
             if ($result === false) {           
                 $this->error('errors.login');  

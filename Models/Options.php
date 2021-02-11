@@ -59,10 +59,11 @@ class Options extends Model implements OptionsStorageInterface
         try {
             $model = $this->where('key','=',$key)->first();
         } catch (Exception $e) {
-            return null;
+            return $default;
         }
+        $value = (\is_object($model) == false) ? $default : \trim($model->value);
 
-        return (\is_object($model) == false) ? $default : $model->value;  
+        return (\is_null($value) == true || $value == '') ? $default : $value;  
     }
 
     /**

@@ -163,10 +163,15 @@ class Users extends Model implements UserProviderInterface
      * Get user by credentails
      *
      * @param array $credentials
-     * @return Model|false
+     * @return array|null
      */
-    public function getUserByCredentials(array $credentials)
+    public function getUserByCredentials(array $credentials): ?array
     {
+        $password = $credentials['password'] ?? null;
+        if (empty($password) == true) {
+            return null;
+        }
+
         $user = $this->where('status','=',$this->ACTIVE());
 
         if (isset($credentials['user_name']) == true) {
@@ -185,21 +190,36 @@ class Users extends Model implements UserProviderInterface
             $user = $user->orWhere('uuid','=',$credentials['id']);
         }
         $user = $user->first();
-      
-        return (\is_object($user) == false) ? false : $user;
+        if (\is_object($user) == false) {
+            return null;
+        }
+        // check password
+        if ($user->verifyPassword($password) == false) {
+            return null;
+        }
+        $authId = $user->getAuthId();
+        $user = $user->toArray();
+        $user['auth_id'] = $authId;
+
+        return $user;
     }
 
     /**
      * Return user details by auth id
      *
      * @param string|integer $id
-     * @return array|false
+     * @return array|null
      */
-    public function getUserById($id)
+    public function getUserById($id): ?array
     {
         $model = $this->findById($id);
+        if (\is_object($model) == false) {
+            return null;
+        }
+        $user = $model->toArray();
+        $user['auth_id'] = $model->getAuthId();
 
-        return (\is_object($model) == true) ? $model->toArray() : false;
+        return $user;
     }
 
     /**

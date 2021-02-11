@@ -564,7 +564,7 @@ abstract class Extension implements ExtensionInterface
      */
     public function addApiRoute(string $method, string $pattern, string $class, string $handlerMethod, $auth = null)
     {
-        $auth = Arikaim::access()->resolveAuthType($auth);
+        $auth = Arikaim::access()->resolveAuthType($auth);   
         $class = ($class == null) ? Factory::getControllerClass('Controller') : $this->getControllerClassName($class);
         
         $result = Arikaim::routes()->addApiRoute($method,$pattern,$class,$handlerMethod,$this->getName(),$auth);

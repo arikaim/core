@@ -93,35 +93,42 @@ class AccessTokens extends Model implements UserProviderInterface
      * Get user credentials
      *
      * @param array $credential
-     * @return mixed|false
+     * @return array|null
      */
-    public function getUserByCredentials(array $credentials)
+    public function getUserByCredentials(array $credentials): ?array
     {
         $token = $credentials['token'] ?? null;
         
         if (empty($token) == true) {
-            return false;
+            return null;
         }
         if ($this->isExpired($token) == true) {                  
-            return false;
+            return null;
         }
-
         $model = $this->findByColumn($token,'token');
-
-        return \is_object($model) ? $model->user : false;
+        $user = $model->user()->first();
+        if (\is_object($user) == false) {
+            return null;
+        }
+    
+        $authId = $user->getAuthId();
+        $user = $user->toArray();
+        $user['auth_id'] = $authId;
+      
+        return $user;
     }
 
     /**
      * Return user details by auth id
      *
      * @param string|integer $id
-     * @return array|false
+     * @return array|null
      */
-    public function getUserById($id)
+    public function getUserById($id): ?array
     {
         $model = $this->findById($id);
 
-        return (\is_object($model) == false) ? false : $model->user()->toArray();          
+        return (\is_object($model) == false) ? null : $model->user()->first()->toArray();          
     }
 
     /**
