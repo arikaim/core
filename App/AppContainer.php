@@ -19,6 +19,8 @@ use Arikaim\Core\Packages\PackageManagerFactory;
 use Arikaim\Core\Routes\Routes;
 use Arikaim\Core\App\Install;
 use Arikaim\Core\View\Html\Page;
+use Arikaim\Core\Utils\Number;
+use Arikaim\Core\Utils\DateTime;
 use PDOException;
 
 /**
@@ -52,10 +54,6 @@ class AppContainer
         $container->get('cache')->setStatus($cacheStatus);
         $container->get('cache')->setDriver($container->get('config')->getByPath('settings/cacheDriver',Cache::FILESYSTEM_DRIVER));
 
-        // Events manager 
-        $container['event'] = function() {
-            return new EventsManager(Model::Events(),Model::EventSubscribers());
-        };
         // Storage
         $container['storage'] = function($container) {
             return new \Arikaim\Core\Storage\Storage();
@@ -73,7 +71,7 @@ class AppContainer
             $cache = ($cacheStatus == true) ? Path::VIEW_CACHE_PATH : false;
             $debug = $container->get('config')['settings']['debug'] ?? true;
             $demoMode = $container->get('config')['settings']['demo_mode'] ?? false;
-            $primaryTemplate = $container->get('options')->get('primary.template',Page::SYSTEM_TEMPLATE_NAME);
+            $primaryTemplate = $container->get('config')->getByPath('settings/primaryTemplate',Page::SYSTEM_TEMPLATE_NAME);
            
             $view = new \Arikaim\Core\View\View(
                 $container['cache'],
@@ -92,6 +90,7 @@ class AppContainer
             // Add twig extension
             $twigExtension = new TwigExtension(BASE_PATH,Path::VIEW_PATH,$container);
             $view->addExtension($twigExtension);
+            $view->setPrimaryTemplate($primaryTemplate); 
 
             return $view;
         };    
@@ -114,7 +113,9 @@ class AppContainer
         $container['access'] = function($container) {
             $user = Model::Users();  
             $permissins = Model::PermissionRelations();    
-            return new \Arikaim\Core\Access\Access($permissins,$user);          
+            $jwtKey = $container['config']->getByPath('settings/jwtKey','jwtKey');
+
+            return new \Arikaim\Core\Access\Access($permissins,$user,null,['key' => $jwtKey]);          
         };
         // Init Eloquent ORM
         $container['db'] = function($container) {  
@@ -139,7 +140,21 @@ class AppContainer
         $container['options'] = function($container) { 
             $options = ($container['db']->hasError() == false) ? Model::Options(): null;
                     
-            return new \Arikaim\Core\Options\Options($container->get('cache'),$options);          
+            $servcie = new \Arikaim\Core\Options\Options($container->get('cache'),$options);    
+            // init 
+            if ($options == null) {
+                return $servcie;
+            }
+            // DatTime and numbers format
+            $options = $servcie->toArray();
+            Number::setFormats($options['number.format.items'] ?? [],$options['number.format'] ?? null);
+            // Set time zone
+            DateTime::setTimeZone($options['time.zone'] ?? null);
+            // Set date and time formats          
+            DateTime::setDateFormats($options['date.format.items'] ?? [],$options['date.format'] ?? null);           
+            DateTime::setTimeFormats($options['time.format.items'] ?? [],$options['time.format'] ?? null);  
+            
+            return $servcie;
         };     
         // Mailer
         $container['mailer'] = function($container) {
@@ -158,6 +173,14 @@ class AppContainer
             $logger = new \Arikaim\Core\Logger\Logger(Path::LOGS_PATH . 'errors.log',$enabled,$handlerName);
             return $logger;
         };      
+        // Events manager 
+        $container['event'] = function($container) {
+            $options = [
+                'log' => $container['config']->getByPath('settings/logEvents',false) 
+            ];
+
+            return new EventsManager(Model::Events(),Model::EventSubscribers(),$container['logger'],$options);
+        };
         // Jobs queue
         $container['queue'] = function($container) {           
             $jobs = Model::Jobs();

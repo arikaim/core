@@ -279,7 +279,7 @@ class Packages extends ControlPanelApiController
           
             $package = $packageManager->createPackage($name);
             $result = (\is_object($package) == true) ? $package->setPrimary() : false;
-
+            
             $this->setResponse($result,function() use($name,$type) {         
                 $this
                     ->message($type . '.primary')

@@ -860,6 +860,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function hasAccess($name, $type = null, $authId = null)
     {
-        return $this->container->get('access')->hasAccess($name,$type, $authId);
+        return $this->container->get('access')->hasAccess($name,$type,$authId);
     }
 }

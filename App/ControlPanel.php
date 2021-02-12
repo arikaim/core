@@ -27,6 +27,8 @@ class ControlPanel extends Controller
     public function loadControlPanel($request, $response, $data) 
     {                 
         $data['page_name'] = 'system:admin';
+       
+        $this->get('access')->withProvider('session');
 
         return $this->pageLoad($request,$response,$data);       
     }

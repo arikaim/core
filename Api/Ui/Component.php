@@ -118,7 +118,7 @@ class Component extends ApiController
     {   
         $params['current_path'] = $this->get('options')->get('current.path','');
         $component = $this->get('page')->createHtmlComponent($name,$params,$language,true);
-     
+        
         if (\is_object($component) == false) {          
             $error = $this->get('errors')->getError('TEMPLATE_COMPONENT_NOT_FOUND',['full_component_name' => $name]);  
 
@@ -134,11 +134,12 @@ class Component extends ApiController
             return $this->withError($error)->getResponse();          
         }
       
-        if ($component->getOption('access/deny-request') == true) {
+        if ($component->getOption('access/deny-request') == true) { 
             $this->setResultField('redirect',$component->getOption('access/redirect')); 
             $error = $this->$this->get('errors')->getError('ACCESS_DENIED',['name' => $component->getFullName()]);
             return $this->withError($error)->getResponse();           
         }
+       
         $files = $this->get('page')->getComponentsFiles();
         
         $result = [

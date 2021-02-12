@@ -301,12 +301,12 @@ class Users extends Model implements UserProviderInterface
     /**
      * Create user
      *
-     * @param string $userName
+     * @param string|string $userName
      * @param string $password
      * @param string|null $email
      * @return Model|false
      */
-    public function createUser(string $userName, string $password, ?string $email = null)
+    public function createUser(?string $userName, string $password, ?string $email = null)
     {
         $user = $this->getUser($userName,$email);
         if (\is_object($user) == true) {           
@@ -319,7 +319,7 @@ class Users extends Model implements UserProviderInterface
         $data = [
             'uuid'          => UuidCreate::create(),
             'date_created'  => DateTime::getTimestamp(),
-            'user_name'     => $userName,
+            'user_name'     => (empty($userName) == true) ? null : $userName,
             'status'        => 1,
             'password'      => $this->encryptPassword($password),
             'email'         => $email

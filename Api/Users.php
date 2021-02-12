@@ -41,10 +41,11 @@ class Users extends ApiController
         $this->onDataValid(function($data) {  
             $credentials = [
                 'user_name' => $data->get('user_name'),
-                'password' => $data->get('password')
+                'password'  => $data->get('password')
             ];
-          
+            $this->get('access')->withProvider('session')->logout();
             $result = $this->get('access')->authenticate($credentials);
+    
             if ($result === false) {           
                 $this->error('errors.login');  
                 $this->logError('Not valid Contro Panel login details',['user_name' => $credentials['user_name']]);
@@ -58,7 +59,8 @@ class Users extends ApiController
             // update login date time
             $userId = $this->get('access')->getId();  
             Model::Users()->findById($userId)->updateLoginDate();
-            
+            $this->setResponse($result,'login','errors.login'); 
+
         });
         $data
             ->addRule('text:min=2','user_name')   
@@ -80,7 +82,9 @@ class Users extends ApiController
         Cookie::delete('user');
         Cookie::delete('token');   
 
-        $this->get('access')->logout();        
+        $this->get('access')->withProvider('session')->logout();  
+
+        $this->setResponse(true,'logout','errors.logout');      
     }   
 
     /**

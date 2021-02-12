@@ -43,7 +43,7 @@ class RoutesSchema extends Schema
         $table->string('extension_name')->nullable(true);
         $table->string('template_name')->nullable(true);
         $table->string('page_name')->nullable(true);
-        $table->integer('auth')->nullable(true);
+        $table->string('auth')->nullable(true);
         $table->integer('type')->nullable(false)->default(0);               
         $table->text('options')->nullable(true);
         $table->string('redirect_url')->nullable(true); 
@@ -63,6 +63,10 @@ class RoutesSchema extends Schema
      */
     public function update($table)
     {       
+        if ($this->getColumnType('auth') == 'integer') {
+            $table->string('auth')->change();
+        }
+
         if ($this->hasColumn('regex') == false) {
             $table->string('regex')->nullable(true); 
         } 

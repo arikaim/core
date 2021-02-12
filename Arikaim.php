@@ -26,7 +26,7 @@ use Arikaim\Core\Middleware\BodyParsingMiddleware;
  */
 class Arikaim  
 {
-    const ARIKAIM_VERSION = '1.8.1';
+    const ARIKAIM_VERSION = '1.9.0';
 
     /**
      * Slim application object
@@ -155,7 +155,7 @@ class Arikaim
         Session::start();
                     
         // Set router       
-        Self::$app->getRouteCollector()->setDefaultInvocationStrategy(new ValidatorStrategy());
+        Self::$app->getRouteCollector()->setDefaultInvocationStrategy(new ValidatorStrategy(Self::$app->getContainer()));
                        
         // map install page
         Self::$app->map(['GET'],'/admin/install','Arikaim\Core\App\InstallPage:loadInstall');
