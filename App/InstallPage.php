@@ -35,6 +35,9 @@ class InstallPage extends Controller
         }
 
         if (Install::isInstalled() == false) { 
+            $install = new Install();
+            $install->prepare();
+            
             return $this->pageLoad($request,$response,['page_name' => 'system:install']);                   
         } 
         $data['message'] = $this->get('errors')->getError('INSTALLED_ERROR');

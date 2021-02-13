@@ -138,33 +138,24 @@ class AppContainer
         };
         // Options
         $container['options'] = function($container) { 
-            $options = ($container['db']->hasError() == false) ? Model::Options(): null;
-                    
-            $servcie = new \Arikaim\Core\Options\Options($container->get('cache'),$options);    
-            // init 
-            if ($options == null) {
-                return $servcie;
-            }
-            // DatTime and numbers format
-            $options = $servcie->toArray();
-            Number::setFormats($options['number.format.items'] ?? [],$options['number.format'] ?? null);
+            $optionsStorage = ($container['db']->hasError() == false) ? Model::Options(): null;                    
+            $options = new \Arikaim\Core\Options\Options($container->get('cache'),$optionsStorage);    
+          
+            Number::setFormat($options->getString('number.format',null));
             // Set time zone
-            DateTime::setTimeZone($options['time.zone'] ?? null);
+            DateTime::setTimeZone($options->getString('time.zone',null));
             // Set date and time formats          
-            DateTime::setDateFormats($options['date.format.items'] ?? [],$options['date.format'] ?? null);           
-            DateTime::setTimeFormats($options['time.format.items'] ?? [],$options['time.format'] ?? null);  
+            DateTime::setDateFormat($options->getString('date.format',null));           
+            DateTime::setTimeFormat($options->getString('time.format',null));  
             
-            return $servcie;
+            return $options;
         };     
-        // Mailer
-        $container['mailer'] = function($container) {
-            $mailerOptions = $container['options']->searchOptions('mailer.');
-            return new \Arikaim\Core\Mail\Mailer($mailerOptions,$container['page']);
-        };
+       
         // Drivers
         $container['driver'] = function() {   
             return new \Arikaim\Core\Driver\DriverManager(Model::Drivers());  
         };
+
         // Logger
         $container['logger'] = function($container) {   
             $enabled = $container->get('options')->get('logger',true); 
@@ -173,6 +164,23 @@ class AppContainer
             $logger = new \Arikaim\Core\Logger\Logger(Path::LOGS_PATH . 'errors.log',$enabled,$handlerName);
             return $logger;
         };      
+
+        // Mailer
+        $container['mailer'] = function($container) {
+            $mailerOptions = [
+                'from_email' => $container['options']->getString('mailer.from.email',''),
+                'from_name'  => $container['options']->getString('mailer.from.name',''),
+                'compillers' => $container['options']->get('mailer.email.compillers',[])
+            ];
+
+            $driverName = $container['options']->getString('mailer.driver',null);
+            $driver = (empty($driverName) == false) ? $container['driver']->create($driverName) : null;
+            if ($driver === false) {
+                $driver = null;
+            }
+            return new \Arikaim\Core\Mail\Mailer($mailerOptions,$container['page'],$driver);
+        };
+
         // Events manager 
         $container['event'] = function($container) {
             $options = [

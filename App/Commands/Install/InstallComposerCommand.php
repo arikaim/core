@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Arikaim\Core\System\Process;
 
 /**
- * Install composer command class
+ * Composer update command class
  */
 class InstallComposerCommand extends ConsoleCommand
 {  
@@ -25,7 +25,7 @@ class InstallComposerCommand extends ConsoleCommand
      */
     protected function configure(): void
     {
-        $this->setName('install:composer')->setDescription('Install composer packages');
+        $this->setName('composer:update')->setDescription('Update composer packages');
     }
 
     /**

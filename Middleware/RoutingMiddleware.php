@@ -121,9 +121,10 @@ class RoutingMiddleware implements MiddlewareInterface
     {
         $method = $request->getMethod();
         $path = $request->getUri()->getPath();
-   
+        $routePath = \rtrim(\str_replace(BASE_PATH,'',$path),'/');
+    
         // set current path       
-        $type = RouteType::getType($path);
+        $type = RouteType::getType($routePath);
      
         switch($type) {
             case RouteType::HOME_PAGE_URL: 
@@ -149,7 +150,7 @@ class RoutingMiddleware implements MiddlewareInterface
         $routingResults = $this->routeResolver->computeRoutingResults($path,$method);
         $routeStatus = $routingResults->getRouteStatus();
 
-        $request = $request->withAttribute('routingResults', $routingResults);
+        $request = $request->withAttribute('routingResults',$routingResults);
         
         switch ($routeStatus) {
             case RoutingResults::FOUND:
@@ -187,7 +188,7 @@ class RoutingMiddleware implements MiddlewareInterface
      * @param string $method
      * @return void
      */
-    protected function mapSystemRoutes($method)
+    protected function mapSystemRoutes(string $method): void
     {       
         $routes = SystemRoutes::$routes[$method] ?? false;
         if ($routes === false) {
@@ -220,7 +221,7 @@ class RoutingMiddleware implements MiddlewareInterface
      * 
      * @throws Exception
      */
-    public function mapRoutes($method, $type = null)
+    public function mapRoutes($method, ?int $type = null): bool
     {      
         $this->resolveRoutes();
 
@@ -263,5 +264,6 @@ class RoutingMiddleware implements MiddlewareInterface
             }                                        
         }    
         
+        return true;
     }
 }

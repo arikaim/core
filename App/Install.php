@@ -319,29 +319,16 @@ class Install
      */
     private function initDefaultOptions(): void
     {
-        $formats = Arikaim::config()->loadJsonConfigFile('date-time-format.json');
-
         // add date formats options
-        Arikaim::options()->createOption('date.format.items',$formats['date'],true);
-        Arikaim::options()->createOption('date.format',$formats['date']['numeric-us'],true);
-        // add time format options
-        Arikaim::options()->createOption('time.format.items',$formats['time'],true);    
-        Arikaim::options()->createOption('time.format',$formats['time']['24-long'],true);
-        // add number format options
-        $items = Arikaim::config()->loadJsonConfigFile('number-format.json');
-        Arikaim::options()->createOption('number.format.items',$items,true);
-        Arikaim::options()->createOption('number.format','default',true);
-        // set default time zone 
-        Arikaim::options()->createOption('time.zone',DateTime::getTimeZoneName(),false);
+        Arikaim::options()->createOption('date.format',null,true);
+        Arikaim::options()->createOption('time.format',null,true);
+        Arikaim::options()->createOption('number.format',null,true);
+        Arikaim::options()->createOption('time.zone',DateTime::getTimeZoneName(),true);        
         // mailer
-        Arikaim::options()->createOption('mailer.use.sendmail',true,true);
-        Arikaim::options()->createOption('mailer.smpt.port','25',true);
-        Arikaim::options()->createOption('mailer.smpt.host','',true);
-        Arikaim::options()->createOption('mailer.username','',true);
-        Arikaim::options()->createOption('mailer.password','',true);
+        Arikaim::options()->createOption('mailer.driver',null,true);
         Arikaim::options()->createOption('mailer.email.compillers',[],true);
-        // email settings
-        Arikaim::options()->createOption('mailer.from.email','',false);
+        Arikaim::options()->createOption('mailer.from.email','',true);
+        Arikaim::options()->createOption('mailer.from.name','',true);
         // logger
         Arikaim::options()->createOption('logger',true,true);     
         Arikaim::options()->createOption('logger.handler','db',true);

@@ -201,7 +201,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('getSystemRequirements',[$this,'getSystemRequirements']),                      
             new TwigFunction('package',[$this,'createPackageManager']),       
             new TwigFunction('service',[$this,'getService']),     
-            new TwigFunction('installConfig',[$this,'getInstallConfig']),     
+            new TwigFunction('installConfig',[$this,'getInstallConfig']),   
+            new TwigFunction('loadConfig',[$this,'loadJosnConfigFile']),     
             new TwigFunction('access',[$this,'getAccess']),   
             new TwigFunction('getCurrentLanguage',[$this,'getCurrentLanguage']),
             new TwigFunction('getVersion',[$this,'getVersion']),
@@ -601,6 +602,21 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         $tokens = \explode('/',$packageName);
         
         return Composer::getLastVersion($tokens[0],$tokens[1]);        
+    }
+
+    /**
+     * Load json config file
+     *
+     * @param string $fileName
+     * @return array|null
+     */
+    public function loadJosnConfigFile(string $fileName)
+    {
+        if ($this->container->get('access')->hasControlPanelAccess() == false) {
+            return null;
+        }
+
+        return $this->container->get('config')->loadJsonConfigFile($fileName);
     }
 
     /**
