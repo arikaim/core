@@ -170,6 +170,8 @@ class AppContainer
             $mailerOptions = [
                 'from_email' => $container['options']->getString('mailer.from.email',''),
                 'from_name'  => $container['options']->getString('mailer.from.name',''),
+                'log'        => $container['options']->get('mailer.log',false),
+                'log_error'  => $container['options']->get('mailer.log.error',false),                
                 'compillers' => $container['options']->get('mailer.email.compillers',[])
             ];
 
@@ -178,7 +180,7 @@ class AppContainer
             if ($driver === false) {
                 $driver = null;
             }
-            return new \Arikaim\Core\Mail\Mailer($mailerOptions,$container['page'],$driver);
+            return new \Arikaim\Core\Mail\Mailer($mailerOptions,$container['page'],$driver,$container['logger']);
         };
 
         // Events manager 

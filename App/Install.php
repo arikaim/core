@@ -327,6 +327,8 @@ class Install
         // mailer
         Arikaim::options()->createOption('mailer.driver',null,true);
         Arikaim::options()->createOption('mailer.email.compillers',[],true);
+        Arikaim::options()->createOption('mailer.log',false,true);
+        Arikaim::options()->createOption('mailer.log.error',false,true);
         Arikaim::options()->createOption('mailer.from.email','',true);
         Arikaim::options()->createOption('mailer.from.name','',true);
         // logger

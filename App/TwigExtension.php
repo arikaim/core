@@ -608,15 +608,28 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * Load json config file
      *
      * @param string $fileName
+     * @param string|null $packageName
+     * @param string|null $packageType
      * @return array|null
      */
-    public function loadJosnConfigFile(string $fileName)
+    public function loadJosnConfigFile(string $fileName, ?string $packageName = null, ?string $packageType = null)
     {
         if ($this->container->get('access')->hasControlPanelAccess() == false) {
             return null;
         }
+        $fileName = Path::CONFIG_PATH . $fileName;
+        if (empty($packageName) == false) { 
+            if ($packageType == 'extension') {
+                $fileName = Path::getExtensionConfigPath($packageName) . $fileName;
+            }  
+            if ($packageType == 'module') {
+                $fileName = Path::getModuleConfigPath($packageName) . $fileName; 
+            }
+        } 
 
-        return $this->container->get('config')->loadJsonConfigFile($fileName);
+        $data = File::readJsonFile($fileName);
+
+        return ($data === false) ? null : $data;
     }
 
     /**
