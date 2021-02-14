@@ -101,7 +101,6 @@ class Users extends ApiController
         $this->requireControlPanelPermission();
          
         $this->onDataValid(function($data) { 
-           
             $userName = $data->get('user_name');
             $email = $data->get('email',null);
             $logedUser = $this->get('access')->getUser();
@@ -125,35 +124,57 @@ class Users extends ApiController
             ];
           
             $result = $user->findById($logedUser['id'])->update($info);
-            if ($result == false) {
-                return $this->error('errors.update');                    
-            }
-
-             // check for change password 
-             $password = $data->get('password',null);
-             if (empty($password) == false) {
-                $newPassword = $data->get('new_password');
-                $repeatPassword = $data->get('repeat_password');
-                $user = $user->findById($logedUser['id']);
-                
-                if ($user->verifyPassword($password) == false) {                  
-                    return $this->error('errors.invalid');                  
-                } 
-                if ($newPassword != $repeatPassword) {
-                    // passwords not mach            
-                    return $this->error('errors.password');                                   
-                }
-              
-                $result = $user->changePassword($logedUser['id'],$newPassword);
-            } 
+    
             $this->setResponse($result,'update','errors.update'); 
         });
         $data 
             ->addRule('text:min=2|required','user_name') 
             ->addRule('email','email')           
-            ->addRule('text:min=5','old_password')
-            ->addRule('text:min=5','new_password')
-            ->addRule('text:min=5','repeat_password')
+            ->validate();      
+    }
+
+     /**
+     * Control Panel change user password
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param Validator $data
+     * @return Psr\Http\Message\ResponseInterface
+    */
+    public function changePasswordController($request, $response, $data)
+    {
+        // access from contorl panel only 
+        $this->requireControlPanelPermission();
+         
+        $this->onDataValid(function($data) { 
+            $password = $data->get('password',null);
+            $newPassword = $data->get('new_password');
+            $repeatPassword = $data->get('repeat_password');
+
+            $logedUser = $this->get('access')->getUser();
+            $user = Model::Users()->findById($logedUser['id']);
+
+            if (\is_object($user) == false) {
+                $this->error('Not valid user id.');
+                return false;
+            }
+            // check for change password 
+            if ($user->verifyPassword($password) == false) {                  
+                return $this->error('errors.invalid');                  
+            } 
+            if ($newPassword != $repeatPassword) {
+                // passwords not mach            
+                return $this->error('errors.password');                                   
+            }
+              
+            $result = $user->changePassword($logedUser['id'],$newPassword);
+           
+            $this->setResponse($result,'update','errors.update'); 
+        });
+        $data   
+            ->addRule('text:min=2|required','password')
+            ->addRule('text:min=5|required','new_password')
+            ->addRule('text:min=5|required','repeat_password')
             ->validate();      
     }
 }

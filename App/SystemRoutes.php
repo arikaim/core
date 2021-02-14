@@ -167,8 +167,13 @@ class SystemRoutes
                 'middleware' => null            
             ],
             [
-                'pattern'    => '/core/api/user/update',
+                'pattern'    => '/core/api/user/details',
                 'handler'    => 'Arikaim\Core\Api\Users:changeDetails',
+                'middleware' => null            
+            ],
+            [
+                'pattern'    => '/core/api/user/password',
+                'handler'    => 'Arikaim\Core\Api\Users:changePassword',
                 'middleware' => null            
             ],
             // Languages  
