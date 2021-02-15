@@ -89,13 +89,13 @@ class Packages extends ControlPanelApiController
             $composerPackages = $require->get('composer',[]);
             
             foreach ($composerPackages as $compsoerPackage) {
-                if (Composer::isInstalled(ROOT_PATH . BASE_PATH,$compsoerPackage) === false) {
+                if (Composer::isInstalled($compsoerPackage) === false) {
                     Composer::requirePackage($compsoerPackage);     
                 } else {
                     Composer::updatePackage($compsoerPackage);     
                 }                         
             }    
-            $result = Composer::isInstalled(ROOT_PATH . BASE_PATH,$composerPackages);
+            $result = Composer::isInstalled($composerPackages);
         
             $this->setResponse($result,function() use($name,$type) {                  
                 $this

@@ -587,7 +587,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     {
         $packageName = (empty($packageName) == true) ? ARIKAIM_PACKAGE_NAME : $packageName;       
 
-        return Composer::getInstalledPackageVersion(ROOT_PATH . BASE_PATH,$packageName);     
+        return Composer::getInstalledPackageVersion($packageName);     
     }
 
     /**

@@ -26,7 +26,7 @@ use Arikaim\Core\Middleware\BodyParsingMiddleware;
  */
 class Arikaim  
 {
-    const ARIKAIM_VERSION = '1.9.3';
+    const ARIKAIM_VERSION = '1.9.4';
 
     /**
      * Slim application object
