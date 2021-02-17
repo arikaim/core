@@ -423,13 +423,19 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * Get page url
      *
      * @param string $routeName
-     * @param string $extension
+     * @param string|null $extension
      * @param array $params
      * @param boolean $relative
      * @param string|null $language
      * @return string|false
      */
-    public function getPageUrl($routeName, $extension, $params = [], $relative = true, $language = null)
+    public function getPageUrl(
+        string $routeName, 
+        ?string $extension, 
+        array $params = [], 
+        bool $relative = false, 
+        ?string $language = null
+    )
     {
         $route = $this->container->get('routes')->getRoutes([
             'name'           => $routeName,
@@ -441,7 +447,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         }
         $urlPath = Route::getRouteUrl($route[0]['pattern'],$params);
         
-        return Page::getUrl($urlPath,$relative,$language);
+        return Page::getUrl($urlPath,!$relative,$language);
     }
 
     /**

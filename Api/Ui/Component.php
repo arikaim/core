@@ -141,11 +141,13 @@ class Component extends ApiController
         }
        
         $files = $this->get('page')->getComponentsFiles();
-        
+       
         $result = [
-            'css_files'  => (isset($files['css']) == true) ? Arrays::arrayColumns($files['css'],['url','params']) : [],
-            'js_files'   => (isset($files['js']) == true)  ? Arrays::arrayColumns($files['js'],['url','params'])  : [],
+            'name'       => $component->getFullName(),
+            'css'        => Arrays::arrayColumns($files['css'],['url','params','component_name']),
+            'js'         => Arrays::arrayColumns($files['js'],['url','params','component_name']),
             'properties' => \json_encode($component->getProperties()),
+            'components' => $this->get('view')->getIncludedComponents(),
             'html'       => $component->getHtmlCode()           
         ];
   

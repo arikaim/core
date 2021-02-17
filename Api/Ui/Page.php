@@ -35,8 +35,8 @@ class Page extends ApiController
       
         $result = [
             'html'       => $component->getHtmlCode(),
-            'css_files'  => $files['css'] ?? [],
-            'js_files'   => $files['js']  ?? [],
+            'css'        => $files['css'] ?? [],
+            'js'         => $files['js']  ?? [],
             'properties' => \json_encode($component->getProperties())
         ];
 
@@ -57,8 +57,8 @@ class Page extends ApiController
         $data = $this->get('page')->getLibraryDetails($libraryName);
         $result = [
             'name'        => $libraryName,
-            'css_files'   => (isset($data['files']['css']) == true) ? $data['files']['css'] : [],
-            'js_files'    => (isset($data['files']['js']) == true)  ? $data['files']['js'] : [],
+            'css'         => (isset($data['files']['css']) == true) ? $data['files']['css'] : [],
+            'js'          => (isset($data['files']['js']) == true)  ? $data['files']['js'] : [],
             'async'       => $data['async'],
             'crossorigin' => $data['crossorigin']
         ];
