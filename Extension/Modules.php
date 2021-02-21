@@ -22,7 +22,7 @@ class Modules
     /**
      * Cache
      *
-     * @var CacheInterface
+     * @var CacheInterface|null
     */
     private $cache;
 
@@ -44,17 +44,20 @@ class Modules
      */
     public function create(string $name)
     {        
-        $module = $this->cache->fetch('module.' . $name);
-        if (\is_array($module) == false) {
+        $module = (\is_null($this->cache) == false) ? $this->cache->fetch('module.' . $name) : null;
+        if (empty($module) == true) {
             $module = Model::Modules()->getPackage($name);
-            if ($module != false) {
-                $this->cache->save('module.' . $name,$module,3);  
+            if ($module !== false && \is_null($this->cache) == false) {
+                $this->cache->save('module.' . $name,$module,5);  
             }  
-        } else {
-            $module = Model::Modules()->getPackage($name);
-        }
+        } 
         
-        return ($module == false) ? null : Factory::createModule($name,$module['class']);
+        $instance = ($module === false) ? null : Factory::createModule($name,$module['class']);
+        $instance->setConfig($module['config']);
+        $instance->setModuleName($name);
+        $instance->boot();
+        
+        return $instance;
     }
 
     /**
@@ -72,5 +75,23 @@ class Modules
         $module = Model::Modules()->getPackage($name);
         
         return (\is_array($module) == true);
+    }
+
+    /**
+     * Load module config
+     *
+     * @param string $name
+     * @return bool
+     */
+    protected function loadConfig(string $name): bool
+    {
+        $model = Model::Modules()->findByColumn($name,'name');
+        if (\is_object($model) == true) {
+           // $this->setConfig($model->config);
+            
+            return true;
+        } 
+        
+        return false;
     }
 }

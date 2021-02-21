@@ -10,11 +10,10 @@
 namespace Arikaim\Core\Extension;
 
 use Arikaim\Core\Interfaces\ModuleInterface;
-use Arikaim\Core\Db\Model;
-use Arikaim\Core\Arikaim;
+use Closure;
 
 /**
- * Base class for Arikaim modules.
+ * Module class.
  */
 class Module implements ModuleInterface
 {
@@ -33,48 +32,64 @@ class Module implements ModuleInterface
     protected $error = null;
 
     /**
-     * Install module
+     * Module name
      *
-     * @return bool
+     * @var string
      */
-    public function install()
-    {
-        return true;        
+    protected $moduleName = '';
+
+    /**
+     * Call
+     *
+     * @param string $name
+     * @param array $args
+     * @return mxied
+     */
+    public function __call($name, $args)
+    {      
+        $closure = $this->{$name};
+
+        if ($closure instanceof Closure) {
+            return \call_user_func_array($closure->bindTo($this),$args);
+        }
     }
 
     /**
-      * Install driver
-      *
-      * @param string|object $name Driver name, full class name or driver object ref
-      * @param string|null $class
-      * @param string|null $category
-      * @param string|null $title
-      * @param string|null $description
-      * @param string|null $version
-      * @param array $config
-      * @return boolean|Model
-    */
-    public function installDriver(
-        $name, 
-        ?string $class = null, 
-        ?string $category = null,
-        ?string $title = null, 
-        ?string $description = null,
-        ?string $version = null, 
-        array $config = []
-    )
-    {
-        return Arikaim::driver()->install($name,$class,$category,$title,$description,$version,$config);
+     * Install module
+     *
+     * @return void
+     */
+    public function install()
+    {     
+    }
+
+    /**
+     * Get module name
+     *
+     * @return string
+     */
+    public function getModuleName(): string
+    {        
+        return $this->moduleName;
+    }
+    
+    /**
+     * Set module name
+     *
+     * @return void
+     */
+    public function setModuleName(string $name): void
+    {        
+        $this->moduleName = $name;
     }
 
     /**
      * Boot module
      *
-     * @return bool
+     * @return void
      */
     public function boot()
     {        
-        return true;
     }
     
     /**
@@ -120,23 +135,5 @@ class Module implements ModuleInterface
         }
 
         return $this->config[$key] ?? null;
-    }
-
-    /**
-     * Load module config
-     *
-     * @param string $name
-     * @return bool
-     */
-    protected function loadConfig(string $name): bool
-    {
-        $model = Model::Modules()->findByColumn($name,'name');
-        if (\is_object($model) == true) {
-            $this->setConfig($model->config);
-            
-            return true;
-        } 
-        
-        return false;
     }
 }

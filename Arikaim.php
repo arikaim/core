@@ -26,7 +26,7 @@ use Arikaim\Core\Middleware\BodyParsingMiddleware;
  */
 class Arikaim  
 {
-    const ARIKAIM_VERSION = '1.9.8';
+    const ARIKAIM_VERSION = '1.9.9';
 
     /**
      * Slim application object
@@ -179,8 +179,7 @@ class Arikaim
                 return Self::routes();
             }
         );
-        Self::$app->add($routingMiddleware);
-            
+        Self::$app->add($routingMiddleware);            
         Self::$app->add(new CoreMiddleware(Self::config()->get('settings',[])));           
         Self::$app->add(new BodyParsingMiddleware());
         
