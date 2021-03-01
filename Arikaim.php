@@ -26,8 +26,6 @@ use Arikaim\Core\Middleware\BodyParsingMiddleware;
  */
 class Arikaim  
 {
-    const ARIKAIM_VERSION = '1.9.10';
-
     /**
      * Slim application object
      * 
@@ -120,6 +118,7 @@ class Arikaim
         \define('BASE_PATH',Self::getBasePath());
         \define('DOMAIN',Self::getDomain());
         \define('APP_PATH',ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');  
+        \define('ARIKAIM_VERSION','1.9.11');
        
         $loader = new \Arikaim\Core\System\ClassLoader(BASE_PATH,ROOT_PATH,'Arikaim\Core',[
             'Arikaim\Extensions',
@@ -198,7 +197,7 @@ class Arikaim
      */
     public static function getVersion(): string 
     {
-        return Self::ARIKAIM_VERSION;    
+        return ARIKAIM_VERSION;    
     }
 
     /**
