@@ -55,6 +55,16 @@ class Module implements ModuleInterface
     }
 
     /**
+     * Get module instance
+     *
+     * @return mixed|null
+    */
+    public function getInstance()
+    {
+        return null;
+    }
+
+    /**
      * Install module
      *
      * @return void

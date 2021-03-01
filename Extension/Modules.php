@@ -52,12 +52,17 @@ class Modules
             }  
         } 
         
-        $instance = ($module === false) ? null : Factory::createModule($name,$module['class']);
-        $instance->setConfig($module['config']);
-        $instance->setModuleName($name);
-        $instance->boot();
-        
-        return $instance;
+        $obj = ($module === false) ? null : Factory::createModule($name,$module['class']);
+        if (($obj instanceof ModuleInterface) == false) {
+            return null;
+        }
+
+        $obj->setConfig($module['config']);
+        $obj->setModuleName($name);
+        $obj->boot();
+        $instance = $obj->getInstance();
+
+        return (\is_null($instance) == true) ? $obj : $instance;
     }
 
     /**
