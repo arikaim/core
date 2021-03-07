@@ -86,17 +86,12 @@ class Modules
      * Load module config
      *
      * @param string $name
-     * @return bool
+     * @return array|null
      */
-    protected function loadConfig(string $name): bool
+    protected function getConfig(string $moduleName): ?array
     {
-        $model = Model::Modules()->findByColumn($name,'name');
-        if (\is_object($model) == true) {
-           // $this->setConfig($model->config);
-            
-            return true;
-        } 
-        
-        return false;
+        $model = Model::Modules()->findByColumn($moduleName,'name');
+
+        return (\is_object($model) == true) ? $model->config : null;
     }
 }
