@@ -118,7 +118,7 @@ class Arikaim
         \define('BASE_PATH',Self::getBasePath());
         \define('DOMAIN',Self::getDomain());
         \define('APP_PATH',ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');  
-        \define('ARIKAIM_VERSION','1.10.0');
+        \define('ARIKAIM_VERSION','1.10.1');
        
         $loader = new \Arikaim\Core\System\ClassLoader(BASE_PATH,ROOT_PATH,'Arikaim\Core',[
             'Arikaim\Extensions',

@@ -76,6 +76,16 @@ class Jobs extends Model implements QueueStorageInterface
     ];
 
     /**
+     * Mutator (get) for config attribute.
+     *
+     * @return array
+     */
+    public function getConfigAttribute()
+    {
+        return (empty($this->attributes['config']) == true) ? [] : \json_decode($this->attributes['config'],true);
+    }
+    
+    /**
      * Get attribute mutator for due_date
      *
      * @return integer|null

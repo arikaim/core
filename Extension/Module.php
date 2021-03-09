@@ -39,6 +39,13 @@ class Module implements ModuleInterface
     protected $moduleName = '';
 
     /**
+     * Console command classes
+     *
+     * @var array
+     */
+    protected $consoleCommandClasses = [];
+
+    /**
      * Call
      *
      * @param string $name
@@ -52,6 +59,28 @@ class Module implements ModuleInterface
         if ($closure instanceof Closure) {
             return \call_user_func_array($closure->bindTo($this),$args);
         }
+    }
+
+    /**
+     * Add console class
+     *
+     * @param string $class
+     * @return void
+     */
+    public function addConsoleClass(string $class): void
+    {
+        $this->consoleCommandClasses[] = $class;
+        $this->consoleCommandClasses = \array_unique($this->consoleCommandClasses);
+    }
+
+    /**
+     * Get console commands classes
+     *
+     * @return array
+     */
+    public function getConsoleCommandClasses(): array
+    {
+        return $this->consoleCommandClasses;
     }
 
     /**
