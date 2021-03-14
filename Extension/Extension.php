@@ -10,6 +10,7 @@
 namespace Arikaim\Core\Extension;
 
 use Arikaim\Core\Interfaces\ExtensionInterface;
+use Arikaim\Core\Interfaces\RoutesInterface;
 use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Db\Schema;
@@ -18,6 +19,7 @@ use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Utils\File;
 use Arikaim\Core\Utils\Path;
 use Arikaim\Core\Routes\Route;
+use Arikaim\Core\Routes\RouteType;
 
 use Arikaim\Core\System\Error\Traits\TaskErrors;
 
@@ -553,7 +555,71 @@ abstract class Extension implements ExtensionInterface
     }
 
     /**
+     * Add middleware
+     *
+     * @param string $method
+     * @param string $pattern
+     * @param string $class
+     * @param string|null $moduleName
+     * @return bool
+     */
+    public function addMiddleware(string $method, string $pattern, string $class, ?string $moduleName = null): bool
+    {
+        if (\is_object($class) == true) {
+            $class = \get_class($class);
+        }
+
+        if (\class_exists($class) == false) {
+            $class = Factory::getModuleClass($moduleName,$class);        
+        }
+
+        if (\class_exists($class) == false) {
+            // not valid middleware class
+            $this->addError('Not valid middleware class ' . $class); 
+            return false;
+        }
+        
+        return Arikaim::routes()->addMiddleware($method,$pattern,$class);
+    }
+
+    /**
      * Register api route 
+     *
+     * @param string $method
+     * @param string $pattern
+     * @param string $class
+     * @param string $handlerMethod
+     * @param null|integer|string $auth
+     * @param int|null $type
+     * @return bool
+     */
+    public function addApiRoute(
+        string $method,
+        string $pattern, 
+        string $class, 
+        string $handlerMethod, 
+        $auth = null,
+        ?int $type = null
+    )
+    {
+        $auth = Arikaim::access()->resolveAuthType($auth);   
+        $class = ($class == null) ? Factory::getControllerClass('Controller') : $this->getControllerClassName($class);
+        
+        // resolve api type
+        if (empty($type) == true) {           
+            $type = (RouteType::getType($pattern) == RouteType::ADMIN_API_URL) ? RoutesInterface::ADMIN_API : RoutesInterface::API; 
+        }
+     
+        $result = Arikaim::routes()->addApiRoute($method,$pattern,$class,$handlerMethod,$this->getName(),$auth,$type);
+        if ($result !== true) {
+            $this->addError(Arikaim::errors()->getError('REGISTER_ROUTE_ERROR',['pattern' => $pattern])); 
+        }
+
+        return $result;
+    }
+
+    /**
+     * Register control panel api route 
      *
      * @param string $method
      * @param string $pattern
@@ -562,17 +628,15 @@ abstract class Extension implements ExtensionInterface
      * @param null|integer|string $auth
      * @return bool
      */
-    public function addApiRoute(string $method, string $pattern, string $class, string $handlerMethod, $auth = null)
+    public function addAdminApiRoute(
+        string $method,
+        string $pattern, 
+        string $class, 
+        string $handlerMethod, 
+        $auth = 'session'
+    )
     {
-        $auth = Arikaim::access()->resolveAuthType($auth);   
-        $class = ($class == null) ? Factory::getControllerClass('Controller') : $this->getControllerClassName($class);
-        
-        $result = Arikaim::routes()->addApiRoute($method,$pattern,$class,$handlerMethod,$this->getName(),$auth);
-        if ($result !== true) {
-            $this->addError(Arikaim::errors()->getError('REGISTER_ROUTE_ERROR',['pattern' => $pattern])); 
-        }
-
-        return $result;
+        return $this->addApiRoute($method,$pattern,$class,$handlerMethod,$auth,RoutesInterface::ADMIN_API);
     }
 
     /**

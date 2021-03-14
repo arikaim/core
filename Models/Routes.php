@@ -98,6 +98,52 @@ class Routes extends Model implements RoutesStorageInterface
     public $timestamps = false;
 
     /**
+     * Mutator (get) for middlewares attribute.
+     *
+     * @return array
+     */
+    public function getMiddlewareAttribute()
+    {           
+        return (empty($this->attributes['middlewares']) == true) ? [] : \json_decode($this->attributes['middlewares'],true);
+    }
+
+    /**
+     * Add route middleware
+     *
+     * @param string $method
+     * @param string $pattern
+     * @param string $middlewareClass
+     * @return bool
+     */
+    public function addMiddleware(string $method, string $pattern, string $middlewareClass): bool
+    {
+        $model = $this->where('method','=',$method)->where('pattern','=',$pattern)->first();
+        if (\is_null($model) == true) {
+            return false;
+        }
+        $middlewares = $model->middleware;
+        $middlewares[] = $middlewareClass;
+        $middlewares = \array_unique($middlewares);
+        
+        return (bool)$model->update([
+            'middlewares' => \json_encode($middlewares)
+        ]);
+    }
+
+    /**
+     * Get route details
+     *
+     * @param string|int $id  Route id or uuid
+     * @return array|null
+     */
+    public function getRouteDetails($id): ?array
+    {
+        $model = $this->findById($id);
+
+        return ($model === false) ? null : $model->toArray();
+    }
+
+    /**
      * Get home page route
      *
      * @return array

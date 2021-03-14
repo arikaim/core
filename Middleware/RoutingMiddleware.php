@@ -129,7 +129,7 @@ class RoutingMiddleware implements MiddlewareInterface
         switch($type) {
             case RouteType::HOME_PAGE_URL: 
                 // home page route                 
-                $this->mapRoutes($method,3);
+                $this->mapRoutes($method,RoutesInterface::HOME_PAGE);
                 break;
             case RouteType::ADMIN_PAGE_URL: 
                 // map control panel page
@@ -140,10 +140,15 @@ class RoutingMiddleware implements MiddlewareInterface
                 break;
             case RouteType::API_URL: 
                 // api routes only 
-                $this->mapRoutes($method,2);    
+                $this->mapRoutes($method,RoutesInterface::API);    
+                break;
+            case RouteType::ADMIN_API_URL: 
+                // map amdin pai routes
+                $this->mapRoutes($method,RoutesInterface::API);    
+                $this->mapRoutes($method,RoutesInterface::ADMIN_API);    
                 break;
             case RouteType::UNKNOW_TYPE:                 
-                $this->mapRoutes($method,1);
+                $this->mapRoutes($method,RoutesInterface::PAGE);
                 break;            
         }
       
@@ -228,7 +233,7 @@ class RoutingMiddleware implements MiddlewareInterface
         try {   
             $routes = [];      
             if (empty($this->routes) == false) {
-                $routes = ($type == 3) ? [$this->routes->getHomePageRoute()] : $this->routes->searchRoutes($method,$type);                
+                $routes = ($type == RoutesInterface::HOME_PAGE) ? [$this->routes->getHomePageRoute()] : $this->routes->searchRoutes($method,$type);                
             }           
             $user = new Users();
             $accessTokens = new AccessTokens();
@@ -252,16 +257,14 @@ class RoutingMiddleware implements MiddlewareInterface
                     $route->add($authMiddleware);
                 }
             } 
-            // add middlewares    
-            if (\is_array($middlewares) == true) {              
-                foreach ($middlewares as $class) {
-                    $instance = MiddlewareFactory::create($class);
-                    if ($instance != null && \is_object($route) == true) {   
-                        // add middleware                 
-                        $route->add($instance);
-                    }                   
-                }                  
-            }                                        
+            // add middlewares                        
+            foreach ($middlewares as $class) {
+                $instance = MiddlewareFactory::create($class);
+                if ($instance != null && \is_object($route) == true) {   
+                    // add middleware                 
+                    $route->add($instance);
+                }                   
+            }                                                                 
         }    
         
         return true;
