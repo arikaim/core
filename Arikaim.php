@@ -68,7 +68,7 @@ class Arikaim
     }
     
     /**
-     * Get item from container
+     * Get item from app container 
      *
      * @param string $name
      * @return mixed
@@ -76,6 +76,17 @@ class Arikaim
     public static function get(string $name)
     {
         return Self::$app->getContainer()->get($name);
+    }
+
+    /**
+     * Get item from service container
+     *
+     * @param string $name
+     * @return mixed
+     */
+    public static function getService(string $name)
+    {
+        return Self::$app->getContainer()->get('service')->get($name);
     }
 
     /**
@@ -119,7 +130,7 @@ class Arikaim
         \define('BASE_PATH',Self::getBasePath());
         \define('DOMAIN',Self::getDomain());
         \define('APP_PATH',ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');  
-        \define('ARIKAIM_VERSION','1.10.2');
+        \define('ARIKAIM_VERSION','1.10.3');
         
         $loader = new \Arikaim\Core\System\ClassLoader(BASE_PATH,ROOT_PATH,'Arikaim\Core',[
             'Arikaim\Extensions',
