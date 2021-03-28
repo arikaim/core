@@ -44,8 +44,8 @@ class Modules
      */
     public function create(string $name)
     {        
-        $module = (\is_null($this->cache) == false) ? $this->cache->fetch('module.' . $name) : null;
-        if (empty($module) == true) {
+        $module = (\is_null($this->cache) == false) ? $this->cache->fetch('module.' . $name) : false;
+        if ($module === false) {
             $module = Model::Modules()->getPackage($name);
             if ($module !== false && \is_null($this->cache) == false) {
                 $this->cache->save('module.' . $name,$module,5);  
@@ -73,13 +73,12 @@ class Modules
      */
     public function hasModule(string $name): bool
     {
-        $module = $this->cache->fetch('module.' . $name);
-        if (\is_array($module) == true) {
-            return true;
+        $module = (\is_null($this->cache) == false) ? $this->cache->fetch('module.' . $name) : false;
+        if ($module === false) {
+            $module = Model::Modules()->getPackage($name);
         }
-        $module = Model::Modules()->getPackage($name);
-        
-        return (\is_array($module) == true);
+    
+        return \is_array($module);
     }
 
     /**

@@ -39,7 +39,7 @@
         "arikaim/core-app": "^1.0.0",
         "arikaim/core-api": "^1.0.0",
         "arikaim/service-container": "^1.0.0",
-        "slim/slim": "4.6.*",
+        "slim/slim": "4.7.*",
         "guzzlehttp/guzzle": "6.3.*",      
         "http-interop/http-factory-guzzle": "^1.0.0"
     },

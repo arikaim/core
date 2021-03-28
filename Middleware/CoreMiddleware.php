@@ -13,10 +13,11 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+
 use Arikaim\Core\Middleware\Middleware;
 
 /**
- * Core middleware
+ * Core middleware (deprecated)
  */
 class CoreMiddleware extends Middleware implements MiddlewareInterface
 { 
@@ -28,18 +29,7 @@ class CoreMiddleware extends Middleware implements MiddlewareInterface
      * @return ResponseInterface
     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
-    { 
-        $headers = $this->getParam('headers',[]);
-        $cacheControl = $headers['CacheControl'] ?? null;
-        if (empty($cacheControl) == false) {
-            \header('Cache-Control: ' . $cacheControl,true);
-        }
-         
-        $cors = $headers['Access-Control-Allow-Origin'] ?? null;
-        if (empty($cors) == false) {
-            \header('Access-Control-Allow-Origin: ' . $cors,true);
-        }
-
+    {  
         return $handler->handle($request);        
     }    
 }

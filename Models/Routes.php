@@ -54,8 +54,7 @@ class Routes extends Model implements RoutesStorageInterface
      *
      * @var array
      */
-    protected $casts = [
-        'options'     => 'array',
+    protected $casts = [      
         'middlewares' => 'array'
     ];
 

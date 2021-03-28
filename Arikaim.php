@@ -16,8 +16,6 @@ use Slim\Factory\AppFactory;
 use Arikaim\Core\Validator\ValidatorStrategy;
 use Arikaim\Core\App\AppContainer;
 use Arikaim\Core\Http\Session;
-use Arikaim\Core\Utils\Path;
-use Arikaim\Core\Middleware\CoreMiddleware;
 use Arikaim\Core\Middleware\RoutingMiddleware;
 use Arikaim\Core\Middleware\ErrorMiddleware;
 use Arikaim\Core\Middleware\BodyParsingMiddleware;
@@ -130,7 +128,7 @@ class Arikaim
         \define('BASE_PATH',Self::getBasePath());
         \define('DOMAIN',Self::getDomain());
         \define('APP_PATH',ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');  
-        \define('ARIKAIM_VERSION','1.10.3');
+        \define('ARIKAIM_VERSION','1.11.0');
         
         $loader = new \Arikaim\Core\System\ClassLoader(BASE_PATH,ROOT_PATH,'Arikaim\Core',[
             'Arikaim\Extensions',
@@ -190,8 +188,7 @@ class Arikaim
                 return Self::routes();
             }
         );
-        Self::$app->add($routingMiddleware);            
-        Self::$app->add(new CoreMiddleware(Self::config()->get('settings',[])));           
+        Self::$app->add($routingMiddleware);                   
         Self::$app->add(new BodyParsingMiddleware());
         
         $errorMiddleware = new ErrorMiddleware(

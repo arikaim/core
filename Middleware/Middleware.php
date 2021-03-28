@@ -19,16 +19,16 @@ class Middleware
      *
      * @var array
      */
-    protected $params;
+    protected $params = [];
 
     /**
      * Constructor
      *
-     * @param array $params
+     * @param array|null $params
      */
-    public function __construct($params = [])
+    public function __construct(?array $params = [])
     {
-        $this->params = $params;
+        $this->params = $params ?? [];
     }
     
     /**
@@ -38,7 +38,7 @@ class Middleware
      * @param mixed $default
      * @return mixed|null
      */
-    public function getParam($name, $default = null)
+    public function getParam(string $name, $default = null)
     {
         return $this->params[$name] ?? $default;
     }
@@ -50,7 +50,7 @@ class Middleware
      * @param mixed $value
      * @return void
      */
-    public function setParam($name, $value)
+    public function setParam(string $name, $value): void
     {
         $this->params[$name] = $value;        
     }
@@ -62,7 +62,7 @@ class Middleware
      * @param mixed $value
      * @return Middleware
      */
-    public function withParam($name, $value)
+    public function withParam(string $name, $value)
     {
         $this->setParam($name,$value);
         
@@ -74,7 +74,7 @@ class Middleware
      *
      * @return array
      */
-    public function getParams()
+    public function getParams(): array
     {
         return $this->params;
     }

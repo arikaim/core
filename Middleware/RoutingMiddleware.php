@@ -161,16 +161,10 @@ class RoutingMiddleware implements MiddlewareInterface
             case RoutingResults::FOUND:
                 $routeArguments = $routingResults->getRouteArguments();
                 $routeIdentifier = $routingResults->getRouteIdentifier() ?? '';
-                $route = $this->routeResolver
-                    ->resolveRoute($routeIdentifier)
-                    ->prepare($routeArguments);
+                $route = $this->routeResolver->resolveRoute($routeIdentifier)->prepare($routeArguments);
             
-                // route params
-                $pattern = $route->getPattern();
-                $routeParams = (empty($this->routes) == false) ? $this->routes->getRoute('GET',$pattern) : [];
-                $request = $request->withAttribute('route_params',$routeParams);
-
                 return $request
+                            ->withAttribute('route_params',$route->getArguments())
                             ->withAttribute('route',$route)
                             ->withAttribute('current_path',$path);
 
@@ -246,6 +240,15 @@ class RoutingMiddleware implements MiddlewareInterface
             $middlewares = $item['middlewares'] ?? [];        
             $middlewares = (\is_string($middlewares) == true) ? \json_decode($item['middlewares'],true) : $middlewares;
             $route = $this->routeCollector->map([$method],$item['pattern'],$handler);
+
+            $routeOptions = \is_null($item['options']) ? '' : $item['options'];
+            $pageName = \is_null($item['page_name']) ? '' : $item['page_name'];
+            $extensionName = \is_null($item['extension_name']) ? '' : $item['extension_name'];
+ 
+            $route->setArgument('route_options',$routeOptions);
+            $route->setArgument('route_page_name',$pageName);
+            $route->setArgument('route_extension_name',$extensionName);
+
             // auth middleware
             if ($item['auth'] > 0) {
                 $options['redirect'] = (empty($item['redirect_url']) == false) ? Url::BASE_URL . $item['redirect_url'] : null;      

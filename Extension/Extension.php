@@ -611,6 +611,7 @@ abstract class Extension implements ExtensionInterface
         }
      
         $result = Arikaim::routes()->addApiRoute($method,$pattern,$class,$handlerMethod,$this->getName(),$auth,$type);
+
         if ($result !== true) {
             $this->addError(Arikaim::errors()->getError('REGISTER_ROUTE_ERROR',['pattern' => $pattern])); 
         }
