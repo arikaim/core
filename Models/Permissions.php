@@ -39,6 +39,7 @@ class Permissions extends Model
         'title',
         'description',
         'extension_name',
+        'deny',
         'validator_class'
     ];
 
@@ -74,6 +75,26 @@ class Permissions extends Model
     }
 
     /**
+     * Mutator (get) for is_deny attribute.
+     *
+     * @return bool
+     */
+    public function getIsDenyAttribute()
+    {
+        return $this->isDeny();
+    }
+
+    /**
+     * Return if permission is deny
+     *
+     * @return bool
+     */
+    public function isDeny(): bool
+    {
+        return (empty($this->deny) == true) ? false : (bool)$this->deny;
+    }
+
+    /**
      * Find permission model by id, uuid, slug, name
      *
      * @param mixed $value
@@ -103,9 +124,10 @@ class Permissions extends Model
      * @param string $name
      * @param string $title
      * @param string|null $description
+     * @param int|null $deny
      * @return Model|false
      */
-    public function createPermission(string $name, string $title = '', ?string $description = null)
+    public function createPermission(string $name, string $title = '', ?string $description = null, ?bool $deny = null)
     {
         $model = $this->findByColumn($name,'name');
         if (\is_object($model) == true) {
@@ -117,7 +139,8 @@ class Permissions extends Model
             'title'       => $title,
             'slug'        => Utils::slug($title),
             'description' => $description,
-            'editable'    => true
+            'editable'    => true,
+            'deny'        => (int)$deny
         ]);
     }
 

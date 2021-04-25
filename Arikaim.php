@@ -128,27 +128,28 @@ class Arikaim
         \define('BASE_PATH',Self::getBasePath());
         \define('DOMAIN',Self::getDomain());
         \define('APP_PATH',ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');  
-        \define('ARIKAIM_VERSION','1.11.0');
-        
+        \define('ARIKAIM_VERSION','1.11.1');
+        \define('APP_URL',DOMAIN . BASE_PATH . '/arikaim');
+        \define('CORE_NAMESPACE','Arikaim\\Core');     
+
         $loader = new \Arikaim\Core\System\ClassLoader(BASE_PATH,ROOT_PATH,'Arikaim\Core',[
             'Arikaim\Extensions',
             'Arikaim\Modules'
         ]);
         $loader->register();
         
-        \define('APP_URL',DOMAIN . BASE_PATH . '/arikaim');
-        \define('CORE_NAMESPACE','Arikaim\\Core');
-        \define('ARIKAIM_PACKAGE_NAME','arikaim/core');
-        \define('CACHE_SAVE_TIME',4);
-       
-        // Create service container            
-        AppFactory::setContainer(AppContainer::create($console)); 
-        // Create app 
-        Self::$app = AppFactory::create();
-        Self::$app->setBasePath(BASE_PATH);       
-        Self::$app->getContainer()['responseFactory'] = function() {
-            return Self::$app->getResponseFactory();
+        // Create app
+        $container = AppContainer::create($console);
+        $container['responseFactory'] = function() {
+            return new \Nyholm\Psr7\Factory\Psr17Factory();
         };
+        AppFactory::setStreamFactory($container->get('responseFactory')); 
+        Self::$app = AppFactory::create(
+            $container->get('responseFactory'),
+            $container
+        );
+
+        Self::$app->setBasePath(BASE_PATH);       
     }
 
     /**
@@ -164,7 +165,7 @@ class Arikaim
         Session::start();
                     
         // Set router       
-        Self::$app->getRouteCollector()->setDefaultInvocationStrategy(new ValidatorStrategy(Self::$app->getContainer()));
+        Self::$app->getRouteCollector()->setDefaultInvocationStrategy(new ValidatorStrategy());
                        
         // map install page
         Self::$app->map(['GET'],'/admin/install','Arikaim\Core\App\InstallPage:loadInstall');
@@ -188,9 +189,11 @@ class Arikaim
                 return Self::routes();
             }
         );
-        Self::$app->add($routingMiddleware);                   
-        Self::$app->add(new BodyParsingMiddleware());
-        
+        Self::$app->add($routingMiddleware);     
+        if ($_SERVER['REQUEST_METHOD'] != 'GET') {
+            Self::$app->add(new BodyParsingMiddleware());
+        }              
+     
         $errorMiddleware = new ErrorMiddleware(
             function() {
                 return Self::page();
@@ -201,7 +204,7 @@ class Arikaim
         
         // add global middlewares
         $middlewares = Self::config()->get('middleware',[]);      
-        foreach($middlewares as $item) {
+        foreach ($middlewares as $item) {
             Self::$app->add(new $item());
         }        
     }

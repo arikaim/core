@@ -40,7 +40,8 @@ class PermissionsSchema extends Schema
         $table->string('extension_name')->nullable(true);
         $table->string('title')->nullable(true);
         $table->string('description')->nullable(true);     
-        $table->string('validator_class')->nullable(true);                
+        $table->string('validator_class')->nullable(true);   
+        $table->integer('deny')->nullable(true);               
         // indexes         
         $table->unique('name');
         $table->index('extension_name');
@@ -54,6 +55,9 @@ class PermissionsSchema extends Schema
      */
     public function update($table) 
     {   
+        if ($this->hasColumn('deny') == false) {
+            $table->integer('deny')->nullable(true);   
+        } 
         if ($this->hasColumn('validator_class') == false) {
             $table->string('validator_class')->nullable(true);     
         } 

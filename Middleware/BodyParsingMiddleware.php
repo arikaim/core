@@ -28,15 +28,10 @@ class BodyParsingMiddleware implements MiddlewareInterface
     /**
      * Constructor 
      * 
-     * @param callable[] $bodyParsers list of body parsers as an associative array of mediaType => callable
      */
-    public function __construct(array $bodyParsers = [])
+    public function __construct()
     {
-        $this->registerDefaultBodyParsers();
-
-        foreach ($bodyParsers as $mediaType => $parser) {
-            $this->registerBodyParser($mediaType,$parser);
-        }
+        $this->registerDefaultBodyParsers();        
     }
 
     /**
@@ -110,12 +105,11 @@ class BodyParsingMiddleware implements MiddlewareInterface
      */
     protected function registerDefaultBodyParsers(): void
     {
-        // json
-        $jsonCallable = function($input) {
+        // json      
+        $this->registerBodyParser('application/json',function($input) {
             $result = \json_decode($input,true);
             return (\is_array($result) == false) ? null : $result;         
-        };
-        $this->registerBodyParser('application/json',$jsonCallable);
+        });
 
         // form
         $this->registerBodyParser('application/x-www-form-urlencoded',function($input) {
@@ -124,16 +118,13 @@ class BodyParsingMiddleware implements MiddlewareInterface
         });
 
         // xml
-        $xmlCallable = function($input) {          
+        $this->registerBodyParser('application/xml',function($input) {          
             $result = \simplexml_load_string($input);
             \libxml_clear_errors();
             \libxml_use_internal_errors(true);
 
             return ($result === false) ? null : $result;             
-        };
-
-        $this->registerBodyParser('application/xml',$xmlCallable);
-        $this->registerBodyParser('text/xml',$xmlCallable);
+        });       
     }
 
     /**
