@@ -218,17 +218,42 @@ abstract class Extension implements ExtensionInterface
     }
 
     /**
+     * Add relations map
+     *
+     * @param array $items
+     * @return boolean
+     */
+    public function addRelationsMap(array $items): bool
+    {
+        $relations = Arikaim::config()->load('relations.php',false);  
+        
+        foreach ($items as $key => $value) {
+           $relations[$key] = Factory::getModelClass($value,$this->getName());
+        }
+
+        $relations = \array_unique($relations);
+        $result = Arikaim::config()->save('relations.php',$relations);
+        if ($result === false) {
+            // add error
+            $this->addError(Arikaim::errors()->getError('REGISTER_RELATION_ERROR'));
+        }   
+
+        return $result;
+    }
+
+    /**
      * Add relation map for Polymorphic Relations relations
      *
      * @param string $type
      * @param string $modelClass
-     * @return void
+     * @return bool
      */
-    public function addRelationMap(string $type, string $modelClass)
-    {
-        $relations = Arikaim::config()->load('relations.php');       
-        $relations[$type] = Factory::getModelClass($modelClass,$this->getName());
+    public function addRelationMap(string $type, string $modelClass): bool
+    {      
+        $relations = Arikaim::config()->load('relations.php',false);  
         $relations = \array_unique($relations);
+
+        $relations[$type] = Factory::getModelClass($modelClass,$this->getName());
       
         $result = Arikaim::config()->save('relations.php',$relations);
         if ($result === false) {
@@ -559,11 +584,11 @@ abstract class Extension implements ExtensionInterface
      *
      * @param string $method
      * @param string $pattern
-     * @param string $class
+     * @param mixed $class
      * @param string|null $moduleName
      * @return bool
      */
-    public function addMiddleware(string $method, string $pattern, string $class, ?string $moduleName = null): bool
+    public function addMiddleware(string $method, string $pattern, $class, ?string $moduleName = null): bool
     {
         if (\is_object($class) == true) {
             $class = \get_class($class);

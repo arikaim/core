@@ -15,7 +15,7 @@ use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Interfaces\Job\QueueStorageInterface;
 use Arikaim\Core\Queue\Jobs\RecuringJob;
 use Arikaim\Core\Interfaces\Job\JobInterface;
-use Arikaim\Core\Interfaces\Job\RecuringJobInterface;
+use Arikaim\Core\Interfaces\Job\RecurringJobInterface;
 
 use Arikaim\Core\Db\Traits\DateCreated;
 use Arikaim\Core\Db\Traits\Uuid;
@@ -290,7 +290,7 @@ class Jobs extends Model implements QueueStorageInterface
         if ($job->getStatus() != JobInterface::STATUS_EXECUTED) {
             return false;
         }
-        $status = ($job instanceof RecuringJobInterface) ? JobInterface::STATUS_EXECUTED : JobInterface::STATUS_COMPLETED;
+        $status = ($job instanceof RecurringJobInterface) ? JobInterface::STATUS_EXECUTED : JobInterface::STATUS_COMPLETED;
         $info = [
             'date_executed' => DateTime::toTimestamp(),
             'status'        => $status

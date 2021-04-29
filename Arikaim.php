@@ -128,7 +128,7 @@ class Arikaim
         \define('BASE_PATH',Self::getBasePath());
         \define('DOMAIN',Self::getDomain());
         \define('APP_PATH',ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');  
-        \define('ARIKAIM_VERSION','1.11.1');
+        \define('ARIKAIM_VERSION','1.11.2');
         \define('APP_URL',DOMAIN . BASE_PATH . '/arikaim');
         \define('CORE_NAMESPACE','Arikaim\\Core');     
 
