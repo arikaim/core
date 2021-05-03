@@ -254,7 +254,8 @@ class RoutingMiddleware implements MiddlewareInterface
                 $options['redirect'] = (empty($item['redirect_url']) == false) ? Url::BASE_URL . $item['redirect_url'] : null;      
                 
                 $userProvider = ($item['auth'] == 4) ? $accessTokens : $user;     
-                $authMiddleware = AuthFactory::createMiddleware($item['auth'],$userProvider,$options);               
+                $authMiddleware = AuthFactory::createMiddleware($item['auth'],$userProvider,$options);    
+            
                 if ($authMiddleware != null && \is_object($route) == true) {
                     // add middleware 
                     $route->add($authMiddleware);
