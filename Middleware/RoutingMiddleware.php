@@ -250,7 +250,7 @@ class RoutingMiddleware implements MiddlewareInterface
             $route->setArgument('route_extension_name',$extensionName);
 
             // auth middleware
-            if ($item['auth'] > 0) {
+            if (empty($item['auth']) == false) {
                 $options['redirect'] = (empty($item['redirect_url']) == false) ? Url::BASE_URL . $item['redirect_url'] : null;      
                 
                 $userProvider = ($item['auth'] == 4) ? $accessTokens : $user;     
