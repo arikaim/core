@@ -120,15 +120,15 @@ class Arikaim
         \ini_set('display_errors',(int)$showErrors);
         \ini_set('display_startup_errors',(int)$showErrors);
         \error_reporting(($showErrors == true) ? E_ALL : 0); 
-        
+        \define('ARIKAIM_VERSION','1.11.3');
+
         Self::resolveEnvironment($_SERVER);
 
         // Init constants           
         (\defined('ROOT_PATH') == false) ? \define('ROOT_PATH',Self::getRootPath()) : null;
         \define('BASE_PATH',Self::getBasePath());
         \define('DOMAIN',Self::getDomain());
-        \define('APP_PATH',ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');  
-        \define('ARIKAIM_VERSION','1.11.3');
+        \define('APP_PATH',ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');       
         \define('APP_URL',DOMAIN . BASE_PATH . '/arikaim');
         \define('CORE_NAMESPACE','Arikaim\\Core');     
 
@@ -214,7 +214,7 @@ class Arikaim
      *
      * @return string
      */
-    public static function getVersion(): string 
+    public static function getVersion() 
     {
         return ARIKAIM_VERSION;    
     }
