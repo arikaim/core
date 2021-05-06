@@ -128,12 +128,16 @@ class ErrorMiddleware implements MiddlewareInterface
      */
     public function handleException(ServerRequestInterface $request, Throwable $exception, $handler): ResponseInterface
     {
-        if ($exception instanceof HttpException) {
-            $request = $exception->getRequest();
-        }
         $errorHandler = $this->createErrroHandler();
         $response = $this->responseFactory->createResponse();
 
+        if ($exception instanceof HttpException) {
+            $request = $exception->getRequest();  
+            $status = 404;                     
+        } else {
+            $status = 400;    
+        }
+       
         if (Install::isInstalled() == false) {                
             if (RouteType::isApiInstallRequest() == true) {
                 return $handler->handle($request); 
@@ -154,6 +158,6 @@ class ErrorMiddleware implements MiddlewareInterface
         $output = $errorHandler->renderError($exception,$renderType);
         $response->getBody()->write($output);
         
-        return $response;
+        return $response->withStatus($status);
     }  
 }
