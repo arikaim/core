@@ -120,7 +120,7 @@ class Arikaim
         \ini_set('display_errors',(int)$showErrors);
         \ini_set('display_startup_errors',(int)$showErrors);
         \error_reporting(($showErrors == true) ? E_ALL : 0); 
-        \define('ARIKAIM_VERSION','1.11.3');
+        \define('ARIKAIM_VERSION','1.11.6');
 
         Self::resolveEnvironment($_SERVER);
 
@@ -140,6 +140,13 @@ class Arikaim
         
         // Create app
         $container = AppContainer::create($console);
+
+        // Datetime zone 
+        $timeZone = $container['config']['settings']['timeZone'] ?? null;
+        if (empty($timeZone) == false) {
+            \date_default_timezone_set($timeZone);
+        }
+
         $container['responseFactory'] = function() {
             return new \Nyholm\Psr7\Factory\Psr17Factory();
         };

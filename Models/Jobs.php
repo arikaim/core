@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Interfaces\Job\QueueStorageInterface;
-use Arikaim\Core\Queue\Jobs\RecuringJob;
+use Arikaim\Core\Queue\Jobs\RecurringJob;
 use Arikaim\Core\Interfaces\Job\JobInterface;
 use Arikaim\Core\Interfaces\Job\RecurringJobInterface;
 
@@ -93,7 +93,7 @@ class Jobs extends Model implements QueueStorageInterface
     public function getDueDateAttribute()
     {
         if ($this->isRecurring() == true) {
-            return (empty($this->recuring_interval) == false) ? RecuringJob::getNextRunDate($this->recuring_interval) : null;
+            return (empty($this->recuring_interval) == false) ? RecurringJob::getNextRunDate($this->recuring_interval) : null;
         }
         if ($this->isScheduled() == true) {
             return $this->schedule_time;
