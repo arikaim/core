@@ -12,14 +12,16 @@ namespace Arikaim\Core\Models;
 use Illuminate\Database\Eloquent\Model;
 
 use Arikaim\Core\Access\Interfaces\UserProviderInterface;
+use Arikaim\Core\Access\Interfaces\AutoTokensInterface;
 use Arikaim\Core\Utils\Utils;
+use Arikaim\Core\Utils\Text;
 use Arikaim\Core\Utils\Uuid as UuidFactory;
 use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Models\Users;
-use Arikaim\Core\Access\Provider\TokenAuthProvider;
 
 use Arikaim\Core\Db\Traits\Uuid;
 use Arikaim\Core\Db\Traits\Find;
+use Arikaim\Core\Db\Traits\Status;
 use Arikaim\Core\Db\Traits\DateCreated;
 use Arikaim\Core\Access\Traits\Auth;
 
@@ -30,6 +32,7 @@ class AccessTokens extends Model implements UserProviderInterface
 {
     use Uuid,
         Find,
+        Status,
         Auth,
         DateCreated;
 
@@ -98,19 +101,24 @@ class AccessTokens extends Model implements UserProviderInterface
     public function getUserByCredentials(array $credentials): ?array
     {
         $token = $credentials['token'] ?? null;
-        
         if (empty($token) == true) {
             return null;
         }
-        if ($this->isExpired($token) == true) {                  
-            return null;
-        }
+      
         $model = $this->findByColumn($token,'token');
-        $user = $model->user()->first();
-        if (\is_object($user) == false) {
+        if ($model === false) {
             return null;
         }
-    
+        if ($model->isExpired() == true) {  
+            // token expired                 
+            return null;
+        }
+        if ($model->status != $this->ACTIVE()) { 
+            // token is disabled
+            return null;
+        }
+
+        $user = $model->user()->first();
         $authId = $user->getAuthId();
         $user = $user->toArray();
         $user['auth_id'] = $authId;
@@ -165,16 +173,27 @@ class AccessTokens extends Model implements UserProviderInterface
      */
     public function createToken(
         int $userId, 
-        int $type = TokenAuthProvider::PAGE_ACCESS_TOKEN, 
+        int $type = AutoTokensInterface::PAGE_ACCESS_TOKEN, 
         int $expireTime = 1800, 
         bool $deleteExpired = true
     )
-    {
-        $expireTime = ($expireTime < 1000) ? 1000 : $expireTime;
-        $dateExpired = DateTime::getTimestamp() + $expireTime;
-        $token = ($type == TokenAuthProvider::LOGIN_ACCESS_TOKEN) ? Utils::createRandomKey() : UuidFactory::create();
-
-        if ($type != TokenAuthProvider::LOGIN_ACCESS_TOKEN) {
+    {       
+        $dateExpired = ($expireTime != -1) ? DateTime::getTimestamp() + $expireTime : $expireTime;
+        switch($type) {
+            case AutoTokensInterface::LOGIN_ACCESS_TOKEN: 
+                $token = UuidFactory::create();
+                break;
+            case AutoTokensInterface::PAGE_ACCESS_TOKEN:
+                $token = UuidFactory::create();
+                break;
+            case AutoTokensInterface::API_ACCESS_TOKEN:
+                $token = Text::createToken(62);
+                break;
+            default:
+                $token = UuidFactory::create();
+        }
+       
+        if ($type == AutoTokensInterface::PAGE_ACCESS_TOKEN) {
             $this->deleteUserToken($userId,$type);
         }
       
@@ -250,7 +269,7 @@ class AccessTokens extends Model implements UserProviderInterface
      * @param integer $type
      * @return Model|false
      */
-    public function getTokenByUser(int $userId, int $type = TokenAuthProvider::PAGE_ACCESS_TOKEN)
+    public function getTokenByUser(int $userId, int $type = AutoTokensInterface::PAGE_ACCESS_TOKEN)
     {
         $model = $this->where('user_id','=',$userId)->where('type','=',$type)->first();
 
@@ -264,7 +283,7 @@ class AccessTokens extends Model implements UserProviderInterface
      * @param integer $type
      * @return boolean
      */
-    public function hasToken(int $userId, int $type = TokenAuthProvider::PAGE_ACCESS_TOKEN): bool
+    public function hasToken(int $userId, int $type = AutoTokensInterface::PAGE_ACCESS_TOKEN): bool
     {    
         return \is_object($this->getTokenByUser($userId,$type));
     }
@@ -276,7 +295,7 @@ class AccessTokens extends Model implements UserProviderInterface
      * @param integer|null $type
      * @return boolean
      */
-    public function deleteUserToken(int $userId, ?int $type = TokenAuthProvider::PAGE_ACCESS_TOKEN): bool
+    public function deleteUserToken(int $userId, ?int $type = AutoTokensInterface::PAGE_ACCESS_TOKEN): bool
     {
         $model = $this->where('user_id','=', $userId);
         if (empty($type) == false) {

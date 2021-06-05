@@ -19,6 +19,7 @@ use Arikaim\Core\Http\Session;
 use Arikaim\Core\Middleware\RoutingMiddleware;
 use Arikaim\Core\Middleware\ErrorMiddleware;
 use Arikaim\Core\Middleware\BodyParsingMiddleware;
+use Arikaim\Core\Utils\Path;
 
 /**
  * Arikaim core class
@@ -32,27 +33,6 @@ class Arikaim
     */
     public static $app;
     
-    /**
-     * Http Scheme
-     * 
-     * @var string
-    */
-    private static $scheme = null;
-
-    /**
-     * Host
-     * 
-     * @var string
-    */
-    private static $host = null;
-
-    /**
-     * App base path
-     *
-     * @var string
-     */
-    private static $basePath = null;
-
     /**
      * Get container service
      *
@@ -113,21 +93,19 @@ class Arikaim
     *
     * @param bool $showErrors
     * @param bool $console
+    * @param array|null $config
     * @return void
     */
-    public static function systemInit(bool $showErrors = false, bool $console = false): void
+    public static function systemInit(bool $showErrors = false, bool $console = false, ?array $config = null): void
     {
         \ini_set('display_errors',(int)$showErrors);
         \ini_set('display_startup_errors',(int)$showErrors);
         \error_reporting(($showErrors == true) ? E_ALL : 0); 
-        \define('ARIKAIM_VERSION','1.11.6');
 
-        Self::resolveEnvironment($_SERVER);
-
-        // Init constants           
-        (\defined('ROOT_PATH') == false) ? \define('ROOT_PATH',Self::getRootPath()) : null;
-        \define('BASE_PATH',Self::getBasePath());
-        \define('DOMAIN',Self::getDomain());
+        // Init constants     
+        (\defined('ROOT_PATH') == false) ? \define('ROOT_PATH',Self::getRootPath($console)) : null;
+        \define('DOMAIN',$config['environment']['host'] ?? Self::resolveHost($_SERVER));  
+        \define('BASE_PATH',$config['environment']['basePath'] ?? Self::resolveBasePath($_SERVER,DOMAIN));      
         \define('APP_PATH',ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');       
         \define('APP_URL',DOMAIN . BASE_PATH . '/arikaim');
         \define('CORE_NAMESPACE','Arikaim\\Core');     
@@ -137,16 +115,18 @@ class Arikaim
             'Arikaim\Modules'
         ]);
         $loader->register();
-        
+                
+        // load config
+        $config = $config ?? include (Path::CONFIG_PATH . 'config.php');
+        // Datetime zone       
+        \date_default_timezone_set($config['settings']['timeZone'] ?? \date_default_timezone_get());
+        // Define date, time, number constants  
+        \define('CURRENT_NUMBER_FORMAT',$config['settings']['numberFormat'] ?? null);                             
+        \define('CURRENT_DATE_FORMAT',$config['settings']['dateFormat'] ?? null);           
+        \define('CURRENT_TIME_FORMAT',$config['settings']['timeFormat'] ?? null);  
+
         // Create app
-        $container = AppContainer::create($console);
-
-        // Datetime zone 
-        $timeZone = $container['config']['settings']['timeZone'] ?? null;
-        if (empty($timeZone) == false) {
-            \date_default_timezone_set($timeZone);
-        }
-
+        $container = AppContainer::create($console,$config);
         $container['responseFactory'] = function() {
             return new \Nyholm\Psr7\Factory\Psr17Factory();
         };
@@ -161,19 +141,19 @@ class Arikaim
 
     /**
      * Create Arikaim system. Create container services, load system routes 
-     * 
-     * @param boolean $consoleMode - load routes 
-     * @param boolean $showErrors
+     *     
+     * @param boolean $showErrors   
+     * @param array|null $config
      * @return void
     */
-    public static function init(bool $showErrors = false): void 
+    public static function init(bool $showErrors = false, ?array $config = null): void 
     {        
-        Self::systemInit($showErrors);
+        Self::systemInit($showErrors,false,$config);
         Session::start();
                     
         // Set router       
         Self::$app->getRouteCollector()->setDefaultInvocationStrategy(new ValidatorStrategy());
-                       
+                          
         // map install page
         Self::$app->map(['GET'],'/admin/install','Arikaim\Core\App\InstallPage:loadInstall');
       
@@ -184,9 +164,10 @@ class Arikaim
     /**
      * Init middleware
      *
+     * @param array|null $config 
      * @return void
      */
-    public static function initMiddleware(): void
+    public static function initMiddleware(?array $config = null): void
     {
         // add routing
         $routingMiddleware = new RoutingMiddleware(
@@ -210,20 +191,10 @@ class Arikaim
         Self::$app->add($errorMiddleware); 
         
         // add global middlewares
-        $middlewares = Self::config()->get('middleware',[]);      
+        $middlewares = $config['middleware'] ?? Self::config()->get('middleware',[]);      
         foreach ($middlewares as $item) {
             Self::$app->add(new $item());
         }        
-    }
-
-    /**
-     * Get version
-     *
-     * @return string
-     */
-    public static function getVersion() 
-    {
-        return ARIKAIM_VERSION;    
     }
 
     /**
@@ -250,11 +221,12 @@ class Arikaim
      * Start Arikaim
      * 
      * @param bool $showErrors
+     * @param array|null $config
      * @return void
     */
-    public static function run(bool $showErrors = false): void 
+    public static function run(bool $showErrors = false, ?array $config = null): void 
     {      
-        Self::init($showErrors);    
+        Self::init($showErrors,$config);    
         Self::$app->run();            
     }
     
@@ -278,31 +250,19 @@ class Arikaim
     */
     public static function getConsoleRootPath(): string
     {
-        return (\defined('ROOT_PATH') == true) ? ROOT_PATH : $_SERVER['PWD'];
-    }
-
-    /**
-     * Get console base path
-     *
-     * @return string
-     */
-    public static function getConsoleBasePath(): string
-    {
-        return (\defined('BASE_PATH') == true) ? BASE_PATH : '';       
+        return \constant('ROOT_PATH') ?? $_SERVER['PWD'];
     }
 
     /**
      * Return root path.
      *
+     * @param bool $console
      * @return string
     */
-    public static function getRootPath(): string 
-    {
-        if (Self::isConsole() == false) {
-            return \rtrim(\realpath($_SERVER['DOCUMENT_ROOT']),DIRECTORY_SEPARATOR);
-        }
+    public static function getRootPath(bool $console): string 
+    {      
         // get root path for console run
-        return Self::getConsoleRootPath();
+        return ($console == false) ? \rtrim(\realpath($_SERVER['DOCUMENT_ROOT']),DIRECTORY_SEPARATOR) : Self::getConsoleRootPath();
     }
 
     /**
@@ -312,12 +272,7 @@ class Arikaim
     */
     public static function getBasePath(): string 
     {        
-        if (Self::isConsole() == false) {
-            $path = \rtrim(\str_ireplace('index.php','',Self::$basePath),DIRECTORY_SEPARATOR);
-            return ($path == '/') ? '' : $path;               
-        } 
-        
-        return Self::getConsoleBasePath();
+        return \constant('BASE_PATH') ?? '';      
     }
 
     /**
@@ -327,7 +282,7 @@ class Arikaim
     */
     public static function getDomain(): string 
     {      
-        return Self::$scheme . '://' . Self::$host;
+        return \constant('DOMAIN') ?? Self::resolveHost($_SERVER);
     }
 
     /**
@@ -337,7 +292,7 @@ class Arikaim
      */
     public static function getHost(): string 
     {      
-        return Self::$host;
+        return \parse_url(DOMAIN,PHP_URL_HOST);
     }
 
     /**
@@ -351,43 +306,52 @@ class Arikaim
     }   
     
     /**
-     *  Resolve base path, host, scheme 
+     * Resolve site host
      *
      * @param array $env
-     *
-     * @return void
+     * @return string
      */
-    public static function resolveEnvironment(array $env): void
-    {       
+    public static function resolveHost(array $env): string
+    {
         // scheme
-        $isHttps = 
-            (isset($env['HTTPS']) == true && $env['HTTPS'] !== 'off') || 
-            (isset($env['REQUEST_SCHEME']) && $env['REQUEST_SCHEME'] === 'https') || 
-            (isset($env['HTTP_X_FORWARDED_PROTO']) && $env['HTTP_X_FORWARDED_PROTO'] === 'https');
-       
-        Self::$scheme = ($isHttps == true) ? 'https' : 'http';  
-
+        $scheme = ((isset($env['HTTPS']) == true && $env['HTTPS'] !== 'off') || 
+                (isset($env['REQUEST_SCHEME']) && $env['REQUEST_SCHEME'] === 'https') || 
+                (isset($env['HTTP_X_FORWARDED_PROTO']) && $env['HTTP_X_FORWARDED_PROTO'] === 'https') == true) ? 'https' : 'http';
         // host
         if (empty($env['HTTP_HOST']) == false) {
-            Self::$host = $env['HTTP_HOST'];
+            $host = $env['HTTP_HOST'];
         } else {             
             $host = $env['SERVER_NAME'] ?? '';    
             if (\preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/',$host,$matches) == false) {           
                 $host = (\strpos($host,':') !== false) ? \strstr($host,':', true) : $host;                             
-            } 
-            Self::$host = $host;
+            }           
         }
-      
+
+        return  $scheme . '://' . $host;
+    }
+
+    /**
+     * Resolve site host
+     *
+     * @param array $env
+     * @return string
+     */
+    public static function resolveBasePath(array $env, string $host): string
+    {
         // path
         $scriptName = (string)\parse_url($env['SCRIPT_NAME'],PHP_URL_PATH);
         $scriptDir = \dirname($scriptName);      
         $uri = $env['REQUEST_URI'] ?? '';  
-        $uri = (string)\parse_url(Self::getDomain() . $uri,PHP_URL_PATH);
-        
+        $uri = (string)\parse_url($host . $uri,PHP_URL_PATH);
+         
+        // base path
         if (\stripos($uri,$scriptName) === 0) {
-            Self::$basePath = $scriptName;
+            $basePath = $scriptName;
         } elseif ($scriptDir !== '/' && \stripos($uri,$scriptDir) === 0) {
-            Self::$basePath = $scriptDir;
-        }       
-    }
+            $basePath = $scriptDir;
+        } 
+        $basePath = \rtrim(\str_ireplace('index.php','',$basePath ?? ''),DIRECTORY_SEPARATOR);
+        
+        return ($basePath == '/') ? '' : $basePath;        
+    }   
 }

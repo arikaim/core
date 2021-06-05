@@ -60,6 +60,62 @@ abstract class Extension implements ExtensionInterface
     }
 
     /**
+     * Register content provider
+     *
+     * @param string|object $provider
+     * @return boolean
+     */
+    public function registerContentProvider($provider): bool
+    {
+        return Arikaim::get('content')->registerProvider($provider);
+    }
+
+    /**
+     * Register content type action
+     *
+     * @param string|object $provider
+     * @return boolean
+     */
+    public function registerContentTypeAction(string $contentType, string $class): bool
+    {
+        $class = (\class_exists($class) == true) ? $class : Factory::getExtensionClassName($this->getName(),$class); 
+         
+        if (\class_exists($class) == false) {
+            return false;
+        }
+
+        return Arikaim::get('content')->typeRegistry()->registerAction($contentType,$class);
+    }
+
+    /**
+     * Register content type
+     *
+     * @param string $class
+     * @return boolean
+     */
+    public function registerContentType(string $class): bool 
+    {
+        $class = (\class_exists($class) == true) ? $class : Factory::getExtensionClassName($this->getName(),$class);       
+        if (\class_exists($class) == false) {
+            return false;
+        }
+        $contentType = new $class();
+
+        return Arikaim::get('content')->typeRegistry()->register($contentType);
+    }
+
+    /**
+     * Remove content provider
+     *
+     * @param string|object $provider
+     * @return boolean
+     */
+    public function unRegisterContentProvider($provider): bool
+    {
+        return Arikaim::get('content')->unRegisterProvider($provider);
+    }
+
+    /**
      * Return true if extension exist
      *
      * @param string $name

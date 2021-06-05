@@ -114,7 +114,7 @@ class Events extends Model implements EventRegistryInterface
     }
 
     /**
-     * Add event to events db table.
+     * Add or update event to events db table.
      *
      * @param string $name
      * @param string $title
@@ -124,9 +124,6 @@ class Events extends Model implements EventRegistryInterface
      */
     public function registerEvent(string $name, string $title, ?string $extension = null, ?string $description = null): bool
     {
-        if ($this->hasEvent($name) == true) {
-            return false;
-        } 
         $info = [
             'uuid'           => UuidFactory::create(),
             'name'           => $name,
@@ -134,6 +131,12 @@ class Events extends Model implements EventRegistryInterface
             'title'          => $title,
             'description'    => $description
         ];
+
+        if ($this->hasEvent($name) == true) {
+            $result = $this->update($info);
+            return ($result !== false);
+        } 
+      
         $model = $this->create($info);
          
         return \is_object($model);

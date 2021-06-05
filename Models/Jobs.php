@@ -138,7 +138,7 @@ class Jobs extends Model implements QueueStorageInterface
     }
 
     /**
-     * Add job
+     * Add or update job
      *
      * @param array $data
      * @return boolean
@@ -148,7 +148,8 @@ class Jobs extends Model implements QueueStorageInterface
         $model = $this->findByColumn($data['name'],'name');
 
         if (\is_object($model) == true) {
-            return false;
+            $result = $this->update($data);
+            return ($result !== false);
         }
         $model = $this->create($data);
 
@@ -340,9 +341,12 @@ class Jobs extends Model implements QueueStorageInterface
             ->where('status','<>',JobInterface::STATUS_ERROR)      
             ->where('status','<>',JobInterface::STATUS_SUSPENDED)          
             ->where(function($query) {
-                //$query->where('recuring_interval','<>','')->orWhere('schedule_time','<',DateTime::toTimestamp());
+                // scheduled
                 $query->whereNull('schedule_time')->orWhere('schedule_time','<',DateTime::toTimestamp());
-            }
-        );    
+                // recurring
+                $query->orWhere(function($query) {
+                    $query->where('recuring_interval','<>','');
+                });
+            });
     }
 }

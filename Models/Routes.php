@@ -151,7 +151,7 @@ class Routes extends Model implements RoutesStorageInterface
     {
         $model = $this->where('status','=',1)->where('type','=',3)->first();
 
-        return (empty($model) == false) ? $model->toArray() : [];
+        return (empty($model) == false) ? [$model->toArray()] : [];
     }
 
     /**

@@ -220,51 +220,43 @@ class RoutingMiddleware implements MiddlewareInterface
      * 
      * @throws Exception
      */
-    public function mapRoutes($method, ?int $type = null): bool
+    public function mapRoutes(string $method, ?int $type = null): bool
     {      
         $this->resolveRoutes();
 
         try {   
             $routes = [];      
             if (empty($this->routes) == false) {
-                $routes = ($type == RoutesInterface::HOME_PAGE) ? [$this->routes->getHomePageRoute()] : $this->routes->searchRoutes($method,$type);                
+                $routes = ($type == RoutesInterface::HOME_PAGE) ? $this->routes->getHomePageRoute() : $this->routes->searchRoutes($method,$type);                
             }           
-            $user = new Users();
-            $accessTokens = new AccessTokens();
+            AuthFactory::setUserProvider('session',new Users());
+            AuthFactory::setUserProvider('token',new AccessTokens());
         } catch(Exception $e) {
             return false;
         }
        
         foreach($routes as $item) {
-            $handler = $item['handler_class'] . ':' . $item['handler_method'];  
-            $middlewares = $item['middlewares'] ?? [];        
-            $middlewares = (\is_string($middlewares) == true) ? \json_decode($item['middlewares'],true) : $middlewares;
-            $route = $this->routeCollector->map([$method],$item['pattern'],$handler);
+            $route = $this->routeCollector->map([$method],$item['pattern'],$item['handler_class'] . ':' . $item['handler_method']);
 
-            $routeOptions = \is_null($item['options']) ? '' : $item['options'];
-            $pageName = \is_null($item['page_name']) ? '' : $item['page_name'];
-            $extensionName = \is_null($item['extension_name']) ? '' : $item['extension_name'];
- 
-            $route->setArgument('route_options',$routeOptions);
-            $route->setArgument('route_page_name',$pageName);
-            $route->setArgument('route_extension_name',$extensionName);
+            $route->setArgument('route_options',$item['options'] ?? '');
+            $route->setArgument('route_page_name',$item['page_name'] ?? '');
+            $route->setArgument('route_extension_name',$item['extension_name'] ?? '');
 
             // auth middleware
             if (empty($item['auth']) == false) {
-                $options['redirect'] = (empty($item['redirect_url']) == false) ? Url::BASE_URL . $item['redirect_url'] : null;      
-                
-                $userProvider = ($item['auth'] == 4) ? $accessTokens : $user;     
-                $authMiddleware = AuthFactory::createMiddleware($item['auth'],$userProvider,$options);    
-            
-                if ($authMiddleware != null && \is_object($route) == true) {
+                $options['redirect'] = (empty($item['redirect_url']) == false) ? Url::BASE_URL . $item['redirect_url'] : null;                      
+                $authMiddleware = AuthFactory::createMiddleware($item['auth'],null,$options);                
+                if ($authMiddleware != null) {
                     // add middleware 
                     $route->add($authMiddleware);
                 }
             } 
+    
+            $middlewares = (\is_string($item['middlewares']) == true) ? \json_decode($item['middlewares'],true) : $item['middlewares'] ?? [];
             // add middlewares                        
             foreach ($middlewares as $class) {
                 $instance = MiddlewareFactory::create($class);
-                if ($instance != null && \is_object($route) == true) {   
+                if ($instance != null) {   
                     // add middleware                 
                     $route->add($instance);
                 }                   

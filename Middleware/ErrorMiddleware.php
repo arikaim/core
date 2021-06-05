@@ -23,6 +23,7 @@ use Arikaim\Core\Interfaces\View\HtmlPageInterface;
 use Arikaim\Core\App\Install;
 use Arikaim\Core\Routes\RouteType;
 use Arikaim\Core\Http\Request;
+use Arikaim\Core\Access\AccessDeniedException;
 use Throwable;
 use PDOException;
 use RuntimeException;
@@ -131,6 +132,10 @@ class ErrorMiddleware implements MiddlewareInterface
         $errorHandler = $this->createErrroHandler();
         $response = $this->responseFactory->createResponse();
 
+        if ($exception instanceof AccessDeniedException) {
+            $request = $exception->getRequest();  
+            $status = 404;    
+        }
         if ($exception instanceof HttpException) {
             $request = $exception->getRequest();  
             $status = 404;                     
@@ -154,7 +159,8 @@ class ErrorMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         }
         // render errror
-        $renderType = (Request::acceptJson($request) == true) ? 'json' : 'html';
+        $renderType = (Request::isJsonContentType($request) == true) ? 'json' : 'html';
+       
         $output = $errorHandler->renderError($exception,$renderType);
         $response->getBody()->write($output);
         

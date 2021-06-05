@@ -34,7 +34,8 @@ class AccessTokensSchema extends Schema
         // columns
         $table->id();
         $table->prototype('uuid');      
-        $table->userId();
+        $table->userId(false);
+        $table->status();
         $table->string('token')->nullable(false);
         $table->integer('type')->nullable(false)->default(0);
         $table->dateCreated();
@@ -51,6 +52,9 @@ class AccessTokensSchema extends Schema
      * @return void
      */
     public function update($table) 
-    {       
+    {    
+        if ($this->hasColumn('status') == false) {
+            $table->status();
+        }   
     }
 }
