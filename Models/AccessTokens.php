@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
 
 use Arikaim\Core\Access\Interfaces\UserProviderInterface;
 use Arikaim\Core\Access\Interfaces\AutoTokensInterface;
-use Arikaim\Core\Utils\Utils;
 use Arikaim\Core\Utils\Text;
 use Arikaim\Core\Utils\Uuid as UuidFactory;
 use Arikaim\Core\Utils\DateTime;

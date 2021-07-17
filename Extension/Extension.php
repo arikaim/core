@@ -67,6 +67,10 @@ abstract class Extension implements ExtensionInterface
      */
     public function registerContentProvider($provider): bool
     {
+        if (\is_string($provider) == true) {
+            $class = (\class_exists($provider) == true) ? $provider : Factory::getExtensionClassName($this->getName(),$provider); 
+            $provider = new $class();
+        }
         return Arikaim::get('content')->registerProvider($provider);
     }
 
