@@ -38,7 +38,7 @@ class Arikaim
      *
      * @param string $name Service name
      * @param array $arguments Service params
-     * @return mixed service
+     * @return mixed service|null
     */
     public static function __callStatic($name, $arguments)
     {    
@@ -130,6 +130,10 @@ class Arikaim
         $container['responseFactory'] = function() {
             return new \Nyholm\Psr7\Factory\Psr17Factory();
         };
+        
+        // boot db
+        $container['db'];
+
         AppFactory::setStreamFactory($container->get('responseFactory')); 
         Self::$app = AppFactory::create(
             $container->get('responseFactory'),
@@ -149,6 +153,8 @@ class Arikaim
     public static function init(bool $showErrors = false, ?array $config = null): void 
     {        
         Self::systemInit($showErrors,false,$config);
+        
+        // Session init
         Session::start();
                     
         // Set router       
@@ -175,7 +181,8 @@ class Arikaim
             Self::$app->getRouteCollector(),
             function() {
                 return Self::routes();
-            }
+            },
+            Self::$app->getContainer()
         );
         Self::$app->add($routingMiddleware);     
         if ($_SERVER['REQUEST_METHOD'] != 'GET') {

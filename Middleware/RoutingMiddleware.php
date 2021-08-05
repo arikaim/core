@@ -63,19 +63,28 @@ class RoutingMiddleware implements MiddlewareInterface
     protected $routes = null;
 
     /**
+     * Service container
+     *
+     * @var object|null
+     */
+    protected $container = null;
+
+    /**
      * @param RouteResolverInterface $routeResolver
      * @param RouteCollectorInterface   $routeCollector
      */
     public function __construct(
         RouteResolverInterface $routeResolver,
         RouteCollectorInterface $routeCollector,
-        Closure $routesClosure = null
+        Closure $routesClosure = null,
+        $container = null
     )
     {
         $this->routeResolver = $routeResolver;
         $this->routeParser = $routeCollector->getRouteParser();
         $this->routeCollector = $routeCollector;
         $this->routesClosure = $routesClosure;
+        $this->container = $container;
     }
 
     /**
@@ -132,18 +141,25 @@ class RoutingMiddleware implements MiddlewareInterface
                 $this->mapRoutes($method,RoutesInterface::HOME_PAGE);
                 break;
             case RouteType::ADMIN_PAGE_URL: 
+                // add admin twig extension
+                $this->container->get('view')->addExtension(new \Arikaim\Core\App\AdminTwigExtension);
                 // map control panel page
                 $this->routeCollector->map(['GET'],'/admin[/{language:[a-z]{2}}/]','Arikaim\Core\App\ControlPanel:loadControlPanel');
                 break;
             case RouteType::SYSTEM_API_URL: 
+                // add admin twig extension
+                $this->container->get('view')->addExtension(new \Arikaim\Core\App\AdminTwigExtension);
+                
                 $this->mapSystemRoutes($method);       
                 break;
             case RouteType::API_URL: 
                 // api routes only 
                 $this->mapRoutes($method,RoutesInterface::API);    
                 break;
-            case RouteType::ADMIN_API_URL: 
-                // map amdin pai routes
+            case RouteType::ADMIN_API_URL:                
+                // add admin twig extension
+                $this->container->get('view')->addExtension(new \Arikaim\Core\App\AdminTwigExtension);
+                // map admin api routes
                 $this->mapRoutes($method,RoutesInterface::API);    
                 $this->mapRoutes($method,RoutesInterface::ADMIN_API);    
                 break;
