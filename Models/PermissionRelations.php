@@ -313,12 +313,7 @@ class PermissionRelations extends Model implements PermissionsInterface
     ): bool
     {
         $model = DbModel::Permissions();
-
-        if ($model->has($name) == true) {
-            return false;
-        }
-        $item = [
-            'uuid'           => UuidFactory::create(),
+        $item = [          
             'name'           => $name,
             'extension_name' => $extension,
             'title'          => $title,
@@ -326,6 +321,17 @@ class PermissionRelations extends Model implements PermissionsInterface
             'description'    => $description,
             'deny'           => (int)$deny ?? false
         ];
+
+        if ($model->has($name) == true) {
+            $permission = $model->findPermission($name);
+            if (\is_object($permission) == true) {
+                $result = $permission->update($item);
+                return ($result !== false);
+            }
+            return false;
+        }
+        
+        $item['uuid'] = UuidFactory::create();
         $permission = $model->create($item);
 
         return \is_object($permission);
