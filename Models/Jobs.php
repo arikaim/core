@@ -93,7 +93,7 @@ class Jobs extends Model implements QueueStorageInterface
     public function getDueDateAttribute()
     {
         if ($this->isRecurring() == true) {
-            return (empty($this->recuring_interval) == false) ? RecurringJob::getNextRunDate($this->recuring_interval) : null;
+            return (empty($this->recuring_interval) == false) ? RecurringJob::getNextRunDate($this->recuring_interval,$this->date_executed) : null;
         }
         if ($this->isScheduled() == true) {
             return $this->schedule_time;
