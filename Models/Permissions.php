@@ -140,7 +140,7 @@ class Permissions extends Model
             'slug'        => Utils::slug($title),
             'description' => $description,
             'editable'    => true,
-            'deny'        => (int)$deny
+            'deny'        => (int)$deny ?? false
         ]);
     }
 

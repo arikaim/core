@@ -270,11 +270,12 @@ abstract class Extension implements ExtensionInterface
      * @param string $name
      * @param string|null $title
      * @param string|null $description
+     * @param bool|null $deny
      * @return boolean
      */
-    public function addPermission(string $name, ?string $title = null, ?string $description = null)
+    public function addPermission(string $name, ?string $title = null, ?string $description = null, ?bool $deny = false)
     {
-        return Arikaim::access()->addPermission($name,$title,$description,$this->getName());            
+        return Arikaim::access()->addPermission($name,$title,$description,$this->getName(),$deny);            
     }
 
     /**

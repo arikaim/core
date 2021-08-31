@@ -301,9 +301,16 @@ class PermissionRelations extends Model implements PermissionsInterface
      * @param string|null $title
      * @param string|null $description
      * @param string|null $extension
+     * @param bool|null $deny
      * @return boolean
      */
-    public function addPermission(string $name, ?string $title = null, ?string $description = null, ?string $extension = null): bool
+    public function addPermission(
+        string $name, 
+        ?string $title = null, 
+        ?string $description = null, 
+        ?string $extension = null,
+        ?bool $deny = false
+    ): bool
     {
         $model = DbModel::Permissions();
 
@@ -316,7 +323,8 @@ class PermissionRelations extends Model implements PermissionsInterface
             'extension_name' => $extension,
             'title'          => $title,
             'slug'           => Utils::slug($title),
-            'description'    => $description
+            'description'    => $description,
+            'deny'           => (int)$deny ?? false
         ];
         $permission = $model->create($item);
 
