@@ -272,9 +272,10 @@ class PermissionRelations extends Model implements PermissionsInterface
      * @param string|int name
      * @param mixed $userId
      * @param array $permissions
+     * @param bool $deny
      * @return boolean
      */
-    public function hasPermissions($name, $userId, array $permissions): bool
+    public function hasPermissions($name, $userId, array $permissions, bool $deny = false): bool
     {
         if (\count($permissions) == 0) {
             return false;
@@ -286,7 +287,7 @@ class PermissionRelations extends Model implements PermissionsInterface
         }
     
         foreach ($permissions as $permission) {               
-            if ($model->hasPermission($permission) == false) {              
+            if ($model->hasPermission($permission,$deny) == false) {              
                 return false;
             }
         }
