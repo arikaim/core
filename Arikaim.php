@@ -140,7 +140,12 @@ class Arikaim
             $container
         );
 
-        Self::$app->setBasePath(BASE_PATH);       
+        Self::$app->setBasePath(BASE_PATH);     
+        
+        // add headers from config file
+        foreach($config['headers'] ?? [] as $header) {            
+            \header($header);
+        }
     }
 
     /**

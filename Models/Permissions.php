@@ -129,19 +129,22 @@ class Permissions extends Model
      */
     public function createPermission(string $name, string $title = '', ?string $description = null, ?bool $deny = null)
     {
-        $model = $this->findByColumn($name,'name');
-        if (\is_object($model) == true) {
-            return false;
-        }
-       
-        return $this->create([
+        $info = [
             'name'        => $name,
             'title'       => $title,
             'slug'        => Utils::slug($title),
             'description' => $description,
             'editable'    => true,
             'deny'        => (int)$deny ?? false
-        ]);
+        ];
+
+        $model = $this->findByColumn($name,'name');
+        if (\is_object($model) == true) {
+            $model->update($info);
+            return $model;
+        }
+       
+        return $this->create($info);
     }
 
     /**
