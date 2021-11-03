@@ -490,7 +490,7 @@ abstract class Extension implements ExtensionInterface
      */
     public function addJob(string $class, ?string $name = null, bool $disabled = false)
     {       
-        $job = Factory::createJob($class,$this->getName(),$name);
+        $job = Arikaim::queue()->create($class,$this->getName(),$name);
 
         if (\is_object($job) == false) {
             $this->addError(Arikaim::errors()->getError('REGISTER_JOB_ERROR',['name' => $name])); 
