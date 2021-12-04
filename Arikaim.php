@@ -12,6 +12,7 @@ namespace Arikaim\Core;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
 use Slim\Factory\AppFactory;
+use Slim\Factory\Psr17\Psr17FactoryProvider;
 
 use Arikaim\Core\Validator\ValidatorStrategy;
 use Arikaim\Core\App\AppContainer;
@@ -135,6 +136,8 @@ class Arikaim
         $container['db'];
 
         AppFactory::setStreamFactory($container->get('responseFactory')); 
+        AppFactory::setPsr17FactoryProvider(new Psr17FactoryProvider());
+
         Self::$app = AppFactory::create(
             $container->get('responseFactory'),
             $container
@@ -190,7 +193,7 @@ class Arikaim
             Self::$app->getContainer()
         );
         Self::$app->add($routingMiddleware);     
-        if ($_SERVER['REQUEST_METHOD'] != 'GET') {
+        if ($_SERVER['REQUEST_METHOD'] ?? 'GET' != 'GET') {
             Self::$app->add(new BodyParsingMiddleware());
         }              
      

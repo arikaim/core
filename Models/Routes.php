@@ -166,7 +166,7 @@ class Routes extends Model implements RoutesStorageInterface
         $model = $this->where('status','=',1);
         if (empty($type) == false) {
             $model = $model->where('type','=',$type);
-        }
+        }      
         $model = $model->where('method','like','%' . $method . '%')->orderByDesc('type')->get();
       
         return (\is_object($model) == true) ? $model->toArray() : [];
