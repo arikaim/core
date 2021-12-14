@@ -79,7 +79,7 @@ class Events extends Model implements EventRegistryInterface
         $name = $name ?? $this->name;
 
         $model = DbModel::create('EventSubscribers');
-        $items = $model->where('name','=',$name)->get();
+        $items = $model->where('name','=',$name)->orWhere('name','=','*')->get();
         
         return (\is_object($model) == true) ? $items : $model;
     }

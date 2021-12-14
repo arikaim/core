@@ -15,6 +15,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpException;
+use Slim\Exception\HttpNotFoundException;
 
 use Arikaim\Core\System\Error\ErrorHandlerInterface;
 use Arikaim\Core\System\Error\Renderer\HtmlPageErrorRenderer;
@@ -131,17 +132,16 @@ class ErrorMiddleware implements MiddlewareInterface
     {
         $errorHandler = $this->createErrroHandler();
         $response = $this->responseFactory->createResponse();
+        $status = 400;    
 
-        if ($exception instanceof AccessDeniedException) {
-            $request = $exception->getRequest();  
-            $status = 404;    
-        }
-        if ($exception instanceof HttpException) {
+        if (
+            ($exception instanceof HttpException) || 
+            ($exception instanceof HttpNotFoundException) ||
+            ($exception instanceof AccessDeniedException)
+        ) {
             $request = $exception->getRequest();  
             $status = 404;                     
-        } else {
-            $status = 400;    
-        }
+        } 
        
         if (Install::isInstalled() == false) {                
             if (RouteType::isApiInstallRequest() == true) {

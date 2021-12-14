@@ -57,18 +57,46 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
     public $timestamps = false;
 
     /**
+     * Subscribers scope query
+     *
+     * @param Builder $query
+     * @param string|null $eventName
+     * @param string|null $extensionName
+     * @param integer|null $status
+     * @return Builder
+     */
+    public function scopeSubscribers($query, ?string $eventName = null, ?string $extensionName, ?int $status = null)
+    {      
+        if (empty($status) == false) {
+            $query->where('status','=',$status);
+        }
+
+        if (empty($eventName) == false) {
+            $query->where(function($query) use($eventName) {
+                $query
+                    ->where('name','=',$eventName)
+                    ->orWhere('name','=','*');
+            });
+        }
+        if (empty($extensionName) == false) {
+            $query->where('extension_name','=',$extensionName);
+        }
+
+        return $query;
+    } 
+
+    /**
      * Get subscribers list
      *
-     * @param array $filter
+     * @param string|null $eventName
+     * @param string|null $extensionName
+     * @param integer|null $status
      * @return array
      */
-    public function getSubscribers(array $filter = []): array
+    public function getSubscribers(?string $eventName = null, ?string $extensionName, ?int $status = null): array
     {
-        $model = $this;
-        foreach ($filter as $key => $value) {
-            $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
-        }
-        $model = $model->get();
+        $query = $this->subscribers($eventName,$extensionName,$status);
+        $model = $query->get();
 
         return (\is_object($model) == true) ? $model->toArray() : [];
     }
