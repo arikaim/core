@@ -46,6 +46,13 @@ class Module implements ModuleInterface
     protected $consoleCommandClasses = [];
 
     /**
+     * Middleware classes
+     *
+     * @var array
+     */
+    protected $middlewareClasses = [];
+
+    /**
      * Call
      *
      * @param string $name
@@ -81,6 +88,28 @@ class Module implements ModuleInterface
     public function getConsoleCommandClasses(): array
     {
         return $this->consoleCommandClasses;
+    }
+
+    /**
+     * get middleware classes
+     *
+     * @return array
+     */
+    public function getMiddlewareClasses(): array
+    {
+        return $this->middlewareClasses;
+    }
+
+    /**
+     * Add middleware class
+     *
+     * @param string $class
+     * @return void
+     */
+    public function addMiddlewareClass(string $class): void
+    {
+        $this->middlewareClasses[] = $class;
+        $this->middlewareClasses = \array_unique($this->middlewareClasses);
     }
 
     /**

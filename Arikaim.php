@@ -11,16 +11,14 @@ namespace Arikaim\Core;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
-use Slim\Factory\AppFactory;
-use Slim\Factory\Psr17\Psr17FactoryProvider;
 
-use Arikaim\Core\Validator\ValidatorStrategy;
+use Arikaim\Core\Framework\Router\ArikaimRouter;
 use Arikaim\Core\App\AppContainer;
 use Arikaim\Core\Http\Session;
-use Arikaim\Core\Middleware\RoutingMiddleware;
-use Arikaim\Core\Middleware\ErrorMiddleware;
-use Arikaim\Core\Middleware\BodyParsingMiddleware;
 use Arikaim\Core\Utils\Path;
+use Arikaim\Core\Framework\Application;
+use Arikaim\Core\Framework\Middleware\BodyParsingMiddleware;
+use Arikaim\Core\Framework\ErrorHandler;
 
 /**
  * Arikaim core class
@@ -28,7 +26,7 @@ use Arikaim\Core\Utils\Path;
 class Arikaim  
 {
     /**
-     * Slim application object
+     * Application object
      * 
      * @var object
     */
@@ -128,27 +126,20 @@ class Arikaim
 
         // Create app
         $container = AppContainer::create($console,$config);
-        $container['responseFactory'] = function() {
-            return new \Nyholm\Psr7\Factory\Psr17Factory();
-        };
-        
+     
         // boot db
         $container['db'];
 
-        AppFactory::setStreamFactory($container->get('responseFactory')); 
-        AppFactory::setPsr17FactoryProvider(new Psr17FactoryProvider());
-
-        Self::$app = AppFactory::create(
-            $container->get('responseFactory'),
-            $container
-        );
-
-        Self::$app->setBasePath(BASE_PATH);     
-        
         // add headers from config file
         foreach($config['headers'] ?? [] as $header) {            
             \header($header);
         }
+
+        Self::$app = new Application(
+            $container,
+            new ArikaimRouter($container,BASE_PATH),
+            ErrorHandler::class
+        );
     }
 
     /**
@@ -165,63 +156,19 @@ class Arikaim
         // Session init
         Session::start();
                     
-        // Set router       
-        Self::$app->getRouteCollector()->setDefaultInvocationStrategy(new ValidatorStrategy());
-                          
-        // map install page
-        Self::$app->map(['GET'],'/admin/install','Arikaim\Core\App\InstallPage:loadInstall');
-      
-        // Add middlewares
-        Self::initMiddleware();             
-    }
-    
-    /**
-     * Init middleware
-     *
-     * @param array|null $config 
-     * @return void
-     */
-    public static function initMiddleware(?array $config = null): void
-    {
-        // add routing
-        $routingMiddleware = new RoutingMiddleware(
-            Self::$app->getRouteResolver(),          
-            Self::$app->getRouteCollector(),
-            function() {
-                return Self::routes();
-            },
-            Self::$app->getContainer()
-        );
-        Self::$app->add($routingMiddleware);     
-        if ($_SERVER['REQUEST_METHOD'] ?? 'GET' != 'GET') {
-            Self::$app->add(new BodyParsingMiddleware());
-        }              
-     
-        $errorMiddleware = new ErrorMiddleware(
-            function() {
-                return Self::page();
-            },
-            Self::$app->getResponseFactory()
-        );
-        Self::$app->add($errorMiddleware); 
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') != 'GET') {
+            Self::$app->addMiddleware(BodyParsingMiddleware::class);           
+        }         
         
         // add global middlewares
         $middlewares = $config['middleware'] ?? Self::config()->get('middleware',[]);      
         foreach ($middlewares as $item) {
-            Self::$app->add(new $item());
-        }        
+            if (\class_exists($item['handler'] ?? '') == true) {
+                Self::$app->addMiddleware($item['handler'],$item['options'] ?? []);
+            }           
+        }   
     }
-
-    /**
-     * Get route parser
-     *
-     * @return RouteParser
-     */
-    public static function getRouteParser()
-    {
-        return Self::$app->getRouteCollector()->getRouteParser();
-    }
-
+    
     /**
      * Create response object
      *
@@ -229,7 +176,7 @@ class Arikaim
      */
     public static function response()
     {
-        return Self::$app->getResponseFactory()->createResponse();
+        return Self::$app->getFactory()->createResponse();
     }
 
     /**
