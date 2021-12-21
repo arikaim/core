@@ -654,10 +654,6 @@ abstract class Extension implements ExtensionInterface
         }
 
         if (\class_exists($class) == false) {
-            $class = Factory::getModuleClass($moduleName,$class);        
-        }
-
-        if (\class_exists($class) == false) {
             // not valid middleware class
             $this->addError('Not valid middleware class ' . $class); 
             return false;

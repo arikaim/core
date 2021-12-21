@@ -19,6 +19,7 @@ use Arikaim\Core\Utils\Path;
 use Arikaim\Core\Framework\Application;
 use Arikaim\Core\Framework\Middleware\BodyParsingMiddleware;
 use Arikaim\Core\Framework\ErrorHandler;
+use ErrorException;
 
 /**
  * Arikaim core class
@@ -127,14 +128,12 @@ class Arikaim
         // Create app
         $container = AppContainer::create($console,$config);
      
-        // boot db
-        $container['db'];
-
         // add headers from config file
         foreach($config['headers'] ?? [] as $header) {            
             \header($header);
-        }
+        }      
 
+        // create app
         Self::$app = new Application(
             $container,
             new ArikaimRouter($container,BASE_PATH),
@@ -153,6 +152,13 @@ class Arikaim
     {        
         Self::systemInit($showErrors,false,$config);
         
+        \set_error_handler(function($num, $message, $file, $line) {
+            throw new ErrorException($message,0,$num,$file,$line);
+        });
+
+        // map install page
+        Self::$app->addRoute('GET','/admin/install','Arikaim\Core\App\InstallPage:loadInstall');
+
         // Session init
         Session::start();
                     
@@ -163,10 +169,13 @@ class Arikaim
         // add global middlewares
         $middlewares = $config['middleware'] ?? Self::config()->get('middleware',[]);      
         foreach ($middlewares as $item) {
-            if (\class_exists($item['handler'] ?? '') == true) {
+            if (empty($item['handler'] ?? '') == false) {
                 Self::$app->addMiddleware($item['handler'],$item['options'] ?? []);
             }           
         }   
+
+        // boot db
+        Self::get('db');
     }
     
     /**
