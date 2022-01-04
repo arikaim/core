@@ -16,6 +16,7 @@ use Arikaim\Core\Routes\RoutesStorageInterface;
 use Arikaim\Core\Db\Traits\Find;
 use Arikaim\Core\Db\Traits\Status;
 use Arikaim\Core\Db\Traits\Uuid;
+use Arikaim\Core\Utils\Uuid as UuidFactory;
 
 /**
  * Routes database model
@@ -32,6 +33,7 @@ class Routes extends Model implements RoutesStorageInterface
      * @var array
     */
     protected $fillable = [
+        'uuid',
         'name',
         'pattern',
         'method',
@@ -49,39 +51,6 @@ class Routes extends Model implements RoutesStorageInterface
         'page_name'
     ];
     
-    /**
-     * Attribute casting
-     *
-     * @var array
-     */
-    protected $casts = [      
-        'middlewares' => 'array'
-    ];
-
-    /**
-     * Visible attributes
-     *
-     * @var array
-     */
-    protected $visible = [
-        'uuid',
-        'name',
-        'pattern',
-        'method',
-        'handler_class',
-        'handler_method',
-        'extension_name',
-        'redirect_url',
-        'auth',
-        'type',
-        'status',
-        'template_name',      
-        'options',  
-        'regex',
-        'middlewares',
-        'page_name'      
-    ];
-
     /**
      * Db table name
      *
@@ -331,7 +300,9 @@ class Routes extends Model implements RoutesStorageInterface
     public function addRoute(array $route): bool
     {
         if ($this->hasRoute($route['method'],$route['pattern']) == false) {
+            $route['uuid'] = UuidFactory::create();
             $model = $this->create($route);
+            
             return \is_object($model);
         }  
         $model = $this->where('method','=',$route['method'])->where('pattern','=',$route['pattern'])->first();
