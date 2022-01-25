@@ -539,7 +539,7 @@ abstract class Extension implements ExtensionInterface
      * @param string $pattern
      * @param string|null $class
      * @param string|null $handlerMethod
-     * @param null|integer|string $auth
+     * @param null|string|array $auth
      * @param string|null $pageName
      * @param string|null $routeName
      * @param boolean $withLanguage    
@@ -574,7 +574,7 @@ abstract class Extension implements ExtensionInterface
      * @param string $pattern
      * @param string|null $class
      * @param string|null $handlerMethod
-     * @param null|integer|string $auth
+     * @param null|string|array $auth
      * @param string|null $pageName
      * @param string|null $routeName
      * @param boolean $withLanguage
@@ -615,12 +615,17 @@ abstract class Extension implements ExtensionInterface
      *
      * @param string $pattern
      * @param string $pageName
-     * @param null|integer|string $auth
+     * @param null|string|array $auth
      * @param string|null $routeName
      * @param boolean $withLanguage
      * @return bool
      */
-    public function addShowPageRoute(string $pattern, string $pageName, $auth = null, bool $withLanguage = true, ?string $routeName = null)
+    public function addShowPageRoute(
+        string $pattern, 
+        string $pageName, 
+        $auth = null, 
+        bool $withLanguage = true, 
+        ?string $routeName = null)
     {                  
         return $this->addPageRoute($pattern,null,'pageLoad',$pageName,$auth,$routeName,$withLanguage);
     }
@@ -706,7 +711,7 @@ abstract class Extension implements ExtensionInterface
      * @param string $pattern
      * @param string $class
      * @param string $handlerMethod
-     * @param null|integer|string $auth
+     * @param null|string|array $auth
      * @return bool
      */
     public function addAdminApiRoute(
