@@ -52,6 +52,15 @@ class Routes extends Model implements RoutesStorageInterface
     ];
     
     /**
+     * Append attribute
+     *
+     * @var array
+     */
+    protected $appends = [
+        'middleware'
+    ];
+
+    /**
      * Db table name
      *
      * @var string

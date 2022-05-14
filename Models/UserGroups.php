@@ -12,6 +12,7 @@ namespace Arikaim\Core\Models;
 use Illuminate\Database\Eloquent\Model;
 use Arikaim\Core\Models\UserGroupMembers;
 
+use Arikaim\Core\Db\Model as DbModel;
 use Arikaim\Core\Db\Traits\Uuid;
 use Arikaim\Core\Db\Traits\Find;
 use Arikaim\Core\Db\Traits\Status;
@@ -79,32 +80,29 @@ class UserGroups extends Model
      * Return true if user is member in current group.
      *
      * @param integer $userId
-     * @param object|null $model
+     * @param object|null $group
      * @return boolean
      */
-    public function hasUser(int $userId, $model = null): bool
+    public function hasUser(int $userId, $group = null): bool
     {
-        $model = (\is_object($model) == false) ? $this : $model;
-        $model = $model->members()->where('user_id','=',$userId)->first();
+        $group = (\is_object($group) == false) ? $this : $group;
+        $group = $group->members()->where('user_id','=',$userId)->first();
 
-        return \is_object($model);
+        return \is_object($group);
     }
 
     /**
      * Return true if user is member of gorup 
      *
-     * @param integer|string $groupId  Group Id, Uuid or Slug
+     * @param integer|string $group  Group Id, Uuid or Slug
      * @param integer $userId
      * @return bool
      */
-    public function inGroup($groupId, $userId): bool
+    public function inGroup($group, $userId): bool
     {
-        $model = $this->findById($groupId);
-        if (\is_object($model) == false) {
-            $model = $this->findBySlug($groupId);
-        }
-
-        return (\is_object($model) == true) ? $this->hasUser($userId,$model) : false;         
+        $group = $this->findGroup($group);
+      
+        return (\is_object($group) == true) ? $this->hasUser($userId,$group) : false;         
     }
 
     /**
@@ -123,23 +121,36 @@ class UserGroups extends Model
     /**
      * Add user to group
      *
-     * @param integer $groupId
+     * @param integer|string $group Id, Uuid, slug or title
      * @param integer|string $userId
      * @param integer|null $dateExpire
      * @return bool
      */
-    public function addUser($groupId, $userId, ?int $dateExpire = null): bool
+    public function addUser($group, $userId, ?int $dateExpire = null): bool
     {
-        if ($this->findById($userId) == true) {
+        if (empty($group) == true || empty($userId) == true) {
+            return false;
+        }
+        
+        $user = DbModel::Users()->findById($userId);
+        if (\is_object($user) == false) {
+            return false;
+        }
+
+        $group = $this->findGroup($group);
+        if (\is_object($group) == false) {
+            return false;
+        }
+
+        if ($this->hasUser($user->id,$group) == true) {
             return true;
         }
 
-        $info = [
-            'group_id'    => $groupId,
+        $model = UserGroupMembers::create([
+            'group_id'    => $group->id,
             'user_id'     => $userId,
             'date_expire' => $dateExpire
-        ];
-        $model = UserGroupMembers::create($info);
+        ]);
 
         return \is_object($model);
     }

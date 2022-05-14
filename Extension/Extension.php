@@ -565,7 +565,16 @@ abstract class Extension implements ExtensionInterface
             }          
         }
 
-        return $this->addPageRoute($pattern,$class,$handlerMethod,$pageName,$auth,$routeName,$withLanguage,3);
+        return $this->addPageRoute(
+            $pattern,
+            $class,
+            $handlerMethod,
+            $pageName,
+            $auth,
+            $routeName,
+            $withLanguage,
+            3
+        );
     }
 
     /**
