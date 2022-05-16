@@ -35,7 +35,7 @@ class UserGroupMembers extends Model
     protected $fillable = [        
         'user_id',
         'group_id',
-        'date_expire',
+        'date_expired',
         'date_created'
     ];
     

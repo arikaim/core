@@ -147,9 +147,9 @@ class UserGroups extends Model
         }
 
         $model = UserGroupMembers::create([
-            'group_id'    => $group->id,
-            'user_id'     => $userId,
-            'date_expire' => $dateExpire
+            'group_id'     => $group->id,
+            'user_id'      => $userId,
+            'date_expired' => $dateExpire
         ]);
 
         return \is_object($model);
