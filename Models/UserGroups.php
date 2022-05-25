@@ -98,7 +98,7 @@ class UserGroups extends Model
      * @param integer $userId
      * @return bool
      */
-    public function inGroup($group, $userId): bool
+    public function inGroup($group, int $userId): bool
     {
         $group = $this->findGroup($group);
       

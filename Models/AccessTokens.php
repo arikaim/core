@@ -118,6 +118,17 @@ class AccessTokens extends Model implements UserProviderInterface
         }
 
         $user = $model->user()->first();
+
+        if ($user->status != 1) {
+            // user not active
+            return null;
+        }
+
+        if ($user->isDeleted() == true) {
+            // user is deleted
+            return null;
+        }
+
         $authId = $user->getAuthId();
         $user = $user->toArray();
         $user['auth_id'] = $authId;

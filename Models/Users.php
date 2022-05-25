@@ -193,6 +193,11 @@ class Users extends Model implements UserProviderInterface
         if (\is_object($user) == false) {
             return null;
         }
+        // check if soft deleted 
+        if ($user->isDeleted() == true) {
+            return null;
+        }
+        
         // check password
         if ($user->verifyPassword($password) == false) {
             return null;
