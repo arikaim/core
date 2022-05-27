@@ -108,9 +108,9 @@ class Events extends Model implements EventRegistryInterface
      */
     public function hasEvent(string $name): bool
     {
-        $model = $this->where('name','=',$name)->get();
+        $model = $this->where('name','=',$name)->first();
       
-        return !($model->isEmpty() == true);    
+        return \is_object($model);
     }
 
     /**
@@ -133,8 +133,8 @@ class Events extends Model implements EventRegistryInterface
         ];
 
         if ($this->hasEvent($name) == true) {
-            $result = $this->update($info);
-            return ($result !== false);
+            $this->update($info);
+            return true;
         } 
       
         $model = $this->create($info);

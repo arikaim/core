@@ -49,6 +49,8 @@ class Jobs extends Model implements QueueStorageInterface
         'date_executed',
         'executed',
         'config',
+        'type',
+        'service_name',
         'queue'
     ];
     

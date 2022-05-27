@@ -41,6 +41,8 @@ class JobsSchema extends Schema
         $table->string('extension_name')->nullable(true);
         $table->integer('priority')->nullable(false)->default(0);
         $table->integer('executed')->nullable(false)->default(0);
+        $table->string('type',15)->nullable(true);
+        $table->string('service_name')->nullable(true);
         $table->dateCreated();        
         $table->dateColumn('schedule_time');
         $table->dateColumn('date_executed');   
@@ -65,6 +67,12 @@ class JobsSchema extends Schema
         } 
         if ($this->hasColumn('queue') == false) {
             $table->string('queue')->nullable(true);
-        }       
+        }    
+        if ($this->hasColumn('type') == false) {
+            $table->string('type',15)->nullable(true);
+        } 
+        if ($this->hasColumn('service_name') == false) {
+            $table->string('service_name')->nullable(true);
+        }      
     }
 }
