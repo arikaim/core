@@ -330,6 +330,11 @@ class PermissionRelations extends Model implements PermissionsInterface
             $permission = $model->findBySlug($slug);
         }
 
+        if (\is_object($permission) == false) {
+            // try with slug
+            $permission = $model->findBySlug(Utils::slug($name));
+        }
+        
         if (\is_object($permission) == true) {
             $result = $permission->update($item);
             return ($result !== false);
