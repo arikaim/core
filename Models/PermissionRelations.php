@@ -314,16 +314,22 @@ class PermissionRelations extends Model implements PermissionsInterface
     ): bool
     {
         $model = DbModel::Permissions();
+        $slug = Utils::slug($title);
         $item = [          
             'name'           => $name,
             'extension_name' => $extension,
             'title'          => $title,
-            'slug'           => Utils::slug($title),
+            'slug'           => $slug,
             'description'    => $description,
             'deny'           => (int)$deny ?? false
         ];
 
         $permission = $model->findPermission($name);
+        if (\is_object($permission) == false) {
+            // try with slug
+            $permission = $model->findBySlug($slug);
+        }
+
         if (\is_object($permission) == true) {
             $result = $permission->update($item);
             return ($result !== false);
