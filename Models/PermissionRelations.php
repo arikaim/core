@@ -323,15 +323,12 @@ class PermissionRelations extends Model implements PermissionsInterface
             'deny'           => (int)$deny ?? false
         ];
 
-        if ($model->has($name) == true) {
-            $permission = $model->findPermission($name);
-            if (\is_object($permission) == true) {
-                $result = $permission->update($item);
-                return ($result !== false);
-            }
-            return false;
+        $permission = $model->findPermission($name);
+        if (\is_object($permission) == true) {
+            $result = $permission->update($item);
+            return ($result !== false);
         }
-        
+      
         $item['uuid'] = UuidFactory::create();
         $permission = $model->create($item);
 
