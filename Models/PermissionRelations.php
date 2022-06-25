@@ -240,6 +240,15 @@ class PermissionRelations extends Model implements PermissionsInterface
         return (\is_object($model) == true) ? $model : false;           
     }
 
+   
+    public function deletePermission($name, int $id, int $type = Self::USER): bool
+    {
+        $model = $this->getPermission($name,$id,$type);
+        $result = ($model === false) ? true : $model->delete();
+           
+        return ($result !== false);
+    }
+
     /**
      * Add or Update permission 
      *
