@@ -219,7 +219,7 @@ class PermissionRelations extends Model implements PermissionsInterface
      *
      * @param string|integer $name Permission name, slug or id
      * @param integer $id
-     * @param integer $type
+     * @param string $type
      * @return Model|bool
      */
     public function getPermission($name, $id, $type = Self::USER)
@@ -240,8 +240,15 @@ class PermissionRelations extends Model implements PermissionsInterface
         return (\is_object($model) == true) ? $model : false;           
     }
 
-   
-    public function deletePermission($name, int $id, int $type = Self::USER): bool
+    /**
+     * Delete permission for user or group
+     *
+     * @param string|integer $name Permission name, slug or id
+     * @param integer $id
+     * @param string $type
+     * @return bool
+     */
+    public function deletePermission($name, int $id, string $type = Self::USER): bool
     {
         $model = $this->getPermission($name,$id,$type);
         $result = ($model === false) ? true : $model->delete();
