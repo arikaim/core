@@ -83,7 +83,7 @@ class Users extends Model implements UserProviderInterface
     */
     public function details()
     {
-        return $this->belongsTo('Arikaim\\Extensions\\Users\\Models\\UserDetails','user_id');     
+        return $this->hasOne('Arikaim\\Extensions\\Users\\Models\\UserDetails','user_id');     
     }
 
     /**
