@@ -77,6 +77,16 @@ class Users extends Model implements UserProviderInterface
     protected $table = 'users';
 
     /**
+     * User details relation
+     *
+     * @return Relation|null
+    */
+    public function details()
+    {
+        return $this->belongsTo('Arikaim\\Extensions\\Users\\Models\\UserDetails','user_id');     
+    }
+
+    /**
      * User groups relation
      *
      * @return Relation
