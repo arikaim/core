@@ -53,7 +53,7 @@ class Arikaim
      */
     public static function get(string $name)
     {
-        return Self::$app->getContainer()->get($name);
+        return $GLOBALS['container']->get($name);
     }
 
     /**
@@ -64,7 +64,7 @@ class Arikaim
      */
     public static function getService(string $name)
     {
-        return Self::$app->getContainer()->get('service')->get($name);
+        return $GLOBALS['container']->get('service')->get($name);
     }
 
     /**
@@ -75,7 +75,7 @@ class Arikaim
     */
     public static function has(string $name): bool
     {
-        return Self::$app->getContainer()->has($name);
+        return $GLOBALS['container']->has($name);
     }
 
     /**
@@ -85,7 +85,7 @@ class Arikaim
     */
     public static function getContainer()
     {
-        return Self::$app->getContainer();
+        return $GLOBALS['container'];
     }
 
     /**
@@ -126,7 +126,7 @@ class Arikaim
         \define('CURRENT_TIME_FORMAT',$config['settings']['timeFormat'] ?? null);  
 
         // Create app
-        $container = AppContainer::create($console,$config);
+        $GLOBALS['container'] = AppContainer::create($console,$config);
      
         // add headers from config file
         foreach($config['headers'] ?? [] as $header) {            
@@ -135,8 +135,8 @@ class Arikaim
 
         // create app
         Self::$app = new Application(
-            $container,
-            new ArikaimRouter($container,BASE_PATH),
+            $GLOBALS['container'],
+            new ArikaimRouter($GLOBALS['container'],BASE_PATH),
             ErrorHandler::class
         );
     }
