@@ -88,7 +88,7 @@ class AccessTokens extends Model implements UserProviderInterface
     {
         $model = $this->getToken($token);
         
-        return (\is_object($model) == true) ? $model->type : null;
+        return ($model == null) ? null : $model->type;
     }
 
     /**
@@ -146,7 +146,7 @@ class AccessTokens extends Model implements UserProviderInterface
     {
         $model = $this->findById($id);
 
-        return (\is_object($model) == false) ? null : $model->user()->first()->toArray();          
+        return ($model == null) ? null : $model->user()->first()->toArray();          
     }
 
     /**
@@ -248,9 +248,7 @@ class AccessTokens extends Model implements UserProviderInterface
      */
     public function getToken(string $token)
     {      
-        $model = $this->findByColumn($token,'token');
-
-        return (\is_object($model) == true) ? $model : null;
+        return $this->findByColumn($token,'token');
     }
 
     /**
@@ -277,13 +275,11 @@ class AccessTokens extends Model implements UserProviderInterface
      *
      * @param integer $userId
      * @param integer $type
-     * @return Model|false
+     * @return Model|null
      */
     public function getTokenByUser(int $userId, int $type = AutoTokensInterface::PAGE_ACCESS_TOKEN)
     {
-        $model = $this->where('user_id','=',$userId)->where('type','=',$type)->first();
-
-        return (\is_object($model) == true) ? $model : false;
+        return $this->where('user_id','=',$userId)->where('type','=',$type)->first();       
     }
 
     /**
@@ -295,7 +291,7 @@ class AccessTokens extends Model implements UserProviderInterface
      */
     public function hasToken(int $userId, int $type = AutoTokensInterface::PAGE_ACCESS_TOKEN): bool
     {    
-        return \is_object($this->getTokenByUser($userId,$type));
+        return ($this->getTokenByUser($userId,$type) != null);
     }
 
     /**

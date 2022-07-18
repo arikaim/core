@@ -107,11 +107,7 @@ class Users extends Model implements UserProviderInterface
     {
         $model = $this->where('user_name','=',trim($userName))->first();
 
-        if (\is_object($model) == true) {
-            return ($model->id == $id);
-        } 
-        
-        return true;
+        return ($model == null) ? true : ($model->id == $id);
     }
 
     /**
@@ -124,7 +120,7 @@ class Users extends Model implements UserProviderInterface
     {
         $model = $this->where('user_name','=',trim($userName))->first();
 
-        return \is_object($model);       
+        return ($model != null);       
     }
 
     /**
@@ -137,7 +133,7 @@ class Users extends Model implements UserProviderInterface
     {
         $model = $this->where('email','=',trim($email))->first();
 
-        return \is_object($model);       
+        return ($model != null);       
     }
 
     /**
@@ -150,11 +146,8 @@ class Users extends Model implements UserProviderInterface
     public function verifyEmail(string $email, int $id): bool 
     {
         $model = $this->where('email','=',trim($email))->first();
-        if (\is_object($model) == true) {
-            return ($model->id == $id);
-        } 
-        
-        return true;  
+
+        return ($model == null) ? true : ($model->id == $id); 
     }
 
     /**
@@ -186,7 +179,7 @@ class Users extends Model implements UserProviderInterface
 
         if (isset($credentials['user_name']) == true) {
             $user = $user->where('user_name','=',$credentials['user_name'])->whereNotNull('user_name');    
-            if (\is_object($user->first()) == false) {
+            if ($user->first() == null) {
                 // try with email
                 $user = $user->where('email','=',$credentials['user_name'])->whereNotNull('email');
             }               
@@ -200,7 +193,7 @@ class Users extends Model implements UserProviderInterface
             $user = $user->orWhere('uuid','=',$credentials['id']);
         }
         $user = $user->first();
-        if (\is_object($user) == false) {
+        if ($user == null) {
             return null;
         }
         // check if soft deleted 
@@ -228,7 +221,7 @@ class Users extends Model implements UserProviderInterface
     public function getUserById($id): ?array
     {
         $model = $this->findById($id);
-        if (\is_object($model) == false) {
+        if ($model == null) {
             return null;
         }
         $user = $model->toArray();
@@ -240,20 +233,20 @@ class Users extends Model implements UserProviderInterface
     /**
      * Get user with control panel permission
      *
-     * @return Model|false
+     * @return Model|null
      */
     public function getControlPanelUser()
     {
         $permisisonId = DbModel::Permissions()->getId(AccessInterface::CONTROL_PANEL);
         if ($permisisonId == false) {
-            return false;
+            return null;
         }
         
         $model = DbModel::PermissionRelations();
 
         $model = $model->where('permission_id','=',$permisisonId)->where('relation_type','=','user')->first();
-        if (\is_object($model) == false) {
-            return false;
+        if ($model == null) {
+            return null;
         }
 
         return $this->findById($model->relation_id);  
@@ -275,7 +268,7 @@ class Users extends Model implements UserProviderInterface
         $model = DbModel::PermissionRelations()->getRelationsQuery($permisisonId,'user');
         $model = $model->where('relation_id','=',$id)->first();
 
-        return \is_object($model);
+        return ($model != null);
     }
 
     /**
@@ -285,7 +278,7 @@ class Users extends Model implements UserProviderInterface
      */
     public function hasControlPanelUser(): bool 
     {
-        return \is_object($this->getControlPanelUser());
+        return ($this->getControlPanelUser() != null);
     }
 
     /**
@@ -293,24 +286,24 @@ class Users extends Model implements UserProviderInterface
      *
      * @param string|null $userName
      * @param string|null $email
-     * @return Model|false
+     * @return Model|null
      */
     public function getUser(?string $userName, ?string $email = null)
     {       
         if (empty($userName) == false) {
             $model = $this->where('user_name','=',$userName)->first();
-            if (\is_object($model) == true) {
+            if ($model != null) {
                 return $model;
             }
         }
         if (empty($email) == false) {
             $model = $this->where('email','=',$email)->first();
-            if (\is_object($model) == true) {
+            if ($model != null) {
                 return $model;
             }
         }
         
-        return false;
+        return null;
     }
 
     /**
@@ -324,23 +317,21 @@ class Users extends Model implements UserProviderInterface
     public function createUser(?string $userName, string $password, ?string $email = null)
     {
         $user = $this->getUser($userName,$email);
-        if (\is_object($user) == true) {           
+        if ($user != null) {           
             return false;
         }
         if (empty($userName) == true && empty($email) == true) {
             return false;
         }
         
-        $data = [
+        return $this->create([
             'uuid'          => UuidCreate::create(),
             'date_created'  => DateTime::getTimestamp(),
             'user_name'     => (empty($userName) == true) ? null : $userName,
             'status'        => 1,
             'password'      => $this->encryptPassword($password),
             'email'         => $email
-        ];
-   
-        return $this->create($data);
+        ]);
     }
 
     /**
@@ -376,20 +367,20 @@ class Users extends Model implements UserProviderInterface
      * Find user by username or email
      *
      * @param string $userName
-     * @return Model|false
+     * @return Model|null
      */
     public function findUser(string $userName)
     {
         $user = $this->where('user_name','=',$userName)->whereNotNull('user_name')->first();    
-        if (\is_object($user) == false) {
+        if ($user == null) {
             // try with email
             $user = $this->where('email','=',$userName)->whereNotNull('email')->first();
         } 
-        if (\is_object($user) == false) {
+        if ($user == null) {
             // try with uuid or id 
             $user = $this->where('uuid','=',$userName)->orWhere('id','=',$userName)->first();
         }
 
-        return (\is_object($user) == true) ? $user : false;
+        return $user;
     }
 }
