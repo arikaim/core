@@ -198,7 +198,7 @@ class Arikaim
     public static function run(bool $showErrors = false, ?array $config = null): void 
     {      
         Self::init($showErrors,$config);    
-        Self::$app->run();            
+        Self::$app->run(null,$config['settings']);                     
     }
     
     /**

@@ -82,7 +82,7 @@ class Language extends Model
         }
         $model = $model->first();
 
-        return \is_object($model);
+        return ($model != null);
     }
 
     /**
