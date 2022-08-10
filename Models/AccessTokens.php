@@ -216,13 +216,12 @@ class AccessTokens extends Model implements UserProviderInterface
             return $model->toArray();
         }
 
-        $info = [
+        $model = $this->create([
             'user_id'      => $userId,
             'token'        => $token,
             'date_expired' => $dateExpired,
             'type'         => $type
-        ];
-        $model = $this->create($info);
+        ]);
 
         return (\is_object($model) == true) ? $model->toArray() : false;
     }

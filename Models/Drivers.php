@@ -112,7 +112,7 @@ class Drivers extends Model implements DriverRegistryInterface
     {
         $model = $this->findByColumn($name,'name');
 
-        return (\is_object($model) == false) ? true : (bool)$model->delete();
+        return ($model == null) ? true : (bool)$model->delete();
     }
     
     /**

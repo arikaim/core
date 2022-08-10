@@ -474,7 +474,7 @@ abstract class Extension implements ExtensionInterface
             $this->addError(Arikaim::errors()->getError('NOT_VALID_CONSOLE_CLASS',['class' => $class])); 
             return false;
         }
-        \array_push($this->consoleClasses,$class);
+        $this->consoleClasses[] = $class;
         $this->consoleClasses = \array_unique($this->consoleClasses);
 
         return true;
