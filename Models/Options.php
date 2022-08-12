@@ -63,7 +63,7 @@ class Options extends Model implements OptionsStorageInterface
         }
         $value = (\is_object($model) == false) ? $default : \trim($model->value);
 
-        return (\is_null($value) == true || $value == '') ? $default : $value;  
+        return ($value === null || $value == '') ? $default : $value;  
     }
 
     /**

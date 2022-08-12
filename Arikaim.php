@@ -18,7 +18,6 @@ use Arikaim\Core\Http\Session;
 use Arikaim\Core\Utils\Path;
 use Arikaim\Core\Framework\Application;
 use Arikaim\Core\Framework\Middleware\BodyParsingMiddleware;
-use Arikaim\Core\Framework\ErrorHandler;
 use ErrorException;
 
 /**
@@ -136,8 +135,7 @@ class Arikaim
         // create app
         Self::$app = new Application(
             $GLOBALS['container'],
-            new ArikaimRouter($GLOBALS['container'],BASE_PATH),
-            ErrorHandler::class
+            new ArikaimRouter($GLOBALS['container'],BASE_PATH)
         );
     }
 
@@ -155,9 +153,6 @@ class Arikaim
         \set_error_handler(function($num, $message, $file, $line) {
             throw new ErrorException($message,0,$num,$file,$line);
         });
-
-        // map install page
-        Self::$app->addRoute('GET','/admin/install','Arikaim\Core\App\InstallPage:loadInstall');
 
         // Session init
         Session::start();

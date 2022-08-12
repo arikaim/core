@@ -95,7 +95,7 @@ class Routes extends Model implements RoutesStorageInterface
     public function addMiddleware(string $method, string $pattern, string $middlewareClass): bool
     {
         $model = $this->where('method','=',$method)->where('pattern','=',$pattern)->first();
-        if (\is_null($model) == true) {
+        if ($model === null) {
             return false;
         }
         $middlewares = $model->middleware;

@@ -22,7 +22,7 @@ class Modules
     /**
      * Cache
      *
-     * @var CacheInterface|null
+     * @var CacheInterface
     */
     private $cache;
 
@@ -31,7 +31,7 @@ class Modules
      *
      * @param CacheInterface $cache
      */
-    public function __construct(?CacheInterface $cache = null)
+    public function __construct(CacheInterface $cache)
     {
         $this->cache = $cache;
     } 
@@ -44,10 +44,10 @@ class Modules
      */
     public function create(string $name)
     {        
-        $module = (\is_null($this->cache) == false) ? $this->cache->fetch('module.' . $name) : false;
+        $module = $this->cache->fetch('module.' . $name);
         if ($module === false) {
             $module = Model::Modules()->getPackage($name);
-            if ($module !== false && \is_null($this->cache) == false) {
+            if ($module !== false) {
                 $this->cache->save('module.' . $name,$module,5);  
             }  
         } 
@@ -62,7 +62,7 @@ class Modules
         $obj->boot();
         $instance = $obj->getInstance();
 
-        return (\is_null($instance) == true) ? $obj : $instance;
+        return ($instance === null) ? $obj : $instance;
     }
 
     /**
@@ -73,7 +73,7 @@ class Modules
      */
     public function hasModule(string $name): bool
     {
-        $module = (\is_null($this->cache) == false) ? $this->cache->fetch('module.' . $name) : false;
+        $module = $this->cache->fetch('module.' . $name);
         if ($module === false) {
             $module = Model::Modules()->getPackage($name);
         }
@@ -91,6 +91,6 @@ class Modules
     {
         $model = Model::Modules()->findByColumn($moduleName,'name');
 
-        return (\is_object($model) == true) ? $model->config : null;
+        return ($model == null) ? null : $model->config;
     }
 }
