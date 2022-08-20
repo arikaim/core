@@ -136,7 +136,7 @@ class Jobs extends Model implements QueueStorageInterface
         }
         $model = $model->first();
 
-        return (\is_object($model) == true) ? $model->uuid : false;
+        return ($model !== null) ? $model->uuid : false;
     }
 
     /**

@@ -86,9 +86,8 @@ class UserGroups extends Model
     public function hasUser(int $userId, $group = null): bool
     {
         $group = (\is_object($group) == false) ? $this : $group;
-        $group = $group->members()->where('user_id','=',$userId)->first();
-
-        return \is_object($group);
+        
+        return ($group->members()->where('user_id','=',$userId)->first() !== null);       
     }
 
     /**

@@ -108,9 +108,7 @@ class Events extends Model implements EventRegistryInterface
      */
     public function hasEvent(string $name): bool
     {
-        $model = $this->where('name','=',$name)->first();
-      
-        return \is_object($model);
+        return ($this->where('name','=',$name)->first() !== null);      
     }
 
     /**
