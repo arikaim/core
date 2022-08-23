@@ -185,10 +185,8 @@ class Options extends Model implements OptionsStorageInterface
         }
 
         $values = Arrays::getValues($options,$searchKey);
-        if (\is_array($values) == false) {
-            return [];
-        }
         $result = [];
+        
         foreach ($values as $key => $value) {
             $result = Arrays::setValue($result,$key,$value,'.');
         }      
