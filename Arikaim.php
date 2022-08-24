@@ -135,7 +135,7 @@ class Arikaim
         // create app
         Self::$app = new Application(
             $GLOBALS['container'],
-            new ArikaimRouter($GLOBALS['container'],BASE_PATH)
+            new ArikaimRouter($GLOBALS['container'],BASE_PATH,\Arikaim\Core\Db\Model::Routes())
         );
     }
 
