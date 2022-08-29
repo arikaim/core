@@ -26,6 +26,13 @@ use ErrorException;
 class Arikaim  
 {
     /**
+     * Url scheme
+     *
+     * @var string|null
+     */
+    protected static $scheme;
+
+    /**
      * Application object
      * 
      * @var object
@@ -97,14 +104,21 @@ class Arikaim
     */
     public static function systemInit(bool $showErrors = false, bool $console = false, ?array $config = null): void
     {
+        // scheme
+        Self::$scheme = (
+            (isset($_SERVER['HTTPS']) == true && $_SERVER['HTTPS'] !== 'off') || 
+            (isset($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] === 'https') || 
+            ((isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') == true)
+        ) ? 'https' : 'http';
+
         \ini_set('display_errors',(int)$showErrors);
         \ini_set('display_startup_errors',(int)$showErrors);
         \error_reporting(($showErrors == true) ? E_ALL : 0); 
-
+    
         // Init constants     
         (\defined('ROOT_PATH') == false) ? \define('ROOT_PATH',Self::getRootPath($console)) : null;
-        \define('DOMAIN',$config['environment']['host'] ?? Self::resolveHost($_SERVER));  
-        \define('BASE_PATH',$config['environment']['basePath'] ?? Self::resolveBasePath($_SERVER,DOMAIN));      
+        \define('DOMAIN',Self::$scheme . '://' . ($config['environment']['host'] ?? Self::resolveHost($_SERVER)) );  
+        \define('BASE_PATH',$config['environment']['basePath'] ?? Self::resolveBasePath($_SERVER,DOMAIN) );      
         \define('APP_PATH',ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');       
         \define('APP_URL',DOMAIN . BASE_PATH . '/arikaim');
         \define('CORE_NAMESPACE','Arikaim\\Core');     
@@ -248,7 +262,7 @@ class Arikaim
     */
     public static function getDomain(): string 
     {      
-        return \constant('DOMAIN') ?? Self::resolveHost($_SERVER);
+        return \constant('DOMAIN') ?? (Self::$scheme . '://' . Self::resolveHost($_SERVER));
     }
 
     /**
@@ -279,21 +293,17 @@ class Arikaim
      */
     public static function resolveHost(array $env): string
     {
-        // scheme
-        $scheme = ((isset($env['HTTPS']) == true && $env['HTTPS'] !== 'off') || 
-                (isset($env['REQUEST_SCHEME']) && $env['REQUEST_SCHEME'] === 'https') || 
-                (isset($env['HTTP_X_FORWARDED_PROTO']) && $env['HTTP_X_FORWARDED_PROTO'] === 'https') == true) ? 'https' : 'http';
         // host
         if (empty($env['HTTP_HOST']) == false) {
-            $host = $env['HTTP_HOST'];
-        } else {             
-            $host = $env['SERVER_NAME'] ?? '';    
-            if (\preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/',$host,$matches) == false) {           
-                $host = (\strpos($host,':') !== false) ? \strstr($host,':', true) : $host;                             
-            }           
-        }
+            return $env['HTTP_HOST'];
+        }         
 
-        return  $scheme . '://' . $host;
+        $host = $env['SERVER_NAME'] ?? '';    
+        if (\preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/',$host,$matches) == false) {           
+            return (\strpos($host,':') !== false) ? \strstr($host,':', true) : $host;                             
+        }           
+       
+        return $host;
     }
 
     /**
