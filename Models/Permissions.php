@@ -98,9 +98,9 @@ class Permissions extends Model
      * Find permission model by id, uuid, slug, name
      *
      * @param mixed $value
-     * @return Model|false
+     * @return Model|null
      */
-    public function findPermission($value)
+    public function findPermission($value): ?object
     {
         return $this->findByColumn($value,['id','uuid','slug','name']);
     }
@@ -113,9 +113,7 @@ class Permissions extends Model
      */
     public function has(string $name): bool
     {
-        $model = $this->where('name','=',$name)->first();
-
-        return \is_object($model);           
+        return ($this->where('name','=',$name)->first() != null);      
     }
 
     /**
@@ -139,7 +137,7 @@ class Permissions extends Model
         ];
 
         $model = $this->findByColumn($name,'name');
-        if (\is_object($model) == true) {
+        if ($model != null) {
             $model->update($info);
             return $model;
         }
@@ -157,13 +155,13 @@ class Permissions extends Model
     {
         // find with slug
         $model = $this->where('slug','=',$name)->first();
-        if (\is_object($model) == true) {
+        if ($model != null) {
             return $model->id;
         }
         // find by name
         $model = $this->where('name','=',$name)->first();
 
-        return (\is_object($model) == true) ? $model->id : false;    
+        return ($model != null) ? $model->id : false;    
     }
 
     /**

@@ -61,7 +61,7 @@ class UserGroups extends Model
      * @param mixed $value
      * @return Model|null
      */
-    public function findGroup($value)
+    public function findGroup($value): ?object
     {
         return $this->findByColumn($value,['id','uuid','slug','title']);
     }
@@ -101,14 +101,14 @@ class UserGroups extends Model
     {
         $group = $this->findGroup($group);
       
-        return (\is_object($group) == true) ? $this->hasUser($userId,$group) : false;         
+        return ($group != null) ? $this->hasUser($userId,$group) : false;         
     }
 
     /**
      * Get user groups
      *
      * @param integer $userId
-     * @return Model
+     * @return Collection|array
      */
     public function getUserGroups(int $userId)
     {
@@ -132,12 +132,12 @@ class UserGroups extends Model
         }
         
         $user = DbModel::Users()->findById($userId);
-        if (\is_object($user) == false) {
+        if ($user == null) {
             return false;
         }
 
         $group = $this->findGroup($group);
-        if (\is_object($group) == false) {
+        if ($group == null) {
             return false;
         }
 
@@ -151,7 +151,7 @@ class UserGroups extends Model
             'date_expired' => $dateExpire
         ]);
 
-        return \is_object($model);
+        return ($model != null);
     }
 
     /**
@@ -191,9 +191,8 @@ class UserGroups extends Model
      */
     public function createGroup(string $title, string $description = '')
     {
-        $model = $this->findByColumn($title,'title');
-
-        if (\is_object($model) == true) {
+        if ($this->findByColumn($title,'title') != null) {
+            // group exist
             return false;
         }
            

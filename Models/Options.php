@@ -61,7 +61,7 @@ class Options extends Model implements OptionsStorageInterface
         } catch (Exception $e) {
             return $default;
         }
-        $value = (\is_object($model) == false) ? $default : \trim($model->value);
+        $value = ($model == null) ? $default : \trim($model->value);
 
         return ($value === null || $value == '') ? $default : $value;  
     }
@@ -94,7 +94,7 @@ class Options extends Model implements OptionsStorageInterface
             return false;
         }
 
-        return \is_object($model);
+        return ($model != null);
     }
 
     /**
@@ -131,9 +131,8 @@ class Options extends Model implements OptionsStorageInterface
             $result = $this->where('key','=',$key)->update($data);
             return ($result !== false);
         }
-        $model = $this->create($data);
-        
-        return \is_object($model);
+
+        return ($this->create($data) != null);
     }
 
     /**

@@ -97,9 +97,8 @@ class Drivers extends Model implements DriverRegistryInterface
             return ($result !== false);
         }
         $data['name'] = $name;
-        $result = $this->create($data);
 
-        return \is_object($result);
+        return ($this->create($data) != null);
     }
 
     /**
@@ -123,9 +122,7 @@ class Drivers extends Model implements DriverRegistryInterface
      */
     public function hasDriver(string $name): bool
     {
-        $model = $this->findByColumn($name,'name');
-        
-        return \is_object($model);
+        return ($this->findByColumn($name,'name') != null);
     }
 
     /**
@@ -138,7 +135,7 @@ class Drivers extends Model implements DriverRegistryInterface
     public function saveConfig(string $name, array $config): bool
     {
         $model = $this->findByColumn($name,'name');
-        if (\is_object($model) == true) {
+        if ($model != null) {
             $model->config = $config;
             return (bool)$model->save();
         }
@@ -204,6 +201,6 @@ class Drivers extends Model implements DriverRegistryInterface
     {
         $model = $this->findByColumn($name,'name');
         
-        return (\is_object($model) == true) ? $model->toArray() : false;
+        return ($model != null) ? $model->toArray() : false;
     }
 }

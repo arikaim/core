@@ -149,13 +149,11 @@ class Jobs extends Model implements QueueStorageInterface
     {
         $model = $this->findByColumn($data['name'],'name');
 
-        if (\is_object($model) == true) {
-            $result = $this->update($data);
-            return ($result !== false);
+        if ($model != null) {
+            return ($this->update($data) !== false);
         }
-        $model = $this->create($data);
 
-        return \is_object($model);
+        return ($this->create($data) != null);
     }
     
     /**
@@ -168,7 +166,7 @@ class Jobs extends Model implements QueueStorageInterface
     {
         $model = $this->findById($id);
 
-        return (\is_object($model) == true) ? (bool)$model->delete() : false;
+        return ($model != null) ? (bool)$model->delete() : false;
     }
 
     /**
@@ -197,11 +195,11 @@ class Jobs extends Model implements QueueStorageInterface
     {
         $model = $this->findById($id);
 
-        if (\is_object($model) == false) {
+        if ($model == null) {
             $model = $this->findByColumn($id,'name');
         }
         
-        return (\is_object($model) == true) ? $model->toArray() : null;
+        return ($model != null) ? $model->toArray() : null;
     }
 
     /**
@@ -235,11 +233,11 @@ class Jobs extends Model implements QueueStorageInterface
     public function hasJob($id): bool
     {
         $model = $this->findById($id);
-        if (\is_object($model) == false) {
+        if ($model == null) {
             $model = $this->findByColumn($id,'name');
         }
         
-        return \is_object($model);
+        return ($model != null);
     }
 
     /**
@@ -254,9 +252,8 @@ class Jobs extends Model implements QueueStorageInterface
         foreach ($filter as $key => $value) {
             $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
         }
-        $model = $model->get();
 
-        return (\is_object($model) == true) ? $model->toArray() : null;
+        return $model->get()->toArray();
     }
 
     /**
@@ -269,11 +266,8 @@ class Jobs extends Model implements QueueStorageInterface
     public function setJobStatus($id, int $status): bool
     {
         $model = $this->findById($id);
-        if (\is_object($model) == false) {
-            return false;
-        } 
 
-        return (bool)$model->update(['status' => $status]);
+        return ($model == null) ? false : (bool)$model->update(['status' => $status]);
     }
 
     /**
@@ -287,7 +281,7 @@ class Jobs extends Model implements QueueStorageInterface
         $id = (empty($job->getId()) == true) ? $job->getName() : $job->getId();
         $model = $this->findByIdQuery($id);
     
-        if (\is_object($model->first()) == false) {
+        if ($model->first() == null) {
             return false;
         } 
         if ($job->getStatus() != JobInterface::STATUS_EXECUTED) {
@@ -315,7 +309,7 @@ class Jobs extends Model implements QueueStorageInterface
         $query = $this->getJobsDueQuery();       
         $model = $query->orderBy('priority','desc')->first();
 
-        return (\is_object($model) == true) ? $model->toArray() : null;           
+        return ($model != null) ? $model->toArray() : null;           
     }
 
     /**
@@ -325,10 +319,10 @@ class Jobs extends Model implements QueueStorageInterface
      */
     public function getJobsDue(): ?array
     {
-        $query = $this->getJobsDueQuery();       
-        $model = $query->orderBy('priority','desc')->get();
-
-        return (\is_object($model) == true) ? $model->toArray() : null;
+        return $this->getJobsDueQuery()
+            ->orderBy('priority','desc')
+            ->get()
+            ->toArray();       
     }
 
     /**

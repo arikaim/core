@@ -105,7 +105,7 @@ class AccessTokens extends Model implements UserProviderInterface
         }
       
         $model = $this->findByColumn($token,'token');
-        if ($model === false) {
+        if ($model == null) {
             return null;
         }
         if ($model->isExpired() == true) {  
@@ -157,9 +157,7 @@ class AccessTokens extends Model implements UserProviderInterface
      */
     public function verifyPassword(string $password): bool
     {
-        $model = $this->findByColumn($password,'token'); 
-
-        return \is_object($model);
+        return ($this->findByColumn($password,'token') != null);
     }
 
     /**
@@ -212,7 +210,7 @@ class AccessTokens extends Model implements UserProviderInterface
         }
         
         $model = $this->getTokenByUser($userId,$type);
-        if (\is_object($model) == true) {
+        if ($model != null) {
             return $model->toArray();
         }
 
@@ -223,7 +221,7 @@ class AccessTokens extends Model implements UserProviderInterface
             'type'         => $type
         ]);
 
-        return (\is_object($model) == true) ? $model->toArray() : false;
+        return $model->toArray();
     }
 
     /**
@@ -236,7 +234,7 @@ class AccessTokens extends Model implements UserProviderInterface
     {
         $model = $this->findByColumn($token,['uuid','token']);
 
-        return (\is_object($model) == true) ? (bool)$model->delete() : true;           
+        return ($model != null) ? (bool)$model->delete() : true;           
     }
 
     /**
@@ -259,7 +257,7 @@ class AccessTokens extends Model implements UserProviderInterface
     public function isExpired(?string $token = null): bool
     {
         $model = (empty($token) == true) ? $this : $this->findByColumn($token,'token');
-        if (\is_object($model) == false) {
+        if ($model == null) {
             return true;
         }
         if ($model->date_expired == -1) {
@@ -345,7 +343,7 @@ class AccessTokens extends Model implements UserProviderInterface
      * Get all tokens for user
      *
      * @param integer $userId
-     * @return null|Model
+     * @return null|Collection
      */
     public function getUserTokens(int $userId)
     {

@@ -128,7 +128,7 @@ class PermissionRelations extends Model implements PermissionsInterface
     {
         if (\is_string($id) == true) {
             $model = DbModel::Users()->findById($id);
-            $id = (\is_object($model) == true) ? $model->id : null; 
+            $id = ($model != null) ? $model->id : null; 
         }
 
         return $this->setPermission($name,$permissions,$id,Self::USER);
@@ -147,10 +147,10 @@ class PermissionRelations extends Model implements PermissionsInterface
         if (\is_string($id) == true) {
             $model = DbModel::UserGroups();
             $group = $model->findById($id);
-            if (\is_object($group) == false) {
+            if ($group == null) {
                 $group = $model->findBySlug($id);                
             }
-            if (\is_object($group) == false) {
+            if ($group == null) {
                 return false;
             }
 
@@ -171,7 +171,7 @@ class PermissionRelations extends Model implements PermissionsInterface
     {
         if (\is_string($userId) == true) {
             $model = DbModel::Users()->findById($userId);
-            $userId = (\is_object($model) == true) ? $model->id : null; 
+            $userId = ($model != null) ? $model->id : null; 
         }
         if (empty($userId) == true) {
             return false;
@@ -179,14 +179,14 @@ class PermissionRelations extends Model implements PermissionsInterface
 
         // check for user permiission
         $permission = $this->getPermission($name,$userId,Self::USER);
-        if (\is_object($permission) == true) {
+        if ($permission !== false) {
             return $permission;
         }
         // check groups
         $groupList = DbModel::UserGroups()->getUserGroups($userId);
         foreach ($groupList as $item) {          
             $permission = $this->getGroupPermission($name,$item->group_id);
-            if (\is_object($permission) == true) {
+            if ($permission !== false) {
                 return $permission;
             }
         }
@@ -205,7 +205,7 @@ class PermissionRelations extends Model implements PermissionsInterface
     {
         if (\is_string($id) == true) {
             $model = DbModel::UserGroups()->findById($id);
-            if (\is_object($model) == false) {
+            if ($model == null) {
                 return false;
             }
             $id = $model->id;        
@@ -237,7 +237,7 @@ class PermissionRelations extends Model implements PermissionsInterface
         $query = $query->where('permission_id','=',$permissionId);
         $model = $query->first();
 
-        return (\is_object($model) == true) ? $model : false;           
+        return ($model != null) ? $model : false;           
     }
 
     /**
@@ -298,7 +298,7 @@ class PermissionRelations extends Model implements PermissionsInterface
         } 
       
         $model = $this->getUserPermission($name,$userId);       
-        if (\is_object($model) == false) {
+        if ($model === false) {
             return false;
         }
     
@@ -341,24 +341,23 @@ class PermissionRelations extends Model implements PermissionsInterface
         ];
 
         $permission = $model->findPermission($name);
-        if (\is_object($permission) == false) {
+        if ($permission == null) {
             // try with slug
             $permission = $model->findBySlug($slug);
         }
 
-        if (\is_object($permission) == false) {
+        if ($permission == null) {
             // try with slug
             $permission = $model->findBySlug(Utils::slug($name));
         }
         
-        if (\is_object($permission) == true) {
+        if ($permission != null) {
             $result = $permission->update($item);
             return ($result !== false);
         }
       
         $item['uuid'] = UuidFactory::create();
-        $permission = $model->create($item);
-
-        return \is_object($permission);
+        
+        return ($model->create($item) != null);
     }    
 }

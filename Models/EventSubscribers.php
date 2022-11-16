@@ -96,9 +96,8 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
     public function getSubscribers(?string $eventName = null, ?string $extensionName, ?int $status = null): array
     {
         $query = $this->subscribers($eventName,$extensionName,$status);
-        $model = $query->get();
 
-        return (\is_object($model) == true) ? $model->toArray() : [];
+        return $query->get()->toArray();
     }
 
     /**
@@ -114,7 +113,7 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
             $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
         }
 
-        return (\is_object($model) == true) ? (bool)$model->delete() : false;
+        return (bool)$model->delete();
     }
 
     /**
@@ -178,9 +177,7 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
             'handler_method' => $hadnlerMethod
         ];
       
-        $subscriber = $this->create($subscriber);   
-
-        return \is_object($subscriber);
+        return ($this->create($subscriber) != null);   
     }   
 
     /**

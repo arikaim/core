@@ -84,17 +84,19 @@ class UserGroupMembers extends Model
     {
         $user = new Users();
         $user = $user->findById($userId);
-        if (\is_object($user) == false) {
+        if ($user == null) {
+            // not valid user id
             return false;
         }
 
-        $group = new UserGroups();
-        $group = $group->findById($groupId);
-        if (\is_object($group) == false) {
-            $group = $group->findBySlug($groupId);           
+        $groupModel = new UserGroups();
+        $group = $groupModel->findById($groupId);
+        if ($group == null) {
+            $group = $groupModel->findBySlug($groupId);           
         }
 
-        if (\is_object($group) == false) {
+        if ($group == null) {
+            // not vlaid group id or slug
             return false;      
         }
 
@@ -107,7 +109,7 @@ class UserGroupMembers extends Model
             'group_id' => $group->id
         ]);
 
-        return (\is_object($member) == true) ? $member : false;
+        return ($member != null) ? $member : false;
     }
 
     /**
@@ -119,9 +121,7 @@ class UserGroupMembers extends Model
     */
     public function isMember(int $userId, int $groupId): bool
     {
-        $model = $this->where('user_id','=',$userId)->where('group_id','=',$groupId)->first();
-
-        return \is_object($model);
+        return ($this->where('user_id','=',$userId)->where('group_id','=',$groupId)->first() != null);
     }
 
     /**
