@@ -159,7 +159,7 @@ class Events extends Model implements EventRegistryInterface
      * @param integer $status
      * @return boolean
      */
-    public function setEventsStatus(array $filter = [], int $status): bool
+    public function setEventsStatus(array $filter, int $status): bool
     {
         $model = $this;
         foreach ($filter as $key => $value) {

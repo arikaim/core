@@ -65,7 +65,7 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
      * @param integer|null $status
      * @return Builder
      */
-    public function scopeSubscribers($query, ?string $eventName = null, ?string $extensionName, ?int $status = null)
+    public function scopeSubscribers($query, ?string $eventName = null, ?string $extensionName = null, ?int $status = null)
     {      
         if (empty($status) == false) {
             $query->where('status','=',$status);
@@ -93,7 +93,7 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
      * @param integer|null $status
      * @return array
      */
-    public function getSubscribers(?string $eventName = null, ?string $extensionName, ?int $status = null): array
+    public function getSubscribers(?string $eventName = null, ?string $extensionName = null, ?int $status = null): array
     {
         $query = $this->subscribers($eventName,$extensionName,$status);
 
@@ -234,7 +234,7 @@ class EventSubscribers extends Model implements SubscriberRegistryInterface
      * @param int $status
      * @return bool
      */
-    private function changeStatus(?string $eventName = null, ?string $extension = null, int $status): bool 
+    private function changeStatus(?string $eventName = null, ?string $extension = null, int $status = 1): bool 
     {
         if ($eventName != null) {
             $this->where('name','=',$eventName);
