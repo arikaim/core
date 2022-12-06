@@ -204,7 +204,7 @@ class Routes extends Model implements RoutesStorageInterface
      * @param integer   $status
      * @return boolean
      */
-    public function setRoutesStatus(array $filter = [], int $status): bool
+    public function setRoutesStatus(array $filter, int $status): bool
     {
         $model = $this;
         foreach ($filter as $key => $value) {

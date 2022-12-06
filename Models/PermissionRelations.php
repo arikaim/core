@@ -263,7 +263,7 @@ class PermissionRelations extends Model implements PermissionsInterface
      * @param array $access - ['read','write','delete','execute]
      * @param integer $id user Id or group Id 
      * @param integer $type
-     * @return Model|bool
+     * @return Model|false
      */
     public function setPermission($name, $access, $id, $type = Self::USER) 
     {

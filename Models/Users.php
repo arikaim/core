@@ -235,7 +235,7 @@ class Users extends Model implements UserProviderInterface
      *
      * @return Model|null
      */
-    public function getControlPanelUser()
+    public function getControlPanelUser(): ?object
     {
         $permisisonId = DbModel::Permissions()->getId(AccessInterface::CONTROL_PANEL);
         if ($permisisonId == false) {
@@ -243,13 +243,9 @@ class Users extends Model implements UserProviderInterface
         }
         
         $model = DbModel::PermissionRelations();
-
         $model = $model->where('permission_id','=',$permisisonId)->where('relation_type','=','user')->first();
-        if ($model == null) {
-            return null;
-        }
-
-        return $this->findById($model->relation_id);  
+        
+        return ($model == null) ? null : $this->findById($model->relation_id);   
     }
 
     /**
