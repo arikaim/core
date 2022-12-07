@@ -105,7 +105,7 @@ class Users extends Model implements UserProviderInterface
      */
     public function verifyUserName(string $userName, int $id): bool 
     {
-        $model = $this->where('user_name','=',trim($userName))->first();
+        $model = $this->where('user_name','=',\trim($userName))->first();
 
         return ($model == null) ? true : ($model->id == $id);
     }
@@ -118,7 +118,7 @@ class Users extends Model implements UserProviderInterface
      */
     public function hasUserName(string $userName): bool 
     {
-        $model = $this->where('user_name','=',trim($userName))->first();
+        $model = $this->where('user_name','=',\trim($userName))->first();
 
         return ($model != null);       
     }
@@ -131,7 +131,7 @@ class Users extends Model implements UserProviderInterface
      */
     public function hasUserEmail(string $email): bool 
     {
-        $model = $this->where('email','=',trim($email))->first();
+        $model = $this->where('email','=',\trim($email))->first();
 
         return ($model != null);       
     }
@@ -145,7 +145,7 @@ class Users extends Model implements UserProviderInterface
      */
     public function verifyEmail(string $email, int $id): bool 
     {
-        $model = $this->where('email','=',trim($email))->first();
+        $model = $this->where('email','=',\trim($email))->first();
 
         return ($model == null) ? true : ($model->id == $id); 
     }

@@ -61,7 +61,7 @@ class Options extends Model implements OptionsStorageInterface
         } catch (Exception $e) {
             return $default;
         }
-        $value = ($model == null) ? $default : \trim($model->value);
+        $value = ($model == null) ? $default : $model->value;
 
         return ($value === null || $value == '') ? $default : $value;  
     }
