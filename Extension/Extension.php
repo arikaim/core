@@ -11,7 +11,6 @@ namespace Arikaim\Core\Extension;
 
 use Arikaim\Core\Interfaces\ExtensionInterface;
 use Arikaim\Core\Interfaces\RoutesInterface;
-use Arikaim\Core\Arikaim;
 use Arikaim\Core\Db\Model;
 use Arikaim\Core\Db\Schema;
 use Arikaim\Core\Utils\Factory;
@@ -22,6 +21,7 @@ use Arikaim\Core\Routes\Route;
 use Arikaim\Core\Routes\RouteType;
 
 use Arikaim\Core\System\Error\Traits\TaskErrors;
+use Closure;
 
 /**
  * Base class for all extensions.
@@ -467,6 +467,20 @@ abstract class Extension implements ExtensionInterface
         }
 
         return $result;
+    }
+
+    /**
+     * Run service 
+     *
+     * @param string  $serviceName
+     * @param Closure $callback
+     * @return void
+     */
+    public function runService(string $serviceName, Closure $callback)
+    {
+        global $container;
+
+        return $container->get('service')->with($serviceName,$callback);
     }
 
     /**
