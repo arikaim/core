@@ -37,7 +37,9 @@ class Events extends Model implements EventRegistryInterface
         'uuid',
         'name',
         'title',
+        'status',
         'extension_name',
+        'properties',
         'description'
     ];
     
@@ -54,6 +56,52 @@ class Events extends Model implements EventRegistryInterface
      * @var boolean
      */
     public $timestamps = false;
+
+    /**
+     * Save event properties description
+     *
+     * @param string $name
+     * @param object|array $descriptor
+     * @return boolean
+     */
+    public function savePropertiesDescriptor(string $name, $descriptor): bool
+    {
+        $event = $this->where('name','=',$name)->first();
+        if ($event == null) {
+            return false;
+        }
+
+        $properties = (\is_object($descriptor) == true) ? $descriptor->toArray() : $descriptor;
+
+        return  $event->saveProperties($properties);
+    }
+
+    /**
+     * Mutator (get) for properties attribute.
+     *
+     * @return array
+     */
+    public function getPropertiesAttribute()
+    {
+        $properties = $this->attributes['properties'] ?? null;
+
+        return (empty($properties) == true) ? [] : \json_decode($properties,true);
+    }
+
+    /**
+     * Save properties
+     *
+     * @param array $properties
+     * @return boolean
+     */
+    public function saveProperties(array $properties): bool
+    {
+        $result = $this->update([
+            'properties' => \json_encode($properties)
+        ]);
+
+        return ($result !== false);
+    }
 
     /**
      * Deleet event

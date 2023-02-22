@@ -39,6 +39,7 @@ class EventsSchema extends Schema
         $table->string('title')->nullable(true);
         $table->text('description')->nullable(true);
         $table->string('extension_name')->nullable(true);
+        $table->text('properties')->nullable(true);
         // indexes
         $table->unique('name');
     }
@@ -51,5 +52,8 @@ class EventsSchema extends Schema
      */
     public function update($table)
     {       
+        if ($this->hasColumn('properties') == false) {
+            $table->text('properties')->nullable(true);
+        }   
     }
 }

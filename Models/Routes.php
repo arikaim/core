@@ -332,8 +332,8 @@ class Routes extends Model implements RoutesStorageInterface
             isset($routeInfo['pattern']) == false
             || isset($routeInfo['handler_class']) == false
             || isset($routeInfo['handler_method']) == false 
-            || empty(\trim($routeInfo['type'])) == true
-            || empty(\trim($routeInfo['method'])) == true
+            || empty(\trim($routeInfo['type'] ?? '')) == true
+            || empty(\trim($routeInfo['method'] ?? '')) == true
         ) ? false : true;          
     }
 }

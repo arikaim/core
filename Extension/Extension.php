@@ -19,6 +19,7 @@ use Arikaim\Core\Utils\File;
 use Arikaim\Core\Utils\Path;
 use Arikaim\Core\Routes\Route;
 use Arikaim\Core\Routes\RouteType;
+use Arikaim\Core\Events\EventsDescriptor;
 
 use Arikaim\Core\System\Error\Traits\TaskErrors;
 use Closure;
@@ -559,14 +560,44 @@ abstract class Extension implements ExtensionInterface
      *
      * @param string $name Event name
      * @param string|null $title Event title
-     * @param string|null $description Event description
+     * @param mixed $descriptor
      * @return bool
      */
-    public function registerEvent(string $name, ?string $title = null, ?string $description = null)
+    public function registerEvent(string $name, ?string $title = null, $descriptor = null)
     {
         global $container;
 
-        $result = $container->get('event')->registerEvent($name,$title,$this->getName(),$description);
+        $result = $container->get('event')->registerEvent($name,$title,$this->getName());
+       
+        if ($result !== true) {
+            $this->addError($container->get('errors')->getError('REGISTER_EVENT_ERROR',['name' => $name])); 
+            return false;
+        }
+
+        if (empty($descriptor) == false) {
+            return $this->regiesterEventProperties($name,$descriptor);
+        }
+
+        return true;
+    }
+
+    /**
+     * Save event properties descriptor
+     *
+     * @param string $name
+     * @param mixed $descriptor
+     * @return boolean
+     */
+    public function regiesterEventProperties(string $name, $descriptor): bool
+    {
+        global $container;
+
+        if (\is_string($descriptor) == true) {
+            $eventDescriptor = Factory::getExtensionNamespace($this->getName()) . "\\Events\\$descriptor";
+            $descriptor = Factory::createInstance($eventDescriptor);
+        }
+
+        $result = $container->get('event')->savePropertiesDescriptor($name,$descriptor);
         if ($result !== true) {
             $this->addError($container->get('errors')->getError('REGISTER_EVENT_ERROR',['name' => $name])); 
         }
