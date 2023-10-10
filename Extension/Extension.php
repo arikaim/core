@@ -530,29 +530,44 @@ abstract class Extension implements ExtensionInterface
     }
 
     /**
-     * Add job to queue
+     * Add job to jobs registry
      *
      * @param string $class
      * @param string|null $name
      * @param bool $disabled
      * @return boolean
      */
-    public function addJob(string $class, ?string $name = null, bool $disabled = false)
+    public function addJob(string $class, ?string $name = null, bool $disabled = false): bool
     {       
         global $container;
 
-        $job = $container->get('queue')->create($class,$name,$this->getName());
-        if (\is_object($job) == false) {
+        $job = $container->get('queue')->create($class,null,$this->getName());
+        if ($job == null) {
             $this->addError($container->get('errors')->getError('REGISTER_JOB_ERROR',['name' => $name])); 
             return false;
         }
 
-        $result = $container->get('queue')->addJob($job,$this->getName(),$disabled);
-        if ($result !== true) {
+        if (empty($name) == false && empty($job->getName() == true)) {
+            $job->setName($name);
+        }
+
+        $result = $container->get('queue')->jobsRegistry()->saveJob($job,$this->getName(),'extension');
+        if ($result == false) {
             $this->addError($container->get('errors')->getError('REGISTER_JOB_ERROR',['name' => $name])); 
         }
 
         return $result;
+    }
+
+    /**
+     * Add job to jobs registry
+     *
+     * @param string $class
+     * @return boolean
+     */
+    public function registerJob(string $class): bool
+    {
+        return $this->addJob($class);
     }
 
     /**

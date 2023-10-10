@@ -21,15 +21,17 @@ use Arikaim\Core\Db\Traits\DateCreated;
 use Arikaim\Core\Db\Traits\Uuid;
 use Arikaim\Core\Db\Traits\Find;
 use Arikaim\Core\Db\Traits\Status;
+use Arikaim\Core\Db\Traits\OptionsAttribute;
 
 /**
- * Jobs database model
+ * Queue database model
  */
-class Jobs extends Model implements QueueStorageInterface
+class Queue extends Model implements QueueStorageInterface
 {
     use Uuid,
         Find,
         Status,
+        OptionsAttribute,
         DateCreated;
  
     /**
@@ -55,11 +57,18 @@ class Jobs extends Model implements QueueStorageInterface
     ];
     
     /**
+     * Options column name
+     *
+     * @var string
+     */
+    protected $optionsColumnName = 'config';
+
+    /**
      * Db table name
      *
      * @var string
      */
-    protected $table = 'jobs';
+    protected $table = 'queue';
 
     /**
      * Disable timestamps
@@ -74,19 +83,10 @@ class Jobs extends Model implements QueueStorageInterface
      * @var array
      */
     public $appends = [
-        'due_date'
+        'due_date',
+        'options'
     ];
 
-    /**
-     * Mutator (get) for config attribute.
-     *
-     * @return array
-     */
-    public function getConfigAttribute()
-    {
-        return (empty($this->attributes['config']) == true) ? [] : \json_decode($this->attributes['config'],true);
-    }
-    
     /**
      * Get attribute mutator for due_date
      *
@@ -182,46 +182,20 @@ class Jobs extends Model implements QueueStorageInterface
             $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);
         }
 
-        return (bool)$model->delete();
+        return ($model->delete() !== false);
     }
 
     /**
      * Get job
      *
-     * @param string|integer $id Job id, uiid or name
+     * @param string|integer $id Job id, uiid
      * @return array|null
      */
     public function getJob($id): ?array
     {
         $model = $this->findById($id);
 
-        if ($model == null) {
-            $model = $this->findByColumn($id,'name');
-        }
-        
         return ($model != null) ? $model->toArray() : null;
-    }
-
-    /**
-     * Save job config
-     *
-     * @param string|int $id
-     * @param array $config
-     * @return boolean
-     */
-    public function saveJobConfig($id, array $config): bool
-    {
-        $model = $this->findById($id);
-        if (empty($model) == true) {
-            $model = $this->findByColumn($id,'name');
-        }
-        if (empty($model) == true) {
-            return false;
-        }
-
-        return (bool)$model->update([
-            'config' => \json_encode($config)
-        ]);
     }
 
     /**
@@ -277,9 +251,8 @@ class Jobs extends Model implements QueueStorageInterface
      * @return bool
      */
     public function updateExecutionStatus(JobInterface $job): bool
-    {       
-        $id = (empty($job->getId()) == true) ? $job->getName() : $job->getId();
-        $model = $this->findByIdQuery($id);
+    {              
+        $model = $this->findByIdQuery($job->getId());
     
         if ($model->first() == null) {
             return false;

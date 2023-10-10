@@ -12,16 +12,16 @@ namespace Arikaim\Core\Models\Schema;
 use Arikaim\Core\Db\Schema;
 
 /**
- * Jobs database table schema definition.
+ * Queue database table schema definition.
  */
-class JobsSchema extends Schema  
+class QueueSchema extends Schema  
 {   
     /**
      * Db table name
      *
      * @var string
      */ 
-    protected $tableName = 'jobs';
+    protected $tableName = 'queue';
 
     /**
      * Create table
@@ -49,7 +49,7 @@ class JobsSchema extends Schema
         $table->text('config')->nullable(true);
         $table->string('queue')->nullable(true);
         // indexes         
-        $table->unique('name');
+        $table->index('name');
         $table->index('recuring_interval');  
         $table->index('queue');  
     }
@@ -62,6 +62,10 @@ class JobsSchema extends Schema
      */
     public function update($table)
     {   
+        // drop prev index
+        if ($this->hasIndex('jobs_name_unique') == true) {
+            $this->dropIndex('jobs_name_unique');
+        }
         if ($this->hasColumn('config') == false) {
             $table->text('config')->nullable(true);
         } 
