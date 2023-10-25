@@ -140,19 +140,13 @@ class Queue extends Model implements QueueStorageInterface
     }
 
     /**
-     * Add or update job
+     * Add job
      *
      * @param array $data
      * @return boolean
      */
     public function addJob(array $data): bool
     {
-        $model = $this->findByColumn($data['name'],'name');
-
-        if ($model != null) {
-            return ($this->update($data) !== false);
-        }
-
         return ($this->create($data) != null);
     }
     
