@@ -251,19 +251,16 @@ class Queue extends Model implements QueueStorageInterface
         if ($model->first() == null) {
             return false;
         } 
-        if ($job->getStatus() != JobInterface::STATUS_EXECUTED) {
-            return false;
-        }
-        $status = ($job instanceof RecurringJobInterface) ? JobInterface::STATUS_EXECUTED : JobInterface::STATUS_COMPLETED;
-        $info = [
-            'date_executed' => DateTime::toTimestamp(),
-            'status'        => $status
-        ];
-
+       
+        $status = ($job->isRecurring() == true) ? JobInterface::STATUS_EXECUTED : JobInterface::STATUS_COMPLETED;
+    
         // increment execution counter
         $model->increment('executed');
 
-        return (bool)$model->update($info);            
+        return (bool)$model->update([
+            'date_executed' => DateTime::toTimestamp(),
+            'status'        => $status
+        ]);            
     }
 
     /**
