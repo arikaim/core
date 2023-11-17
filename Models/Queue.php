@@ -88,6 +88,21 @@ class Queue extends Model implements QueueStorageInterface
     ];
 
     /**
+     * Update job config param
+     *
+     * @param string|int $id Job id
+     * @param string $key
+     * @param mixed $value
+     * @return boolean
+     */
+    public function saveJobConfigParam($id, string $key, $value): bool
+    {
+        $model = $this->findById($id);
+       
+        return ($model == null) ? false : $model->saveOption($key,$value);
+    }
+
+    /**
      * Get attribute mutator for due_date
      *
      * @return integer|null
@@ -182,13 +197,13 @@ class Queue extends Model implements QueueStorageInterface
     /**
      * Get job
      *
-     * @param string|integer $id Job id, uiid
+     * @param string|integer $id Job id or uiid
      * @return array|null
      */
     public function getJob($id): ?array
     {
         $model = $this->findById($id);
-
+       
         return ($model != null) ? $model->toArray() : null;
     }
 
@@ -199,13 +214,8 @@ class Queue extends Model implements QueueStorageInterface
      * @return boolean
      */
     public function hasJob($id): bool
-    {
-        $model = $this->findById($id);
-        if ($model == null) {
-            $model = $this->findByColumn($id,'name');
-        }
-        
-        return ($model != null);
+    {  
+        return ($this->findById($id) != null);
     }
 
     /**
