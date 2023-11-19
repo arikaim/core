@@ -85,6 +85,21 @@ class JobsRegistry extends Model
     }
 
     /**
+     * Filter jobs by package
+     *
+     * @param Builder     $query
+     * @param string|null $packageName
+     * @param string|null $packageType
+     * @return Builder
+     */
+    public function scopePackageQuery($query, ?string $packageName, ?string $packageType = null)
+    {
+        $query = (empty($packageName) == true) ? $query : $query->where('package_name','=',$packageName);
+
+        return (empty($packageType) == false) ? $query->where('package_type','=',$packageType) : $query;
+    }
+
+    /**
      * Delete jobs
      *
      * @param string $packageName
