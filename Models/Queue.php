@@ -15,7 +15,6 @@ use Arikaim\Core\Utils\DateTime;
 use Arikaim\Core\Interfaces\Job\QueueStorageInterface;
 use Arikaim\Core\Queue\Jobs\RecurringJob;
 use Arikaim\Core\Interfaces\Job\JobInterface;
-use Arikaim\Core\Interfaces\Job\RecurringJobInterface;
 
 use Arikaim\Core\Db\Traits\DateCreated;
 use Arikaim\Core\Db\Traits\Uuid;
@@ -279,19 +278,19 @@ class Queue extends Model implements QueueStorageInterface
      * @return array|null
      */
     public function getNext(): ?array
-    {       
-        $query = $this->getJobsDueQuery();       
-        $model = $query->orderBy('priority','desc')->first();
+    {               
+        $model = $this->getJobsDueQuery()->orderBy('priority','desc')->first();
 
         return ($model != null) ? $model->toArray() : null;           
     }
 
     /**
-     * Get all jobs due
+     * Get all jobs due or filter by name
      * 
+     * @param string|null $jobName
      * @return array|null
      */
-    public function getJobsDue(): ?array
+    public function getJobsDue(?string $jobName = null): ?array
     {
         return $this->getJobsDueQuery()
             ->orderBy('priority','desc')
@@ -302,11 +301,12 @@ class Queue extends Model implements QueueStorageInterface
     /**
      * Get jobs due query
      *
+     * @param string|null $jobName
      * @return Builder
      */
-    public function getJobsDueQuery()
+    public function getJobsDueQuery(?string $jobName = null)
     {
-        return $this
+        $query = $this
             ->where('status','<>',JobInterface::STATUS_COMPLETED)        
             ->where('status','<>',JobInterface::STATUS_ERROR)      
             ->where('status','<>',JobInterface::STATUS_SUSPENDED)          
@@ -318,5 +318,7 @@ class Queue extends Model implements QueueStorageInterface
                     $query->where('recuring_interval','<>','');
                 });
             });
+
+        return (empty($jobName) == false) ? $query->where('name','=',$jobName) : $query;
     }
 }
