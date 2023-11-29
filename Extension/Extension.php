@@ -19,7 +19,6 @@ use Arikaim\Core\Utils\File;
 use Arikaim\Core\Utils\Path;
 use Arikaim\Core\Routes\Route;
 use Arikaim\Core\Routes\RouteType;
-use Arikaim\Core\Events\EventsDescriptor;
 
 use Arikaim\Core\System\Error\Traits\TaskErrors;
 use Closure;
@@ -68,13 +67,14 @@ abstract class Extension implements ExtensionInterface
      */
     public function registerContentProvider($provider): bool
     {
-        global $container;
+        global $arikaim;
 
         if (\is_string($provider) == true) {
             $class = (\class_exists($provider) == true) ? $provider : Factory::getExtensionClassName($this->getName(),$provider); 
             $provider = new $class();
         }
-        return $container->get('content')->registerProvider($provider);
+
+        return $arikaim->get('content')->registerProvider($provider);
     }
 
     /**
@@ -85,7 +85,7 @@ abstract class Extension implements ExtensionInterface
      */
     public function registerContentTypeAction(string $contentType, string $class): bool
     {
-        global $container;
+        global $arikaim;
 
         $class = (\class_exists($class) == true) ? $class : Factory::getExtensionClassName($this->getName(),$class); 
          
@@ -93,7 +93,7 @@ abstract class Extension implements ExtensionInterface
             return false;
         }
 
-        return $container->get('content')->typeRegistry()->registerAction($contentType,$class);
+        return $arikaim->get('content')->typeRegistry()->registerAction($contentType,$class);
     }
 
     /**
@@ -104,7 +104,7 @@ abstract class Extension implements ExtensionInterface
      */
     public function registerContentType(string $class): bool 
     {
-        global $container;
+        global $arikaim;
 
         $class = (\class_exists($class) == true) ? $class : Factory::getExtensionClassName($this->getName(),$class);       
         if (\class_exists($class) == false) {
@@ -112,7 +112,7 @@ abstract class Extension implements ExtensionInterface
         }
         $contentType = new $class();
 
-        return $container->get('content')->typeRegistry()->register($contentType);
+        return $arikaim->get('content')->typeRegistry()->register($contentType);
     }
 
     /**
@@ -123,9 +123,9 @@ abstract class Extension implements ExtensionInterface
      */
     public function unRegisterContentProvider($provider): bool
     {
-        global $container;
+        global $arikaim;
 
-        return $container->get('content')->unRegisterProvider($provider);
+        return $arikaim->get('content')->unRegisterProvider($provider);
     }
 
     /**
@@ -136,9 +136,9 @@ abstract class Extension implements ExtensionInterface
      */
     public function hasExtension(string $name): bool
     {
-        global $container;
+        global $arikaim;
 
-        return $container->get('packages')->create('extension')->hasPackage($name);
+        return $arikaim->get('packages')->create('extension')->hasPackage($name);
     }
 
     /**
@@ -149,9 +149,9 @@ abstract class Extension implements ExtensionInterface
      */
     public function hasInstalledExtension(string $name): bool
     {
-        global $container;
+        global $arikaim;
 
-        $package = $container->get('packages')->create('extension')->createPackage($name);
+        $package = $arikaim->get('packages')->create('extension')->createPackage($name);
 
         return (\is_object($package) == true) ? $package->isInstalled() : false;
     }
@@ -164,9 +164,9 @@ abstract class Extension implements ExtensionInterface
     */
     public function hasModule(string $name): bool
     {
-        global $container;
+        global $arikaim;
 
-        return $container->get('packages')->create('modules')->hasPackage($name);
+        return $arikaim->get('packages')->create('modules')->hasPackage($name);
     }
 
     /**
@@ -242,7 +242,7 @@ abstract class Extension implements ExtensionInterface
      */
     public function createStorageFolder(?string $dir = null, bool $public = false)
     {
-        global $container;
+        global $arikaim;
 
         $path = ($public == true) ? Path::STORAGE_PUBLIC_PATH : Path::STORAGE_PATH;
         $dir = $dir ?? $this->getName();
@@ -255,7 +255,7 @@ abstract class Extension implements ExtensionInterface
         $result = File::exists($storagePath);
         if ($result === false) {
             // add error
-            $this->addError($container->get('errors')->getError('EXTENSION_STORAGE_FOLDER',['path' => $storagePath]));
+            $this->addError($arikaim->get('errors')->getError('EXTENSION_STORAGE_FOLDER',['path' => $storagePath]));
         } 
         
         return $result;
@@ -292,9 +292,9 @@ abstract class Extension implements ExtensionInterface
      */
     public function addPermission(string $name, ?string $title = null, ?string $description = null, ?bool $deny = false)
     {
-        global $container;
+        global $arikaim;
 
-        return $container->get('access')->addPermission($name,$title,$description,$this->getName(),$deny);            
+        return $arikaim->get('access')->addPermission($name,$title,$description,$this->getName(),$deny);            
     }
 
     /**
@@ -305,19 +305,19 @@ abstract class Extension implements ExtensionInterface
      */
     public function addRelationsMap(array $items): bool
     {
-        global $container;
+        global $arikaim;
 
-        $relations = $container->get('config')->load('relations.php',false);  
+        $relations = $arikaim->get('config')->load('relations.php',false);  
         
         foreach ($items as $key => $value) {
            $relations[$key] = Factory::getModelClass($value,$this->getName());
         }
 
         $relations = \array_unique($relations);
-        $result = $container->get('config')->save('relations.php',$relations);
+        $result = $arikaim->get('config')->save('relations.php',$relations);
         if ($result === false) {
             // add error
-            $this->addError($container->get('errors')->getError('REGISTER_RELATION_ERROR'));
+            $this->addError($arikaim->get('errors')->getError('REGISTER_RELATION_ERROR'));
         }   
 
         return $result;
@@ -332,17 +332,17 @@ abstract class Extension implements ExtensionInterface
      */
     public function addRelationMap(string $type, string $modelClass): bool
     {      
-        global $container;
+        global $arikaim;
 
-        $relations = $container->get('config')->load('relations.php',false);  
+        $relations = $arikaim->get('config')->load('relations.php',false);  
         $relations = \array_unique($relations);
 
         $relations[$type] = Factory::getModelClass($modelClass,$this->getName());
       
-        $result = $container->get('config')->save('relations.php',$relations);
+        $result = $arikaim->get('config')->save('relations.php',$relations);
         if ($result === false) {
             // add error
-            $this->addError($container->get('errors')->getError('REGISTER_RELATION_ERROR',['class' => $modelClass]));
+            $this->addError($arikaim->get('errors')->getError('REGISTER_RELATION_ERROR',['class' => $modelClass]));
         }   
 
         return $result;
@@ -358,13 +358,13 @@ abstract class Extension implements ExtensionInterface
      */
     public function createOption(string $key, $value, bool $autoLoad = true): bool
     {
-        global $container;
+        global $arikaim;
 
-        $result = $container->get('options')->createOption($key,$value,$autoLoad,$this->getName());
+        $result = $arikaim->get('options')->createOption($key,$value,$autoLoad,$this->getName());
         if ($result !== true) {
-            if ($container->get('options')->has($key) == false) {
+            if ($arikaim->get('options')->has($key) == false) {
                 // add error
-                $this->addError($container->get('errors')->getError('ERROR_CREATE_OPTION',['key' => $key]));
+                $this->addError($arikaim->get('errors')->getError('ERROR_CREATE_OPTION',['key' => $key]));
                 return false;
             }   
             return true;
@@ -395,12 +395,12 @@ abstract class Extension implements ExtensionInterface
         array $config = []
     )
     {
-        global $container;
+        global $arikaim;
 
-        $result = $container->get('driver')->install($name,$class,$category,$title,$description,$version,$config,$this->getName());
+        $result = $arikaim->get('driver')->install($name,$class,$category,$title,$description,$version,$config,$this->getName());
         if ($result !== true) {
             // add error
-            $this->addError($container->get('errors')->getError('ERROR_INSTALL_DRIVER',['name' => $name]));
+            $this->addError($arikaim->get('errors')->getError('ERROR_INSTALL_DRIVER',['name' => $name]));
         } 
         
         return $result;
@@ -414,12 +414,12 @@ abstract class Extension implements ExtensionInterface
     */
     public function unInstallDriver(string $name)
     {
-        global $container;
+        global $arikaim;
 
-        $result = $container->get('driver')->unInstall($name);
+        $result = $arikaim->get('driver')->unInstall($name);
         if ($result !== true) {
             // add error
-            $this->addError($container->get('errors')->getError('ERROR_UNINSTALL_DRIVER',['name' => $name]));
+            $this->addError($arikaim->get('errors')->getError('ERROR_UNINSTALL_DRIVER',['name' => $name]));
         } 
         
         return $result;
@@ -455,15 +455,15 @@ abstract class Extension implements ExtensionInterface
      */
     public function registerService(string $serviceProvider): bool
     {
-        global $container;
+        global $arikaim;
 
         if (\class_exists($serviceProvider) == false) {
             $serviceProvider = Factory::getExtensionNamespace($this->getName()) . "\\Service\\$serviceProvider";
         }
       
-        $result = $container->get('service')->register($serviceProvider);
+        $result = $arikaim->get('service')->register($serviceProvider);
         if ($result == false) {
-            $error = $container->get('errors')->getError('NOT_VALID_SERVICE_CLASS',['class' => $serviceProvider]);
+            $error = $arikaim->get('errors')->getError('NOT_VALID_SERVICE_CLASS',['class' => $serviceProvider]);
             $this->addError($error);
         }
 
@@ -479,9 +479,9 @@ abstract class Extension implements ExtensionInterface
      */
     public function runService(string $serviceName, Closure $callback)
     {
-        global $container;
+        global $arikaim;
 
-        return $container->get('service')->with($serviceName,$callback);
+        return $arikaim->get('service')->with($serviceName,$callback);
     }
 
     /**
@@ -492,15 +492,15 @@ abstract class Extension implements ExtensionInterface
      */
     public function unRegisterService(string $serviceProvider): bool
     {
-        global $container;
+        global $arikaim;
 
         if (\class_exists($serviceProvider) == false) {
             $serviceProvider = Factory::getExtensionNamespace($this->getName()) . "\\Service\\$serviceProvider";
         }
       
-        $result = $container->get('service')->unRegister($serviceProvider);
+        $result = $arikaim->get('service')->unRegister($serviceProvider);
         if ($result == false) {
-            $error = $container->get('errors')->getError('NOT_VALID_SERVICE_CLASS',['class' => $serviceProvider]);
+            $error = $arikaim->get('errors')->getError('NOT_VALID_SERVICE_CLASS',['class' => $serviceProvider]);
             $this->addError($error);
         }
 
@@ -515,12 +515,12 @@ abstract class Extension implements ExtensionInterface
      */
     public function registerConsoleCommand(string $class)
     {
-        global $container;
+        global $arikaim;
 
         $class = Factory::getExtensionConsoleClassName($this->getName(),Utils::getBaseClassName($class));
         if (\class_exists($class) == false) {
             // add error
-            $this->addError($container->get('errors')->getError('NOT_VALID_CONSOLE_CLASS',['class' => $class])); 
+            $this->addError($arikaim->get('errors')->getError('NOT_VALID_CONSOLE_CLASS',['class' => $class])); 
             return false;
         }
         $this->consoleClasses[] = $class;
@@ -539,11 +539,11 @@ abstract class Extension implements ExtensionInterface
      */
     public function addJob(string $class, ?string $name = null, bool $disabled = false): bool
     {       
-        global $container;
+        global $arikaim;
 
-        $job = $container->get('queue')->create($class,null,$this->getName());
+        $job = $arikaim->get('queue')->create($class,null,$this->getName());
         if ($job == null) {
-            $this->addError($container->get('errors')->getError('REGISTER_JOB_ERROR',['name' => $name])); 
+            $this->addError($arikaim->get('errors')->getError('REGISTER_JOB_ERROR',['name' => $name])); 
             return false;
         }
 
@@ -551,9 +551,9 @@ abstract class Extension implements ExtensionInterface
             $job->setName($name);
         }
 
-        $result = $container->get('queue')->jobsRegistry()->saveJob($job,$this->getName(),'extension');
+        $result = $arikaim->get('queue')->jobsRegistry()->saveJob($job,$this->getName(),'extension');
         if ($result == false) {
-            $this->addError($container->get('errors')->getError('REGISTER_JOB_ERROR',['name' => $name])); 
+            $this->addError($arikaim->get('errors')->getError('REGISTER_JOB_ERROR',['name' => $name])); 
         }
 
         return $result;
@@ -580,12 +580,12 @@ abstract class Extension implements ExtensionInterface
      */
     public function registerEvent(string $name, ?string $title = null, $descriptor = null)
     {
-        global $container;
+        global $arikaim;
 
-        $result = $container->get('event')->registerEvent($name,$title,$this->getName());
+        $result = $arikaim->get('event')->registerEvent($name,$title,$this->getName());
        
         if ($result !== true) {
-            $this->addError($container->get('errors')->getError('REGISTER_EVENT_ERROR',['name' => $name])); 
+            $this->addError($arikaim->get('errors')->getError('REGISTER_EVENT_ERROR',['name' => $name])); 
             return false;
         }
 
@@ -605,16 +605,16 @@ abstract class Extension implements ExtensionInterface
      */
     public function regiesterEventProperties(string $name, $descriptor): bool
     {
-        global $container;
+        global $arikaim;
 
         if (\is_string($descriptor) == true) {
             $eventDescriptor = Factory::getExtensionNamespace($this->getName()) . "\\Events\\$descriptor";
             $descriptor = Factory::createInstance($eventDescriptor);
         }
 
-        $result = $container->get('event')->savePropertiesDescriptor($name,$descriptor);
+        $result = $arikaim->get('event')->savePropertiesDescriptor($name,$descriptor);
         if ($result !== true) {
-            $this->addError($container->get('errors')->getError('REGISTER_EVENT_ERROR',['name' => $name])); 
+            $this->addError($arikaim->get('errors')->getError('REGISTER_EVENT_ERROR',['name' => $name])); 
         }
 
         return $result;
@@ -653,13 +653,13 @@ abstract class Extension implements ExtensionInterface
         bool $withLanguage = false
     )
     {       
-        global $container;
+        global $arikaim;
 
         if ($this->primary == true) {                      
-            $container->get('routes')->deleteHomePage();                     
+            $arikaim->get('routes')->deleteHomePage();                     
         } else {
             // find home page route
-            $homePageRoute = $container->get('routes')->getRoutes(['type' => 3]);
+            $homePageRoute = $arikaim->get('routes')->getRoutes(['type' => 3]);
             if (empty($homePageRoute) == false) {
                 return true;
             }          
@@ -701,21 +701,21 @@ abstract class Extension implements ExtensionInterface
         int $type = 1
     )
     {
-        global $container;
+        global $arikaim;
 
         $class = ($class == null) ? Factory::getControllerClass('Controller') : $this->getControllerClassName($class);
         $handlerMethod = ($handlerMethod == null) ? 'pageLoad' : $handlerMethod;
-        $auth = $container->get('access')->resolveAuthType($auth);
+        $auth = $arikaim->get('access')->resolveAuthType($auth);
         
         // if extension is primary remove existing page route
         if ($this->isPrimary() == true) {
-            $container->get('routes')->delete('GET',$pattern);          
-            $container->get('routes')->delete('GET',$pattern . Route::getLanguagePattern($pattern));
+            $arikaim->get('routes')->delete('GET',$pattern);          
+            $arikaim->get('routes')->delete('GET',$pattern . Route::getLanguagePattern($pattern));
         }
 
-        $result = $container->get('routes')->addPageRoute($pattern,$class,$handlerMethod,$this->getName(),$pageName,$auth,$routeName,$withLanguage,$type);
+        $result = $arikaim->get('routes')->addPageRoute($pattern,$class,$handlerMethod,$this->getName(),$pageName,$auth,$routeName,$withLanguage,$type);
         if ($result !== true) {           
-            $this->addError($container->get('errors')->getError('REGISTER_ROUTE_ERROR',['pattern' => $pattern])); 
+            $this->addError($arikaim->get('errors')->getError('REGISTER_ROUTE_ERROR',['pattern' => $pattern])); 
         }
 
         return $result;
@@ -751,9 +751,9 @@ abstract class Extension implements ExtensionInterface
     */
     public function setRouteRedirectUrl(string $method, string $pattern, string $url)
     {
-        global $container;
+        global $arikaim;
 
-        return $container->get('routes')->setRedirectUrl($method,$pattern,$url);
+        return $arikaim->get('routes')->setRedirectUrl($method,$pattern,$url);
     }
 
     /**
@@ -767,7 +767,7 @@ abstract class Extension implements ExtensionInterface
      */
     public function addMiddleware(string $method, string $pattern, $class, ?string $moduleName = null): bool
     {
-        global $container;
+        global $arikaim;
 
         if (\is_object($class) == true) {
             $class = \get_class($class);
@@ -779,7 +779,7 @@ abstract class Extension implements ExtensionInterface
             return false;
         }
         
-        return $container->get('routes')->addMiddleware($method,$pattern,$class);
+        return $arikaim->get('routes')->addMiddleware($method,$pattern,$class);
     }
 
     /**
@@ -802,9 +802,9 @@ abstract class Extension implements ExtensionInterface
         ?int $type = null
     )
     {
-        global $container;
+        global $arikaim;
 
-        $auth = $container->get('access')->resolveAuthType($auth);   
+        $auth = $arikaim->get('access')->resolveAuthType($auth);   
         $class = ($class == null) ? Factory::getControllerClass('Controller') : $this->getControllerClassName($class);
         
         // resolve api type
@@ -812,10 +812,10 @@ abstract class Extension implements ExtensionInterface
             $type = (RouteType::getType($pattern) == RouteType::ADMIN_API_URL) ? RoutesInterface::ADMIN_API : RoutesInterface::API; 
         }
      
-        $result = $container->get('routes')->addApiRoute($method,$pattern,$class,$handlerMethod,$this->getName(),$auth,$type);
+        $result = $arikaim->get('routes')->addApiRoute($method,$pattern,$class,$handlerMethod,$this->getName(),$auth,$type);
 
         if ($result !== true) {
-            $this->addError($container->get('errors')->getError('REGISTER_ROUTE_ERROR',['pattern' => $pattern])); 
+            $this->addError($arikaim->get('errors')->getError('REGISTER_ROUTE_ERROR',['pattern' => $pattern])); 
         }
 
         return $result;
@@ -850,11 +850,11 @@ abstract class Extension implements ExtensionInterface
      */
     public function createDbTable(string $schemaClass)
     {       
-        global $container;
+        global $arikaim;
 
         $result = Schema::install($schemaClass,$this->getName());   
         if ($result !== true) {
-            $this->addError($container->get('errors')->getError('CREATE_DB_TABLE_ERROR',['class' => $schemaClass])); 
+            $this->addError($arikaim->get('errors')->getError('CREATE_DB_TABLE_ERROR',['class' => $schemaClass])); 
         }
 
         return $result;
@@ -868,11 +868,11 @@ abstract class Extension implements ExtensionInterface
      */
     public function dropDbTable(string $schemaClass)
     {
-        global $container;
+        global $arikaim;
 
         $result = Schema::unInstall($schemaClass,$this->getName());
         if ($result !== true) {
-            $this->addError($container->get('errors')->getError('DROP_DB_TABLE_ERROR',['class' => $schemaClass])); 
+            $this->addError($arikaim->get('errors')->getError('DROP_DB_TABLE_ERROR',['class' => $schemaClass])); 
         }
 
         return $result;
