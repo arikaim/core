@@ -141,7 +141,8 @@ class Arikaim
         // Create app
         $GLOBALS['container'] = AppContainer::create($console,$config);
         $GLOBALS['container']->add('class.loader',$loader);
-        $GLOBALS['arikaim'] = $GLOBALS['container'];
+        
+        $GLOBALS['arikaim'] = &$GLOBALS['container'];
         
         // add headers from config file
         foreach($config['headers'] ?? [] as $header) {            
