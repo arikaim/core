@@ -36,6 +36,7 @@ class JobsRegistry extends Model
         'name',
         'title',
         'description',
+        'category',
         'handler_class',      
         'package_name',
         'package_type',
@@ -72,6 +73,7 @@ class JobsRegistry extends Model
         $data = [
             'title'         => $job->descriptor()->getValue('title'),
             'description'   => $job->descriptor()->getValue('descriptioon'),
+            'category'      => $job->descriptor()->getValue('category'),
             'handler_class' => \get_class($job),
             'name'          => $job->getName(),
             'package_name'  => $packageName,
@@ -79,6 +81,7 @@ class JobsRegistry extends Model
         ];
 
         $model = $this->findJob($job->getName());
+        
         $result = ($model == null) ? $this->create($data) : $model->update($data);
 
         return ($result !== false);

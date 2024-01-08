@@ -37,6 +37,7 @@ class JobsRegistrySchema extends Schema
         $table->string('name')->nullable(false);
         $table->string('title')->nullable(true);
         $table->text('description')->nullable(true);
+        $table->string('category')->nullable(true);
         $table->string('handler_class')->nullable(false);
         $table->string('package_name')->nullable(true);       
         $table->string('package_type')->nullable(true);
@@ -54,5 +55,8 @@ class JobsRegistrySchema extends Schema
      */
     public function update($table)
     {   
+        if ($this->hasColumn('category') == false) {
+            $table->string('category')->nullable(true);
+        } 
     }
 }

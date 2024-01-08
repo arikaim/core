@@ -21,6 +21,7 @@ use Arikaim\Core\Db\Traits\Uuid;
 use Arikaim\Core\Db\Traits\Find;
 use Arikaim\Core\Db\Traits\Status;
 use Arikaim\Core\Db\Traits\OptionsAttribute;
+use Arikaim\Core\Db\Traits\UserRelation;
 
 /**
  * Queue database model
@@ -31,6 +32,7 @@ class Queue extends Model implements QueueStorageInterface
         Find,
         Status,
         OptionsAttribute,
+        UserRelation,
         DateCreated;
  
     /**
@@ -44,6 +46,7 @@ class Queue extends Model implements QueueStorageInterface
         'recuring_interval',
         'handler_class',      
         'status',
+        'user_id',
         'extension_name',
         'schedule_time',
         'date_created',

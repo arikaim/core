@@ -48,6 +48,7 @@ class QueueSchema extends Schema
         $table->dateColumn('date_executed');   
         $table->text('config')->nullable(true);
         $table->string('queue')->nullable(true);
+        $table->userId();
         // indexes         
         $table->index('name');
         $table->index('recuring_interval');  
@@ -77,6 +78,9 @@ class QueueSchema extends Schema
         } 
         if ($this->hasColumn('service_name') == false) {
             $table->string('service_name')->nullable(true);
-        }      
+        }   
+        if ($this->hasColumn('user_id') == false) {
+            $table->userId();
+        }    
     }
 }

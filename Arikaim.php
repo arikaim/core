@@ -117,7 +117,7 @@ class Arikaim
     
         // Init constants     
         (\defined('ROOT_PATH') == false) ? \define('ROOT_PATH',Self::getRootPath($console)) : null;
-        \define('DOMAIN',Self::$scheme . '://' . ($config['environment']['host'] ?? Self::resolveHost($_SERVER)) );  
+        \define('DOMAIN',Self::$scheme . '://' . ($config['environment']['host'] ?? Self::resolveHost($_SERVER)));  
         \define('BASE_PATH',$config['environment']['basePath'] ?? Self::resolveBasePath($_SERVER,DOMAIN) );      
         \define('APP_PATH',ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');       
         \define('APP_URL',DOMAIN . BASE_PATH . '/arikaim');
@@ -276,6 +276,17 @@ class Arikaim
     public static function getHost(): string 
     {      
         return \parse_url(DOMAIN,PHP_URL_HOST);
+    }
+
+    /**
+     * Get port
+     *
+     * @param string $prefix
+     * @return string
+     */
+    public static function getPort(string $prefix = ':'): string
+    {
+        return (($_SERVER['SERVER_PORT'] ?? 80) == 80) ? '' : $prefix . $_SERVER['SERVER_PORT'];
     }
 
     /**
