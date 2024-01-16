@@ -108,13 +108,13 @@ class UserGroups extends Model
      * Get user groups
      *
      * @param integer $userId
-     * @return Collection|array
+     * @return array
      */
-    public function getUserGroups(int $userId)
+    public function getUserGroups(int $userId): array
     {
-        $model = UserGroupMembers::where('user_id','=',$userId)->get();
+        $model = DbModel::UserGroupMembers()->where('user_id','=',$userId)->get();
 
-        return (\is_object($model) == true) ? $model : [];
+        return ($model == null) ? [] : $model->toArray();
     }
 
     /**
@@ -145,7 +145,7 @@ class UserGroups extends Model
             return true;
         }
 
-        $model = UserGroupMembers::create([
+        $model = DbModel::UserGroupMembers()->create([
             'group_id'     => $group->id,
             'user_id'      => $userId,
             'date_expired' => $dateExpire

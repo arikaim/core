@@ -185,7 +185,7 @@ class PermissionRelations extends Model implements PermissionsInterface
         // check groups
         $groupList = DbModel::UserGroups()->getUserGroups($userId);
         foreach ($groupList as $item) {          
-            $permission = $this->getGroupPermission($name,$item->group_id);
+            $permission = $this->getGroupPermission($name,$item['group_id']);
             if ($permission !== false) {
                 return $permission;
             }
