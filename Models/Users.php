@@ -220,6 +220,10 @@ class Users extends Model implements UserProviderInterface
      */
     public function getUserById($id): ?array
     {
+        if (empty($id) == true) {
+            return null;
+        }
+
         $model = $this->findById($id);
         if ($model == null) {
             return null;

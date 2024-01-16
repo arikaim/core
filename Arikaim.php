@@ -9,15 +9,11 @@
  */
 namespace Arikaim\Core;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Container\ContainerInterface;
-
 use Arikaim\Core\Framework\Router\ArikaimRouter;
 use Arikaim\Core\App\AppContainer;
 use Arikaim\Core\Http\Session;
 use Arikaim\Core\Utils\Path;
 use Arikaim\Core\Framework\Application;
-use Arikaim\Core\Framework\Middleware\BodyParsingMiddleware;
 use ErrorException;
 
 /**
@@ -140,8 +136,7 @@ class Arikaim
 
         // Create app
         $GLOBALS['container'] = AppContainer::create($console,$config);
-        $GLOBALS['container']->add('class.loader',$loader);
-        
+        $GLOBALS['container']->add('class.loader',$loader);        
         $GLOBALS['arikaim'] = &$GLOBALS['container'];
         
         // add headers from config file
@@ -151,8 +146,8 @@ class Arikaim
 
         // create app
         Self::$app = new Application(
-            $GLOBALS['container'],
-            new ArikaimRouter($GLOBALS['container'],BASE_PATH,\Arikaim\Core\Db\Model::Routes())
+            $GLOBALS['arikaim'],
+            new ArikaimRouter($GLOBALS['arikaim'])
         );
     }
 
@@ -172,19 +167,11 @@ class Arikaim
         });
 
         // Session init
-        Session::start();
-                    
-        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') != 'GET') {
-            Self::$app->addMiddleware(BodyParsingMiddleware::class);           
-        }         
-        
+        Session::start();                
+
         // add global middlewares
-        $middlewares = $config['middleware'] ?? Self::config()->get('middleware',[]);      
-        foreach ($middlewares as $item) {
-            if (empty($item['handler'] ?? '') == false) {
-                Self::$app->addMiddleware($item['handler'],$item['options'] ?? []);
-            }           
-        }   
+        $middlewares = $config['middleware'] ?? Self::config()->get('middleware',[]);   
+        Self::$app->setMiddlewares($middlewares);
 
         // boot db
         Self::get('db');

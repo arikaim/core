@@ -117,7 +117,7 @@ class Routes extends Model implements RoutesStorageInterface
     {
         $model = $this->findById($id);
 
-        return ($model === false) ? null : $model->toArray();
+        return ($model === null) ? null : $model->toArray();
     }
 
     /**
@@ -129,7 +129,7 @@ class Routes extends Model implements RoutesStorageInterface
     {
         $model = $this->where('status','=',1)->where('type','=',3)->first();
 
-        return (empty($model) == false) ? [$model->toArray()] : [];
+        return ($model != null) ? [$model->toArray()] : [];
     }
 
     /**
@@ -145,9 +145,12 @@ class Routes extends Model implements RoutesStorageInterface
         if (empty($type) == false) {
             $model = $model->where('type','=',$type);
         }      
-        $model = $model->where('method','like','%' . $method . '%')->orderByDesc('type')->get();
-      
-        return (\is_object($model) == true) ? $model->toArray() : [];
+        
+        return $model
+            ->where('method','like','%' . $method . '%')
+            ->orderByDesc('type')
+            ->get()
+            ->toArray();      
     }
 
     /**
@@ -174,9 +177,10 @@ class Routes extends Model implements RoutesStorageInterface
         foreach ($filter as $key => $value) {
             $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);      
         }
-        $model = $model->get();
-
-        return (\is_object($model) == true) ? $model->toArray() : [];
+    
+        return $model
+            ->get()
+            ->toArray();
     }
 
     /**
@@ -211,7 +215,7 @@ class Routes extends Model implements RoutesStorageInterface
             $model = $model->where($key,'=',$value);
         }
 
-        return (\is_object($model) == true) ? (bool)$model->update(['status' => $status]) : false;
+        return (bool)$model->update(['status' => $status]);
     }
 
     /**
@@ -223,13 +227,12 @@ class Routes extends Model implements RoutesStorageInterface
      */
     public function deleteRoute(string $method, string $pattern): bool
     {       
-        $model = $this->where('method','=',$method)->where('pattern','=',$pattern);
-        if (\is_object($model) == true) {
-            $result = $model->delete();
-            return ($result == null) ? true : $result;
-        }
-
-        return true;
+        $result = $this
+            ->where('method','=',$method)
+            ->where('pattern','=',$pattern)
+            ->delete();
+      
+        return ($result !== false);       
     }
 
     /**
@@ -243,7 +246,7 @@ class Routes extends Model implements RoutesStorageInterface
     {
         $model = $this->where('method','=',$method)->where('pattern','=',$pattern)->first();
 
-        return (\is_object($model) == false) ? false : $model->toArray();          
+        return ($model == null) ? false : $model->toArray();          
     }
 
     /**
@@ -257,7 +260,7 @@ class Routes extends Model implements RoutesStorageInterface
     public function saveRedirectUrl(string $method, string $pattern, string $url): bool
     {
         $model = $this->where('method','=',$method)->where('pattern','=',$pattern)->first();
-        if (empty($model) == false) {
+        if ($model !== null) {
             $model->redirect_url = $url;
             
             return (bool)$model->save();
@@ -277,7 +280,7 @@ class Routes extends Model implements RoutesStorageInterface
     public function saveRouteOptions(string $method, string $pattern, array $options): bool
     {
         $model = $this->where('method','=',$method)->where('pattern','=',$pattern)->first();
-        if (\is_object($model) == true) {
+        if ($model !== null) {
             $model->options = $options; 
             
             return (bool)$model->save();
@@ -295,9 +298,7 @@ class Routes extends Model implements RoutesStorageInterface
      */
     public function hasRoute(string $method, string $pattern): bool
     {
-        $model = $this->getRoute($method, $pattern);
-
-        return ($model !== false);
+        return ($this->getRoute($method,$pattern) !== false);        
     }
 
     /**
@@ -312,7 +313,7 @@ class Routes extends Model implements RoutesStorageInterface
             $route['uuid'] = UuidFactory::create();
             $model = $this->create($route);
             
-            return \is_object($model);
+            return ($model !== null);
         }  
         $model = $this->where('method','=',$route['method'])->where('pattern','=',$route['pattern'])->first();
         $result = $model->update($route);  

@@ -58,10 +58,10 @@ class Permissions extends Model
     protected $table = 'permissions';
 
     /**
-     * Slug source column
+     * Custom slug source column
      *
      * @var string
-    */
+     */
     protected $slugSourceColumn = 'name';
 
     /**
