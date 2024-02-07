@@ -789,7 +789,7 @@ abstract class Extension implements ExtensionInterface
      * @param string $pattern
      * @param string $class
      * @param string $handlerMethod
-     * @param null|integer|string $auth
+     * @param null|integer|string|array $auth
      * @param int|null $type
      * @return bool
      */

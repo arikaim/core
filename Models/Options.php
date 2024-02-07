@@ -143,15 +143,13 @@ class Options extends Model implements OptionsStorageInterface
     public function loadOptions(): array
     {             
         try {
-            $model = $this->where('auto_load','=','1')->select('key','value')->get();
-            if (\is_object($model) == true) {
-                $options = $model->mapWithKeys(function ($item) {
-                    return [$item['key'] => $item['value']];
-                })->toArray(); 
+            $model = $this->select('key','value')->get();
+            $options = $model->mapWithKeys(function ($item) {
+                return [$item['key'] => $item['value']];
+            })->toArray(); 
 
-                return $options;
-            }               
-        
+            return $options;
+                              
         } catch (Exception $e) {
             return [];
         }
