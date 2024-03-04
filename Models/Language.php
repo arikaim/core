@@ -68,6 +68,30 @@ class Language extends Model
     }
 
     /**
+     * Gte languages by codes
+     *
+     * @param array $codes
+     * @return void
+     */
+    public function getLanguages(array $codes)
+    {
+        return $this->whereIn('code',$codes)->get();
+    }
+
+    /**
+     * Find language by code
+     *
+     * @param string $code
+     * @return object|null
+     */
+    public function findLanguage(string $code): ?object
+    {
+        $code = \strtolower(\trim($code));
+
+        return $this->where('code','=',$code)->orWhere('code_3','=',$code)->first();
+    }
+
+    /**
      * Return true if language exist
      *
      * @param string $code

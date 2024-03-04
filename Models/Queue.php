@@ -295,7 +295,7 @@ class Queue extends Model implements QueueStorageInterface
      */
     public function getJobsDue(?string $jobName = null): ?array
     {
-        return $this->getJobsDueQuery()
+        return $this->getJobsDueQuery($jobName)
             ->orderBy('priority','desc')
             ->get()
             ->toArray();       
@@ -315,7 +315,7 @@ class Queue extends Model implements QueueStorageInterface
             ->where('status','<>',JobInterface::STATUS_SUSPENDED)          
             ->where(function($query) {
                 // scheduled
-                $query->whereNull('schedule_time')->orWhere('schedule_time','<',DateTime::toTimestamp());
+                $query->whereNull('schedule_time')->orWhere('schedule_time','<',DateTime::getCurrentTimestamp());
                 // recurring
                 $query->orWhere(function($query) {
                     $query->where('recuring_interval','<>','');
