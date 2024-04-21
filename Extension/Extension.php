@@ -22,6 +22,7 @@ use Arikaim\Core\Routes\RouteType;
 
 use Arikaim\Core\System\Error\Traits\TaskErrors;
 use Closure;
+use Exception;
 
 /**
  * Base class for all extensions.
@@ -852,11 +853,18 @@ abstract class Extension implements ExtensionInterface
     {       
         global $arikaim;
 
-        $result = Schema::install($schemaClass,$this->getName());   
-        if ($result !== true) {
-            $this->addError($arikaim->get('errors')->getError('CREATE_DB_TABLE_ERROR',['class' => $schemaClass])); 
-        }
+        try {
+            $result = Schema::install($schemaClass,$this->getName());   
+            if ($result !== true) {
+                $this->addError($arikaim->get('errors')->getError('CREATE_DB_TABLE_ERROR',['class' => $schemaClass])); 
+            }
 
+            return $result;
+            
+        } catch (Exception $e) {
+            $this->addError($e->getMessage());
+        }
+       
         return $result;
     }
 

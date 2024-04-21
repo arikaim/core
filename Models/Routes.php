@@ -196,9 +196,8 @@ class Routes extends Model implements RoutesStorageInterface
         foreach ($filter as $key => $value) {
             $model = ($value == '*') ? $model->whereNotNull($key) : $model->where($key,'=',$value);                          
         }
-        $result = $model->delete();
-
-        return ($result !== false);
+       
+        return ($model->delete() !== false);
     }
 
     /**
