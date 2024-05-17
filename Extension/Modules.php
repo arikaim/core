@@ -11,7 +11,6 @@ namespace Arikaim\Core\Extension;
 
 use Arikaim\Core\Utils\Factory;
 use Arikaim\Core\Db\Model;
-use Arikaim\Core\Interfaces\CacheInterface;
 use Arikaim\Core\Interfaces\ModuleInterface;
 
 /**
@@ -20,20 +19,11 @@ use Arikaim\Core\Interfaces\ModuleInterface;
 class Modules  
 {
     /**
-     * Cache
-     *
-     * @var CacheInterface
-    */
-    private $cache;
-
-    /**
      * Constructor
      *
-     * @param CacheInterface $cache
      */
-    public function __construct(CacheInterface $cache)
+    public function __construct()
     {
-        $this->cache = $cache;
     } 
 
     /**
@@ -44,11 +34,13 @@ class Modules
      */
     public function create(string $name)
     {        
-        $module = $this->cache->fetch('module.' . $name);
+        global $arikaim;
+
+        $module = $arikaim->get('cache')->fetch('module.' . $name);
         if ($module === false) {
             $module = Model::Modules()->getPackage($name);
             if ($module !== false) {
-                $this->cache->save('module.' . $name,$module,5);  
+                $arikaim->get('cache')->save('module.' . $name,$module,5);  
             }  
         } 
         
@@ -73,7 +65,9 @@ class Modules
      */
     public function hasModule(string $name): bool
     {
-        $module = $this->cache->fetch('module.' . $name);
+        global $arikaim;
+
+        $module = $arikaim->get('cache')->fetch('module.' . $name);
         if ($module === false) {
             $module = Model::Modules()->getPackage($name);
         }
