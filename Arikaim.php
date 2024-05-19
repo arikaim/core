@@ -317,6 +317,6 @@ class Arikaim
     {      
         $basePath = \dirname((string)\parse_url($env['SCRIPT_NAME'],PHP_URL_PATH));  
 
-        return ($basePath == '/' || $basePath = '.') ? '' : $basePath;                
+        return ($basePath == '/' || $basePath == '.') ? '' : $basePath;                
     }   
 }
