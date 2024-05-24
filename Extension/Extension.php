@@ -848,23 +848,18 @@ abstract class Extension implements ExtensionInterface
      *
      * @param string $schemaClass
      * @return boolean
+     * @throws Exception
      */
     public function createDbTable(string $schemaClass)
     {       
         global $arikaim;
 
-        try {
-            $result = Schema::install($schemaClass,$this->getName());   
-            if ($result !== true) {
-                $this->addError($arikaim->get('errors')->getError('CREATE_DB_TABLE_ERROR',['class' => $schemaClass])); 
-            }
-
-            return $result;
-            
-        } catch (Exception $e) {
-            $this->addError($e->getMessage());
+        $result = Schema::install($schemaClass,$this->getName());   
+        if ($result !== true) {
+            $error = $arikaim->get('errors')->getError('CREATE_DB_TABLE_ERROR',['class' => $schemaClass]);
+            throw new Exception($error, 1);
         }
-       
+
         return $result;
     }
 
