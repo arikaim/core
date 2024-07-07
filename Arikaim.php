@@ -133,12 +133,18 @@ class Arikaim
         \define('CURRENT_NUMBER_FORMAT',$config['settings']['numberFormat'] ?? null);                             
         \define('CURRENT_DATE_FORMAT',$config['settings']['dateFormat'] ?? null);           
         \define('CURRENT_TIME_FORMAT',$config['settings']['timeFormat'] ?? null);  
-
+      
         // Create app
         $GLOBALS['container'] = AppContainer::create($console,$config);
         $GLOBALS['container']->add('class.loader',$loader);        
         $GLOBALS['arikaim'] = &$GLOBALS['container'];
         
+        // Session storage handler
+        $sessionHnadler = $config['settings']['sessionHandler'] ?? null;
+        if (empty($sessionHnadler) == false) {
+            Self::initSessionHandler($sessionHnadler);
+        }
+       
         // add headers from config file
         foreach($config['headers'] ?? [] as $header) {            
             \header($header);
@@ -149,6 +155,35 @@ class Arikaim
             $GLOBALS['arikaim'],
             new ArikaimRouter($GLOBALS['arikaim'])
         );
+    }
+
+    /**
+     * Init session storage handler
+     *
+     * @param string $name
+     * @return void
+     */
+    protected static function initSessionHandler(string $name): void
+    {
+        global $arikaim;
+
+        switch ($name) {
+            case 'predis':
+                // predis session storage
+                $handler = new \Predis\Session\Handler((new \Predis\Client()),[
+                    'gc_maxlifetime' => 86400
+                ]);
+                $handler->register();
+                break;
+            
+            case 'database':
+                // db session storage
+                $handler = new \Arikaim\Core\System\Session\DbSessionStorage(
+                    $arikaim->get('db')->getCapsule()->getConnection()
+                );
+                $handler->register();
+                break; 
+        }
     }
 
     /**

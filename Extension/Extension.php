@@ -398,6 +398,12 @@ abstract class Extension implements ExtensionInterface
     {
         global $arikaim;
 
+        if (empty($class) == true) {
+            $name = (\class_exists($name) == false) ? 
+                Factory::getExtensionNamespace($this->getName()) . '\\Drivers\\' . $name:
+                $name;
+        }
+
         $result = $arikaim->get('driver')->install($name,$class,$category,$title,$description,$version,$config,$this->getName());
         if ($result !== true) {
             // add error
@@ -432,10 +438,8 @@ abstract class Extension implements ExtensionInterface
      * @return string
      */
     public function getName() 
-    {    
-        $class = Utils::getBaseClassName($this);
-        
-        return \strtolower($class);      
+    {     
+        return \strtolower(Utils::getBaseClassName($this));      
     }
 
     /**
@@ -583,7 +587,18 @@ abstract class Extension implements ExtensionInterface
     {
         global $arikaim;
 
-        $result = $arikaim->get('event')->registerEvent($name,$title,$this->getName());
+        $eventClass = (\class_exists($name) == true) ? $name : Factory::getEventClass($name,$this->getName());
+        $description = null;
+        
+        if (\class_exists($eventClass) == true) {
+            $event = new $eventClass();  
+            $name = $event->getName();
+            $title = (empty($title) == false) ? $title : $event->getTitle();
+            $description = $event->getDescription();
+            $descriptor = $event->descriptor();
+        }
+       
+        $result = $arikaim->get('event')->registerEvent($name,$title,$this->getName(),$description);
        
         if ($result !== true) {
             $this->addError($arikaim->get('errors')->getError('REGISTER_EVENT_ERROR',['name' => $name])); 
