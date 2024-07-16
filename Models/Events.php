@@ -58,6 +58,19 @@ class Events extends Model implements EventRegistryInterface
     public $timestamps = false;
 
     /**
+     * Get event propreties
+     *
+     * @param string $name
+     * @return array|null
+     */
+    public function getProperties(string $name): ?array
+    {
+        $model = $this->findByColumn($name,'name');
+
+        return ($model == null) ? null : $model->properties;
+    }
+
+    /**
      * Save event properties description
      *
      * @param string $name
