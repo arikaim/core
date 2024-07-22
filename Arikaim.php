@@ -153,7 +153,7 @@ class Arikaim
         // create app
         Self::$app = new Application(
             $GLOBALS['arikaim'],
-            new ArikaimRouter($GLOBALS['arikaim'])
+            new ArikaimRouter($GLOBALS['arikaim'],null,null,$config['settings'])
         );
     }
 
