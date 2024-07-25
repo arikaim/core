@@ -114,7 +114,13 @@ class Arikaim
         // Init constants     
         (\defined('ROOT_PATH') == false) ? \define('ROOT_PATH',Self::getRootPath($console)) : null;
         \define('DOMAIN',Self::$scheme . '://' . ($config['environment']['host'] ?? Self::resolveHost($_SERVER)));  
-        \define('BASE_PATH',$config['environment']['basePath'] ?? Self::resolveBasePath($_SERVER, DOMAIN) );      
+        
+        if ($console == false) {
+            \define('BASE_PATH',$config['environment']['basePath'] ?? Self::resolveBasePath($_SERVER, DOMAIN));      
+        } else {
+            \define('BASE_PATH','');
+        }
+        
         \define('APP_PATH',ROOT_PATH . BASE_PATH . DIRECTORY_SEPARATOR . 'arikaim');       
         \define('APP_URL',DOMAIN . BASE_PATH . '/arikaim');
         \define('CORE_NAMESPACE','Arikaim\\Core');     
