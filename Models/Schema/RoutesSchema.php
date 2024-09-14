@@ -52,7 +52,7 @@ class RoutesSchema extends Schema
          
         // indexes           
         $table->unique(['pattern','method']);          
-        $table->unique(['name','extension_name']);
+        $table->unique(['name']);
     }
 
     /**
@@ -63,6 +63,11 @@ class RoutesSchema extends Schema
      */
     public function update($table)
     {       
+        if ($this->hasIndex('routes_name_extension_name_unique') == true) {
+            $this->dropIndex('routes_name_extension_name_unique');
+            $table->unique(['name']);
+        }
+
         if ($this->getColumnType('auth') == 'integer') {
             $table->string('auth')->change();
         }
