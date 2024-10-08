@@ -60,6 +60,13 @@ class PermissionRelations extends Model implements PermissionsInterface
     protected $table = 'permission_relations';
 
     /**
+     * Main db connection
+     *
+     * @var string
+     */
+    protected $connection = 'system';
+    
+    /**
      * Disable timestamps
      *
      * @var boolean

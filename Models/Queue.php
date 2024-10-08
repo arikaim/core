@@ -73,6 +73,13 @@ class Queue extends Model implements QueueStorageInterface
     protected $table = 'queue';
 
     /**
+     * Main db connection
+     *
+     * @var string
+     */
+    protected $connection = 'system';
+
+    /**
      * Disable timestamps
      *
      * @var boolean
@@ -253,10 +260,10 @@ class Queue extends Model implements QueueStorageInterface
     /**
      * Update execution status
      *
-     * @param JobInterface $job
+     * @param JobInterface|object $job
      * @return bool
      */
-    public function updateExecutionStatus(JobInterface $job): bool
+    public function updateExecutionStatus(object $job): bool
     {              
         $model = $this->findByIdQuery($job->getId());
     

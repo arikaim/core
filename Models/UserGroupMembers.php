@@ -47,6 +47,13 @@ class UserGroupMembers extends Model
     protected $table = 'user_group_members';
 
     /**
+     * Main db connection
+     *
+     * @var string
+     */
+    protected $connection = 'system';
+
+    /**
      * Disable timestamps
      *
      * @var boolean

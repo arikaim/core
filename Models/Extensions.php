@@ -66,6 +66,13 @@ class Extensions extends Model implements PackageRegistryInterface
     protected $table = 'extensions';
 
     /**
+     * Main db connection
+     *
+     * @var string
+     */
+    protected $connection = 'system';
+    
+    /**
      * Disable timestamps
      *
      * @var boolean

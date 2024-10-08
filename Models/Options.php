@@ -48,6 +48,13 @@ class Options extends Model implements OptionsStorageInterface
     protected $table = 'options';
 
     /**
+     * Main db connection
+     *
+     * @var string
+     */
+    protected $connection = 'system';
+    
+    /**
      * Read option
      *
      * @param string $key

@@ -43,6 +43,13 @@ class AccessTokens extends Model implements UserProviderInterface
     protected $table = 'access_tokens';
 
     /**
+     * Main db connection
+     *
+     * @var string
+     */
+    protected $connection = 'system';
+    
+    /**
      * Auth id column name
      *
      * @var string

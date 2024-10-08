@@ -59,6 +59,13 @@ class Drivers extends Model implements DriverRegistryInterface
     protected $table = 'drivers';
 
     /**
+     * Main db connection
+     *
+     * @var string
+     */
+    protected $connection = 'system';
+    
+    /**
      * Mutator (set) for config attribute.
      *
      * @param array|string $value

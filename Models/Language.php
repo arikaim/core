@@ -36,6 +36,13 @@ class Language extends Model
     protected $table = 'language';
     
     /**
+     * Main db connection
+     *
+     * @var string
+     */
+    protected $connection = 'system';
+    
+    /**
      * Fillable attributes
      *
      * @var array

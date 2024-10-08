@@ -77,6 +77,13 @@ class Users extends Model implements UserProviderInterface
     protected $table = 'users';
 
     /**
+     * Main db connection
+     *
+     * @var string
+     */
+    protected $connection = 'system';
+
+    /**
      * User details relation
      *
      * @return Relation|null

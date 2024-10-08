@@ -46,6 +46,13 @@ class Logs extends Model
     protected $table = 'logs';
 
     /**
+     * Main db connection
+     *
+     * @var string
+     */
+    protected $connection = 'system';
+    
+    /**
      * Disable timestamps
      *
      * @var boolean

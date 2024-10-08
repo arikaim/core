@@ -56,6 +56,13 @@ class UserGroups extends Model
     protected $table = 'user_groups';
 
     /**
+     * Main db connection
+     *
+     * @var string
+     */
+    protected $connection = 'system';
+
+    /**
      * Find group model by id, uuid, slug, title
      *
      * @param mixed $value

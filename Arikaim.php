@@ -113,10 +113,11 @@ class Arikaim
     
         // Init constants     
         (\defined('ROOT_PATH') == false) ? \define('ROOT_PATH',Self::getRootPath($console)) : null;
-        \define('DOMAIN',Self::$scheme . '://' . ($config['environment']['host'] ?? Self::resolveHost($_SERVER)));  
+        \define('HOST',($config['environment']['host'] ?? Self::resolveHost($_SERVER)));
+        \define('DOMAIN',Self::$scheme . '://' . HOST);  
         
         if ($console == false) {
-            \define('BASE_PATH',$config['environment']['basePath'] ?? Self::resolveBasePath($_SERVER, DOMAIN));      
+            \define('BASE_PATH',$config['environment']['basePath'] ?? Self::resolveBasePath($_SERVER,DOMAIN));      
         } else {
             \define('BASE_PATH','');
         }
@@ -145,22 +146,21 @@ class Arikaim
         $GLOBALS['container']->add('class.loader',$loader);        
         $GLOBALS['arikaim'] = &$GLOBALS['container'];
         
-        // Session storage handler
-        $sessionHnadler = $config['settings']['sessionHandler'] ?? null;
-        if (empty($sessionHnadler) == false) {
-            Self::initSessionHandler($sessionHnadler);
-        }
-       
         // add headers from config file
         foreach($config['headers'] ?? [] as $header) {            
             \header($header);
         }      
 
-        // create app
-        Self::$app = new Application(
-            $GLOBALS['arikaim'],
-            new ArikaimRouter($GLOBALS['arikaim'],null,null,$config['settings'])
-        );
+        if ($console == false) {
+            // create app
+            Self::$app = new Application(
+                $GLOBALS['arikaim'],
+                new ArikaimRouter($GLOBALS['arikaim'],null,null,$config['settings'])
+            );
+        } else {
+            // boot db
+            Self::get('db')->init();
+        }
     }
 
     /**
@@ -207,15 +207,21 @@ class Arikaim
             throw new ErrorException($message,0,$num,$file,$line);
         });
 
-        // Session init
-        Session::start();                
-
         // add global middlewares
         $middlewares = $config['middleware'] ?? Self::config()->get('middleware',[]);   
         Self::$app->setMiddlewares($middlewares);
 
         // boot db
-        Self::get('db');
+        Self::get('db')->init();
+
+        // Session storage handler
+        $sessionHnadler = $config['settings']['sessionHandler'] ?? null;
+        if (empty($sessionHnadler) == false) {
+            Self::initSessionHandler($sessionHnadler);
+        }
+
+        // Session init
+        Session::start();           
     }
     
     /**

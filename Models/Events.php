@@ -51,6 +51,13 @@ class Events extends Model implements EventRegistryInterface
     protected $table = 'events';
 
     /**
+     * Main db connection
+     *
+     * @var string
+     */
+    protected $connection = 'system';
+    
+    /**
      * Timestamps disabled
      *
      * @var boolean

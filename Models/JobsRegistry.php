@@ -54,6 +54,13 @@ class JobsRegistry extends Model
     protected $table = 'jobs_registry';
 
     /**
+     * Main db connection
+     *
+     * @var string
+     */
+    protected $connection = 'system';
+    
+    /**
      * Disable timestamps
      *
      * @var boolean

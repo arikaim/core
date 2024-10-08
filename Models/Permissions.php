@@ -58,6 +58,13 @@ class Permissions extends Model
     protected $table = 'permissions';
 
     /**
+     * Main db connection
+     *
+     * @var string
+     */
+    protected $connection = 'system';
+    
+    /**
      * Custom slug source column
      *
      * @var string
