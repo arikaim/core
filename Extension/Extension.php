@@ -61,6 +61,15 @@ abstract class Extension implements ExtensionInterface
     }
 
     /**
+     * Running in each extension install
+     *
+     * @return void
+     */
+    public function dbInstall(): void
+    {
+    }
+
+    /**
      * Register content provider
      *
      * @param string|object $provider
