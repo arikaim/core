@@ -53,6 +53,13 @@ class Module implements ModuleInterface
     protected $middlewareClasses = [];
 
     /**
+     * Install driver func
+     *
+     * @var null|callable
+     */
+    public $installDriver = null;
+
+    /**
      * Call
      *
      * @param string $name
