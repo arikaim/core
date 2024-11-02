@@ -60,6 +60,20 @@ class Module implements ModuleInterface
     public $installDriver = null;
 
     /**
+     * Register console command method
+     *
+     * @var null|callable
+     */
+    public $registerConsoleCommand = null;
+
+    /**
+     * Register service method
+     *
+     * @var null|callable
+     */
+    public $registerService = null;
+
+    /**
      * Call
      *
      * @param string $name
