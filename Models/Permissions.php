@@ -82,6 +82,15 @@ class Permissions extends Model
     }
 
     /**
+     * Mutator (get) for editable attribute.
+     * @return bool
+     */
+    public function getEditableAttribute(): bool
+    {
+        return !empty($this->attributes['editable']);
+    }
+
+    /**
      * Mutator (get) for is_deny attribute.
      *
      * @return bool
@@ -130,7 +139,7 @@ class Permissions extends Model
      * @param string $title
      * @param string|null $description
      * @param int|null $deny
-     * @return Model|false
+     * @return object|false
      */
     public function createPermission(string $name, string $title = '', ?string $description = null, ?bool $deny = null)
     {
@@ -174,7 +183,7 @@ class Permissions extends Model
     /**
      * Get permisisons list query
      *
-     * @return Builder
+     * @return object
      */
     public function getListQuery()
     {

@@ -115,6 +115,7 @@ class Arikaim
         (\defined('ROOT_PATH') == false) ? \define('ROOT_PATH',Self::getRootPath($console)) : null;
         \define('HOST',($config['environment']['host'] ?? Self::resolveHost($_SERVER)));
         \define('DOMAIN',Self::$scheme . '://' . HOST);  
+        \define('SUB_DOMAIN',\explode('.',HOST)[0]);
         
         if ($console == false) {
             \define('BASE_PATH',$config['environment']['basePath'] ?? Self::resolveBasePath($_SERVER,DOMAIN));      
@@ -146,22 +147,23 @@ class Arikaim
         $GLOBALS['container']->add('class.loader',$loader);        
         $GLOBALS['arikaim'] = &$GLOBALS['container'];
         
-        if ($console == false) {
-            // create app
-            Self::$app = new Application(
-                $GLOBALS['arikaim'],
-                new ArikaimRouter(
-                    $GLOBALS['arikaim'],                  
-                    $config['settings']                   
-                ),
-                null,
-                null,
-                $config['headers']
-            );
-        } else {
+        if ($console == true) {
             // boot db
             Self::get('db')->init();
+            return;
         }
+
+        // create app
+        Self::$app = new Application(
+            $GLOBALS['arikaim'],
+            new ArikaimRouter(
+                $GLOBALS['arikaim'],                  
+                $config['settings']                   
+            ),
+            null,
+            null,
+            $config['headers'] ?? []
+        );
     }
 
     /**
@@ -214,6 +216,13 @@ class Arikaim
 
         // boot db
         Self::get('db')->init();
+
+        // set tenant db 
+        if (($config['tenant'] ?? false) == true) {
+            Self::get('service')->withService('tenant',function($service) {
+                $service->createTenantDbConnection();
+            });
+        }
 
         // Session storage handler
         $sessionHnadler = $config['settings']['sessionHandler'] ?? null;
