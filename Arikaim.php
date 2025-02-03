@@ -118,7 +118,7 @@ class Arikaim
         \define('SUB_DOMAIN',\explode('.',HOST)[0]);
         
         if ($console == false) {
-            \define('BASE_PATH',$config['environment']['basePath'] ?? Self::resolveBasePath($_SERVER,DOMAIN));      
+            \define('BASE_PATH',$config['environment']['basePath'] ?? Self::resolveBasePath($_SERVER));      
         } else {
             \define('BASE_PATH','');
         }
