@@ -79,7 +79,7 @@ class JobsRegistry extends Model
     {
         $data = [
             'title'         => $job->descriptor()->getValue('title'),
-            'description'   => $job->descriptor()->getValue('descriptioon'),
+            'description'   => $job->descriptor()->getValue('description'),
             'category'      => $job->descriptor()->getValue('category'),
             'handler_class' => \get_class($job),
             'name'          => $job->getName(),
@@ -88,8 +88,15 @@ class JobsRegistry extends Model
         ];
 
         $model = $this->findJob($job->getName());
-        
-        $result = ($model == null) ? $this->create($data) : $model->update($data);
+        if ($model == null) {
+            $model = $this->create($data);
+        } else {
+            $model->update($data);
+        }
+       
+        // save properties
+        $parameters = $job->descriptor()->collection('parameters')->getValues();
+        $result = $model->saveOptions($parameters);
 
         return ($result !== false);
     }
